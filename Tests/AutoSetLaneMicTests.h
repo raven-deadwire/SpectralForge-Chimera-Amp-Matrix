@@ -2,12 +2,6 @@
 // Phase 30: the Dual rigs' and Matrix lanes' modeled cabinet mics (docs/AUTO_SET_PHASE30.md).
 // Included by AutoSetTests.cpp after the cabinet and lane IR tests (their helpers are used here).
 
-// MSVC only: these functions are compiled without optimisation. With them optimised, the Windows
-// compiler died while generating code for AutoSetTests.cpp (cl D8040, no diagnostic) from phase 29 on.
-// The analysis they call lives in Source/ and stays optimised.
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",off)
-#endif
 // A source through the modeled cabinet at a placement, as the engine plays it (the generated IR).
 std::vector<float> throughModeledMic(const std::vector<float>& x,double rate,const spectralforge::cabLayout::Settings& s,CabPlacement p,float gainDb=0) {
     auto y=convolve(x,spectralforge::cabLayout::generate(spectralforge::cabLayout::key(withPlacement(s,p)),rate));
@@ -92,10 +86,15 @@ spectralforge::cabLayout::Settings laneMicSettings(const std::function<void(Chim
 // The real processor's Dual rigs (the default heads), both through modeled mic A, rig 1's at a placement and level.
 std::pair<std::vector<float>,std::vector<float>> laneMicProcessorRigs(const std::vector<float>& x,CabPlacement mic1,float gain1) {
     auto q=std::make_unique<ChimeraProcessor>();q->setRateAndBufferSizeDetails(48000,256);
+    // The settings are a named vector and the loop reads .first/.second: MSVC 14.51 dies (cl D8040,
+    // no diagnostic) on a structured-binding loop over a braced initializer_list inside this lambda.
+    const std::vector<std::pair<juce::String,float>> settings{{"mode",1},{"dualtype",0},{"dualblend",.5f},{"cab1",1},{"cab2",1},{"cabblend1",0},{"cabblend2",0},
+                {"ocab1_Aon",1},{"ocab2_Aon",1},{"ocab1_Aposition",float(mic1.position)},{"ocab1_Adistance",float(mic1.distanceCm)},{"cabAgain1",gain1},{"ocab2_Aposition",.5f},{"ocab2_Adistance",10}};
     const auto setAll=[&]{
-        for(const auto& [id,v]:std::initializer_list<std::pair<juce::String,float>>{{"mode",1},{"dualtype",0},{"dualblend",.5f},{"cab1",1},{"cab2",1},{"cabblend1",0},{"cabblend2",0},
-                {"ocab1_Aon",1},{"ocab2_Aon",1},{"ocab1_Aposition",float(mic1.position)},{"ocab1_Adistance",float(mic1.distanceCm)},{"cabAgain1",gain1},{"ocab2_Aposition",.5f},{"ocab2_Adistance",10}})
-            q->parameters().getParameter(id)->setValueNotifyingHost(q->parameters().getParameter(id)->convertTo0to1(v));
+        for(const auto& setting:settings) {
+            auto* parameter=q->parameters().getParameter(setting.first);
+            parameter->setValueNotifyingHost(parameter->convertTo0to1(setting.second));
+        }
     };
     setAll();q->prepareToPlay(48000,256);setAll();
     juce::AudioBuffer<float> io(2,256);juce::MidiBuffer midi;
@@ -209,6 +208,3 @@ void controllerLaneMic() {
     std::cout<<"MEASURE auto set lane mic controller: "<<step->result<<" | 50%: "<<halfStep->result<<" | Matrix: "<<matrixStep->result<<'\n';
     std::cout<<"PASS auto set lane mic controller: off by default; Dual rig 1 and Matrix HIGH lane mics; level held; strength; Cabinet mic lock; cabinet off, blended, not modeled, silent, edited, Classic; IR and cut steps wait after a move; undo; real heads\n";
 }
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",on)
-#endif
