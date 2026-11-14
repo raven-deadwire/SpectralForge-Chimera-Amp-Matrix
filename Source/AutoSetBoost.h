@@ -98,4 +98,14 @@ inline BoostRenderer nativeBoostRenderer(const AmpNativeState& state,std::vector
         return out;
     };
 }
+// Phase 32: a Dual Blend plays the same input through two amps and mixes them.
+// The boost sits before both, so it is judged on that mix: each rig rendered
+// as nativeBoostRenderer does, weighted as the blend (and rig 2's polarity) mixes them.
+inline BoostRenderer blendedBoostRenderer(BoostRenderer rig1,BoostRenderer rig2,float weight1,float weight2) {
+    return [rig1=std::move(rig1),rig2=std::move(rig2),weight1,weight2](const std::optional<BoostSetting>& setting) {
+        auto out=rig1(setting);const auto other=rig2(setting);
+        for(size_t n=0;n<out.size();++n)out[n]=weight1*out[n]+weight2*(n<other.size()?other[n]:0.f);
+        return out;
+    };
+}
 } // namespace spectralforge::autoset
