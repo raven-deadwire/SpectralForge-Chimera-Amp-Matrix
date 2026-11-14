@@ -91,6 +91,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Lane cabinet IRs | Not applied: an IR is switched or kept, as for Cabinet IR |
 | Lane cabinet mics | The move of position and distance, as for Cabinet mic; the level then holds the loudness |
 | Lane mic blend (per rig or lane) | The BLEND change, as for Cabinet mic blend; the mic delays and polarity are applied whole |
+| Rig 1 amp, Rig 2 amp (Dual Blend) | Each knob's move, as for Amp |
 | Room ambience | A room that is on: its return change in dB, as for Amp. A room that is off is opened with its return lowered by 20 log10(strength), as a mix scales (25%: -12 dB); below the return's -36 dB it stays off |
 | Cabinet mic blend | The BLEND change, as for Amp; the mic delays and polarity are applied whole |
 | Stereo doubler | A spread change of a doubler that is on, as for Amp; switching it on is not scaled |

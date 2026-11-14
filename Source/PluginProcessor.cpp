@@ -546,7 +546,10 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const bool matrixLanes=autoSetCaptureState.listening(spectralforge::autoset::Tap::lane3);
     const int lanesWanted=value(mode)==1 && !matrixLanes ? 2 : value(mode)==2 && matrixLanes ? 3 : 0;
     const bool captureLanes=lanesWanted>0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::lane1);
-    engine.setLaneCapture(captureLanes);
+    // Phase 33 hears one Dual rig alone on the rig tap, from the same lane capture.
+    const int rigLane=autoSetRigLaneState.load(std::memory_order_acquire);
+    const bool captureRigLane=rigLane>=0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::cab);
+    engine.setLaneCapture(captureLanes || (captureRigLane && value(mode)==1));
     // Phase 18 listens to the Classic cabinet's mic A and mic B before their blend;
     // phase 31 to those of one Dual rig or Matrix lane at a time (the lane Auto Set chose).
     const int micLaneAsked=autoSetMicLaneState.load(std::memory_order_acquire),micLane=std::max(0,micLaneAsked);
@@ -579,7 +582,12 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Post-rig order mirrors the pre-rig one: Gate > Gate 2 > Expander.
     if(gate2.afterRig())gate2.apply(buffer,roomBus);
     if(expander.afterRig())expander.apply(buffer,roomBus);
-    autoSetCaptureState.push(spectralforge::autoset::Tap::cab,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
+    if(!captureRigLane)autoSetCaptureState.push(spectralforge::autoset::Tap::cab,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
+    else if(value(mode)==1 && engine.laneCaptureCount()==2) {
+        // Only blocks that played the Dual routing: a routing switch never mixes a rig with the whole sound.
+        const auto& rig=engine.laneOutput(rigLane);
+        autoSetCaptureState.push(spectralforge::autoset::Tap::cab,rig.getArrayOfReadPointers(),rig.getNumChannels(),rig.getNumSamples());
+    }
     // The wet return joins after the gates and before Tone EQ, so a tail
     // already in the room is not cut by a closing gate.
     if(room.running())room.process(roomBus,buffer);
