@@ -10,6 +10,9 @@ std::array<std::vector<float>,2> laneIRFactory(double rate) {
 float laneMixError(const std::vector<const std::vector<float>*>& lanes,const std::vector<double>& weights,double rate,Style style=Style::rock) {
     return ampToneErrorDb(measureSpectrum(laneMix(lanes,weights),rate,false),style);
 }
+#ifdef CHIMERA_PROBE_NO_LANE_IR_RULES
+void laneIRRules() {}
+#else
 void laneIRRules() {
     float worstPrediction=0,worstLevel=0;
     for(const double rate:{44100.,48000.,96000.}) {
@@ -74,6 +77,10 @@ void laneIRRules() {
     std::cout<<"MEASURE lane IR prediction vs rendered mix: worst "<<worstPrediction<<" dB, worst level "<<worstLevel<<" dB\n";
     std::cout<<"PASS auto set lane IR rules at 44.1/48/96 kHz: suited IR chosen and kept, lanes in order, correlated and inverted lanes, Matrix HIGH lane, silent, bass, silence, other sources, low end held, prediction vs render\n";
 }
+#endif
+#ifdef CHIMERA_PROBE_NO_LANE_IR_CONTROLLER
+void controllerLaneIR() {}
+#else
 // The real processor's Dual rigs (the default heads) with the given cabinet sources for mic A of rig 1 and rig 2.
 std::pair<std::vector<float>,std::vector<float>> laneIRProcessorRigs(const std::vector<float>& x,int source1,int source2) {
     auto q=std::make_unique<ChimeraProcessor>();q->setRateAndBufferSizeDetails(48000,256);
@@ -186,3 +193,4 @@ void controllerLaneIR() {
     std::cout<<"MEASURE auto set lane IR controller: "<<step->result<<" | Matrix: "<<matrixStep->result<<'\n';
     std::cout<<"PASS auto set lane IR controller: off by default; Dual rig 1 and Matrix LOW lane IRs; mic B; strength not applied; Cabinet IR lock; cabinet off, blended, modeled, filters only, user IR, silent, edited, bass, Classic; cuts wait after a switch; undo; real heads\n";
 }
+#endif

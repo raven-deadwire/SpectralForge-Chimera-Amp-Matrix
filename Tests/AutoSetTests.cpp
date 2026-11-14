@@ -1812,7 +1812,12 @@ void controllerGateStageEditHistory() {
 #include "AutoSetCutsTests.h"
 #include "AutoSetLaneCutsTests.h"
 #include "AutoSetRig1CutsTests.h"
+#ifndef CHIMERA_PROBE_NO_LANE_IR_TESTS
 #include "AutoSetLaneIRTests.h"
+#else
+void laneIRRules() {}
+void controllerLaneIR() {}
+#endif
 #include "AutoSetBusTests.h"
 #include "AutoSetBusOrderControllerTests.h"
 #include "AutoSetCabEditTests.h"
