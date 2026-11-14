@@ -2,6 +2,12 @@
 // Phase 30: the Dual rigs' and Matrix lanes' modeled cabinet mics (docs/AUTO_SET_PHASE30.md).
 // Included by AutoSetTests.cpp after the cabinet and lane IR tests (their helpers are used here).
 
+// MSVC only: these functions are compiled without optimisation. With them optimised, the Windows
+// compiler died while generating code for AutoSetTests.cpp (cl D8040, no diagnostic) from phase 29 on.
+// The analysis they call lives in Source/ and stays optimised.
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma optimize("",off)
+#endif
 // A source through the modeled cabinet at a placement, as the engine plays it (the generated IR).
 std::vector<float> throughModeledMic(const std::vector<float>& x,double rate,const spectralforge::cabLayout::Settings& s,CabPlacement p,float gainDb=0) {
     auto y=convolve(x,spectralforge::cabLayout::generate(spectralforge::cabLayout::key(withPlacement(s,p)),rate));
@@ -203,3 +209,6 @@ void controllerLaneMic() {
     std::cout<<"MEASURE auto set lane mic controller: "<<step->result<<" | 50%: "<<halfStep->result<<" | Matrix: "<<matrixStep->result<<'\n';
     std::cout<<"PASS auto set lane mic controller: off by default; Dual rig 1 and Matrix HIGH lane mics; level held; strength; Cabinet mic lock; cabinet off, blended, not modeled, silent, edited, Classic; IR and cut steps wait after a move; undo; real heads\n";
 }
+#if defined(_MSC_VER) && !defined(__clang__)
+#pragma optimize("",on)
+#endif
