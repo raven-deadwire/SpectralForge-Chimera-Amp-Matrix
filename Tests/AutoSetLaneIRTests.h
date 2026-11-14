@@ -2,12 +2,6 @@
 // Phase 29: the Dual rigs' and Matrix lanes' factory cabinet IRs (docs/AUTO_SET_PHASE29.md).
 // Included by AutoSetTests.cpp after the cabinet IR and lane cuts tests (their helpers are used here).
 
-// MSVC only: these functions are compiled without optimisation. With them optimised, the Windows
-// compiler died while generating code for AutoSetTests.cpp (cl D8040, no diagnostic) from phase 29 on.
-// The analysis they call lives in Source/ and stays optimised.
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",off)
-#endif
 std::array<std::vector<float>,2> laneIRFactory(double rate) {
     std::array<std::vector<float>,2> loaded;
     for(int i=0;i<2;++i){const auto ir=spectralforge::IRLibrary::factoryIR(i);check(ir!=nullptr,"Factory IR missing");loaded[size_t(i)]=laneIRLoaded(ir->samples,ir->rate,rate);}
@@ -83,10 +77,15 @@ void laneIRRules() {
 // The real processor's Dual rigs (the default heads) with the given cabinet sources for mic A of rig 1 and rig 2.
 std::pair<std::vector<float>,std::vector<float>> laneIRProcessorRigs(const std::vector<float>& x,int source1,int source2) {
     auto q=std::make_unique<ChimeraProcessor>();q->setRateAndBufferSizeDetails(48000,256);
+    // The settings are a named vector and the loop reads .first/.second: MSVC 14.51 dies (cl D8040,
+    // no diagnostic) on a structured-binding loop over a braced initializer_list inside this lambda.
+    const std::vector<std::pair<juce::String,float>> settings{{"mode",1},{"dualtype",0},{"dualblend",.5f},{"cab1",1},{"cab2",1},{"cabblend1",0},{"cabblend2",0},
+                {spectralforge::originalCabID(0,"Aon"),0},{spectralforge::originalCabID(1,"Aon"),0},{"cabtype1",float(source1)},{"cabtype2",float(source2)}};
     const auto setAll=[&]{
-        for(const auto& [id,v]:std::initializer_list<std::pair<juce::String,float>>{{"mode",1},{"dualtype",0},{"dualblend",.5f},{"cab1",1},{"cab2",1},{"cabblend1",0},{"cabblend2",0},
-                {spectralforge::originalCabID(0,"Aon"),0},{spectralforge::originalCabID(1,"Aon"),0},{"cabtype1",float(source1)},{"cabtype2",float(source2)}})
-            q->parameters().getParameter(id)->setValueNotifyingHost(q->parameters().getParameter(id)->convertTo0to1(v));
+        for(const auto& setting:settings) {
+            auto* parameter=q->parameters().getParameter(setting.first);
+            parameter->setValueNotifyingHost(parameter->convertTo0to1(setting.second));
+        }
     };
     setAll();q->prepareToPlay(48000,256);setAll();
     juce::AudioBuffer<float> io(2,256);juce::MidiBuffer midi;
@@ -192,6 +191,3 @@ void controllerLaneIR() {
     std::cout<<"MEASURE auto set lane IR controller: "<<step->result<<" | Matrix: "<<matrixStep->result<<'\n';
     std::cout<<"PASS auto set lane IR controller: off by default; Dual rig 1 and Matrix LOW lane IRs; mic B; strength not applied; Cabinet IR lock; cabinet off, blended, modeled, filters only, user IR, silent, edited, bass, Classic; cuts wait after a switch; undo; real heads\n";
 }
-#if defined(_MSC_VER) && !defined(__clang__)
-#pragma optimize("",on)
-#endif
