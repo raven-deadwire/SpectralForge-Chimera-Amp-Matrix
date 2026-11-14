@@ -10,6 +10,7 @@
 #include "AutoSetCrossover.h"
 #include "AutoSetRoom.h"
 #include "AutoSetLaneCuts.h"
+#include "AutoSetLaneIR.h"
 #include "AutoSetBoost.h"
 #include "AutoSetSpace.h"
 #include "AutoSetPower.h"
@@ -65,7 +66,7 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim,crossover,room,laneCuts,rig1Cuts};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim,crossover,room,laneCuts,rig1Cuts,laneIR};
     // Settings Auto Set must keep as they are: their parameters are neither
     // written nor restored by UNDO AUTO, and a pass whose outputs are all locked
     // is skipped. The gate lock also covers Gate 2 and the Expander; the Tone EQ
@@ -99,7 +100,7 @@ public:
     // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass; off by default.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool laneCuts{false};bool rig1Cuts{false};bool skipForVoiceOrDrums{false};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool laneCuts{false};bool rig1Cuts{false};bool laneIR{false};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -113,7 +114,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";case Phase::crossover:return "Matrix crossovers";case Phase::room:return "Room ambience";case Phase::laneCuts:return "Lane cabinet cuts";case Phase::rig1Cuts:return "Rig 1 / LOW lane cabinet cuts";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";case Phase::crossover:return "Matrix crossovers";case Phase::room:return "Room ambience";case Phase::laneCuts:return "Lane cabinet cuts";case Phase::rig1Cuts:return "Rig 1 / LOW lane cabinet cuts";case Phase::laneIR:return "Lane cabinet IRs";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -176,7 +177,7 @@ public:
         // Phase 22 turns on the delay's tempo sync, following the host tempo.
         add(lockSync,{"delaysync","temposync"});
         // Phase 23 chooses the Classic rig's factory IR for mic A or mic B.
-        add(lockCabIR,{"cabtype1","cabBtype1"});
+        add(lockCabIR,{"cabtype1","cabBtype1","cabtype2","cabBtype2","cabtype3","cabBtype3"});
         // Phase 25 moves the Matrix crossovers X1 and X2.
         add(lockCrossover,{"x1","x2"});
         // Phase 26 sets the Room Core room (and opens its sends when all are at 0).
@@ -221,7 +222,7 @@ public:
         if(busy())return;
         runOptions=options;
         inputRevision=editsFor(*processor.parameters().getParameter("input")).revision();
-        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastTrim={};lastCrossover={};lastRoom={};lastLaneCuts={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
+        snapshot.clear();dynamicNodeGroups.clear();finalNodeGroups.clear();summary.clear();steps.clear();lastGates={};lastTone={};lastDynamic={};lastLevel={};lastAmp={};lastPower={};lastCab={};lastBoost={};lastSpace={};lastDual={};lastMatrix={};lastMics={};lastRigs={};lastChannel={};lastPolarity={};lastSync={};lastCabIR={};lastTrim={};lastCrossover={};lastRoom={};lastLaneCuts={};lastLaneIR={};lastWidth={};lastCuts={};lastBus={};widthSamples.clear();spaceWindows.clear();lastFinish={};lastMultiband={};lastInstrument={};manualEditsKept=false;lockedPhases.clear();
         // Locked settings stay out of the snapshot, so set() never writes them.
         for(const auto& [id,lock]:touchedIDs)if(!locked(lock))if(auto* parameter=processor.parameters().getParameter(id))
             snapshot.push_back(takeSnapshot(*parameter));
@@ -287,7 +288,12 @@ public:
                 else lockedPhases.push_back({Phase::crossover,"Classic or Dual routing: no Matrix crossovers"});
             }
         }
-        // Phases 27 and 28 run in the Dual or the Matrix pass; phase 28 (rig 1 / the LOW lane) is reported first.
+        // Phases 27 to 29 run in the Dual or the Matrix pass; phase 29 (the lanes' IRs) is reported first, then phase 28 (rig 1 / the LOW lane).
+        if(runOptions.laneIR && !(routing==1 && (dualStepRuns() || rigsStepRuns() || polarityStepRuns() || passCutsRun()))
+                             && !(routing==2 && (matrixStepRuns() || polarityStepRuns() || crossoverStepRuns() || passCutsRun()))) {
+            if(locked(lockCabIR))lockedPhases.push_back(Phase::laneIR);
+            else lockedPhases.push_back({Phase::laneIR,"Classic routing: the Cabinet factory IR choice step sets rig 1"});
+        }
         if(runOptions.rig1Cuts && !(routing==1 && (dualStepRuns() || rigsStepRuns() || polarityStepRuns() || passCutsRun()))
                                && !(routing==2 && (matrixStepRuns() || polarityStepRuns() || crossoverStepRuns() || passCutsRun()))) {
             if(locked(lockCuts))lockedPhases.push_back(Phase::rig1Cuts);
@@ -483,11 +489,11 @@ private:
         else if(status.phase==Phase::cab){cabAtStart=cabTarget();cabIRAtStart=cabSources();cutsAtStart={raw("cablow1"),raw("cabhigh1")};capture.listen(Tap::cab);}
         else if(status.phase==Phase::boost){boostAtStart=boostTarget();capture.listen({Tap::amp,Tap::cab});}
         // The Dual pass hears each rig before the blend (lane2 shares the amp tap's ring).
-        else if(status.phase==Phase::dual){dualAtStart=dualTarget();polarityAtStart=lanePolarity();laneCutsAtStart=laneCuts();rig1CutsAtStart=rig1Cuts();capture.listen({Tap::lane1,Tap::lane2});}
+        else if(status.phase==Phase::dual){dualAtStart=dualTarget();polarityAtStart=lanePolarity();laneCutsAtStart=laneCuts();rig1CutsAtStart=rig1Cuts();laneCabAtStart=laneCabs();capture.listen({Tap::lane1,Tap::lane2});}
         // The Matrix pass hears each lane (lane3 has a ring of its own).
         // The mics pass hears mic A (sample ring) and mic B (lane3's ring).
         else if(status.phase==Phase::mics){micsAtStart=cabTarget();capture.listen({Tap::micA,Tap::micB});}
-        else if(status.phase==Phase::matrix){matrixAtStart=matrixTarget();laneCutsAtStart=laneCuts();rig1CutsAtStart=rig1Cuts();crossoverAtStart={raw("x1"),raw("x2")};polarityAtStart=lanePolarity();capture.listen({Tap::lane1,Tap::lane2,Tap::lane3});}
+        else if(status.phase==Phase::matrix){matrixAtStart=matrixTarget();laneCutsAtStart=laneCuts();rig1CutsAtStart=rig1Cuts();laneCabAtStart=laneCabs();crossoverAtStart={raw("x1"),raw("x2")};polarityAtStart=lanePolarity();capture.listen({Tap::lane1,Tap::lane2,Tap::lane3});}
         else if(status.phase==Phase::multiband)capture.listen(Tap::multiband);
         else if(status.phase==Phase::finish){
             busAtStart=busTarget();busReadSnapshot.clear();
@@ -525,7 +531,15 @@ private:
     bool laneCutsStepRuns() const noexcept {return runOptions.laneCuts && !locked(lockLaneCuts);}
     // Phase 28 moves cablow1/cabhigh1, the Cabinet cuts lock's parameters.
     bool rig1CutsStepRuns() const noexcept {return runOptions.rig1Cuts && !locked(lockCuts);}
-    bool passCutsRun() const noexcept {return laneCutsStepRuns() || rig1CutsStepRuns();}
+    // Phase 29 switches the lanes' cabinet sources, the Cabinet IR lock's parameters.
+    bool laneIRStepRuns() const noexcept {return runOptions.laneIR && !locked(lockCabIR);}
+    // The result steps that judge the lanes' cabinets in the Dual or the Matrix pass (phases 27 to 29).
+    bool passCutsRun() const noexcept {return laneCutsStepRuns() || rig1CutsStepRuns() || laneIRStepRuns();}
+    juce::String passCabinetSteps(bool dualPass) const {
+        const bool rig1=rig1CutsStepRuns(),others=laneCutsStepRuns();
+        const juce::String cuts=rig1&&others?"cabinet cuts":others?(dualPass?"rig 2 cabinet cuts":"lane cabinet cuts"):rig1?(dualPass?"rig 1 cabinet cuts":"LOW lane cabinet cuts"):"";
+        return !laneIRStepRuns()?cuts:cuts.isEmpty()?juce::String("cabinet IRs"):juce::String("cabinet IRs and cuts");
+    }
     bool dualStepRuns() const noexcept {return runOptions.dual && !locked(lockDual);}
     bool matrixStepRuns() const noexcept {return runOptions.matrix && !locked(lockMatrix);}
     bool polarityStepRuns() const noexcept {return runOptions.polarity && !locked(lockPolarity);}
@@ -538,8 +552,8 @@ private:
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
-        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::cab:return 7;case Phase::cabIR:return 8;case Phase::cuts:return 9;case Phase::mics:return 10;case Phase::polarity:return 11;case Phase::rigs:return 12;case Phase::dual:return 13;case Phase::matrix:return 14;case Phase::crossover:return 15;case Phase::rig1Cuts:return 16;case Phase::laneCuts:return 17;case Phase::room:return 18;case Phase::tone:return 19;case Phase::dynamicEQ:return 20;
-            case Phase::compressor:return 21;case Phase::multiband:return 22;case Phase::finish:return 23;case Phase::bus:return 24;case Phase::sync:return 25;case Phase::space:return 26;case Phase::width:return 27;case Phase::level:return 28;default:return 29;}
+        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::cab:return 7;case Phase::cabIR:return 8;case Phase::cuts:return 9;case Phase::mics:return 10;case Phase::polarity:return 11;case Phase::rigs:return 12;case Phase::dual:return 13;case Phase::matrix:return 14;case Phase::crossover:return 15;case Phase::laneIR:return 16;case Phase::rig1Cuts:return 17;case Phase::laneCuts:return 18;case Phase::room:return 19;case Phase::tone:return 20;case Phase::dynamicEQ:return 21;
+            case Phase::compressor:return 22;case Phase::multiband:return 23;case Phase::finish:return 24;case Phase::bus:return 25;case Phase::sync:return 26;case Phase::space:return 27;case Phase::width:return 28;case Phase::level:return 29;default:return 30;}
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -554,9 +568,9 @@ private:
         if(status.phase==Phase::amp)return step+"keep playing as you normally would, soft and hard, for the amp's "+ampTargetText()+"...";
         if(status.phase==Phase::cab)return step+"keep playing across the neck for the "+juce::String(cabStepRuns()&&cutsStepRuns()?"cabinet mic and cuts":cutsStepRuns()?"cabinet cuts":cabStepRuns()?"cabinet mic":"cabinet IR")+"...";
         if(status.phase==Phase::boost)return step+"keep playing, including low notes and chords, for the boost pedal...";
-        if(status.phase==Phase::dual)return step+"keep playing as you normally would, across the neck, for the Dual "+juce::String(!rigsStepRuns()&&!dualStepRuns()&&passCutsRun()?(!rig1CutsStepRuns()?"rig 2 cabinet cuts":!laneCutsStepRuns()?"rig 1 cabinet cuts":"cabinet cuts"):raw("dualtype")>.5f?"crossover":rigsStepRuns()&&dualStepRuns()?"rig levels and blend":rigsStepRuns()?"rig levels":"blend")+"...";
+        if(status.phase==Phase::dual)return step+"keep playing as you normally would, across the neck, for the Dual "+juce::String(!rigsStepRuns()&&!dualStepRuns()&&passCutsRun()?passCabinetSteps(true):raw("dualtype")>.5f?"crossover":rigsStepRuns()&&dualStepRuns()?"rig levels and blend":rigsStepRuns()?"rig levels":"blend")+"...";
         if(status.phase==Phase::mics)return step+"keep playing across the neck, low notes and chords, for the cabinet's two mics...";
-        if(status.phase==Phase::matrix)return step+"keep playing as you normally would, low notes to high, for the Matrix "+juce::String(!matrixStepRuns()&&!crossoverStepRuns()&&passCutsRun()?(!rig1CutsStepRuns()?"lane cabinet cuts":!laneCutsStepRuns()?"LOW lane cabinet cuts":"cabinet cuts"):matrixStepRuns()&&crossoverStepRuns()?"lane levels and crossovers":crossoverStepRuns()?"crossovers":"lane levels")+"...";
+        if(status.phase==Phase::matrix)return step+"keep playing as you normally would, low notes to high, for the Matrix "+juce::String(!matrixStepRuns()&&!crossoverStepRuns()&&passCutsRun()?passCabinetSteps(false):matrixStepRuns()&&crossoverStepRuns()?"lane levels and crossovers":crossoverStepRuns()?"crossovers":"lane levels")+"...";
         if(status.phase==Phase::tone)return step+"keep playing across the neck for the "+toneTarget()+"...";
         if(status.phase==Phase::multiband)return step+"keep playing, low notes and hard picking, for the multiband...";
         if(status.phase==Phase::finish)return step+"keep playing, with some hard picking, for the "+juce::String(finishStepRuns()&&busStepRuns()?"de-esser, limiter and bus compressor":busStepRuns()?"bus compressor":"de-esser and limiter")+"...";
@@ -642,12 +656,14 @@ private:
                 if(polarityStepRuns())lockedPhases.push_back({Phase::polarity,why});
                 if(rigsStepRuns())lockedPhases.push_back({Phase::rigs,why});
                 if(dualStepRuns())lockedPhases.push_back({Phase::dual,why});
+                if(laneIRStepRuns())lockedPhases.push_back({Phase::laneIR,why});
                 if(rig1CutsStepRuns())lockedPhases.push_back({Phase::rig1Cuts,why});
                 if(laneCutsStepRuns())lockedPhases.push_back({Phase::laneCuts,why});
             } else if(p==Phase::matrix) {
                 if(polarityStepRuns())lockedPhases.push_back({Phase::polarity,why});
                 if(matrixStepRuns())lockedPhases.push_back({Phase::matrix,why});
                 if(crossoverStepRuns())lockedPhases.push_back({Phase::crossover,why});
+                if(laneIRStepRuns())lockedPhases.push_back({Phase::laneIR,why});
                 if(rig1CutsStepRuns())lockedPhases.push_back({Phase::rig1Cuts,why});
                 if(laneCutsStepRuns())lockedPhases.push_back({Phase::laneCuts,why});
             }
@@ -1147,11 +1163,11 @@ private:
                 dualStep(rig1,scaled);
             }
         }
-        // Phases 27 and 28 last: they hear the rigs as the steps above left them mixed.
-        if(runOptions.laneCuts || runOptions.rig1Cuts) {
+        // Phases 27 to 29 last: they hear the rigs as the steps above left them mixed.
+        if(runOptions.laneCuts || runOptions.rig1Cuts || runOptions.laneIR) {
             const bool crossover=raw("dualtype")>.5f;const float blend=raw("dualblend");
             const double rig2Gain=double(juce::Decibels::decibelsToGain(appliedDb))*(rig2==&rig2In?1.:-1.);
-            laneCutsStep({&rig1,&rig2In},{crossover?1.:1.-blend,(crossover?1.:double(blend))*rig2Gain});
+            laneCabinetSteps({&rig1,&rig2In},{crossover?1.:1.-blend,(crossover?1.:double(blend))*rig2Gain},false);
         }
         nextPass();
     }
@@ -1278,13 +1294,10 @@ private:
         if(runOptions.matrix)matrixStep(low,*mid,*high);
         const std::array<float,2> splitBefore{raw("x1"),raw("x2")};
         if(runOptions.crossover)crossoverStep(low,*mid,*high,{0.f,raw(matrixLevelID(1))-levelsBefore[0],raw(matrixLevelID(2))-levelsBefore[1]});
-        // Phases 27 and 28 last, at the levels phase 17 set; a moved split changes what each lane plays.
-        if(runOptions.laneCuts || runOptions.rig1Cuts) {
-            if(splitBefore!=std::array<float,2>{raw("x1"),raw("x2")}) {
-                if(runOptions.rig1Cuts)keepLaneCuts("the Matrix crossovers moved in this run: run Auto Set again to judge the lane cuts",Phase::rig1Cuts);
-                if(runOptions.laneCuts)keepLaneCuts("the Matrix crossovers moved in this run: run Auto Set again to judge the lane cuts");
-            } else laneCutsStep({&low,mid,high},{1.,double(juce::Decibels::decibelsToGain(raw(matrixLevelID(1))-levelsBefore[0])),double(juce::Decibels::decibelsToGain(raw(matrixLevelID(2))-levelsBefore[1]))});
-        }
+        // Phases 27 to 29 last, at the levels phase 17 set; a moved split changes what each lane plays.
+        if(runOptions.laneCuts || runOptions.rig1Cuts || runOptions.laneIR)
+            laneCabinetSteps({&low,mid,high},{1.,double(juce::Decibels::decibelsToGain(raw(matrixLevelID(1))-levelsBefore[0])),double(juce::Decibels::decibelsToGain(raw(matrixLevelID(2))-levelsBefore[1]))},
+                             splitBefore!=std::array<float,2>{raw("x1"),raw("x2")});
         nextPass();
     }
     void matrixStep(const std::vector<float>& low,const std::vector<float>& mid,const std::vector<float>& high) {
@@ -1337,6 +1350,79 @@ private:
         const juce::String move="X1 "+hz(r.x1Before)+" > "+hz(raw("x1"))+", X2 "+hz(r.x2Before)+" > "+hz(raw("x2"));
         summary+=" | Matrix "+move;
         steps.push_back({Phase::crossover,move+"; tone error "+juce::String(r.toneErrorBeforeDb,1)+" > "+juce::String(r.toneErrorAfterDb,1)+" dB (predicted from the lanes heard; approximate for driven lanes)",true});
+    }
+    // The Dual or Matrix pass's cabinet result steps: the IRs (phase 29), then the cuts (phases 28 and 27).
+    // The cuts are judged from captures: after a moved split or a switched IR they wait for the next run.
+    void laneCabinetSteps(const std::vector<const std::vector<float>*>& lanes,const std::vector<double>& weights,bool splitMoved) {
+        const juce::String again="the Matrix crossovers moved in this run: run Auto Set again to judge the lane ";
+        bool switched=false;
+        if(runOptions.laneIR){if(splitMoved)keepLaneIR(again+"IRs");else switched=laneIRStep(lanes,weights);}
+        if(!runOptions.laneCuts && !runOptions.rig1Cuts)return;
+        const juce::String why=splitMoved?again+"cuts":switched?juce::String("a cabinet IR was switched in this run: run Auto Set again to judge the cuts"):juce::String();
+        if(why.isEmpty()){laneCutsStep(lanes,weights);return;}
+        if(runOptions.rig1Cuts)keepLaneCuts(why,Phase::rig1Cuts);
+        if(runOptions.laneCuts)keepLaneCuts(why);
+    }
+    // Phase 29: the factory IR of each Dual rig's or Matrix lane's heard mic.
+    struct LaneCab {bool on{};int mic{-1};uint64_t key{};std::array<int,2> sources{};bool operator==(const LaneCab&) const=default;};
+    LaneCab laneCab(int lane) const {
+        LaneCab c;const auto n=juce::String(lane+1);
+        c.on=raw("cab"+n)>.5f;c.sources={juce::roundToInt(raw("cabtype"+n)),juce::roundToInt(raw("cabBtype"+n))};
+        const bool modelA=raw(originalCabID(lane,"Aon"))>.5f,modelB=raw(originalCabID(lane,"Bon"))>.5f;
+        const float blend=cabMicRouting(modelA,modelB,c.sources[0],c.sources[1],raw("cabblend"+n)).blend;
+        c.mic=blend<=0.f?0:blend>=1.f?1:-1;
+        if(c.mic>=0)c.key=OriginalCabParameters::savedKey(lane,c.mic,[this](const juce::String& id){return raw(id);});
+        return c;
+    }
+    std::array<LaneCab,3> laneCabs() const {return {laneCab(0),laneCab(1),laneCab(2)};}
+    void keepLaneIR(const juce::String& why) {summary+=" | Lane cab IRs unchanged ("+why+")";steps.push_back({Phase::laneIR,"kept ("+why+")",false});}
+    // Returns whether an IR was switched.
+    bool laneIRStep(const std::vector<const std::vector<float>*>& lanes,const std::vector<double>& weights) {
+        const int mode=juce::jlimit(0,2,juce::roundToInt(raw("mode")));
+        const auto name=[mode](int rig){return mode==1?"rig "+juce::String(rig):juce::String(rig==1?"LOW lane":rig==2?"MID lane":"HIGH lane");};
+        if(locked(lockCabIR)){keepLaneIR("locked");return false;}
+        if(mode==1 ? !(dualTarget()==dualAtStart) : !(matrixTarget()==matrixAtStart)){keepLaneIR("routing, Dual type or a lane's head changed while listening");return false;}
+        if(mode==0){keepLaneIR("Classic routing: the Cabinet factory IR choice step sets rig 1");return false;}
+        if(laneCabs()!=laneCabAtStart){keepLaneIR("a cabinet, mic or IR changed while listening");return false;}
+        // The lanes whose heard mic plays a factory IR.
+        std::vector<std::pair<int,int>> candidates;juce::StringArray kept;
+        for(int rig=1;rig<=(mode==1?2:3);++rig) {
+            const auto& c=laneCabAtStart[size_t(rig-1)];
+            if(!c.on){kept.add(name(rig)+" cabinet off");continue;}
+            if(c.mic<0){kept.add(name(rig)+" blends two mics");continue;}
+            if(c.key!=0){kept.add(name(rig)+" plays a modeled mic");continue;}
+            const int source=c.sources[size_t(c.mic)];
+            if(source==0){kept.add(name(rig)+" is filters only");continue;}
+            if(source==3){kept.add(name(rig)+" plays a user IR");continue;}
+            candidates.push_back({rig-1,source});
+        }
+        if(candidates.empty()){keepLaneIR(kept.joinIntoString(", "));return false;}
+        const auto v30=IRLibrary::factoryIR(0),jensen=IRLibrary::factoryIR(1);
+        if(!v30 || !jensen){keepLaneIR("the factory IRs could not be read");return false;}
+        const auto r=analyseLaneIR(lanes,weights,candidates,rate(),{laneIRLoaded(v30->samples,v30->rate,rate()),laneIRLoaded(jensen->samples,jensen->rate,rate())},chosenInstrument(),runOptions.style);
+        lastLaneIR=r;
+        if(!r.playingDetected){keepLaneIR("no playing heard");return false;}
+        if(r.bass){keepLaneIR("bass: both factory IRs are guitar cabinets");return false;}
+        juce::StringArray moves;float before=0,after=0,level=0;
+        for(const auto& c:r.lanes) {
+            const int rig=c.lane+1;
+            if(!c.heard){kept.add(name(rig)+" silent");continue;}
+            if(c.lowEndHeld){kept.add(name(rig)+": "+cabIRName(c.otherSource)+" would balance closer ("+juce::String(c.toneErrorBeforeDb,1)+" > "+juce::String(c.toneErrorAfterDb,1)
+                                      +" dB) but cut 44-71 Hz, the low strings' fundamentals, by "+juce::String(-c.lowEndChangeDb,1)+" dB");continue;}
+            if(!c.changed()){kept.add(name(rig)+" already closest with "+cabIRName(c.before));continue;}
+            const int mic=laneCabAtStart[size_t(c.lane)].mic;
+            const juce::String id=juce::String(mic?"cabBtype":"cabtype")+juce::String(rig);
+            set(id,float(c.proposed));
+            if(juce::roundToInt(raw(id))!=c.proposed){kept.add(name(rig)+" IR source edited while applying");continue;}
+            if(moves.isEmpty())before=c.toneErrorBeforeDb;
+            after=c.toneErrorAfterDb;level=c.levelChangeDb;
+            moves.add(name(rig)+" mic "+(mic?"B":"A")+" IR "+cabIRName(c.before)+" > "+cabIRName(c.proposed));
+        }
+        if(moves.isEmpty()){keepLaneIR("guitar "+juce::String(styleName(runOptions.style))+": "+kept.joinIntoString(", "));return false;}
+        summary+=" | Lane cab IRs "+moves.joinIntoString(", ");
+        steps.push_back({Phase::laneIR,moves.joinIntoString(", ")+"; balance off by "+juce::String(before,1)+" > "+juce::String(after,1)+" dB; level "+(level>=0?"+":"")+juce::String(level,1)
+            +" dB (predicted from the mix heard; the Final EQ + output step sets the level)"+(kept.isEmpty()?juce::String():"; "+kept.joinIntoString(", ")),true});
+        return true;
     }
     // Phase 27: the cabinet cuts of Dual rig 2 or the Matrix MID and HIGH lanes.
     // Phase 28: those of Dual rig 1 or the Matrix LOW lane (cablow1/cabhigh1),
@@ -1510,7 +1596,7 @@ private:
         const auto t=cabTarget();
         if(locked(lockCabIR)){keep("locked");return;}
         if(!(t==cabAtStart) || cabSources()!=cabIRAtStart){keep("cabinet, mic or IR changed while listening");return;}
-        if(t.mode!=0){keep("Dual and Matrix routing: choose those rigs' IRs in the full editor");return;}
+        if(t.mode!=0){keep("Dual and Matrix routing: the lane cabinet IRs step chooses those rigs' IRs");return;}
         if(!t.on){keep("the cabinet is switched off");return;}
         if(t.mic<0){keep("two mics are blended; set the blend fully to one mic to let Auto Set choose its IR");return;}
         const juce::String mic=t.mic?"B":"A";
@@ -2034,6 +2120,7 @@ public:
     const CrossoverResult& lastCrossoverAnalysis() const noexcept {return lastCrossover;}
     const RoomResult& lastRoomAnalysis() const noexcept {return lastRoom;}
     const LaneCutsResult& lastLaneCutsAnalysis() const noexcept {return lastLaneCuts;}
+    const LaneIRResult& lastLaneIRAnalysis() const noexcept {return lastLaneIR;}
     const MatrixResult& lastMatrixAnalysis() const noexcept {return lastMatrix;}
     const MicsResult& lastMicsAnalysis() const noexcept {return lastMics;}
     const WidthResult& lastWidthAnalysis() const noexcept {return lastWidth;}
@@ -2058,7 +2145,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
-    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};RoomResult lastRoom;bool roomPending{};LaneCutsResult lastLaneCuts;std::array<float,4> laneCutsAtStart{};std::array<float,2> rig1CutsAtStart{};std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
+    juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};RoomResult lastRoom;bool roomPending{};LaneCutsResult lastLaneCuts;std::array<float,4> laneCutsAtStart{};std::array<float,2> rig1CutsAtStart{};std::array<LaneCab,3> laneCabAtStart{};LaneIRResult lastLaneIR;std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
 }
