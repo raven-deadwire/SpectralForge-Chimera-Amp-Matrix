@@ -18,7 +18,7 @@ Presence + resonance (phase 12, `AUTO_SET_PHASE12.md`: the head's PRESENCE
 and RESONANCE or DEPTH), Dual blend (phase 13, `AUTO_SET_PHASE13.md`: the
 Dual BLEND and CROSSOVER), Stereo doubler (phase 14, `AUTO_SET_PHASE14.md`:
 DOUBLER and its spread), Cabinet cuts (phase 15, `AUTO_SET_PHASE15.md`:
-the Classic rig's LOW and HIGH cuts), Bus compressor (phase 16,
+the Classic rig's LOW and HIGH cuts; also phase 28's Dual rig 1 and Matrix LOW lane step, `AUTO_SET_PHASE28.md`), Bus compressor (phase 16,
 `AUTO_SET_PHASE16.md`: the POST Console VCA) Matrix levels (phase 17,
 `AUTO_SET_PHASE17.md`: the Matrix MID and HIGH lane levels), Cabinet mic
 blend (phase 18, `AUTO_SET_PHASE18.md`: the Classic cabinet's mic delays,
@@ -86,6 +86,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Matrix levels | Each lane level change in dB, as for Amp |
 | Matrix crossovers | The X1 and X2 moves in octaves (each to the nearest 1 Hz) |
 | Lane cabinet cuts | Each cut's change in Hz, as for Cabinet cuts |
+| Rig 1 / LOW lane cabinet cuts | Each cut's change in Hz, as for Cabinet cuts |
 | Room ambience | A room that is on: its return change in dB, as for Amp. A room that is off is opened with its return lowered by 20 log10(strength), as a mix scales (25%: -12 dB); below the return's -36 dB it stays off |
 | Cabinet mic blend | The BLEND change, as for Amp; the mic delays and polarity are applied whole |
 | Stereo doubler | A spread change of a doubler that is on, as for Amp; switching it on is not scaled |
