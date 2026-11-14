@@ -546,11 +546,13 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     // Phase 33 hears one Dual rig alone on the rig tap, from the same lane capture.
     const int rigLane=autoSetRigLaneState.load(std::memory_order_acquire);
     const bool captureRigLane=rigLane>=0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::cab);
-    engine.setLaneCapture(captureLanes || (captureRigLane && value(mode)==1));
+    // Phase 40 hears one Matrix lane alone the same way.
+    const bool rigLanePlays=captureRigLane && (value(mode)==1 ? rigLane<2 : value(mode)==2);
+    engine.setLaneCapture(captureLanes || rigLanePlays);
     // Auto Set's amp tap reads what the amps receive, the SYNTH insert included,
     // so its offline amp render matches the amp the cab tap hears.
-    // Phase 37 hears there, instead, the band one Dual Crossover rig's amp receives.
-    const bool captureRigInput=captureRigLane && dualCross;
+    // Phases 37 and 40 hear there, instead, the band one Dual Crossover rig's or one Matrix lane's amp receives.
+    const bool captureRigInput=rigLanePlays && (dualCross || value(mode)==2);
     engine.setLaneInputCapture(captureRigInput);
     if(!captureRigInput)autoSetCaptureState.push(spectralforge::autoset::Tap::amp,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
     // Phase 18 listens to the Classic cabinet's mic A and mic B before their blend;
@@ -586,9 +588,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     if(gate2.afterRig())gate2.apply(buffer,roomBus);
     if(expander.afterRig())expander.apply(buffer,roomBus);
     if(!captureRigLane)autoSetCaptureState.push(spectralforge::autoset::Tap::cab,buffer.getArrayOfReadPointers(),buffer.getNumChannels(),buffer.getNumSamples());
-    else if(value(mode)==1 && engine.laneCaptureCount()==2 && (!captureRigInput || engine.laneInputsFilled())) {
-        // Only blocks that played the Dual routing: a routing switch never mixes a rig with the whole sound.
-        // In a Dual Crossover the amp tap gets the rig's band from the same block, so the two taps stay in step.
+    else if(rigLanePlays && engine.laneCaptureCount()==(value(mode)==1 ? 2 : 3) && (!captureRigInput || engine.laneInputsFilled())) {
+        // Only blocks that played that routing: a routing switch never mixes a rig or lane with the whole sound.
+        // In a Dual Crossover and in the Matrix the amp tap gets the lane's band from the same block, so the two taps stay in step.
         if(captureRigInput) {
             const auto& in=engine.laneInput(rigLane);
             autoSetCaptureState.push(spectralforge::autoset::Tap::amp,in.getArrayOfReadPointers(),in.getNumChannels(),in.getNumSamples());

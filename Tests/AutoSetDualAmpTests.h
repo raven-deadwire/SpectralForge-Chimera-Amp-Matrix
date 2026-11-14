@@ -21,9 +21,10 @@ void dualAmpCapture() {
     const size_t all=20*256;
     const auto mix=capture(1,-1),rig1=capture(1,0),rig2=capture(1,1),classicRig=capture(0,0),classicMix=capture(0,-1),matrixRig=capture(2,0);
     check(mix.first==all && rig1.first==all && rig2.first==all && rig1.second>0 && rig2.second>0,"The rig tap was not fed from the Dual rigs ("+std::to_string(mix.first)+", "+std::to_string(rig1.first)+", "+std::to_string(rig2.first)+")");
-    check(classicMix.first==all && classicRig.first==0 && matrixRig.first==0,"A Dual rig was fed to the rig tap outside the Dual routing ("+std::to_string(classicRig.first)+", "+std::to_string(matrixRig.first)+")");
+    // Phase 40: the Matrix feeds its lane alone the same way.
+    check(classicMix.first==all && classicRig.first==0 && matrixRig.first==all,"A rig was fed to the rig tap in the Classic routing, or a Matrix lane was not ("+std::to_string(classicRig.first)+", "+std::to_string(matrixRig.first)+")");
     p->releaseResources();
-    std::cout<<"PASS auto set dual amp capture: the rig tap hears the whole rig by default and a Dual rig alone on request, in the Dual routing only\n";
+    std::cout<<"PASS auto set dual amp capture: the rig tap hears the whole rig by default and a Dual rig alone on request, in the Dual routing, and a Matrix lane alone\n";
 }
 struct DualAmpRun {std::vector<float> before,values,undone;Controller::Status status;std::array<juce::String,2> gainID;};
 // Both Dual Blend rigs on the native head runAmp gives the Classic rig, at the given GAIN fractions.
