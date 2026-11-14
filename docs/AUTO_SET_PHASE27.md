@@ -85,6 +85,6 @@ taken id 70, the cabinet mic blend step).
 ## Not yet validated
 
 Checked on synthetic lanes and on renders through the default heads, not with
-a real DI or a listening test. Rig 1 / the LOW lane is not covered in Dual and
-Matrix (phase 15 sets it in Classic only). With factory cabinet IRs, which roll
+a real DI or a listening test. Rig 1 / the LOW lane in Dual and Matrix is
+phase 28's step (`AUTO_SET_PHASE28.md`). With factory cabinet IRs, which roll
 the top off near 5 kHz, a HIGH cut above that often changes little.
