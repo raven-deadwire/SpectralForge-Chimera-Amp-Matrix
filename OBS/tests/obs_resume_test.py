@@ -262,7 +262,7 @@ def run(args: argparse.Namespace) -> None:
     check(restarts == ["1"], f"the filter counted one restart after the pause (session total: {restarts})")
     totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
     check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
-    check(log.count("[chimera-obs] unloaded Chimera filter instance") == 1, "the filter instance is unloaded")
+    app.check_unloaded(log, 1, "the filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: Chimera's tails are dropped when the filter is re-enabled "
           f"(largest {kept:.2f} steps after) and when the input resumes after a {PAUSE_SECONDS:g} s pause "
           f"(largest {left:.2f} steps after, one restart counted); the following notes match Chimera outside OBS")
