@@ -150,6 +150,15 @@ inline void run(const juce::File& directory) {
         voices.push_back(std::move(output));
         auto& channel=channelSelector(*canvas,0);
         const auto& panel=spectralforge::ampNativePanel(model);
+        // The lane follows a model change on the editor's 25 Hz timer; wait
+        // for this model's channel list instead of trusting one 70 ms settle.
+        // The checks below still decide, and name, a list that never arrives.
+        for(const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;juce::Time::getMillisecondCounterHiRes()<deadline;settle(10)) {
+            bool shown=channel.getNumItems()==int(panel.channels.size()) && channel.isVisible()==(panel.channels.size()>1);
+            for(int index=0;shown && index<channel.getNumItems();++index)
+                shown=channel.getItemText(index)==juce::String::fromUTF8(panel.channels[size_t(index)]);
+            if(shown)break;
+        }
         require(channel.getNumItems()==int(panel.channels.size()),"Native channel selector does not match the selected amplifier panel");
         require(channel.isVisible()==(panel.channels.size()>1),"Single-channel amplifier exposes an unnecessary channel selector");
         for(int index=0;index<channel.getNumItems();++index) {
