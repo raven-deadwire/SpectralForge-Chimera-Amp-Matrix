@@ -167,8 +167,7 @@ def run(args: argparse.Namespace) -> None:
         obs.request("CreateSourceFilter", {"sourceName": app.SOURCE, "filterName": app.FILTER,
                                            "filterKind": app.FILTER_KIND, "filterSettings": {}})
         app.wait_until(lambda: f"[chimera-obs] '{app.FILTER}': loaded " in log_text(), "the filter found Chimera and loaded it")
-        obs.request("StartRecord")
-        app.wait_until(lambda: obs.request("GetRecordStatus")["outputActive"], "recording started", 15)
+        obs.start_recording("recording started")
         begin = time.monotonic()
         while (elapsed := time.monotonic() - begin) < record_seconds:
             time.sleep(min(60.0, record_seconds - elapsed))
