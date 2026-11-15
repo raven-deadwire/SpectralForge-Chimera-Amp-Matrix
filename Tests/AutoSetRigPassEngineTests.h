@@ -6,8 +6,9 @@
 // One whole run with the played DI going through processBlock: the engine feeds the taps itself.
 struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefore{},gainAfter{};std::array<AmpResult,2> analysis{};std::array<bool,2> analysed{};};
 // lanes: the two lanes the passes listen to (Dual rigs 0 and 1, Matrix lanes 1 and 2).
+// lowNotes: pure 82 and 98 Hz notes, which do not reach a MID or HIGH band.
 RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,const Controller::Options& options,std::array<float,2> gainFraction,
-                                  const std::function<void(ChimeraProcessor&)>& prepare={}) {
+                                  const std::function<void(ChimeraProcessor&)>& prepare={},bool lowNotes=false) {
     using P=Controller::Phase;
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
@@ -26,7 +27,14 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
     RigPassEngineRun result;
     for(int index=0;index<2;++index)result.gainBefore[size_t(index)]=get(*p,gainID[size_t(index)]);
     // Played notes with eight harmonics (82 Hz to about 2.6 kHz), so every band of a crossover gets some of the playing.
-    std::mt19937 rng{441};const auto di=playedNotes(48000,8,rng);size_t offset=0;
+    std::mt19937 rng{441};auto di=playedNotes(48000,8,rng);size_t offset=0;
+    if(lowNotes) {
+        // Pure tones well under the crossovers: half-second notes at 82 and 98 Hz, no harmonics, no hiss.
+        for(size_t n=0;n<di.size();++n) {
+            const double t=double(n%24000)/48000.,f=(n/24000)%2?98.:82.41;
+            di[n]=float(.12*std::exp(-t*5)*std::min(1.,t/.003)*std::sin(2*juce::MathConstants<double>::pi*f*t));
+        }
+    }
     double now=juce::Time::getMillisecondCounterHiRes();
     juce::AudioBuffer<float> b(2,256);juce::MidiBuffer midi;
     const auto play=[&](int blocks,bool tick) {
@@ -114,5 +122,15 @@ void rigPassEngine() {
     const auto muted=runRigPassEngine(1,0,{0,1},blend,{.05f,.05f},[](ChimeraProcessor& p){auto* q=p.parameters().getParameter("mute1");q->setValueNotifyingHost(1.f);});
     check(muted.status.passes==std::vector<P>{P::dualAmp2} && stepOf(muted.status,P::dualAmp1) && stepOf(muted.status,P::dualAmp1)->result=="kept (this rig is muted)"
           && muted.gainAfter[0]==muted.gainBefore[0] && muted.gainAfter[1]>muted.gainBefore[1],"A muted rig on the real engine was set, or stopped the other rig");
+    // Phase 45: low notes barely reach the Matrix MID and HIGH bands: the lanes are kept and the reason names the band.
+    const auto empty=runRigPassEngine(2,0,{1,2},matrix,{.05f,.05f},{},true);
+    const auto* mid=stepOf(empty.status,P::matrixGain2);const auto* high=stepOf(empty.status,P::matrixGain3);
+    check(mid && high && !mid->changed && !high->changed && empty.gainAfter==empty.gainBefore
+          && mid->result=="kept (no playing heard in the MID lane's band: play notes that reach it, or move the crossover)"
+          && high->result=="kept (no playing heard in the HIGH lane's band: play notes that reach it, or move the crossover)",
+          "Lanes whose band is nearly empty were set, or the reason does not name the band: "+(mid?mid->result.toStdString():std::string("no step"))+" | "+(high?high->result.toStdString():std::string("no step")));
+    // The same low notes in a Dual Blend, where each rig hears the whole input: heard, and the reason is not used.
+    const auto whole=runRigPassEngine(1,0,{0,1},blend,{.05f,.05f},{},true);
+    check(stepOf(whole.status,P::dualAmp1) && !stepOf(whole.status,P::dualAmp1)->result.contains("no playing heard"),"Low notes were not heard by a Dual Blend rig: "+stepOf(whole.status,P::dualAmp1)->result.toStdString());
     std::cout<<"PASS auto set rig pass engine: Dual Blend, Dual Crossover and Matrix rig and lane passes through processBlock: playing heard, low GAIN raised, drive closer to the target; a muted rig kept\n";
 }

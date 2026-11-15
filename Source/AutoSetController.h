@@ -926,6 +926,11 @@ private:
         if(anySolo && raw("solo"+juce::String(lane+1))<=.5f)return "another "+name+" is soloed";
         return {};
     }
+    // Phase 45: why an amp step heard no playing. In a pass that hears one band of a crossover (phases 37
+    // to 42) the band may be nearly empty while the guitar plays: the reason names the band and what helps.
+    juce::String noPlayingWhy() const {
+        return passBand.isEmpty()?juce::String("no playing heard"):"no playing heard in "+passBand+": play notes that reach it, or move the crossover";
+    }
     AmpTarget dualRigTarget(int rig) const {
         AmpTarget t;t.mode=juce::jlimit(0,2,juce::roundToInt(raw("mode")));t.context=ampNativeContext(t.mode,rig);
         t.model=processor.selectedAmpModel(rig);t.channel=processor.selectedAmpChannel(rig);t.route=processor.selectedAmpNativeRoute(rig);
@@ -993,6 +998,8 @@ private:
         if(!t.native){keep("classic amp engine; switch the head panel on to let Auto Set set it");return;}
         // Phase 38 first, as phase 35 leads a Dual Blend rig's pass: the GAIN step then works on the
         // channel it chose, against the head as it played.
+        // Phase 45: these steps hear one band; "no playing heard" then names it.
+        passBand="rig "+juce::String(rig+1)+"'s band";
         const auto played=processor.autoSetAmpState(t.context);
         std::optional<std::vector<float>> playedAmp;
         if(runOptions.crossChannel && channelStep(t,post,input,rig,true,crossChannelRow(rig),runOptions.crossGain && !locked(lockAmp))) {
@@ -1005,7 +1012,7 @@ private:
         // Phase 39 after the GAIN step, as phase 36 follows phase 33: the trim takes the drive past GAIN's reach.
         // Rig 2's OUTPUT LEVEL is its rig level: with the Dual rig levels lock the trim could not hold the loudness.
         if(runOptions.crossTrim)trimStep(t,post,input,true,crossTrimRow(rig),&dualTrimAtStart,rig==1 && locked(lockRigs));
-        ampProposal=classicProposal;
+        ampProposal=classicProposal;passBand.clear();
         nextPass();
     }
     // Phase 40: the GAIN of one Matrix lane's head (MID or HIGH), as phase 37 sets a Dual Crossover
@@ -1027,6 +1034,7 @@ private:
         if(!t.native){keep("classic amp engine; switch the head panel on to let Auto Set set it");return;}
         // Phase 41 first, as phase 38 leads a Dual Crossover rig's pass: the GAIN step then works on the
         // channel it chose, against the head as it played.
+        passBand="the "+juce::String(lane==1?"MID":"HIGH")+" lane's band";
         const auto played=processor.autoSetAmpState(t.context);
         std::optional<std::vector<float>> playedAmp;
         if(runOptions.matrixChannel && channelStep(t,post,input,lane,true,matrixChannelRow(lane),runOptions.matrixGain && !locked(lockAmp))) {
@@ -1039,7 +1047,7 @@ private:
         // level (phase 17's): with the Matrix levels lock the trim could not hold the loudness.
         if(runOptions.matrixTrim)trimStep(t,post,input,true,matrixTrimRow(lane),&dualTrimAtStart,locked(lockMatrix),
                                           "this lane's OUTPUT LEVEL is its lane level, which the Matrix levels lock keeps: the trim could not hold the loudness");
-        ampProposal=classicProposal;
+        ampProposal=classicProposal;passBand.clear();
         nextPass();
     }
     // Phase 20: the head's channel, from each channel rendered on the captured
@@ -1072,7 +1080,7 @@ private:
         // locked), or Strength of the way to the target.
         const auto r=analyseChannel(segment,post,rate(),t.channel,candidates,chosenInstrument(),runOptions.style,dualRig?rigAmpRuns:ampStepRuns(),strength());
         lastChannel=r;
-        if(!r.playingDetected)return keep("no playing heard");
+        if(!r.playingDetected)return keep(noPlayingWhy());
         if(r.hold==ChannelHold::steadyPlaying)return keep("not enough difference between soft and hard playing to compare channels; play some soft and some hard notes");
         if(r.hold==ChannelHold::quietSettings)return keep("too few audible GAIN settings on this channel to compare");
         const auto name=[&](int c){return juce::String::fromUTF8(panel.channels[size_t(c)]);};
@@ -1127,7 +1135,7 @@ private:
         std::vector<float> segment(input.begin(),input.begin()+std::min(input.size(),size_t(rate()*ampRenderSeconds)));
         const auto r=analyseAmp(segment,post,rate(),knobs,nativeAmpRenderer(state,controls,segment,rate()),chosenInstrument(),runOptions.style,played);
         lastAmp=r;
-        if(!r.playingDetected){keep("no playing heard");return;}
+        if(!r.playingDetected){keep(noPlayingWhy());return;}
         // The full-strength knobs, for the input trim step.
         for(int role=0;role<easy::roleCount;++role)if(r.changed(role))ampProposal.push_back({controls[size_t(role)],r.proposed[size_t(role)].value});
         if(r.changedKnobs()==0){keep(juce::String(r.bass?"bass":"guitar")+" "+styleName(runOptions.style)+(gainOnly?" drive already near the target":" drive and tone already near the target"));return;}
@@ -1169,7 +1177,7 @@ private:
         };
         const auto r=analyseTrim(segment,post,rate(),trimAtStart[0],render,chosenInstrument(),runOptions.style);
         lastTrim=r;
-        if(!r.playingDetected){keep("no playing heard");return;}
+        if(!r.playingDetected){keep(noPlayingWhy());return;}
         if(r.steady){keep("not enough difference between soft and hard playing to judge the drive; play some soft and some hard notes");return;}
         if(!r.rendered){keep("the head renders no playing at its knobs");return;}
         const auto pct=[](float v){return juce::String(juce::roundToInt(v*100))+"%";};
@@ -2577,6 +2585,7 @@ private:
     std::vector<Window> windows,rigWindows;std::vector<float> samples,ampSamples,laneSamples;
     AmpTarget ampAtStart;CabTarget cabAtStart;BoostTarget boostAtStart;DualTarget dualAtStart;MatrixTarget matrixAtStart;CabTarget micsAtStart;
     int skipWindows{},skipSamples{};double lastAudioMs{-1};
+    juce::String passBand; // the band the current rig or lane pass hears, for noPlayingWhy; empty outside those passes
     juce::String summary;std::vector<Step> steps;ToneResult lastTone;InstrumentResult lastInstrument;GateStagesResult lastGates;DynamicEQResult lastDynamic;OutputResult lastLevel;AmpResult lastAmp;PowerResult lastPower;CabResult lastCab;BoostResult lastBoost;SpaceResult lastSpace;DualResult lastDual;RigLevelResult lastRigs;ChannelResult lastChannel;PolarityResult lastPolarity;TempoSyncResult lastSync;CabIRResult lastCabIR;std::array<int,2> cabIRAtStart{};TrimResult lastTrim;CrossoverResult lastCrossover;std::array<float,2> crossoverAtStart{};RoomResult lastRoom;bool roomPending{};LaneCutsResult lastLaneCuts;std::array<float,4> laneCutsAtStart{};std::array<float,2> rig1CutsAtStart{};std::array<LaneCab,3> laneCabAtStart{};LaneIRResult lastLaneIR;std::array<float,6> laneMicGainAtStart{};DualBoostTarget dualBoostAtStart{};AmpTarget dualAmpAtStart;bool dualAmpTypeAtStart{};std::array<float,2> dualTrimAtStart{};LaneMicResult lastLaneMic;int laneMicsModeAtStart{};LaneCab laneMicsCabAtStart{};std::array<MicsResult,3> lastLaneMics{};std::array<float,2> trimAtStart{};std::vector<std::pair<int,float>> ampProposal;std::array<bool,2> polarityAtStart{};MatrixResult lastMatrix;MicsResult lastMics;WidthResult lastWidth;CutResult lastCuts;BusResult lastBus;BusTarget busAtStart;std::array<float,toneBandCount> cabMoveDb{};std::array<float,2> cutsAtStart{};std::vector<float> widthSamples;std::vector<Window> spaceWindows;bool spacePending{},widthPending{};FinishResult lastFinish;MultibandResult lastMultiband;
 };
 
