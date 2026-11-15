@@ -95,8 +95,9 @@ inline std::pair<double,float> micsCorrelate(const std::vector<float>& a,const s
     return {lag,aa>0 && bb>0?float(ab/std::sqrt(aa*bb)):0.f};
 }
 // a/b: mic A and mic B as heard; delays (ms) and mic B's polarity now; blend now.
+// judgeBlend false (phase 31, a lane that plays one band): alignment only; the blend stays.
 inline MicsResult analyseMics(const std::vector<float>& micA,const std::vector<float>& micB,double rate,std::array<float,2> delayMs,bool invertB,float blend,
-                              std::optional<bool> bass={},Style style=Style::rock) {
+                              std::optional<bool> bass={},Style style=Style::rock,bool judgeBlend=true) {
     MicsResult r;
     for(int m=0;m<2;++m)r.delayBeforeMs[m]=r.delayAfterMs[m]=delayMs[size_t(m)];
     r.invertBefore=r.invertAfter=invertB;r.blendBefore=r.blendAfter=blend;
@@ -144,6 +145,7 @@ inline MicsResult analyseMics(const std::vector<float>& micA,const std::vector<f
             }
         }
     }
+    if(!judgeBlend)return r;
     // Blend, on the mics as they will be.
     const float errorAligned=r.toneErrorAfterDb;
     float best=errorAligned,chosen=blend;

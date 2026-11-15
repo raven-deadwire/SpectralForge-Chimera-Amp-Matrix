@@ -547,9 +547,12 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const int lanesWanted=value(mode)==1 && !matrixLanes ? 2 : value(mode)==2 && matrixLanes ? 3 : 0;
     const bool captureLanes=lanesWanted>0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::lane1);
     engine.setLaneCapture(captureLanes);
-    // Phase 18 listens to the Classic cabinet's mic A and mic B before their blend.
-    const bool captureMics=value(mode)==0 && autoSetCaptureState.listening(spectralforge::autoset::Tap::micA);
-    engine.cabinet(0).setMicCapture(captureMics);
+    // Phase 18 listens to the Classic cabinet's mic A and mic B before their blend;
+    // phase 31 to those of one Dual rig or Matrix lane at a time (the lane Auto Set chose).
+    const int micLaneAsked=autoSetMicLaneState.load(std::memory_order_acquire),micLane=std::max(0,micLaneAsked);
+    const bool captureMics=(micLaneAsked<0 ? value(mode)==0 : value(mode)==1 ? micLane<2 : value(mode)==2)
+        && autoSetCaptureState.listening(spectralforge::autoset::Tap::micA);
+    for(int lane=0;lane<3;++lane)engine.cabinet(lane).setMicCapture(captureMics && lane==micLane);
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load(),
                    roomBus,roomBus!=nullptr ? &roomSends : nullptr);
     lowCompGain.store(engine.lowReduction());
@@ -563,9 +566,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
             autoSetCaptureState.push(laneTaps[lane],out.getArrayOfReadPointers(),out.getNumChannels(),out.getNumSamples());
         }
     }
-    // Only blocks that played Classic with mic B rendering (blend above 0).
-    if(captureMics && engine.cabinet(0).micsCaptured()) {
-        const auto& micA=engine.cabinet(0).micOutput(0);const auto& micB=engine.cabinet(0).micOutput(1);
+    // Only blocks that played that cabinet with mic B rendering (blend above 0).
+    if(captureMics && engine.cabinet(micLane).micsCaptured()) {
+        const auto& micA=engine.cabinet(micLane).micOutput(0);const auto& micB=engine.cabinet(micLane).micOutput(1);
         autoSetCaptureState.push(spectralforge::autoset::Tap::micA,micA.getArrayOfReadPointers(),micA.getNumChannels(),micA.getNumSamples());
         autoSetCaptureState.push(spectralforge::autoset::Tap::micB,micB.getArrayOfReadPointers(),micB.getNumChannels(),micB.getNumSamples());
     }

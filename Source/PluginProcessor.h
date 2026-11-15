@@ -182,6 +182,9 @@ public:
     spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
     spectralforge::DynamicsAnalysis& dynamicsAnalysis() noexcept {return dynamicsAnalysisState;}
     spectralforge::autoset::Capture& autoSetCapture() noexcept {return autoSetCaptureState;}
+    // Which cabinet's mic A and mic B the mic taps hear: -1 the Classic rig (fed in Classic routing only),
+    // 0-2 a Dual rig or Matrix lane (fed in a Dual or Matrix routing that has that lane).
+    void setAutoSetMicLane(int lane) noexcept {autoSetMicLaneState.store(std::clamp(lane,-1,2),std::memory_order_release);}
     // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
     void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
     // The native amp settings a routing context plays with (Auto Set renders candidates offline).
@@ -358,6 +361,7 @@ private:
     spectralforge::RoomCore room;
     spectralforge::DynamicsAnalysis dynamicsAnalysisState;
     spectralforge::autoset::Capture autoSetCaptureState;
+    std::atomic<int> autoSetMicLaneState{-1};
     std::atomic<bool> autoSetGateBypass{false};
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
