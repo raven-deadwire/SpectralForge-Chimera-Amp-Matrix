@@ -23,6 +23,16 @@ template<class Ready> void waitForNativeSpectrum(Ready&& ready,const char* failu
         settle(10);
     }
 }
+// The same wait without a verdict: the caller's own checks name what is wrong
+// if the deadline passes.
+template<class Ready> bool dispatchUntilNative(Ready&& ready) {
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+10000.;
+    while(!ready()) {
+        if(juce::Time::getMillisecondCounterHiRes()>=deadline)return false;
+        settle(10);
+    }
+    return true;
+}
 // A native event dispatch can return before a JUCE timer runs (notably while
 // AppKit is creating a peer). Synchronize the actual callback/UI handshake;
 // do not assume a fixed sleep armed capture before an offline audio burst.
@@ -557,6 +567,20 @@ inline void run(const juce::File& directory){
             settle();
             auto* panel=find<AmpNativePanel>(*canvas,"ampNativePanel1");require(panel!=nullptr,"Native amplifier panel missing");auto* channel=find<juce::ComboBox>(*panel,"ampChannel1");
             const auto& spec=spectralforge::ampNativePanel(model);
+            // The editor shows a model change from its 25 Hz timer, so one
+            // fixed 55 ms dispatch is at most two ticks and a stalled runner
+            // can deliver none (#304, and main at 289a801, on windows-latest).
+            // Wait until the lane shows this model: its caption, its channel
+            // list and a control that only this model's panel owns. The checks
+            // below are unchanged and name what is missing if it never does.
+            dispatchUntilNative([&]{
+                auto* caption=find<juce::Label>(*canvas,"ampreference1");
+                if(!channel || !caption || caption->getText()!=juce::String::fromUTF8(spectralforge::ampInfo(model).character))return false;
+                if(channel->isVisible()!=(spec.channels.size()>1) || channel->getNumItems()!=(int)spec.channels.size())return false;
+                for(int i=0;i<(int)spec.channels.size();++i)if(channel->getItemText(i)!=juce::String::fromUTF8(spec.channels[(size_t)i]))return false;
+                return spec.controls.empty() || find<NativeControlView>(*panel,
+                    spectralforge::ampNativeControlID(0,model,0,processor.selectedAmpChannel(0))+"_control")!=nullptr;
+            });
             require(channel && channel->isVisible()==(spec.channels.size()>1),"Native UI single-channel selector not hidden");
             auto* reference=find<juce::Label>(*canvas,"ampreference1");require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).character),"Native amp caption must describe the selected sound");
             publicNameTests::safeText(reference->getText(),"selected AMP caption");

@@ -75,7 +75,10 @@ inline void run(const juce::File& directory) {
     editor.addToDesktop(juce::ComponentPeer::windowIsTemporary);editor.setVisible(true);settle(100);editor.setVisible(false);settle(80);
     const auto hiddenState=amp->stateRefreshCount(),hiddenMetadata=editor.metadataRefreshCount();settle(200);
     require(amp->stateRefreshCount()==hiddenState && editor.metadataRefreshCount()==hiddenMetadata,"Hidden editor performs panel/metadata work");
-    editor.setVisible(true);settle(100);require(amp->stateRefreshCount()>hiddenState,"Revealed editor missed deferred refresh");editor.removeFromDesktop();
+    // The deferred refresh runs on the editor's next 25 Hz tick after the
+    // reveal; a stalled runner can deliver none in a fixed 100 ms (#304).
+    editor.setVisible(true);settle(100);dispatchUntilNative([&]{return amp->stateRefreshCount()>hiddenState;});
+    require(amp->stateRefreshCount()>hiddenState,"Revealed editor missed deferred refresh");editor.removeFromDesktop();
     std::cout<<"PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation\n";
 }
 }
