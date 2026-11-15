@@ -67,7 +67,7 @@ class Controller final : private juce::Timer {
 public:
     // gates is a result step of the input pass, not a listening pass of its own.
     // dynamicEQ is a result step of the Tone EQ pass.
-    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim,crossover,room,laneCuts,rig1Cuts,laneIR,laneMic,laneMics1,laneMics2,laneMics3,dualAmp1,dualAmp2,dualPower1,dualPower2,dualChannel1,dualChannel2,dualTrim1,dualTrim2,crossGain1,crossGain2,crossChannel1,crossChannel2,crossTrim1,crossTrim2,matrixGain2,matrixGain3,matrixChannel2,matrixChannel3};
+    enum class Phase {idle,input,tone,compressor,multiband,finish,done,failed,gates,dynamicEQ,level,amp,cab,boost,space,power,dual,width,cuts,bus,matrix,mics,rigs,channel,polarity,sync,cabIR,trim,crossover,room,laneCuts,rig1Cuts,laneIR,laneMic,laneMics1,laneMics2,laneMics3,dualAmp1,dualAmp2,dualPower1,dualPower2,dualChannel1,dualChannel2,dualTrim1,dualTrim2,crossGain1,crossGain2,crossChannel1,crossChannel2,crossTrim1,crossTrim2,matrixGain2,matrixGain3,matrixChannel2,matrixChannel3,matrixTrim2,matrixTrim3};
     // Phase 33's passes, one per Dual Blend rig: its index (0 or 1), or -1.
     // Also the lane of a Matrix lane pass (phase 40): MID 1, HIGH 2.
     static constexpr int dualAmpLane(Phase phase) noexcept {return phase==Phase::dualAmp1 || phase==Phase::crossGain1?0:phase==Phase::dualAmp2 || phase==Phase::crossGain2 || phase==Phase::matrixGain2?1:phase==Phase::matrixGain3?2:-1;}
@@ -75,6 +75,8 @@ public:
     static constexpr bool matrixGainPass(Phase phase) noexcept {return phase==Phase::matrixGain2 || phase==Phase::matrixGain3;}
     // Phase 41's result rows, one per lane (MID 1, HIGH 2), in that lane's Matrix pass.
     static constexpr Phase matrixChannelRow(int lane) noexcept {return lane==1?Phase::matrixChannel2:Phase::matrixChannel3;}
+    // Phase 42's result rows, one per lane (MID 1, HIGH 2), in that lane's Matrix pass.
+    static constexpr Phase matrixTrimRow(int lane) noexcept {return lane==1?Phase::matrixTrim2:Phase::matrixTrim3;}
     // Phase 37: the rig passes of a Dual Crossover (dualAmpLane gives the rig).
     static constexpr bool crossGainPass(Phase phase) noexcept {return phase==Phase::crossGain1 || phase==Phase::crossGain2;}
     // Phase 38's result rows, one per rig, in that rig's Crossover pass.
@@ -123,7 +125,7 @@ public:
     // trim sets the head's INPUT TRIM (and OUTPUT LEVEL to hold the loudness) after the amp step, in the amp pass; off by default.
     // cabIR chooses the heard mic's factory IR (V30 or Jensen), in the cabinet mic pass.
     // sync turns on DELAY SYNC to the host tempo, before the delay + reverb step, when the delay is off for want of a tempo.
-    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool laneCuts{false};bool rig1Cuts{false};bool laneIR{false};bool laneMic{false};bool laneMics{false};bool dualBoost{false};bool dualAmp{false};bool dualPower{false};bool dualChannel{false};bool dualTrim{false};bool crossGain{false};bool crossChannel{false};bool crossTrim{false};bool matrixGain{false};bool matrixChannel{false};bool skipForVoiceOrDrums{false};};
+    struct Options {int instrument{0};bool tone{true};Style style{Style::rock};bool finish{true};bool multiband{true};bool gates{true};float strength{1.f};unsigned locks{};bool dynamicEQ{true};bool level{true};bool amp{true};bool cab{true};bool boost{true};bool space{true};bool power{true};bool dual{true};bool width{true};bool cuts{true};bool bus{true};bool matrix{true};bool mics{true};bool rigs{true};bool channel{false};bool polarity{true};bool sync{true};bool cabIR{true};bool trim{false};bool crossover{false};bool room{false};bool laneCuts{false};bool rig1Cuts{false};bool laneIR{false};bool laneMic{false};bool laneMics{false};bool dualBoost{false};bool dualAmp{false};bool dualPower{false};bool dualChannel{false};bool dualTrim{false};bool crossGain{false};bool crossChannel{false};bool crossTrim{false};bool matrixGain{false};bool matrixChannel{false};bool matrixTrim{false};bool skipForVoiceOrDrums{false};};
     // One finished pass: what it changed (or why it kept the settings).
     struct Step {Phase phase{};juce::String result;bool changed{};};
     // Live view of a run, for the progress and results display.
@@ -137,7 +139,7 @@ public:
     };
     static const char* phaseName(Phase phase) noexcept {
         switch(phase){case Phase::input:return "Input + gate";case Phase::tone:return "Tone EQ";case Phase::compressor:return "Compressor";
-            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";case Phase::crossover:return "Matrix crossovers";case Phase::room:return "Room ambience";case Phase::laneCuts:return "Lane cabinet cuts";case Phase::rig1Cuts:return "Rig 1 / LOW lane cabinet cuts";case Phase::laneIR:return "Lane cabinet IRs";case Phase::laneMic:return "Lane cabinet mics";case Phase::laneMics1:return "Rig 1 / LOW lane mic blend";case Phase::laneMics2:return "Rig 2 / MID lane mic blend";case Phase::laneMics3:return "HIGH lane mic blend";case Phase::dualAmp1:return "Rig 1 amp";case Phase::dualAmp2:return "Rig 2 amp";case Phase::dualPower1:return "Rig 1 presence + resonance";case Phase::dualPower2:return "Rig 2 presence + resonance";case Phase::dualChannel1:return "Rig 1 amp channel";case Phase::dualChannel2:return "Rig 2 amp channel";case Phase::dualTrim1:return "Rig 1 amp input trim";case Phase::dualTrim2:return "Rig 2 amp input trim";case Phase::crossGain1:return "Rig 1 amp gain (Crossover)";case Phase::crossGain2:return "Rig 2 amp gain (Crossover)";case Phase::crossChannel1:return "Rig 1 amp channel (Crossover)";case Phase::crossChannel2:return "Rig 2 amp channel (Crossover)";case Phase::crossTrim1:return "Rig 1 amp input trim (Crossover)";case Phase::crossTrim2:return "Rig 2 amp input trim (Crossover)";case Phase::matrixGain2:return "MID lane amp gain";case Phase::matrixGain3:return "HIGH lane amp gain";case Phase::matrixChannel2:return "MID lane amp channel";case Phase::matrixChannel3:return "HIGH lane amp channel";default:return "";}
+            case Phase::multiband:return "Multiband";case Phase::finish:return "De-esser + limiter";case Phase::gates:return "Gate 2 + Expander";case Phase::dynamicEQ:return "Dynamic EQ";case Phase::level:return "Final EQ + output";case Phase::amp:return "Amp gain + tone";case Phase::cab:return "Cabinet mic";case Phase::boost:return "Boost pedal";case Phase::space:return "Delay + reverb";case Phase::power:return "Presence + resonance";case Phase::dual:return "Dual blend";case Phase::width:return "Stereo doubler";case Phase::cuts:return "Cabinet cuts";case Phase::bus:return "Bus compressor";case Phase::matrix:return "Matrix levels";case Phase::mics:return "Cabinet mic blend";case Phase::rigs:return "Dual rig levels";case Phase::channel:return "Amp channel";case Phase::polarity:return "Lane polarity";case Phase::sync:return "Delay tempo sync";case Phase::cabIR:return "Cabinet IR";case Phase::trim:return "Amp input trim";case Phase::crossover:return "Matrix crossovers";case Phase::room:return "Room ambience";case Phase::laneCuts:return "Lane cabinet cuts";case Phase::rig1Cuts:return "Rig 1 / LOW lane cabinet cuts";case Phase::laneIR:return "Lane cabinet IRs";case Phase::laneMic:return "Lane cabinet mics";case Phase::laneMics1:return "Rig 1 / LOW lane mic blend";case Phase::laneMics2:return "Rig 2 / MID lane mic blend";case Phase::laneMics3:return "HIGH lane mic blend";case Phase::dualAmp1:return "Rig 1 amp";case Phase::dualAmp2:return "Rig 2 amp";case Phase::dualPower1:return "Rig 1 presence + resonance";case Phase::dualPower2:return "Rig 2 presence + resonance";case Phase::dualChannel1:return "Rig 1 amp channel";case Phase::dualChannel2:return "Rig 2 amp channel";case Phase::dualTrim1:return "Rig 1 amp input trim";case Phase::dualTrim2:return "Rig 2 amp input trim";case Phase::crossGain1:return "Rig 1 amp gain (Crossover)";case Phase::crossGain2:return "Rig 2 amp gain (Crossover)";case Phase::crossChannel1:return "Rig 1 amp channel (Crossover)";case Phase::crossChannel2:return "Rig 2 amp channel (Crossover)";case Phase::crossTrim1:return "Rig 1 amp input trim (Crossover)";case Phase::crossTrim2:return "Rig 2 amp input trim (Crossover)";case Phase::matrixGain2:return "MID lane amp gain";case Phase::matrixGain3:return "HIGH lane amp gain";case Phase::matrixChannel2:return "MID lane amp channel";case Phase::matrixChannel3:return "HIGH lane amp channel";case Phase::matrixTrim2:return "MID lane amp input trim";case Phase::matrixTrim3:return "HIGH lane amp input trim";default:return "";}
     }
     static constexpr int windowsPerPass=600,settleWindows=30; // 6 s of audio, 300 ms settle
     static constexpr double toneSeconds=6,toneSettleSeconds=.3;
@@ -223,6 +225,8 @@ public:
         // Phase 36 writes the two Dual rigs' INPUT TRIM and, to hold the loudness, their OUTPUT LEVEL.
         // Rig 2's OUTPUT LEVEL is its rig level, the Dual rig levels lock's (below): that lock keeps rig 2's trim too.
         for(const auto& id:{ampNativeInputTrimID(ampNativeContext(1,0)),ampNativeInputTrimID(ampNativeContext(1,1)),ampNativeOutputLevelID(ampNativeContext(1,0))})touchedIDs.push_back({id,lockTrim});
+        // Phase 42 writes the Matrix MID and HIGH lanes' INPUT TRIM; their OUTPUT LEVEL is the lane level, the Matrix levels lock's.
+        for(const int lane:{1,2})touchedIDs.push_back({ampNativeInputTrimID(ampNativeContext(2,lane)),lockTrim});
         // Phase 19 writes the Dual rig 2 level: LEVEL 2 (above), or the Dual B
         // native head's OUTPUT LEVEL, which replaces it on a native head.
         touchedIDs.push_back({ampNativeOutputLevelID(ampNativeContext(1,1)),lockRigs});
@@ -318,21 +322,24 @@ public:
                 if(mode==0)break;
             }
         }
-        // Phases 40 and 41: a pass per Matrix MID and HIGH lane, heard alone on the rig tap, with the band it
-        // receives on the amp tap, for its channel (phase 41) and its GAIN (phase 40). The LOW lane blends its
-        // amp with the DI and is not set.
-        if(runOptions.matrixGain || runOptions.matrixChannel) {
+        // Phases 40 to 42: a pass per Matrix MID and HIGH lane, heard alone on the rig tap, with the band it
+        // receives on the amp tap, for its channel (phase 41), its GAIN (phase 40) and its input trim (phase 42).
+        // The LOW lane blends its amp with the DI and is not set.
+        if(runOptions.matrixGain || runOptions.matrixChannel || runOptions.matrixTrim) {
             const int mode=juce::jlimit(0,2,juce::roundToInt(raw("mode")));
             const juce::String channelWhy=mode==0?"Classic routing: the Amp channel selection step sets the head":mode==2?""
                                   :raw("dualtype")<=.5f?"Dual Blend: the Amp channel selection of both Dual Blend rigs step sets the heads":"Dual Crossover: the Amp channel selection of both Dual Crossover rigs step sets the heads";
-            const bool gainRuns=runOptions.matrixGain && !locked(lockAmp),channelRuns=runOptions.matrixChannel && !locked(lockChannel);
+            const juce::String trimWhy=mode==0?"Classic routing: the Amp input trim step sets the head":mode==2?""
+                                  :raw("dualtype")<=.5f?"Dual Blend: the Amp input trim of both Dual Blend rigs step sets the heads":"Dual Crossover: the Amp input trim of both Dual Crossover rigs step sets the heads";
+            const bool gainRuns=runOptions.matrixGain && !locked(lockAmp),channelRuns=runOptions.matrixChannel && !locked(lockChannel),trimRuns=runOptions.matrixTrim && !locked(lockTrim);
             const juce::String why=mode==0?"Classic routing: the Amp gain and tone step sets the head":mode==2?""
                                   :raw("dualtype")<=.5f?"Dual Blend: the Amp gain and tone of both Dual Blend rigs step sets the heads":"Dual Crossover: the Amp gain of both Dual Crossover rigs step sets the heads";
             for(const auto row:{Phase::matrixGain2,Phase::matrixGain3}) {
                 const auto channelRow=matrixChannelRow(dualAmpLane(row));
-                if(why.isEmpty() && (gainRuns || channelRuns)){passes.push_back(row);continue;}
+                if(why.isEmpty() && (gainRuns || channelRuns || trimRuns)){passes.push_back(row);continue;}
                 if(runOptions.matrixChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{channelRow}:Skipped{channelRow,channelWhy});
                 if(runOptions.matrixGain)lockedPhases.push_back(locked(lockAmp)?Skipped{row}:Skipped{row,why});
+                if(runOptions.matrixTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{matrixTrimRow(dualAmpLane(row))}:Skipped{matrixTrimRow(dualAmpLane(row)),trimWhy});
                 if(mode==0)break;
             }
         }
@@ -680,8 +687,8 @@ private:
     bool dynamicStepRuns() const noexcept {return runOptions.dynamicEQ && !locked(lockDynamicEQ) && !locked(lockTone);}
     // Signal order of passes and result steps, for reporting skipped ones.
     static int order(Phase phase) noexcept {
-        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::dualChannel1:return 7;case Phase::dualAmp1:return 8;case Phase::dualTrim1:return 9;case Phase::dualPower1:return 10;case Phase::dualChannel2:return 11;case Phase::dualAmp2:return 12;case Phase::dualTrim2:return 13;case Phase::dualPower2:return 14;case Phase::crossChannel1:return 15;case Phase::crossGain1:return 16;case Phase::crossTrim1:return 17;case Phase::crossChannel2:return 18;case Phase::crossGain2:return 19;case Phase::crossTrim2:return 20;case Phase::matrixChannel2:return 21;case Phase::matrixGain2:return 22;case Phase::matrixChannel3:return 23;case Phase::matrixGain3:return 24;case Phase::cab:return 25;case Phase::cabIR:return 26;case Phase::cuts:return 27;case Phase::mics:return 28;case Phase::laneMics1:return 29;case Phase::laneMics2:return 30;case Phase::laneMics3:return 31;case Phase::polarity:return 32;case Phase::rigs:return 33;case Phase::dual:return 34;case Phase::matrix:return 35;case Phase::crossover:return 36;case Phase::laneMic:return 37;case Phase::laneIR:return 38;case Phase::rig1Cuts:return 39;case Phase::laneCuts:return 40;case Phase::room:return 41;case Phase::tone:return 42;case Phase::dynamicEQ:return 43;
-            case Phase::compressor:return 44;case Phase::multiband:return 45;case Phase::finish:return 46;case Phase::bus:return 47;case Phase::sync:return 48;case Phase::space:return 49;case Phase::width:return 50;case Phase::level:return 51;default:return 1000;} // default: after every row
+        switch(phase){case Phase::input:return 0;case Phase::gates:return 1;case Phase::boost:return 2;case Phase::channel:return 3;case Phase::amp:return 4;case Phase::trim:return 5;case Phase::power:return 6;case Phase::dualChannel1:return 7;case Phase::dualAmp1:return 8;case Phase::dualTrim1:return 9;case Phase::dualPower1:return 10;case Phase::dualChannel2:return 11;case Phase::dualAmp2:return 12;case Phase::dualTrim2:return 13;case Phase::dualPower2:return 14;case Phase::crossChannel1:return 15;case Phase::crossGain1:return 16;case Phase::crossTrim1:return 17;case Phase::crossChannel2:return 18;case Phase::crossGain2:return 19;case Phase::crossTrim2:return 20;case Phase::matrixChannel2:return 21;case Phase::matrixGain2:return 22;case Phase::matrixTrim2:return 23;case Phase::matrixChannel3:return 24;case Phase::matrixGain3:return 25;case Phase::matrixTrim3:return 26;case Phase::cab:return 27;case Phase::cabIR:return 28;case Phase::cuts:return 29;case Phase::mics:return 30;case Phase::laneMics1:return 31;case Phase::laneMics2:return 32;case Phase::laneMics3:return 33;case Phase::polarity:return 34;case Phase::rigs:return 35;case Phase::dual:return 36;case Phase::matrix:return 37;case Phase::crossover:return 38;case Phase::laneMic:return 39;case Phase::laneIR:return 40;case Phase::rig1Cuts:return 41;case Phase::laneCuts:return 42;case Phase::room:return 43;case Phase::tone:return 44;case Phase::dynamicEQ:return 45;
+            case Phase::compressor:return 46;case Phase::multiband:return 47;case Phase::finish:return 48;case Phase::bus:return 49;case Phase::sync:return 50;case Phase::space:return 51;case Phase::width:return 52;case Phase::level:return 53;default:return 1000;} // default: after every row
     }
     float strength() const noexcept {return runOptions.strength;}
     // Report skipped (locked) passes in signal order, before the next pass that runs.
@@ -694,7 +701,7 @@ private:
         const auto step="Listening "+juce::String(int(pass)+1)+"/"+juce::String(int(passes.size()))+": ";
         if(status.phase==Phase::input)return step+"play normally, including a short pause...";
         if(status.phase==Phase::amp)return step+"keep playing as you normally would, soft and hard, for the amp's "+ampTargetText()+"...";
-        if(matrixGainPass(status.phase))return step+"keep playing as you normally would, soft and hard, for the "+juce::String(status.phase==Phase::matrixGain2?"MID":"HIGH")+" lane's channel and gain...";
+        if(matrixGainPass(status.phase))return step+"keep playing as you normally would, soft and hard, for the "+juce::String(status.phase==Phase::matrixGain2?"MID":"HIGH")+" lane's channel, gain and input trim...";
         if(crossGainPass(status.phase))return step+"keep playing as you normally would, soft and hard, for rig "+juce::String(dualAmpLane(status.phase)+1)+"'s channel, gain and input trim...";
         if(const int rig=dualAmpLane(status.phase);rig>=0)return step+"keep playing as you normally would, soft and hard, for rig "+juce::String(rig+1)+"'s gain and tone...";
         if(status.phase==Phase::cab)return step+"keep playing across the neck for the "+juce::String(cabStepRuns()&&cutsStepRuns()?"cabinet mic and cuts":cutsStepRuns()?"cabinet cuts":cabStepRuns()?"cabinet mic":"cabinet IR")+"...";
@@ -778,6 +785,7 @@ private:
             else if(matrixGainPass(p)) {
                 if(runOptions.matrixChannel)lockedPhases.push_back({matrixChannelRow(dualAmpLane(p)),why});
                 if(runOptions.matrixGain)lockedPhases.push_back({p,why});
+                if(runOptions.matrixTrim)lockedPhases.push_back({matrixTrimRow(dualAmpLane(p)),why});
             }
             else if(crossGainPass(p)) {
                 if(runOptions.crossChannel)lockedPhases.push_back({crossChannelRow(dualAmpLane(p)),why});
@@ -993,6 +1001,7 @@ private:
             summary+=" | Lane amp unchanged ("+why+")";
             if(runOptions.matrixChannel)steps.push_back({matrixChannelRow(lane),"kept ("+why+")",false});
             if(runOptions.matrixGain)addStep("kept ("+why+")",false);
+            if(runOptions.matrixTrim)steps.push_back({matrixTrimRow(lane),"kept ("+why+")",false});
             nextPass();
         };
         auto t=dualRigTarget(lane);
@@ -1010,6 +1019,10 @@ private:
         }
         const auto classicProposal=ampProposal;ampProposal.clear();
         if(runOptions.matrixGain)ampStep(t,playedAmp?processor.autoSetAmpState(t.context):played,post,input,playedAmp?&*playedAmp:nullptr,true,true);
+        // Phase 42 after the GAIN step, as phase 39 follows phase 37. A Matrix lane's OUTPUT LEVEL is its lane
+        // level (phase 17's): with the Matrix levels lock the trim could not hold the loudness.
+        if(runOptions.matrixTrim)trimStep(t,post,input,true,matrixTrimRow(lane),&dualTrimAtStart,locked(lockMatrix),
+                                          "this lane's OUTPUT LEVEL is its lane level, which the Matrix levels lock keeps: the trim could not hold the loudness");
         ampProposal=classicProposal;
         nextPass();
     }
@@ -1120,12 +1133,12 @@ private:
     // dualRig, row, atStart, levelLocked (phase 36): t is a Dual Blend rig already checked by finishDualAmp, its
     // result row, its trim and level when its pass began, and whether another lock keeps its OUTPUT LEVEL.
     void trimStep(const AmpTarget& t,const std::vector<float>& post,const std::vector<float>& input,bool dualRig=false,Phase row=Phase::trim,
-                  const std::array<float,2>* atStart=nullptr,bool levelLocked=false) {
+                  const std::array<float,2>* atStart=nullptr,bool levelLocked=false,const char* levelLockedWhy=nullptr) {
         const auto keep=[this,row](const juce::String& why){summary+=" | Amp input trim unchanged ("+why+")";steps.push_back({row,"kept ("+why+")",false});};
         const auto& trimAtStart=atStart?*atStart:this->trimAtStart;
         if(locked(lockTrim)){keep("locked");return;}
         if(!dualRig)if(const auto why=ampUnavailable(t);why.isNotEmpty()){keep(why);return;}
-        if(levelLocked){keep("this rig's OUTPUT LEVEL is its rig level, which the Dual rig levels lock keeps: the trim could not hold the loudness");return;}
+        if(levelLocked){keep(levelLockedWhy?levelLockedWhy:"this rig's OUTPUT LEVEL is its rig level, which the Dual rig levels lock keeps: the trim could not hold the loudness");return;}
         const auto trimID=ampNativeInputTrimID(t.context),outputID=ampNativeOutputLevelID(t.context);
         if(std::array<float,2>{raw(trimID),raw(outputID)}!=trimAtStart){manualEditsKept=true;keep("INPUT TRIM or OUTPUT LEVEL edited while listening");return;}
         auto state=processor.autoSetAmpState(t.context);
@@ -2470,7 +2483,7 @@ private:
                 if(busStepRuns())s.listeningFor+=finishStepRuns()?", and your level going into the POST rack, for the bus compressor":", for the bus compressor";
                 break;
             case Phase::level:s.listeningFor="The overall balance and loudness at the output, for the Final EQ and output level";break;
-            case Phase::matrixGain2:case Phase::matrixGain3:s.listeningFor="The band of your playing going into the "+juce::String(status.phase==Phase::matrixGain2?"MID":"HIGH")+" lane's amp and that lane alone after its cab, for that head's channel and gain knob";break;
+            case Phase::matrixGain2:case Phase::matrixGain3:s.listeningFor="The band of your playing going into the "+juce::String(status.phase==Phase::matrixGain2?"MID":"HIGH")+" lane's amp and that lane alone after its cab, for that head's channel, gain knob and input trim";break;
             case Phase::crossGain1:case Phase::crossGain2:s.listeningFor="The band of your playing going into rig "+juce::String(dualAmpLane(status.phase)+1)+"'s amp and that rig alone after its cab, for that head's channel, gain knob and input trim";break;
             case Phase::dualAmp1:case Phase::dualAmp2:s.listeningFor="Your playing going into the amps and rig "+juce::String(dualAmpLane(status.phase)+1)+" alone after its cab, for that head's gain and tone knobs";break;
             case Phase::amp:s.listeningFor="Your playing going into the amp and the sound after the cab, for the amp's "+ampTargetText()+" knobs";break;
