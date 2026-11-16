@@ -1,4 +1,38 @@
-# SpectralForge Chimera 1.4.0-beta.1 (open beta)
+# SpectralForge Chimera 1.4.1-beta.1 candidate (in preparation, not published)
+
+**1.4.1-beta.1** collects what was integrated on main after the public
+1.4.0-beta.1. The model catalog, parameters and saved-state format are the
+same as 1.4.0-beta.1. Highlights:
+
+- seven new Auto Set steps, all **off by default**: room ambience (Room Core),
+  the Dual and Matrix cabinet cuts, factory IR choice, mic placement, mic
+  alignment and blend, and the boost pedal in a Dual Blend;
+- the OBS filter keeps a preset pushed while OBS is saving the filter, and no
+  longer rewrites an unchanged state into the scene;
+- more stable timing-sensitive tests on busy CI runners (no product change).
+
+**License period:** this beta expires at **2027-05-31T14:59:00Z /
+2027-05-31 23:59:00 KST**, the same date as 1.4.0-beta.1, with a warning from
+14 days before. Instances already open keep running; instances opened after
+expiry keep their state with output muted. A verified beta tester code
+(SETTINGS → *Enter beta tester code...*) lifts the expiry on that computer with
+no end date.
+
+Not yet done:
+
+- exact-source qualification on all three platforms;
+- the owner's publication decision.
+
+Real guitar/bass DI listening, real DAW/audio-device acceptance, publisher
+signing / macOS notarization and AAX in Pro Tools are not validated, as in
+1.4.0-beta.1. The new Auto Set steps have had synthetic tests only. No
+unexecuted check is reported as passed. Full notes:
+`docs/OPEN_BETA_1_4_1_RELEASE_NOTES.md`; candidate and evidence status:
+`docs/RELEASE_1_4_1_CANDIDATE.md` (both in the release's source).
+
+---
+
+# Public 1.4.0-beta.1
 
 **1.4.0-beta.1** collects everything integrated on main since the public
 1.3.2-beta.1, from the 1.3.3 Room Core through the 1.10 SYNTH and the 2.0
