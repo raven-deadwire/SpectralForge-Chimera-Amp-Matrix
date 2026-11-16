@@ -1,8 +1,8 @@
 # SpectralForge Chimera — Open Beta 1.4.1
 
-**Version 1.4.1-beta.1 · Windows / macOS / Linux · 공개 베타 후보 (준비 중, 미공개)**
+**Version 1.4.1-beta.1 · Windows / macOS / Linux · 공개 베타**
 
-공개된 1.4.0-beta.1(2026-11-13) 이후 main에 통합된 작업을 묶은 후보입니다. 만료일은 1.4.0-beta.1과 같은 **2027-05-31 23:59 KST**입니다. 아직 공개되지 않았습니다. 공개하려면 이 소스 그대로의 Windows·macOS·Linux 자동 검증과 소유자의 공개 결정이 필요합니다([후보 기록](RELEASE_1_4_1_CANDIDATE.md)).
+공개된 1.4.0-beta.1(2026-11-13) 이후 main에 통합된 작업을 묶은 베타입니다. 만료일은 1.4.0-beta.1과 같은 **2027-05-31 23:59 KST**입니다. 이 소스 그대로의 Windows·macOS·Linux 자동 검증을 통과해야 공개되며, 아래 알려진 한계를 공개한 상태로 소유자가 공개를 승인했습니다([후보 기록](RELEASE_1_4_1_CANDIDATE.md)). 안정판이나 엄격 검증 통과가 아닙니다.
 
 모델 카탈로그(AMP 30, PRE 51, POST 39, CREATIVE 9, SYNTH 3), 파라미터와 저장 형식은 1.4.0-beta.1과 같습니다. 자동 시험은 실제 악기 DI·DAW·청음 검증을 대신하지 않습니다.
 

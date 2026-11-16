@@ -1,4 +1,4 @@
-# SpectralForge Chimera 1.4.1-beta.1 candidate (in preparation, not published)
+# SpectralForge Chimera 1.4.1-beta.1 (open beta)
 
 **1.4.1-beta.1** collects what was integrated on main after the public
 1.4.0-beta.1. The model catalog, parameters and saved-state format are the
@@ -18,16 +18,16 @@ expiry keep their state with output muted. A verified beta tester code
 (SETTINGS → *Enter beta tester code...*) lifts the expiry on that computer with
 no end date.
 
-Not yet done:
-
-- exact-source qualification on all three platforms;
-- the owner's publication decision.
-
-Real guitar/bass DI listening, real DAW/audio-device acceptance, publisher
-signing / macOS notarization and AAX in Pro Tools are not validated, as in
-1.4.0-beta.1. The new Auto Set steps have had synthetic tests only. No
-unexecuted check is reported as passed. Full notes:
-`docs/OPEN_BETA_1_4_1_RELEASE_NOTES.md`; candidate and evidence status:
+Validation status: the publisher releases this version only after the exact
+source passes the Windows, macOS and Linux product builds, CTest, package
+verification and candidate assembly. The strict report it requires is
+21 PASS / 107 unexecuted BLOCKED, including 42 strict hard gates; the owner
+accepted publication with these disclosed gaps
+(`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). Real guitar/bass DI listening,
+real DAW/audio-device acceptance, publisher signing / macOS notarization and
+AAX in Pro Tools are not validated, as in 1.4.0-beta.1. The new Auto Set steps
+have had synthetic tests only. This is not a stable or strict-validation pass.
+Full notes: `docs/OPEN_BETA_1_4_1_RELEASE_NOTES.md`; candidate record:
 `docs/RELEASE_1_4_1_CANDIDATE.md` (both in the release's source).
 
 ---

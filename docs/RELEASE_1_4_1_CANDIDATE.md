@@ -7,9 +7,13 @@ Owner instruction, 2026-11-15/16 (Asia/Seoul):
 - Asked to confirm the proposed version **1.4.1-beta.1** and keeping the 1.4
   beta expiry **2027-05-31 23:59 KST**, the owner answered "ㅇㅇ" (yes).
 
-Preparation is authorized. **Publication is not**: it still needs the latest
-exact-source workflows to succeed, a fresh source-bound receipt and the
-owner's explicit publication decision. The 1.4.0-beta.1 authorization and its
+**Publication decision (2026-11-16, Asia/Seoul).** Asked whether to re-register
+the tuner fixture digest (#325) and whether to merge #324 and publish
+1.4.1-beta.1 once CI passes, the owner answered "둘다 승인" (both approved).
+The gaps under "Not validated" below were then listed to the owner in the same
+conversation before publication. Publication still requires the latest
+exact-source workflows to succeed and a fresh source-bound receipt
+(`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The 1.4.0-beta.1 authorization and its
 `Validation/weekly-publication-policy.json` receipt (bound to source
 `1e02b889794810e14f66996ccaccc560f0f0163b`) do not carry over. No failed or
 unexecuted check is promoted to PASS.
