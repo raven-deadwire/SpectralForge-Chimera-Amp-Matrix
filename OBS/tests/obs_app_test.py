@@ -377,14 +377,48 @@ class Obs:
             return ""
         return f" (OBS windows {window_titles(self.process.pid)}; text: {dialog_text(self.process.pid)})"
 
+    def recording_log(self, skip: int) -> str:
+        """What OBS itself logged about its outputs after the first `skip` characters of this
+        run's log, without obs-websocket's dump of every message (the output states are kept)."""
+        kept = []
+        for line in self.log_text()[skip:].splitlines():
+            text = line.split(": ", 1)[-1]
+            if '"outputState"' in text or (text[:1] not in ("", " ", "\t", "{", "}") and not text.startswith("[obs-websocket]")):
+                kept.append(line.strip())
+        return "\n".join(f"     log: {line}" for line in kept[-30:])
+
+    def log_text(self) -> str:
+        return "".join(p.read_text(encoding="utf-8", errors="replace")
+                       for p in sorted(set(self.logs.glob("*.txt")) - self.earlier_logs))
+
+    def start_recording(self, what: str) -> None:
+        """StartRecord, then wait until OBS reports the recording active. OBS starts a recording
+        on its UI thread after it answered the request, and on the CI runners that start was lost
+        twice (macOS and Linux, each time the second recording of obs_failure_policy_test.py: not
+        active after 15 s, cause unknown as OBS's log was not shown). So the request is sent once
+        more after 8 s without an active recording, and what OBS logged since is printed then."""
+        waited = 0
+        for attempt, seconds in ((1, 8), (2, 15)):
+            mark = len(self.log_text())
+            # The second request may find the first one's recording starting after all.
+            self.request("StartRecord", ok=attempt == 1)
+            deadline = time.monotonic() + seconds
+            while time.monotonic() < deadline:
+                if self.request("GetRecordStatus")["outputActive"]:
+                    check(True, what)
+                    return
+                time.sleep(0.25)
+            waited += seconds
+            if attempt == 1:
+                print(f"WARNING {what}: not active {seconds} s after StartRecord, asking OBS once more. OBS logged:\n"
+                      f"{self.recording_log(mark)}", file=sys.stderr, flush=True)
+        if MACOS:
+            screenshot(Path(self.output.name).with_suffix(".png"))
+        raise RuntimeError(f"{what} (waited {waited} s, StartRecord sent twice)"
+                           f"{self.blocking_ui()}\n{self.recording_log(mark)}")
+
     def record(self, name: str, seconds: float) -> Path:
-        self.request("StartRecord")
-        try:
-            wait_until(lambda: self.request("GetRecordStatus")["outputActive"], f"{name} recording started", 15)
-        except RuntimeError as e:
-            if MACOS:
-                screenshot(Path(self.output.name).with_suffix(".png"))
-            raise RuntimeError(f"{e}{self.blocking_ui()}") from None
+        self.start_recording(f"{name} recording started")
         time.sleep(seconds)
         path = Path(self.request("StopRecord")["outputPath"])
         wait_until(lambda: not self.request("GetRecordStatus")["outputActive"], f"{name} recording stopped", 15)
