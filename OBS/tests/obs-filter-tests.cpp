@@ -464,6 +464,7 @@ int main(int argc, char** argv) {
         // obs-websocket pushes a preset). The preset must still win.
         const std::string pushed = spectralforge::obs::base64Encode(component);
         const int rounds = 60;
+        const size_t rejectedBefore = logCount("stored Chimera state was rejected");
         for (int round = 0; round < rounds; ++round) {
             check(setParameter(filter, paramId, 0.31), "prepare concurrent preset save");
             obs_data_t* racing = obs_data_create();
@@ -492,7 +493,12 @@ int main(int argc, char** argv) {
             obs_data_release(afterSettings);
             obs_data_release(afterSaved);
         }
-        std::cout << "preset pushed during a save: applied in all " << rounds << " rounds\n";
+        // A read of the settings that raced the push must not be reported as a bad
+        // stored state (before the second read in restoreState: about one warning
+        // per run of these rounds).
+        check(logCount("stored Chimera state was rejected") == rejectedBefore,
+              "a preset pushed while the filter was being saved was reported as a rejected state");
+        std::cout << "preset pushed during a save: applied in all " << rounds << " rounds, none reported as rejected\n";
 
         // The narrowest case, forced: the save's write lands just after the push,
         // so the settings hold the old sound again when the queued reload runs.

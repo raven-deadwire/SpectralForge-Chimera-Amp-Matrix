@@ -174,14 +174,28 @@ void restoreState(Filter* f, obs_data_t* settings) {
         encodedController = std::move(pushedController);
     }
     if (encoded.empty() || encoded == f->syncedComponent) return;
-    const auto component = base64Decode(encoded);
-    const auto controller = base64Decode(encodedController);
-    if (component && !component->empty()
-        && f->host.setState(*component, controller.value_or(std::vector<std::uint8_t>{}))) {
-        f->syncedComponent = encoded;
+    const auto apply = [f](const std::string& state, const std::string& controllerState) {
+        const auto component = base64Decode(state);
+        const auto controller = base64Decode(controllerState);
+        if (!component || component->empty()
+            || !f->host.setState(*component, controller.value_or(std::vector<std::uint8_t>{}))) return false;
+        f->syncedComponent = state;
         f->syncedEdits = f->host.editGeneration();
+        return true;
+    };
+    if (apply(encoded, encodedController)) {
         if (overwritten) writeState(f, settings, &stale); // the scene gets the preset back
         return;
+    }
+    // OBS hands out a setting's string without a lock, so a read made while a
+    // script or obs-websocket thread is replacing that string can be torn: part
+    // old state, part new. Decoding and trying it took far longer than the
+    // replacement does, so the settings now hold what that thread wrote; read
+    // them once more before calling the stored state bad.
+    const std::string settled = obs_data_get_string(settings, keyComponent);
+    if (settled != encoded) {
+        if (settled.empty() || settled == f->syncedComponent) return;
+        if (apply(settled, obs_data_get_string(settings, keyController))) return;
     }
     blog(LOG_WARNING, "[chimera-obs] '%s': stored Chimera state was rejected; the current sound is kept",
          obs_source_get_name(f->source));
