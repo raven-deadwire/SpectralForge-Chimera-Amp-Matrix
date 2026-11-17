@@ -340,7 +340,7 @@ def run(args: argparse.Namespace) -> None:
     check(log.count("[chimera-obs] module ") == 1, "the run logs the Chimera module")
     totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
     check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
-    check(log.count("[chimera-obs] unloaded Chimera filter instance") == 1, "the filter instance is unloaded")
+    app.check_unloaded(log, 1, "the filter instance is unloaded")
     require_complete_comparison(results)
     worst = max(r["max_steps"] for k, r in results.items() if k != "control")
     print(f"PASS real OBS Studio {version['obsVersion']}: the filter's output matches the same Chimera VST3 outside "
