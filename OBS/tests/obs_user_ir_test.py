@@ -212,9 +212,7 @@ def run(args: argparse.Namespace) -> None:
 
     log = log_text()
     check(log.count("[chimera-obs] module ") == 2, "both runs log the Chimera module")
-    unloads = log.count("[chimera-obs] unloaded Chimera filter instance")
-    expected_unloads = 2 * len(SOURCES)
-    check(unloads == expected_unloads, f"every filter instance is unloaded ({unloads} of {expected_unloads})")
+    app.check_unloaded(log, 2 * len(SOURCES), "every filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: a user IR travels in the scene and is restored without its file, "
           "a damaged user IR falls back to the cabinet filters, clean shutdowns")
 

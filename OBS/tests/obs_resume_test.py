@@ -143,8 +143,7 @@ def run(args: argparse.Namespace) -> None:
         app.wait_until(lambda: f"[chimera-obs] '{app.FILTER}': loaded " in log_text(),
                        "the filter found Chimera and loaded it")
         time.sleep(1)
-        obs.request("StartRecord")
-        app.wait_until(lambda: obs.request("GetRecordStatus")["outputActive"], "recording started", 15)
+        obs.start_recording("recording started")
         # Chimera settles on the recorded input first (obs_vst3_match_test.py's warm-up).
         start = wait_phase(obs, 0, 100, (obs.request("GetMediaInputStatus", {"inputName": app.SOURCE})
                                          .get("mediaCursor") or 0) + int(args.warmup * 1000))
@@ -156,9 +155,13 @@ def run(args: argparse.Namespace) -> None:
         disabled_for = time.monotonic() - disabled_at
         print(f"     filter disabled for {disabled_for:.2f} s, from about 0.5 s into a note to 0.3 s after it")
         second = wait_phase(obs, 0, 100, start + PERIOD_MS)
-        # Past the note by more than the media cursor leads the recorded audio (60 ms or more
-        # on the macOS CI runner), while Chimera's tail is still well above a step.
-        wait_phase(obs, NOTE_MS + 100, NOTE_MS + 180, second + PERIOD_MS)
+        # The pause has to land in the recording after the note's end and while Chimera's tail is
+        # still above TAIL_STEPS: about 200 ms (the tail was 79 steps 80 ms after the note and 11
+        # steps 290 ms after it). The media cursor leads the recorded audio by a varying amount:
+        # with the pause asked for 100-180 ms past the note, fourteen CI recordings (macOS and
+        # Linux) held it 1-105 ms after the note's end and one 3 ms before it. Asked for 160-220 ms
+        # past the note, those would have landed 57-165 ms after it.
+        wait_phase(obs, NOTE_MS + 160, NOTE_MS + 220, second + PERIOD_MS)
         obs.request("TriggerMediaInputAction", {"inputName": app.SOURCE,
                                                 "mediaAction": "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE"})
         time.sleep(PAUSE_SECONDS)
@@ -262,7 +265,7 @@ def run(args: argparse.Namespace) -> None:
     check(restarts == ["1"], f"the filter counted one restart after the pause (session total: {restarts})")
     totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
     check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
-    check(log.count("[chimera-obs] unloaded Chimera filter instance") == 1, "the filter instance is unloaded")
+    app.check_unloaded(log, 1, "the filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: Chimera's tails are dropped when the filter is re-enabled "
           f"(largest {kept:.2f} steps after) and when the input resumes after a {PAUSE_SECONDS:g} s pause "
           f"(largest {left:.2f} steps after, one restart counted); the following notes match Chimera outside OBS")
