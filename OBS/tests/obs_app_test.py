@@ -40,6 +40,7 @@ import configparser
 import json
 import math
 import os
+import re
 import shutil
 import signal
 import socket
@@ -472,6 +473,20 @@ def check_unloaded(log: str, expected: int, message: str) -> None:
               "OBS run(s) ended in the known macOS shutdown crash, which cuts the log off.", file=sys.stderr, flush=True)
         unloads = expected
     check(unloads == expected, f"{message} ({unloads} of {expected})")
+
+
+def check_processed_every_block(log: str, expected: int = 1) -> None:
+    """The filter logs a session total, with its count of unprocessed blocks, when it is
+    destroyed. A run that ended in the known macOS shutdown crash has its log cut off before
+    that line, as before the unload lines (check_unloaded): fewer totals are accepted then,
+    never more, and never one that counts an unprocessed block."""
+    totals = re.findall(rf"\[chimera-obs\] '{re.escape(FILTER)}': session total: .*unprocessed blocks (\d+)", log)
+    if tolerated_shutdown_crashes and len(totals) < expected and all(t == "0" for t in totals):
+        print(f"WARNING {len(totals)} of {expected} session totals logged: {tolerated_shutdown_crashes} OBS run(s) "
+              "ended in the known macOS shutdown crash, which cuts the log off. The totals logged count no "
+              "unprocessed block.", file=sys.stderr, flush=True)
+        totals = ["0"] * expected
+    check(totals == ["0"] * expected, f"the filter processed every block (unprocessed: {totals})")
 
 
 def known_macos_shutdown_crash(code: int, report: str, log: str) -> bool:
