@@ -118,8 +118,7 @@ def run_format(args: argparse.Namespace, index: int, fmt: dict, port: int, prese
             print(f"     log: {line.strip()}")
     check("could not be prepared" not in log, f"Chimera was prepared for {fmt['name']}")
     check(log.count("[chimera-obs] module ") == 1, "the run logs the Chimera module")
-    totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
-    check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
+    app.check_processed_every_block(log)
     app.check_unloaded(log, 1, "the filter instance is unloaded")
 
     # The analysis helpers of obs_vst3_match_test.py read the sample rate from obs_app_test.

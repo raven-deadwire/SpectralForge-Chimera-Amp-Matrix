@@ -48,7 +48,10 @@ NOTE_MS = int(match.NOTE * 1000)
 STEP = 1 / 32768
 MEDIA_SECONDS = 60.0
 PAUSE_SECONDS = 1.5
-TAIL_STEPS = 16  # the control's tail must reach this, so the test can see a tail that was kept
+# The tail at the pause, and the control's kept tail, must be above this, so the test can see a
+# tail that was kept: a dropped one is at most about 1 step. It was 16 until two macOS CI runs
+# paused 183 and 187 ms after the note, where the tail is exactly 16 steps, and failed on it.
+TAIL_STEPS = 8
 # The notes after the interruptions against Chimera outside OBS: the 16-bit conversion (up to
 # a step from nearest on the macOS CI runner) plus the float difference between the filter and
 # Chimera outside OBS, seen at about 0.1 step on Linux before any interruption.
@@ -156,8 +159,8 @@ def run(args: argparse.Namespace) -> None:
         print(f"     filter disabled for {disabled_for:.2f} s, from about 0.5 s into a note to 0.3 s after it")
         second = wait_phase(obs, 0, 100, start + PERIOD_MS)
         # The pause has to land in the recording after the note's end and while Chimera's tail is
-        # still above TAIL_STEPS: about 200 ms (the tail was 79 steps 80 ms after the note and 11
-        # steps 290 ms after it). The media cursor leads the recorded audio by a varying amount:
+        # still above TAIL_STEPS: about 300 ms (the tail was 79 steps 80 ms after the note, 16 steps
+        # 185 ms after it and 11 steps 290 ms after it). The media cursor leads the recorded audio by a varying amount:
         # with the pause asked for 100-180 ms past the note, fourteen CI recordings (macOS and
         # Linux) held it 1-105 ms after the note's end and one 3 ms before it. Asked for 160-220 ms
         # past the note, those would have landed 57-165 ms after it.
@@ -263,8 +266,7 @@ def run(args: argparse.Namespace) -> None:
             print(f"     log: {line.strip()}")
     restarts = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*resumed after silence (\d+)", log)
     check(restarts == ["1"], f"the filter counted one restart after the pause (session total: {restarts})")
-    totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
-    check(totals == ["0"], f"the filter processed every block (unprocessed: {totals})")
+    app.check_processed_every_block(log)
     app.check_unloaded(log, 1, "the filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: Chimera's tails are dropped when the filter is re-enabled "
           f"(largest {kept:.2f} steps after) and when the input resumes after a {PAUSE_SECONDS:g} s pause "

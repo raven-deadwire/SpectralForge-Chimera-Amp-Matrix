@@ -165,8 +165,7 @@ def run_format(args: argparse.Namespace, fmt: dict, port: int) -> None:
 
     log = log_text()
     check(log.count("[chimera-obs] module ") == 1, "the run logs the Chimera module")
-    totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
-    check(len(totals) == 1 and totals[0] == "0", f"the filter processed every block (unprocessed: {totals})")
+    app.check_processed_every_block(log)
     app.check_unloaded(log, 1, "the filter instance is unloaded")
 
 
