@@ -94,7 +94,7 @@ inline void run(const juce::File& directory) {
     require(roomCount==spectralforge::roomParameterCount,"Room parameter bank incomplete");
     require(roomAdvancedCount==spectralforge::roomAdvancedParameterCount,"Room Advanced parameter bank incomplete");
     require(roomSpaceCount==spectralforge::roomSpaceParameterCount,"Room spatial parameter bank incomplete");
-    require(p.getParameters().size()==5026+independentDynamicsCount+extraGateCount+cutBypassCount+pedalExpansionCount+stereoCount+saturationCount+referenceAmpCount+fltCount+postExpansionCount+effectExtensionCount+creativeCount+synthCount+sidechainCount+orderCount+modulationCount+sixBandCount+truePeakCount+autoOversamplingCount+roomCount+roomAdvancedCount+roomSpaceCount && cutBypassCount==6,"Independent dynamics changed the released parameter prefix");
+    require(p.getParameters().size()==5026+independentDynamicsCount+extraGateCount+cutBypassCount+pedalExpansionCount+stereoCount+saturationCount+referenceAmpCount+fltCount+postExpansionCount+effectExtensionCount+creativeCount+synthCount+sidechainCount+orderCount+modulationCount+sixBandCount+truePeakCount+autoOversamplingCount+secondSlotCount+roomCount+roomAdvancedCount+roomSpaceCount && cutBypassCount==6,"Independent dynamics changed the released parameter prefix");
     require(channelCount==342,"Original channel bank incomplete");
     require(niflheimrCount==6*(2+5*14),"Niflheimr six-context five-channel bank incomplete");
     require(originalCabCount==spectralforge::originalCabParameterCount,"Original CAB bank incomplete");
