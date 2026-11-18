@@ -284,28 +284,33 @@ inline constexpr AmpNativeControl nativeControls_10[]={
 inline constexpr const char* nativeChannels_10[]={"VINTAGE","OVERDRIVE"};
 inline constexpr const char* nativeChannelKeys_10[]={"vintage","overdrive"};
 inline constexpr const char* nativeRoutes_10[]={"INPUT 1","INPUT 2 \u00b7 -6 dB"};
-inline constexpr const char* nativeOptions_11_10[]={"OFF","ON"};
-inline constexpr const char* nativeOptions_11_11[]={"OFF","ON"};
-inline constexpr const char* nativeOptions_11_12[]={"OFF","ON"};
-inline constexpr const char* nativeOptions_11_13[]={"PASSIVE","ACTIVE"};
+inline constexpr const char* nativeOptions_11_0[]={"HIGH","LOW"};
+inline constexpr const char* nativeOptions_11_1[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_11_2[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_11_3[]={"OFF","ON"};
 inline constexpr AmpNativeControl nativeControls_11[]={
- {"hw.input","INPUT","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.high_pass","HIGH PASS","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.voicing","VOICING","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.bass","BASS","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.lo_mid_frequency","LO MID FREQUENCY","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.lo_mid","LO MID","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.hi_mid_frequency","HI MID FREQUENCY","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.hi_mid","HI MID","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.treble","TREBLE","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.master","MASTER","PANEL",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
- {"hw.deep","DEEP","PANEL",AmpNativeControlKind::toggle,1,nativeOptions_11_10,0.0f,0.f,1.0f},
- {"hw.bright","BRIGHT","PANEL",AmpNativeControlKind::toggle,1,nativeOptions_11_11,0.0f,0.f,1.0f},
- {"hw.mute","MUTE","PANEL",AmpNativeControlKind::toggle,1,nativeOptions_11_12,0.0f,0.f,1.0f},
- {"hw.input_type","INPUT TYPE","PANEL",AmpNativeControlKind::choice,1,nativeOptions_11_13,0.0f,0.f,1.0f},
+ {"hw.input_type","GAIN SWITCH","INPUT",AmpNativeControlKind::choice,3,nativeOptions_11_0,0.0f,0.f,1.0f},
+ {"hw.deep","DEEP","INPUT",AmpNativeControlKind::toggle,3,nativeOptions_11_1,0.0f,0.f,1.0f},
+ {"hw.bright","BRIGHT","INPUT",AmpNativeControlKind::toggle,3,nativeOptions_11_2,0.0f,0.f,1.0f},
+ {"hw.mute","MUTE","INPUT",AmpNativeControlKind::toggle,3,nativeOptions_11_3,0.0f,0.f,1.0f},
+ {"hw.input","GAIN","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.high_pass","HIGHPASS","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.bass","BASS","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.lo_mid","MID","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.lo_mid_frequency","MID FREQ","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.treble","TREBLE","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.master","VOLUME","MODERN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.classic.gain","GAIN","CLASSIC",AmpNativeControlKind::knob,2,{},0.5f,0.f,1.0f},
+ {"hw.classic.high_pass","HIGHPASS","CLASSIC",AmpNativeControlKind::knob,2,{},0.2f,0.f,1.0f},
+ {"hw.classic.bass","BASS","CLASSIC",AmpNativeControlKind::knob,2,{},0.35f,0.f,1.0f},
+ {"hw.classic.mid","MID","CLASSIC",AmpNativeControlKind::knob,2,{},0.85f,0.f,1.0f},
+ {"hw.classic.mid_shift","MID FREQ","CLASSIC",AmpNativeControlKind::knob,2,{},0.0f,0.f,1.0f},
+ {"hw.classic.treble","TREBLE","CLASSIC",AmpNativeControlKind::knob,2,{},0.3f,0.f,1.0f},
+ {"hw.classic.volume","VOLUME","CLASSIC",AmpNativeControlKind::knob,2,{},0.5f,0.f,1.0f},
+ {"hw.od_symmetry","O/D SYMMETRY","POWER",AmpNativeControlKind::knob,3,{},0.0f,0.f,1.0f},
 };
-inline constexpr const char* nativeChannels_11[]={"SINGLE"};
-inline constexpr const char* nativeChannelKeys_11[]={"single"};
+inline constexpr const char* nativeChannels_11[]={"MODERN","CLASSIC"};
+inline constexpr const char* nativeChannelKeys_11[]={"modern","classic"};
 inline constexpr const char* nativeRoutes_11[]={"INPUT"};
 inline constexpr const char* nativeOptions_12_4[]={"1","2","3","4","5","6"};
 inline constexpr const char* nativeOptions_12_7[]={"OFF","ON"};
@@ -705,7 +710,7 @@ inline constexpr std::array<AmpNativePanel,ampModelCount> ampNativePanels{{
  {"VOX AC30CH Custom Head","primary_core_reviewed",nativeControls_8,nativeChannels_8,nativeChannelKeys_8,nativeRoutes_8,1},
  {"Orange Rockerverb 50 MKIII \u2014 target panel","primary_panel_pending",nativeControls_9,nativeChannels_9,nativeChannelKeys_9,nativeRoutes_9,1},
  {"Fender Super Bassman","primary_core_reviewed",nativeControls_10,nativeChannels_10,nativeChannelKeys_10,nativeRoutes_10,1},
- {"Mesa Subway D-800+ \u2014 not D-800","primary_panel_pending",nativeControls_11,nativeChannels_11,nativeChannelKeys_11,nativeRoutes_11,0},
+ {"Mesa Subway TT-800 \u2014 two-channel panel","partial_primary_review",nativeControls_11,nativeChannels_11,nativeChannelKeys_11,nativeRoutes_11,0},
  {"Matchless C-30 / DC-30 \u2014 original panel target","primary_core_reviewed",nativeControls_12,nativeChannels_12,nativeChannelKeys_12,nativeRoutes_12,1},
  {"ODS #102-style clone \u2014 exact hardware/panel pending","primary_panel_pending",nativeControls_13,nativeChannels_13,nativeChannelKeys_13,nativeRoutes_13,1},
  {"EICH T900","primary_core_reviewed",nativeControls_14,nativeChannels_14,nativeChannelKeys_14,nativeRoutes_14,0},
