@@ -560,6 +560,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
     creativeStrip=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor);add(*creativeStrip);creativeStrip->onOpen=[this]{openCreativePanel();};
+    rackDrag=std::make_unique<spectralforge::postRack::Overlay>(processor);add(*rackDrag);rackDrag->changed=[this]{layoutControls();repaintDesign({20,298,1140,445});};
     synthPage=std::make_unique<spectralforge::synthUI::SynthPage>(processor);add(*synthPage);
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
@@ -819,12 +820,13 @@ void ChimeraEditor::refreshVisibleState()
             if(lastMode==2 && i==0)lowMeterKey.dirty=true;
         }
     }
+    if(rackDrag && processor.requestedOrder().post!=shownRackOrder){layoutControls();repaintDesign({20,298,1140,445});}
     for(int position=3;position<6;++position) {
         const int family=rackOrder[(size_t)position];auto& effect=effects[(size_t)family];
         if(!effect.model.isVisible())continue;
         if(effect.power.update(effect.enabled.getToggleState())) {
             effect.enabled.setButtonText(effect.enabled.getToggleState()?"ON":"OFF");
-            repaintDesign({34,330+position*69+24,10,10});
+            repaintDesign({34,rackRowY(position)+24,10,10});
         }
     }
     midi.setButtonText(processor.learningMidi()?"LEARN":"MIDI");
@@ -860,7 +862,7 @@ void ChimeraEditor::refreshMeters()
         lanes[0].cabStatus.setText("GR "+juce::String(processor.lowCompMeter(),1)+" dB | DRIVE 0 | "+lanes[0].status,juce::dontSendNotification);
         repaintDesign({37,638,336,5});
     }
-    if(page==2)for(int p=3;p<6;++p)if(postMeterKeys[(size_t)p-3].update(meterKey(processor.postModuleLevel(p))))repaintDesign({318,330+p*69+16,112,32});
+    if(page==2)for(int p=3;p<6;++p)if(postMeterKeys[(size_t)p-3].update(meterKey(processor.postModuleLevel(p))))repaintDesign({318,rackRowY(p)+16,112,32});
 
     const auto cpu="AUDIO "+juce::String(processor.cpuLoad(),1)+"%  |  PEAK "+juce::String(processor.cpuPeakLoad(),1)+"%";
     if(cpuText.update(cpu)){callbackLoad.setText(cpu,juce::dontSendNotification);callbackLoad.setColour(juce::Label::textColourId,processor.cpuPeakLoad()>=100?juce::Colours::salmon:muted);}
@@ -884,7 +886,7 @@ void ChimeraEditor::updateHardwareStyles()
         effect.header.setTooltip(description);effect.description.setTooltip(description);
         effect.description.setText(juce::String(info.character).replace(" / ","\n"),juce::dontSendNotification);effect.scope.setText("AFTER RIG MERGE",juce::dontSendNotification);
         if(family==9){effect.labels[0].setText(model==1?"LOW 110 Hz":model==2?"LOW 60 Hz":"LOW 80 Hz",juce::dontSendNotification);effect.labels[4].setText(model==1?"HIGH 12 kHz":model==2?"HIGH 10 kHz":"HIGH 8 kHz",juce::dontSendNotification);}
-        for(int position=3;position<6;++position)if(rackOrder[(size_t)position]==(int)family)repaintDesign({20,330+position*69,1140,64});
+        for(int position=3;position<6;++position)if(rackOrder[(size_t)position]==(int)family)repaintDesign({20,rackRowY(position),1140,64});
         const bool pedal=family==0 || (family>=3 && family<=6);
         const auto hardware=pedal ? spectralforge::art::pedalStyle((int)family,model) : spectralforge::art::rackStyle((int)family,model);
         const auto labelInk=hardware.brightFace ? juce::Colour(0xff202923) : ink;
@@ -987,6 +989,7 @@ void ChimeraEditor::updateModeUI()
     }
     for(auto& post:postPanels) {post->setVisible(page==2 && !tunerViewOpen);post->refreshIfNeeded();}
     creativeStrip->setVisible(page==2 && !tunerViewOpen);
+    rackDrag->setVisible(page==2 && !tunerViewOpen);if(rackDrag->isVisible())rackDrag->toFront(false);
     synthPage->setVisible(page==4 && !tunerViewOpen);
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
@@ -1050,7 +1053,7 @@ void ChimeraEditor::paintCanvas(juce::Graphics& g)
     text(g,"MODE",664,8,140,22,10.f);
     if(page==2) {
         for(int position=3;position<6;++position) {
-            const float y=330.f+position*69.f;const int family=rackOrder[(size_t)position];const auto& effect=effects[(size_t)family];
+            const float y=float(rackRowY(position));const int family=rackOrder[(size_t)position];const auto& effect=effects[(size_t)family];
             if(!g.clipRegionIntersects({20,(int)y,1140,64}))continue;
             g.setColour(panel.withAlpha(.9f));g.fillRoundedRectangle(20,y,1140,64,4);
             spectralforge::art::rack(g,{296,y,864,64},family,effect.model.getSelectedId()-1);
@@ -1124,6 +1127,18 @@ void ChimeraEditor::fitToDisplay()
     if(top!=this)top->setTopLeftPosition(spectralforge::ui::centredWindowPosition(display->userArea,{top->getWidth(),top->getHeight()}));
     resized();
 }
+// The rack rows keep the POST order among themselves; CREATIVE keeps its
+// strip and names its neighbours. Every row's left strip is a drag grip.
+void ChimeraEditor::layoutRack()
+{
+    using namespace spectralforge;
+    if(!rackDrag || !creativeStrip)return;
+    const auto order=processor.requestedOrder().post;
+    shownRackOrder=order;rackSlots=postRack::rowSlots(order);
+    for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,rackRowY((int)i),1140,64);
+    creativeStrip->setBounds(postRack::creativeStripBounds);creativeStrip->setPlacement(postRack::creativePlacement(order));
+    postRack::layout(*rackDrag,rackSlots);
+}
 void ChimeraEditor::layoutControls()
 {
     callbackLoad.setBounds(902,744,254,18);
@@ -1156,16 +1171,15 @@ void ChimeraEditor::layoutControls()
     midi.setBounds(182,748,66,28);tap.setBounds(256,748,56,28);tempo.setBounds(320,748,132,28);hostTempo.setBounds(460,748,112,28);metronome.setBounds(580,748,126,28);
     easyOpen.setBounds(714,748,86,28);
     inputGuide.setBounds(16,2,456,60);
-    for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
-    creativeStrip->setBounds(310,302,850,24);
+    layoutRack();
     synthPage->setBounds(20,302,1140,438);
     for(int position=3;position<6;++position) {
-        auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;
+        auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=rackRowY(position);
         effect.header.setBounds(48,y+2,186,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
         int count=0;for(auto& attachment:effect.attachments)if(attachment)++count;const int cell=692/count;
         for(int k=0;k<count;++k){const int controlWidth=juce::jmin(144,cell-7),x=458+k*cell+(cell-controlWidth)/2;effect.labels[(size_t)k].setBounds(x,y+2,controlWidth,16);effect.controls[(size_t)k].setTextBoxStyle(juce::Slider::TextBoxRight,false,68,22);effect.controls[(size_t)k].setBounds(x,y+17,controlWidth,45);}
     }
-    delaySync.setBounds(297,330+4*69+1,47,15);
+    delaySync.setBounds(297,rackRowY(4)+1,47,15);
     diVoice.setBounds(32,616,60,20);lowAmpMix.setBounds(90,615,158,23);diNote.setVisible(false);
     lowCompLabel.setBounds(253,616,43,20);lowComp.setSliderStyle(juce::Slider::LinearHorizontal);lowComp.setTextBoxStyle(juce::Slider::TextBoxRight,false,37,20);lowComp.setBounds(296,615,82,23);
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
