@@ -46,3 +46,31 @@ jobs:
             if grep -qx "$f" <<<"$existing"; then echo "already attached: $f"; else gh release upload "$TAG" "$f"; fi
           done
           gh release view "$TAG" --json assets -q '.assets[]|select(.name|startswith("chimera-obs"))|.name+" "+(.size|tostring)+" "+.digest'
+      - name: Describe the packages in the release notes
+        run: |
+          gh release view "$TAG" --json body -q .body > body.md
+          cat > obs-section.md <<'EOF'
+          **OBS filter on its own (added 2026-11-18):** the installers above already offer
+          the OBS Studio filter as an optional item (on Windows it is part of the Windows
+          installer). To add only the filter, use `chimera-obs-macos-universal-5bbc2715df.zip`
+          (macOS 12+, Apple silicon and Intel) or `chimera-obs-linux-x86_64-5bbc2715df.tar.gz`
+          (x86_64, glibc 2.38+, OBS from your distribution's packages; Flatpak and Snap are not
+          supported; the editor window needs X11 or XWayland). Close OBS and run `./install.sh`
+          from the unpacked folder; the Chimera VST3 must be installed. Checksums are in
+          `chimera-obs-SHA256SUMS.txt`. These packages were built and tested by OBS add-on run
+          44147274342 from source `5bbc2715`, whose OBS code is identical to this release. The
+          macOS module is ad-hoc signed and not notarized. They are not listed in `SHA256SUMS.txt`.
+
+          EOF
+          python3 - <<'PY'
+          body = open("body.md", encoding="utf-8").read().rstrip("\n")
+          section = open("obs-section.md", encoding="utf-8").read()
+          if "OBS filter on its own" in body:
+              print("release notes already describe the OBS packages")
+              raise SystemExit(0)
+          anchor = "**License period:** this beta expires at"
+          index = body.index(anchor)  # first occurrence: the 1.4.1-beta.1 section
+          open("body-new.md", "w", encoding="utf-8").write(body[:index] + section + body[index:] + "\n")
+          PY
+          if [ -f body-new.md ]; then gh release edit "$TAG" --notes-file body-new.md; fi
+          gh release view "$TAG" --json body -q .body | sed -n '1,30p'
