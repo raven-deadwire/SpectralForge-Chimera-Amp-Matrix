@@ -1,0 +1,48 @@
+name: Attach OBS filter packages to v1.4.1-beta.1
+# One-shot: attaches the standalone OBS filter packages built and tested by
+# OBS add-on run 44147274342 (source 5bbc2715, the same OBS code as the
+# v1.4.1-beta.1 release) to that release. Each file must match the SHA-256
+# verified before upload; files already attached are left untouched.
+on:
+  push:
+    branches: [claude/optimistic-wozniak-rs4b5k]
+    paths: ['.github/workflows/obs-release-assets.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: obs-release-assets
+  cancel-in-progress: false
+jobs:
+  attach:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: v1.4.1-beta.1
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 44147274342
+          github-token: ${{ github.token }}
+          pattern: chimera-obs-{macos-universal,linux-x86_64}-5bbc2715dfde34aa92f4312ef05d938498ad66bd
+          merge-multiple: true
+          path: obs
+      - name: Verify the packages
+        working-directory: obs
+        run: |
+          cat > chimera-obs-SHA256SUMS.txt <<'EOF'
+          814423de083c6b3c08e032961a053f43afdf5b432647c0c6e8ab320b68286787  chimera-obs-macos-universal-5bbc2715df.zip
+          6faf089e8543b77dfa616698aa7ac5f8e836c5212dfd97257a9bffb37ff020c2  chimera-obs-linux-x86_64-5bbc2715df.tar.gz
+          EOF
+          sha256sum -c chimera-obs-SHA256SUMS.txt
+          ls -l
+      - name: Attach to the release
+        working-directory: obs
+        run: |
+          existing="$(gh release view "$TAG" --json assets -q '.assets[].name')"
+          for f in chimera-obs-macos-universal-5bbc2715df.zip chimera-obs-linux-x86_64-5bbc2715df.tar.gz chimera-obs-SHA256SUMS.txt; do
+            if grep -qx "$f" <<<"$existing"; then echo "already attached: $f"; else gh release upload "$TAG" "$f"; fi
+          done
+          gh release view "$TAG" --json assets -q '.assets[]|select(.name|startswith("chimera-obs"))|.name+" "+(.size|tostring)+" "+.digest'
