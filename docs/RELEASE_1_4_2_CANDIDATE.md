@@ -7,18 +7,22 @@ Owner instruction, 2026-11-19 (Asia/Seoul):
   and a feature path (also #334, #335 and #336, as 1.5.0-beta.1), the owner
   answered: "빠른 경로로 1.4.2-beta.1 준비해줘".
 
-Preparation is authorized. **Publication is not**: it still needs the latest
-exact-source workflows to succeed, a fresh source-bound receipt and the
-owner's explicit publication decision. The 1.4.1-beta.1 authorization and its
+**Publication decision (2026-11-19, Asia/Seoul).** Told that the preparation
+PR was up, that the expiry had been left unchanged and unconfirmed, and that
+merging and publication needed a separate instruction, the owner answered:
+"만료일 유지하고 CI 통과하면 #339 머지해서 공개 진행해줘". The gaps under "Not
+validated" below were disclosed to the owner for 1.4.1-beta.1 two days earlier
+and are restated in this release's notes. Publication still requires the latest
+exact-source workflows to succeed and a fresh source-bound receipt
+(`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The 1.4.1-beta.1 authorization and its
 `Validation/weekly-publication-policy.json` receipt (bound to source
 `6bc7216cd2dc72772daaca65a89edbaf6b5a8c43`) do not carry over. No failed or
 unexecuted check is promoted to PASS.
 
 **License period:** 2027-05-31 23:59 KST (`2027-05-31T14:59:00Z`, Unix
-`1811775540`), the date of 1.4.0-beta.1 and 1.4.1-beta.1. The owner was told
-this date and has **not yet confirmed it separately for 1.4.2-beta.1**; that
-confirmation is required before publication. A verified tester code lifts the
-expiry with no end date.
+`1811775540`), the date of 1.4.0-beta.1 and 1.4.1-beta.1, confirmed by the
+owner for 1.4.2-beta.1 on 2026-11-19. A verified tester code lifts the expiry
+with no end date.
 
 ## Source
 
@@ -86,8 +90,8 @@ Open PRs created after this branch was cut are not in it.
 - [ ] **Manual:** the EN/DE/KO manual shows 1.4.2-beta.1 and names the new
       Auto Set steps. Open: a review of the German and Korean text by a
       native speaker.
-- [ ] **Expiry confirmation:** the owner confirms 2027-05-31 23:59 KST for
-      1.4.2-beta.1.
+- [x] **Expiry confirmation:** the owner confirmed 2027-05-31 23:59 KST for
+      1.4.2-beta.1 (2026-11-19).
 - [ ] **Approval receipt:** a fresh approval receipt binds the final SHA,
       version, strict policy and CI-map fingerprints.
 

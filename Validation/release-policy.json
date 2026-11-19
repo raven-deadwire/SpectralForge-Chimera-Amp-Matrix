@@ -644,7 +644,7 @@
     "profile": "beta_1_3",
     "channel": "beta.1",
     "decision_at": "2026-11-19T18:44:00+09:00",
-    "authorization": "Owner instruction on 2026-11-19 (Asia/Seoul): asked when the next release is possible (\"다음 릴리즈 언제 가능하냐\"), the owner was offered a fast path (current main plus the small open PRs, as 1.4.2-beta.1) and a feature path, and instructed: \"빠른 경로로 1.4.2-beta.1 준비해줘\". The beta expiry stays 2027-05-31 23:59 KST, the value in force for 1.4.0-beta.1 and 1.4.1-beta.1; the owner was told this value and has not yet confirmed it separately for 1.4.2-beta.1, which is required before publication. Preparation is authorized; publication is not: fresh exact-source qualification, owner acceptance and an explicit publication decision remain required. The 1.4.1-beta.1 and earlier authorizations do not carry over.",
+    "authorization": "Owner instruction on 2026-11-19 (Asia/Seoul): asked when the next release is possible (\"다음 릴리즈 언제 가능하냐\"), the owner was offered a fast path (current main plus the small open PRs, as 1.4.2-beta.1) and a feature path, and instructed: \"빠른 경로로 1.4.2-beta.1 준비해줘\". Told that the beta expiry had been left at 2027-05-31 23:59 KST, the value in force for 1.4.0-beta.1 and 1.4.1-beta.1, the owner confirmed it for 1.4.2-beta.1 on the same day (\"만료일 유지하고 CI 통과하면 #339 머지해서 공개 진행해줘\"). Preparation is authorized; in this source record publication is not: fresh exact-source qualification, owner acceptance and an explicit publication decision remain required. The 1.4.1-beta.1 and earlier authorizations do not carry over.",
     "preparation_authorized": true,
     "publication_authorized": false,
     "release_approved": false,
