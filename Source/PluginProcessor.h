@@ -191,8 +191,9 @@ public:
     // 0-2 a Dual rig or Matrix lane (fed in a Dual or Matrix routing that has that lane).
     void setAutoSetMicLane(int lane) noexcept {autoSetMicLaneState.store(std::clamp(lane,-1,2),std::memory_order_release);}
     // What the rig tap (Tap::cab) hears: -1 the whole rig after the post-rig gates (every routing);
-    // 0 or 1 that Dual rig alone, after its cabinet, level and polarity (fed in the Dual routing only).
-    void setAutoSetRigLane(int lane) noexcept {autoSetRigLaneState.store(std::clamp(lane,-1,1),std::memory_order_release);}
+    // 0 or 1 that Dual rig alone, or 0 to 2 that Matrix lane alone, after its cabinet, level and polarity
+    // (fed in those routings only; a lane the routing does not have feeds nothing).
+    void setAutoSetRigLane(int lane) noexcept {autoSetRigLaneState.store(std::clamp(lane,-1,2),std::memory_order_release);}
     // Message thread: Auto Set holds all gates open while it listens to the rig's noise.
     void setAutoSetGateBypass(bool bypass) noexcept {autoSetGateBypass.store(bypass,std::memory_order_relaxed);}
     // The native amp settings a routing context plays with (Auto Set renders candidates offline).

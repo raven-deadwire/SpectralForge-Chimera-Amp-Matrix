@@ -98,6 +98,7 @@ protection and mixed-gain capture abstention apply at every strength.
 | Rig 1 / Rig 2 amp gain (Dual Crossover) | The GAIN move, as for Amp |
 | Rig 1 / Rig 2 amp channel (Dual Crossover) | Not scaled: a channel is switched or kept, as for Amp channel |
 | Rig 1 / Rig 2 amp input trim (Dual Crossover) | The trim in dB, as for Amp input trim; the level then holds the loudness |
+| MID / HIGH lane amp gain (Matrix) | The GAIN move, as for Amp |
 | Room ambience | A room that is on: its return change in dB, as for Amp. A room that is off is opened with its return lowered by 20 log10(strength), as a mix scales (25%: -12 dB); below the return's -36 dB it stays off |
 | Cabinet mic blend | The BLEND change, as for Amp; the mic delays and polarity are applied whole |
 | Stereo doubler | A spread change of a doubler that is on, as for Amp; switching it on is not scaled |
