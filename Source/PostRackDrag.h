@@ -4,8 +4,10 @@
 #include <functional>
 
 // POST rack page drag-to-reorder (docs/SIGNAL_ORDER_1_4.md, "Drag on the POST
-// page"). The rack rows follow the POST order; CREATIVE keeps its strip above
-// the rows. Each row's left strip (and the CREATIVE strip's left edge) is a
+// page"). The rack rows follow the POST order of their slot 1 blocks; CREATIVE
+// keeps its strip above the rows. Each row (and the strip) shows slot 1 or
+// slot 2 of its section (docs/POST_SECOND_SLOTS.md); dragging moves the block
+// that is shown, and dropping takes the place of the block shown there. Each row's left strip (and the CREATIVE strip's left edge) is a
 // grip. Dragging a grip more than 6 pixels highlights the block under the
 // pointer; releasing there is one placement command (the ROUTING graph's
 // command, so one undo step and the same 5 ms order crossfade). Hovering writes
@@ -25,12 +27,12 @@ inline std::array<int, rowCount> rowSlots(const PostOrder& order) noexcept {
     }
     return slots;
 }
-inline juce::String blockCaption(int module) { return moduleName(OrderRegion::post, juce::jlimit(0, postModuleCount - 1, module)).toUpperCase(); }
-// "AFTER DELAY / BEFORE REVERB" for the released order.
-inline juce::String creativePlacement(const PostOrder& order) {
-    const int p = order.position(postCreativeModule);
+inline juce::String blockCaption(int block) { return moduleName(OrderRegion::post, juce::jlimit(0, postBlockCount - 1, block)).toUpperCase(); }
+// "AFTER DELAY / BEFORE REVERB" for the released order (CREATIVE in `slot`).
+inline juce::String creativePlacement(const PostOrder& order, int slot = 0) {
+    const int p = order.position(postBlock(postCreativeModule, slot));
     if (p <= 0) return "FIRST IN POST / BEFORE " + blockCaption(order.slots[1]);
-    if (p >= postModuleCount - 1) return "AFTER " + blockCaption(order.slots[size_t(p - 1)]) + " / LAST IN POST";
+    if (p >= postBlockCount - 1) return "AFTER " + blockCaption(order.slots[size_t(p - 1)]) + " / LAST IN POST";
     return "AFTER " + blockCaption(order.slots[size_t(p - 1)]) + " / BEFORE " + blockCaption(order.slots[size_t(p + 1)]);
 }
 
@@ -66,8 +68,8 @@ class Overlay final : public juce::Component {
 public:
     explicit Overlay(ChimeraProcessor& owner) : processor(owner) {
         setComponentID("postRackDrag");setInterceptsMouseClicks(false, true);
-        for (int m = 0; m < postModuleCount; ++m) {
-            auto& grip = *grips.emplace_back(std::make_unique<Grip>(m));addAndMakeVisible(grip);
+        for (int m = 0; m < postBlockCount; ++m) {
+            auto& grip = *grips.emplace_back(std::make_unique<Grip>(m));addChildComponent(grip);
             grip.down = [this, m](const juce::MouseEvent& e) { begin(m, e); };
             grip.drag = [this](const juce::MouseEvent& e) { move(e); };
             grip.up = [this](const juce::MouseEvent& e) { finish(e); };
@@ -77,7 +79,7 @@ public:
     // The block (whole row or strip) and its grip, in parent coordinates.
     void setBlock(int module, juce::Rectangle<int> block, juce::Rectangle<int> grip, juce::Point<int> dots = {14, 40}) {
         blocks[size_t(module)] = block;
-        auto& g = *grips[size_t(module)];g.setBounds(grip - getPosition());g.dots = dots;
+        auto& g = *grips[size_t(module)];g.setBounds(grip - getPosition());g.dots = dots;g.setVisible(!block.isEmpty());
     }
     Grip& grip(int module) noexcept { return *grips[size_t(module)]; }
     bool isDragging() const noexcept { return dragging; }
@@ -98,7 +100,7 @@ public:
     void paint(juce::Graphics& g) override {
         if (!dragging) return;
         const auto origin = getPosition();
-        for (int m = 0; m < postModuleCount; ++m) {
+        for (int m = 0; m < postBlockCount; ++m) {
             const auto box = (blocks[size_t(m)] - origin).toFloat().reduced(1.f);
             if (box.isEmpty()) continue;
             if (m == source) { g.setColour(juce::Colours::black.withAlpha(.35f));g.fillRoundedRectangle(box, 4); }
@@ -120,10 +122,10 @@ public:
 private:
     ChimeraProcessor& processor;
     std::vector<std::unique_ptr<Grip>> grips;
-    std::array<juce::Rectangle<int>, postModuleCount> blocks{};
+    std::array<juce::Rectangle<int>, postBlockCount> blocks{};
     bool pressed{}, dragging{};int source{-1}, target{-1};juce::Point<int> point;
     juce::Point<int> inParent(const juce::MouseEvent& e) const { return getParentComponent() != nullptr ? e.getEventRelativeTo(getParentComponent()).getPosition() : e.getEventRelativeTo(const_cast<Overlay*>(this)).getPosition() + getPosition(); }
-    int blockAt(juce::Point<int> p) const noexcept { for (int m = 0; m < postModuleCount; ++m) if (blocks[size_t(m)].contains(p)) return m; return -1; }
+    int blockAt(juce::Point<int> p) const noexcept { for (int m = 0; m < postBlockCount; ++m) if (blocks[size_t(m)].contains(p)) return m; return -1; }
     void begin(int module, const juce::MouseEvent&) { pressed = true;dragging = false;source = module;target = module; }
     void move(const juce::MouseEvent& e) {
         if (!pressed) return;   // released, or cancelled with Escape
@@ -155,12 +157,15 @@ private:
 inline int rowY(int slot) noexcept { return 330 + juce::jlimit(0, rowCount - 1, slot) * 69; }
 inline juce::Rectangle<int> rowBounds(int slot) noexcept { return {20, rowY(slot), 1140, 64}; }
 inline const juce::Rectangle<int> creativeStripBounds{310, 302, 850, 24};
-inline void layout(Overlay& overlay, const std::array<int, rowCount>& slots) {
+// `shown`: the slot (0 or 1) each section's row or strip shows; the other
+// slot's block has no grip and takes no drop on this page.
+inline void layout(Overlay& overlay, const std::array<int, rowCount>& slots, const std::array<int, postModuleCount>& shown = {}) {
     overlay.setBounds(20, 298, 1140, 443);
     for (int row = 0; row < rowCount; ++row) {
-        const auto box = rowBounds(slots[size_t(row)]);
-        overlay.setBlock(rowModules[size_t(row)], box, box.withWidth(26));
+        const int section = rowModules[size_t(row)];const auto box = rowBounds(slots[size_t(row)]);
+        for (int slot = 0; slot < 2; ++slot) overlay.setBlock(postBlock(section, slot), slot == shown[size_t(section)] ? box : juce::Rectangle<int>(), box.withWidth(26));
     }
-    overlay.setBlock(postCreativeModule, creativeStripBounds.expanded(4, 3), creativeStripBounds.withWidth(14), {4, 7});
+    for (int slot = 0; slot < 2; ++slot)
+        overlay.setBlock(postBlock(postCreativeModule, slot), slot == shown[size_t(postCreativeModule)] ? creativeStripBounds.expanded(4, 3) : juce::Rectangle<int>(), creativeStripBounds.withWidth(14), {4, 7});
 }
 } // namespace spectralforge::postRack
