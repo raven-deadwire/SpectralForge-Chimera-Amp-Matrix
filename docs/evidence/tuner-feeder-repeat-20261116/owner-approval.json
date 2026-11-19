@@ -1,0 +1,34 @@
+{
+  "schema": "chimera.tuner-fixture-owner-review.v1",
+  "review_date_kst": "2026-11-16",
+  "status": "APPROVED",
+  "source": "Explicit user reply in the current conversation after the question below",
+  "user_reply": "둘다 승인",
+  "reviewed_pr": 323,
+  "reviewed_source_sha": "862e7a853e463769e6dfec168880bacd869f5dea",
+  "review_document": "docs/TUNER_TIMING_ATTRIBUTION.md",
+  "approval_question": "튜너 테스트 다이제스트: #323의 새 파일로 다시 승인 등록할까요?",
+  "approved_file": "Tests/PrecisionTunerIntegrationTests.cpp",
+  "approved_sha256": "e0649f4a78a94d670dbeab94a3de5847bb7c35133c92a169d887bf3eb5c441f9",
+  "previous_sha256": "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc",
+  "approved_changes": {
+    "max_route_attempts": 5,
+    "repeat_pause_ms": [250, 1000, 2000, 4000],
+    "repeat_pause_budget_ms": 20000,
+    "route_timing_end_field": "repeat_pause_ms",
+    "exact_digest_registration": true
+  },
+  "preserved_requirements": [
+    "50 ms feeder lateness limit",
+    "290 ms acquisition/settling gate",
+    "0.1 cent accuracy gate",
+    "a feeder-valid attempt is final; a tuner gate failure is never repeated",
+    "all assertions and failure reporting",
+    "single exact SHA256 acceptance; no automatic re-pinning"
+  ],
+  "context": "PR323 was merged on 2026-11-15 before this registration; Tools/test_preset_maintenance.py failed on main from then until this change. The second approval in the same reply (merge PR324 and publish 1.4.1-beta.1 after CI passes) is recorded with that release, not here.",
+  "not_granted": [
+    "approval of future fixture edits",
+    "whole-main preset-only source acceptance"
+  ]
+}
