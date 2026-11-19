@@ -11,6 +11,17 @@ same as 1.4.0-beta.1. Highlights:
   longer rewrites an unchanged state into the scene;
 - more stable timing-sensitive tests on busy CI runners (no product change).
 
+**OBS filter on its own (added 2026-11-18):** the installers above already offer
+the OBS Studio filter as an optional item (on Windows it is part of the Windows
+installer). To add only the filter, use `chimera-obs-macos-universal-5bbc2715df.zip`
+(macOS 12+, Apple silicon and Intel) or `chimera-obs-linux-x86_64-5bbc2715df.tar.gz`
+(x86_64, glibc 2.38+, OBS from your distribution's packages; Flatpak and Snap are not
+supported; the editor window needs X11 or XWayland). Close OBS and run `./install.sh`
+from the unpacked folder; the Chimera VST3 must be installed. Checksums are in
+`chimera-obs-SHA256SUMS.txt`. These packages were built and tested by OBS add-on run
+44147274342 from source `5bbc2715`, whose OBS code is identical to this release. The
+macOS module is ad-hoc signed and not notarized. They are not listed in `SHA256SUMS.txt`.
+
 **License period:** this beta expires at **2027-05-31T14:59:00Z /
 2027-05-31 23:59:00 KST**, the same date as 1.4.0-beta.1, with a warning from
 14 days before. Instances already open keep running; instances opened after

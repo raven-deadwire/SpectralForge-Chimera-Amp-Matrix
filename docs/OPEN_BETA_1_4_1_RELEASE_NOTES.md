@@ -25,6 +25,7 @@
 
 - **저장 중에 넣은 프리셋 보존:** OBS가 필터를 저장하는 동안 스크립트나 obs-websocket으로 넣은 프리셋이 이전 소리로 덮어써져 사라지던 문제를 고쳤습니다. 저장이 프리셋을 덮어쓴 경우에도 프리셋을 적용하고 장면에 다시 기록합니다.
 - **불필요한 쓰기 제거:** 상태가 바뀌지 않았으면 저장할 때 설정을 다시 쓰지 않습니다.
+- **필터만 받는 별도 패키지 (2026-11-18 추가):** 설치 파일에는 OBS 필터가 이미 선택 항목으로 들어 있습니다(Windows는 Windows 설치기에 포함). 필터만 추가하려면 릴리즈의 `chimera-obs-macos-universal-5bbc2715df.zip`(macOS 12 이상, Apple silicon·Intel) 또는 `chimera-obs-linux-x86_64-5bbc2715df.tar.gz`(x86_64, glibc 2.38 이상, 배포판 패키지로 설치한 OBS, Flatpak·Snap 미지원, 에디터 창은 X11 또는 XWayland 필요)를 받아 OBS를 종료한 뒤 `./install.sh`를 실행합니다. Chimera VST3가 설치되어 있어야 합니다. 체크섬은 `chimera-obs-SHA256SUMS.txt`에 있고, `SHA256SUMS.txt`에는 들어 있지 않습니다. OBS add-on 실행 44147274342가 소스 `5bbc2715`로 빌드·시험했으며, 이 소스의 OBS 코드는 이 릴리즈와 같습니다. macOS 모듈은 임시 서명이며 공증 전입니다.
 
 ### 시험과 CI (제품 동작 변화 없음)
 
