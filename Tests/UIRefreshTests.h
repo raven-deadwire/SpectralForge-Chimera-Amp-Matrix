@@ -39,11 +39,14 @@ inline void run(const juce::File& directory) {
     require(full!=nullptr,"Detached POST ALL content missing");
     find<juce::TextButton>(canvas,"path.pre")->onClick();
     settle(100);const auto hiddenParent=post->stateRefreshCount();set(p,spectralforge::postNativeModelID(0),1);settle(120);
+    // The detached window follows on a 25 Hz tick; wait for it, then judge.
+    dispatchUntilNative([&]{return full->selectedModel()==1;});
     require(full->selectedModel()==1 && post->stateRefreshCount()==hiddenParent,"Detached POST ALL stopped or refreshed hidden parent");close(all);
     tab(canvas,"RIGS");all=open(canvas,"ampExpand1","ampNativePanel1");auto* ampFull=dynamic_cast<AmpNativePanel*>(spectralforge::ui::dialogContent(*all));
     require(ampFull!=nullptr,"Detached amp ALL content missing");
     find<juce::TextButton>(canvas,"path.pre")->onClick();
     settle(100);const auto fullCount=ampFull->stateRefreshCount(),ownerCount=amp->stateRefreshCount();p.setAmpModel(0,15);settle(120);
+    dispatchUntilNative([&]{return ampFull->stateRefreshCount()>fullCount;});
     require(ampFull->stateRefreshCount()>fullCount && amp->stateRefreshCount()==ownerCount,"Detached amp ALL stopped or refreshed hidden parent");close(all);
 
     // IR metadata may be edited while its cabinet is hidden, without changing
@@ -75,7 +78,10 @@ inline void run(const juce::File& directory) {
     editor.addToDesktop(juce::ComponentPeer::windowIsTemporary);editor.setVisible(true);settle(100);editor.setVisible(false);settle(80);
     const auto hiddenState=amp->stateRefreshCount(),hiddenMetadata=editor.metadataRefreshCount();settle(200);
     require(amp->stateRefreshCount()==hiddenState && editor.metadataRefreshCount()==hiddenMetadata,"Hidden editor performs panel/metadata work");
-    editor.setVisible(true);settle(100);require(amp->stateRefreshCount()>hiddenState,"Revealed editor missed deferred refresh");editor.removeFromDesktop();
+    // The deferred refresh runs on the editor's next 25 Hz tick after the
+    // reveal; a stalled runner can deliver none in a fixed 100 ms (#304).
+    editor.setVisible(true);settle(100);dispatchUntilNative([&]{return amp->stateRefreshCount()>hiddenState;});
+    require(amp->stateRefreshCount()>hiddenState,"Revealed editor missed deferred refresh");editor.removeFromDesktop();
     std::cout<<"PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation\n";
 }
 }

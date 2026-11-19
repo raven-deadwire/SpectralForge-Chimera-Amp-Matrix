@@ -6,6 +6,8 @@
 #include "PluginProcessor.h"
 #include "SignalPath.h"
 #include "SignalPathView.h"
+#include "PluginEditor.h"
+#include "PostRackDrag.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -285,9 +287,91 @@ void keyDelay() {
 }
 }
 
+// POST page drag (docs/SIGNAL_ORDER_1_4.md, "Drag on the POST page"): the
+// shipped editor's rack grips reorder with one command; hover writes nothing;
+// Escape, off-target release and a plain click change nothing.
+juce::Component* findID(juce::Component& root,const juce::String& id){
+    if(root.getComponentID()==id)return &root;
+    for(auto* child:root.getChildren())if(auto* found=findID(*child,id))return found;
+    return nullptr;
+}
+template<class T> T* findType(juce::Component& root){
+    if(auto* t=dynamic_cast<T*>(&root))return t;
+    for(auto* child:root.getChildren())if(auto* found=findType<T>(*child))return found;
+    return nullptr;
+}
+void postPageDrag() {
+    auto p=make();auto editor=std::make_unique<ChimeraEditor>(*p);editor->setSize(1180,780);
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(30);
+    // Open the POST page through the compact signal path, as a user would.
+    auto* path=findType<SignalPathView>(*editor);require(path!=nullptr && path->buttonFor("post")!=nullptr,"Compact signal path or its POST block missing");
+    path->buttonFor("post")->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(30);
+    auto* overlay=dynamic_cast<postRack::Overlay*>(findID(*editor,"postRackDrag"));
+    auto* dynamicsRow=findID(*editor,"postNativePanel0");auto* eqRow=findID(*editor,"postNativePanel2");
+    require(overlay!=nullptr && overlay->isVisible() && dynamicsRow!=nullptr && eqRow!=nullptr,"POST page drag layer or rack rows missing");
+    require(dynamicsRow->getY()==postRack::rowY(0) && eqRow->getY()==postRack::rowY(2),"Released order does not keep the released rack layout");
+    auto* canvas=overlay->getParentComponent();
+    struct Writes final : juce::AudioProcessorListener {
+        int changes{};void audioProcessorParameterChanged(juce::AudioProcessor*,int,float) override {++changes;}
+        void audioProcessorChanged(juce::AudioProcessor*,const ChangeDetails&) override {}
+    } writes;
+    const auto source=juce::Desktop::getInstance().getMainMouseSource();
+    // A mouse event on `grip` at a canvas point, pressed at `downAt`.
+    const auto event=[&](postRack::Grip& grip,juce::Point<int> at,juce::Point<int> downAt,bool down){
+        const auto local=grip.getLocalPoint(canvas,at).toFloat(),start=grip.getLocalPoint(canvas,downAt).toFloat();const auto now=juce::Time::getCurrentTime();
+        return juce::MouseEvent(source,local,juce::ModifierKeys(down?juce::ModifierKeys::leftButtonModifier:0),1,0,0,0,0,&grip,&grip,now,start,now,1,local.getDistanceFrom(start)>6);};
+    const auto gripCentre=[&](postRack::Grip& grip){return canvas->getLocalPoint(&grip,grip.getLocalBounds().getCentre());};
+    // 1. Drag POST dynamics over the reverb row, then the delay row, and drop.
+    auto& dynamics=overlay->grip(postDynamicsModule);const auto start=gripCentre(dynamics);
+    require(postRack::rowBounds(0).contains(start),"The dynamics grip is not on its row");
+    p->addListener(&writes);
+    dynamics.mouseDown(event(dynamics,start,start,true));
+    dynamics.mouseDrag(event(dynamics,postRack::rowBounds(5).getCentre(),start,true));
+    const int hoverReverb=overlay->dropModule(),hoverReverbPosition=overlay->dropPosition();
+    dynamics.mouseDrag(event(dynamics,postRack::rowBounds(4).getCentre(),start,true));
+    const int hoverDelay=overlay->dropModule();const auto caption=overlay->caption();const int writesWhileHovering=writes.changes;
+    if(const char* dir=std::getenv("SIGNAL_ORDER_SNAPSHOT")){
+        auto out=juce::File(dir).getChildFile("post_page_drag.png");out.deleteFile();auto stream=out.createOutputStream();
+        require(stream && juce::PNGImageFormat().writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds(),true,1.f),*stream),"Cannot write the POST page drag snapshot");
+    }
+    dynamics.mouseUp(event(dynamics,postRack::rowBounds(4).getCentre(),start,false));
+    p->removeListener(&writes);
+    const auto moved=p->requestedOrder().post;
+    require(hoverReverb==postReverbModule && hoverReverbPosition==6 && hoverDelay==postDelayModule && caption=="POST DYNAMICS > POSITION 5" && writesWhileHovering==0,"POST page hover preview wrong, or hovering wrote a parameter");
+    require(moved==PostOrder::initial().placed(postDynamicsModule,4),"The drop did not place POST dynamics at position 5");
+    // The rows follow the order: dynamics now sits below the delay row.
+    require(dynamicsRow->getY()==postRack::rowY(4) && eqRow->getY()==postRack::rowY(1),"Rack rows do not follow the new order");
+    require(p->undoOrder() && p->requestedOrder()==SignalOrder{} && !p->canUndoOrder(),"A POST page drop is not exactly one undo step");
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(150);   // the editor timer lays the rows out again
+    require(dynamicsRow->getY()==postRack::rowY(0),"Rows did not return after undo");
+    // 2. Escape cancels; moving on and releasing afterwards does nothing.
+    p->addListener(&writes);writes.changes=0;
+    dynamics.mouseDown(event(dynamics,start,start,true));dynamics.mouseDrag(event(dynamics,postRack::rowBounds(3).getCentre(),start,true));
+    const bool wasDragging=overlay->isDragging();
+    require(wasDragging && dynamics.keyPressed(juce::KeyPress(juce::KeyPress::escapeKey)) && !overlay->isDragging(),"Escape did not cancel the POST page drag");
+    dynamics.mouseDrag(event(dynamics,postRack::rowBounds(5).getCentre(),start,true));require(!overlay->isDragging(),"The drag restarted after Escape");
+    dynamics.mouseUp(event(dynamics,postRack::rowBounds(5).getCentre(),start,false));
+    // 3. A click (2 pixels) does not reorder; nor does a release outside the rack or over the own row.
+    dynamics.mouseDown(event(dynamics,start,start,true));dynamics.mouseUp(event(dynamics,start+juce::Point<int>(2,1),start,false));
+    dynamics.mouseDown(event(dynamics,start,start,true));dynamics.mouseDrag(event(dynamics,{600,120},start,true));const int outside=overlay->dropModule();dynamics.mouseUp(event(dynamics,{600,120},start,false));
+    dynamics.mouseDown(event(dynamics,start,start,true));dynamics.mouseDrag(event(dynamics,start+juce::Point<int>(300,10),start,true));dynamics.mouseUp(event(dynamics,start+juce::Point<int>(300,10),start,false));
+    p->removeListener(&writes);
+    require(outside==-1 && p->requestedOrder()==SignalOrder{} && writes.changes==0 && !p->canUndoOrder(),"A cancelled drag or a click changed the order");
+    // 4. CREATIVE's strip is a grip and a target too.
+    auto& creative=overlay->grip(postCreativeModule);const auto creativeStart=gripCentre(creative);
+    require(postRack::creativeStripBounds.contains(creativeStart),"The CREATIVE grip is not on its strip");
+    creative.mouseDown(event(creative,creativeStart,creativeStart,true));creative.mouseDrag(event(creative,postRack::rowBounds(3).getCentre(),creativeStart,true));creative.mouseUp(event(creative,postRack::rowBounds(3).getCentre(),creativeStart,false));
+    require(p->requestedOrder().post.position(postCreativeModule)==3 && postRack::creativePlacement(p->requestedOrder().post)=="AFTER POST EQ / BEFORE MODULATION","CREATIVE drop wrong");
+    auto& reverb=overlay->grip(postReverbModule);const auto reverbStart=gripCentre(reverb);
+    reverb.mouseDown(event(reverb,reverbStart,reverbStart,true));reverb.mouseDrag(event(reverb,postRack::creativeStripBounds.getCentre(),reverbStart,true));reverb.mouseUp(event(reverb,postRack::creativeStripBounds.getCentre(),reverbStart,false));
+    require(p->requestedOrder().post.position(postReverbModule)==3 && p->requestedOrder().post.position(postCreativeModule)==4,"Dropping on the CREATIVE strip did not take its position");
+    std::cout<<"MEASURE POST page drag: hover over REVERB previews position "<<hoverReverbPosition+1<<", caption '"<<caption<<"', "<<writesWhileHovering<<" writes while hovering; dropped at position "<<moved.position(postDynamicsModule)+1<<"; outside target "<<outside<<"\n";
+    std::cout<<"PASS POST page drag: rows follow the order, one undoable command on drop, Escape / outside / own row / click change nothing, CREATIVE strip drags and takes drops\n";
+}
+
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();keyDelay();}
+    try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
