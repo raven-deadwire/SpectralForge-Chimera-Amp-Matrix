@@ -217,8 +217,7 @@ def run(args: argparse.Namespace) -> None:
 
     log = log_text()
     check(log.count("[chimera-obs] module ") == 3, "all three runs log the Chimera module")
-    unloads = log.count("[chimera-obs] unloaded Chimera filter instance")
-    check(unloads == 2 + 4 + 4, f"every filter instance is unloaded ({unloads} of 10)")
+    app.check_unloaded(log, 2 + 4 + 4, "every filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: two Chimera filters keep their own state side by side, "
           "pasted filters carry the state, stay independent and keep it through a restart, clean shutdowns")
 
