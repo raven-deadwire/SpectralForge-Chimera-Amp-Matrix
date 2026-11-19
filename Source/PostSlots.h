@@ -5,8 +5,8 @@
 // dynamics, POST preamp, POST EQ, modulation, delay, CREATIVE, reverb) has a
 // second, fully independent instance. Slot 1 keeps every released parameter
 // ID; slot 2 uses the same IDs with the "slot2_" prefix, appended at the end
-// of the parameter list at version hint 35 (33 was the highest released hint;
-// 34 stays free for a parallel change).
+// of the parameter list at version hint 35, after the Metro Clean TT-800
+// bank (hint 34).
 namespace spectralforge {
 inline constexpr int postSlotCount = 2;
 inline constexpr int postSecondSlotParameterVersion = 35;

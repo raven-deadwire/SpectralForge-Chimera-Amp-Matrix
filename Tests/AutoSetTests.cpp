@@ -968,7 +968,7 @@ void controllerLevel() {
     check(sameEQ && value(keptEQ.values,"output")!=value(keptEQ.before,"output") && stepOf(keptEQ.status,P::level)->result.contains("Final EQ kept (locked)"),"Final EQ lock did not keep only the Final EQ");
     auto bothLocked=levelOnly;bothLocked.locks=Controller::lockOutput|Controller::lockFinalEQ;
     const auto skipped=runLevel(bothLocked);
-    check(skipped.status.passes==std::vector<P>{P::input,P::compressor} && stepOf(skipped.status,P::level) && stepOf(skipped.status,P::level)->result=="kept (locked)","Locking both did not skip the pass");
+    check(skipped.status.passes==std::vector<P>{P::input,P::compressor} && stepOf(skipped.status,P::level) && stepOf(skipped.status,P::level)->result=="kept (locked)",[&]{std::string d="Locking both did not skip the pass:";for(auto x:skipped.status.passes)d+=" "+std::to_string(int(x));d+=" | "+(stepOf(skipped.status,P::level)?stepOf(skipped.status,P::level)->result.toStdString():std::string("no step"));return d;}());
     // A user curve behind a bypassed Final EQ stays inaudible; the trim still moves.
     const auto bypassed=runLevel(levelOnly,[](ChimeraProcessor& p){p.parameters().getParameter(spectralforge::eqID(1,4,"enabled"))->setValueNotifyingHost(1.f);});
     check(stepOf(bypassed.status,P::level)->result.contains("your curve is bypassed") && value(bypassed.values,spectralforge::eqID(1,-1,"bypass"))>.5f,"A bypassed Final EQ curve was switched on");
@@ -1821,6 +1821,9 @@ void controllerGateStageEditHistory() {
 #include "AutoSetDualPowerTests.h"
 #include "AutoSetDualChannelTests.h"
 #include "AutoSetDualTrimTests.h"
+#include "AutoSetCrossGainTests.h"
+#include "AutoSetCrossChannelTests.h"
+#include "AutoSetCrossTrimTests.h"
 #include "AutoSetBusTests.h"
 #include "AutoSetBusOrderControllerTests.h"
 #include "AutoSetCabEditTests.h"
@@ -1867,6 +1870,9 @@ int main(int argc, char** argv) {
         if(argc==2 && std::string(argv[1])=="--dual-power"){controllerDualPower();return 0;}
         if(argc==2 && std::string(argv[1])=="--dual-channel"){controllerDualChannel();return 0;}
         if(argc==2 && std::string(argv[1])=="--dual-trim"){controllerDualTrim();return 0;}
+        if(argc==2 && std::string(argv[1])=="--cross-gain"){crossGainCapture();controllerCrossGain();return 0;}
+        if(argc==2 && std::string(argv[1])=="--cross-channel"){controllerCrossChannel();return 0;}
+        if(argc==2 && std::string(argv[1])=="--cross-trim"){controllerCrossTrim();return 0;}
         if(argc==2 && std::string(argv[1])=="--integration"){controllerIntegration();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-controller"){controllerPowerBassRegression();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-rules"){powerBassRules();return 0;}
@@ -1892,7 +1898,7 @@ int main(int argc, char** argv) {
             autoSetDI::analyse(juce::File(argv[2]),std::string(argv[3])=="bass",std::string(argv[4])=="clean"?Style::clean:std::string(argv[4])=="metal"?Style::metal:Style::rock,strength,juce::File(argv[6]));return 0;
         }
         check(argc==1,"Unknown argument");
-        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();crossoverRules();controllerCrossover();roomRules();controllerRoom();widthRules();controllerWidth();cutsRules();controllerCuts();laneCutsRules();controllerLaneCuts();rig1CutsRules();controllerRig1Cuts();laneIRRules();controllerLaneIR();laneMicRules();controllerLaneMic();laneMicsRules();laneMicsCapture();controllerLaneMics();dualBoostRules();controllerDualBoost();dualAmpCapture();controllerDualAmp();controllerDualPower();controllerDualChannel();controllerDualTrim();busRules();controllerBus();
+        parameterEditNotifications();controllerEditHistory();controllerGateStageEditHistory();analysisRules();toneRules();finishRules();attackSafetyRules();multibandRules();gateStageRules();dynamicEQRules();levelRules();ampRules();ampNativeProbe();cabRules();cabRegression::run();boostRules();spaceRules();captureWindows();controllerFinishPreservation();controllerIntegration();inputStrengthRounding();controllerLocksAndStrength();controllerStrengthMatrix();controllerEveryLock();controllerAttackLockRegression();controllerDynamicEQ();controllerLevel();controllerAmp();controllerCab();controllerBassCab();controllerBoost();controllerSpace();spaceSignalRegression();spaceControllerRegression();powerRules();controllerPower();dualRules();dualLaneCapture();controllerDual();matrixRules();matrixLaneCapture();controllerMatrix();micsRules();micsCapture();controllerMics();rigsRules();controllerRigs();channelRules();controllerChannel();polarityRules();polarityRegressions();controllerPolarity();syncRules();controllerSync();syncTiming();syncRegression::run();cabIRRules();cabIRLowEnd();controllerCabIR();trimRules();controllerTrim();crossoverRules();controllerCrossover();roomRules();controllerRoom();widthRules();controllerWidth();cutsRules();controllerCuts();laneCutsRules();controllerLaneCuts();rig1CutsRules();controllerRig1Cuts();laneIRRules();controllerLaneIR();laneMicRules();controllerLaneMic();laneMicsRules();laneMicsCapture();controllerLaneMics();dualBoostRules();controllerDualBoost();dualAmpCapture();controllerDualAmp();controllerDualPower();controllerDualChannel();controllerDualTrim();crossGainCapture();controllerCrossGain();controllerCrossChannel();controllerCrossTrim();busRules();controllerBus();
         dynamicSignalRegression();dynamicOwnershipRegression();dynamicRenderRegression();dynamicEditPlacementRegression();dynamicUserCurveRegression();
         levelRegression::run();
         controllerCabPlacementEdits();

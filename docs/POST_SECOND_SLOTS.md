@@ -65,7 +65,7 @@ MODULATION, DELAY, CREATIVE and REVERB. Each now has **two slots**.
 ## Parameters and compatibility
 
 - **Version hint 35:** all new parameters are appended at the very end, after
-  OVERSAMPLING Auto (hint 33). Hint 34 is left free for a parallel change.
+  the Metro Clean TT-800 bank (hint 34, `docs/METRO_CLEAN_TT800.md`).
 - **The bank:** 269 parameters (`postSecondSlotParameterCount()`).
   1. `orderPost8`–`orderPost14`. Not automatable, defaults 7–13 (the
      second slots).
