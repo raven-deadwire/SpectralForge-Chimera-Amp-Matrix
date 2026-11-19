@@ -1,4 +1,38 @@
-# SpectralForge Chimera 1.4.1-beta.1 (open beta)
+# SpectralForge Chimera 1.4.2-beta.1 (open beta)
+
+**1.4.2-beta.1** collects what was integrated on main after the public
+1.4.1-beta.1. The model catalog, parameters and saved-state format are the
+same as 1.4.1-beta.1. Highlights:
+
+- seven more Auto Set steps, all **off by default**, that extend the amp
+  settings to both rigs of a Dual routing: gain and tone, presence and
+  resonance, channel selection and input trim in a Dual Blend; gain, channel
+  selection and input trim in a Dual Crossover;
+- two real-OBS app tests tolerate the timing of the macOS CI runner (no
+  product change; the OBS filter code is the same as 1.4.1-beta.1).
+
+**License period:** this beta expires at **2027-05-31T14:59:00Z /
+2027-05-31 23:59:00 KST**, the same date as 1.4.0-beta.1 and 1.4.1-beta.1,
+with a warning from 14 days before. Instances already open keep running;
+instances opened after expiry keep their state with output muted. A verified
+beta tester code (SETTINGS → *Enter beta tester code...*) lifts the expiry on
+that computer with no end date.
+
+Validation status: the publisher releases this version only after the exact
+source passes the Windows, macOS and Linux product builds, CTest, package
+verification and candidate assembly, and after the owner accepts publication
+with the disclosed gaps (`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The
+strict report it requires is 21 PASS / 107 unexecuted BLOCKED, including 42
+strict hard gates. Real guitar/bass DI listening, real DAW/audio-device
+acceptance, publisher signing / macOS notarization and AAX in Pro Tools are
+not validated, as in 1.4.1-beta.1. The Auto Set steps added in 1.4.1 and 1.4.2
+have had synthetic tests only. This is not a stable or strict-validation pass.
+Full notes: `docs/OPEN_BETA_1_4_2_RELEASE_NOTES.md`; candidate record:
+`docs/RELEASE_1_4_2_CANDIDATE.md` (both in the release's source).
+
+---
+
+# Public 1.4.1-beta.1
 
 **1.4.1-beta.1** collects what was integrated on main after the public
 1.4.0-beta.1. The model catalog, parameters and saved-state format are the

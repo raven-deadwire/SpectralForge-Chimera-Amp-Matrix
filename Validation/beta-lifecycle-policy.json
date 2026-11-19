@@ -1,6 +1,6 @@
 {
   "schema": "spectralforge.chimera.beta-policy.v1",
-  "version": "1.4.1-beta.1",
+  "version": "1.4.2-beta.1",
   "expires_at_utc": "2027-05-31T14:59:00Z",
   "expiry_approved": true,
   "warning_lead_seconds": 1209600,
