@@ -64,7 +64,7 @@ DualAmpRun runDualAmp(const Controller::Options& options,std::array<float,2> gai
         // Each pass starts the DI again, with the rig it listens to on the rig tap.
         const P now=c.current().phase;if(now!=last){last=now;offset=0;}
         if(offset+256>di.size())offset=0;
-        const auto& heard=post[size_t(now==P::dualAmp2?1:0)];
+        const auto& heard=post[size_t(Controller::dualAmpLane(now)==1?1:0)];
         const float* in[]{di.data()+offset};const float* out[]{heard.data()+offset};
         p->autoSetCapture().push(Tap::amp,in,1,256);
         for(auto tap:{Tap::cab,Tap::input,Tap::compressor})p->autoSetCapture().push(tap,tap==Tap::cab?out:in,1,256);

@@ -87,6 +87,7 @@ class Engine {
     // after its level and polarity, before the Dual blend weight. Filled only
     // while capturing (allocated in prepare).
     std::array<juce::AudioBuffer<float>,3> laneOut;bool captureLanes{};int lanesCaptured{};
+    std::array<juce::AudioBuffer<float>,2> laneIn;bool captureLaneInputs{},laneInputsCaptured{};
     double sampleRate{48000.0};
     RoutingMode previousMode{static_cast<RoutingMode>(-1)};
     // A routing change jumps between two different signal paths, and a reset
@@ -106,6 +107,13 @@ public:
     const juce::AudioBuffer<float>& laneOutput(int lane) const noexcept { return laneOut[(size_t)juce::jlimit(0,2,lane)]; }
     // Audio thread: lanes the last block filled (0; Dual playing 2; Matrix playing 3).
     int laneCaptureCount() const noexcept { return lanesCaptured; }
+    // Audio thread: also capture what each Dual Crossover rig's amp receives (with setLaneCapture).
+    void setLaneInputCapture(bool value) noexcept { captureLaneInputs=value; }
+    // Audio thread, after process(): the band rig `rig`'s amp received in the last block, after
+    // the crossover and the rig's band tone. Valid when laneInputsFilled().
+    const juce::AudioBuffer<float>& laneInput(int rig) const noexcept { return laneIn[(size_t)juce::jlimit(0,1,rig)]; }
+    // Audio thread: the last block played a Dual Crossover and filled both rigs' laneInput.
+    bool laneInputsFilled() const noexcept { return laneInputsCaptured; }
     // Audio thread: every cabinet the last block could be heard through is
     // settled. Lanes outside the routing mode, muted lanes and lanes with the
     // cabinet off do not count.
@@ -145,6 +153,8 @@ public:
         for (auto& buffer : work)
             buffer.setSize(static_cast<int>(spec.numChannels), static_cast<int>(spec.maximumBlockSize));
         for (auto& buffer : laneOut)
+            buffer.setSize(static_cast<int>(spec.numChannels), static_cast<int>(spec.maximumBlockSize));
+        for (auto& buffer : laneIn)
             buffer.setSize(static_cast<int>(spec.numChannels), static_cast<int>(spec.maximumBlockSize));
     }
     void reset()
@@ -191,6 +201,7 @@ public:
         const bool matrix = mode == RoutingMode::matrix;
         const bool split=matrix || (mode==RoutingMode::dual && dualCross);
         lanesCaptured=!captureLanes || mode==RoutingMode::classic ? 0 : mode==RoutingMode::dual ? 2 : 3;
+        laneInputsCaptured=captureLaneInputs && lanesCaptured==2 && dualCross;
         dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
         const int count = mode == RoutingMode::classic ? 1 : mode == RoutingMode::dual ? 2 : 3;
         for(int i=count;i<3;++i)laneHeard[(size_t)i]=false;
@@ -220,6 +231,7 @@ public:
                              state.presence, state.resonance);
             // Full-range EQ/presence/resonance are bypassed in Matrix, including
             // values recalled from previous Classic/Dual sessions. Keep their state.
+            if(laneInputsCaptured)laneIn[(size_t)i].makeCopyOf(work[i],true);
             if(matrix && i==0) {
                 lowCompressor.process(work[i],state.lowComp);
                 lowDry.makeCopyOf(work[i],true);
