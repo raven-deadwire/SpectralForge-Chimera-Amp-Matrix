@@ -26,7 +26,7 @@ This revision connects the 23 amplifier panel definitions in `Preparation/amp_co
 | Chime 30 | 10 | Normal / Top Boost; Cut, master, onboard reverb and tremolo |
 | Orange Crown | 11 | Clean / Dirty panels; reverb, attenuator and power |
 | Vintage Valve | 17 | Vintage / Overdrive; OD blend and variable mid; shared master |
-| Metro Clean | 14 | High-pass, voicing, two variable mids and input type |
+| Metro Clean | 19 | Subway TT-800: shared High/Low gain, Deep, Bright, Mute; MODERN active and CLASSIC passive channels, each with Highpass; shared O/D Symmetry (plus three retired D-800+ host parameters) |
 | Prism Chime | 9 | Three-knob channel one / six-position channel two; Cut and master bypass |
 | Silk Lead | 11 | Clean / OD; separate OD Drive and Ratio; shared tone and voicing |
 | Taste Punch | 8 | Gain, Taste contour, four-band EQ, Master and Mute |

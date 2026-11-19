@@ -92,7 +92,11 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
         case 8:s.channel=drive<.1f?0:1;k(s.channel==0?"hw.normal.volume":"hw.top_boost.volume",.35f+.65f*drive);k("hw.top_boost.bass",bass);k("hw.top_boost.treble",treble);k("hw.tone_cut",index==5?.36f:.43f);k("hw.reverb_level",0);k("hw.tremolo_depth",0);break;
         case 9:s.channel=1;k("hw.dirty.gain",heavy?.90f:highGain);eq("hw.dirty.bass","hw.dirty.middle","hw.dirty.treble");k("hw.reverb",0);break;
         case 10:s.channel=0;k("hw.vintage.volume",.42f+.45f*drive);eq("hw.vintage.bass","hw.vintage.mid","hw.vintage.treble");break;
-        case 11:k("hw.input",.5f);k("hw.high_pass",0);k("hw.voicing",index==14?.20f:.08f);k("hw.lo_mid_frequency",index==14?.28f:.40f);k("hw.hi_mid_frequency",index==14?.67f:.52f);eq("hw.bass","hw.lo_mid","hw.treble");k("hw.hi_mid",position(tone.mid+get("highmid"+suffix)/48.f));break;
+        // Metro Clean stays on the MODERN (Subway TT-800) channel, the closest
+        // to the released D-800+ voicing. MID FREQ keeps the released lo-mid
+        // centre (301 / 406 Hz) on the TT-800 linear 150 Hz-2 kHz sweep; the
+        // retired D-800+ VOICING / HI MID had only small factory offsets.
+        case 11:s.channel=0;k("hw.input",.5f);k("hw.high_pass",0);k("hw.lo_mid_frequency",index==14?.0815f:.1382f);eq("hw.bass","hw.lo_mid","hw.treble");break;
         case 12:s.channel=0;k("hw.ch1.volume",.3f+.65f*drive);k("hw.ch1.bass",bass);k("hw.ch1.treble",treble);k("hw.cut",.40f);break;
         case 13:s.channel=1;k("hw.volume",index==29?.65f:.5f);k("hw.od.drive",index==29?.94f:highGain);k("hw.od.ratio",index==29?.65f:.5f);eq("hw.bass","hw.middle","hw.treble");k("hw.presence",presence);break;
         case 14:k("hw.gain",.46f);k("hw.taste",.46f);k("hw.lo",bass);k("hw.lo_mid",mid);k("hw.hi_mid",position(tone.mid+get("highmid"+suffix)/48.f));k("hw.hi",treble);break;

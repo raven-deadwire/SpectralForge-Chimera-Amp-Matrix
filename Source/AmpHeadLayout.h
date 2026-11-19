@@ -182,18 +182,25 @@ inline constexpr Knob model10[]{
     {"hw.overdrive.treble","TREBLE",0.7750f,0.7900f},
     {"hw.master","MASTER",0.8850f,0.7900f},
 };
-// 11 — Metro Clean
+// 11 — Metro Clean (TT-800 reading order wrapped onto the existing two-row
+// blank plate; MODERN and CLASSIC share the seven channel positions and the
+// shared O/D SYMMETRY ends the second row)
 inline constexpr Knob model11[]{
-    {"hw.input","INPUT",0.1150f,0.5600f},
-    {"hw.high_pass","HIGH PASS",0.3050f,0.5600f},
-    {"hw.voicing","VOICING",0.4950f,0.5600f},
-    {"hw.bass","BASS",0.6850f,0.5600f},
-    {"hw.lo_mid_frequency","LO MID FREQUENCY",0.8750f,0.5600f},
-    {"hw.lo_mid","LO MID",0.1150f,0.8500f},
-    {"hw.hi_mid_frequency","HI MID FREQUENCY",0.3050f,0.8500f},
-    {"hw.hi_mid","HI MID",0.4950f,0.8500f},
-    {"hw.treble","TREBLE",0.6850f,0.8500f},
-    {"hw.master","MASTER",0.8750f,0.8500f},
+    {"hw.input","GAIN",0.1150f,0.5600f},
+    {"hw.high_pass","HIGHPASS",0.3683f,0.5600f},
+    {"hw.bass","BASS",0.6217f,0.5600f},
+    {"hw.lo_mid","MID",0.8750f,0.5600f},
+    {"hw.lo_mid_frequency","MID FREQ",0.1150f,0.8500f},
+    {"hw.treble","TREBLE",0.3683f,0.8500f},
+    {"hw.master","VOLUME",0.6217f,0.8500f},
+    {"hw.classic.gain","GAIN",0.1150f,0.5600f},
+    {"hw.classic.high_pass","HIGHPASS",0.3683f,0.5600f},
+    {"hw.classic.bass","BASS",0.6217f,0.5600f},
+    {"hw.classic.mid","MID",0.8750f,0.5600f},
+    {"hw.classic.mid_shift","MID FREQ",0.1150f,0.8500f},
+    {"hw.classic.treble","TREBLE",0.3683f,0.8500f},
+    {"hw.classic.volume","VOLUME",0.6217f,0.8500f},
+    {"hw.od_symmetry","O/D SYM",0.8750f,0.8500f},
 };
 // 12 — Prism Chime
 inline constexpr Knob model12[]{

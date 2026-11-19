@@ -93,7 +93,7 @@ inline Profile profileForModel(int model,const char* controlKey=nullptr) noexcep
 // Preserve the hardware's deliberate size hierarchy without changing hit
 // targets or parameter identities. The larger Output keeps the full Mark-IV
 // slot. Rockerverb EQ uses the smaller grip seen on the MKIII. No small-
-// frequency-knob assumption is made for the D-800+.
+// frequency-knob assumption is made for the TT-800 (Metro Clean).
 inline float bodyScaleForModel(int model,const char* controlKey=nullptr) noexcept {
     const std::string_view key=controlKey==nullptr?std::string_view{}:std::string_view(controlKey);
     if(model==int(AmpModel::liquidLead))return key=="hw.output"?1.f:.88f;

@@ -131,3 +131,10 @@ A measurement fix during development: an earlier version of the THD helper used 
 - Matching the hardware's sound. The coefficients are authored, with no capture or circuit fit.
 - Listening on real DI, and DAW automation/recall.
 - Photographic head artwork like models 0–25.
+
+## Later: model 11 re-based on the Subway TT-800
+
+Metro Clean (model 11, released before 1.6) was re-based from the Subway
+D-800+ to the Subway TT-800 two-channel panel and checked by
+`ChimeraReferenceAmpTests` alongside these heads. Panel, DSP assumptions and
+the saved-session mapping: [METRO_CLEAN_TT800.md](METRO_CLEAN_TT800.md).

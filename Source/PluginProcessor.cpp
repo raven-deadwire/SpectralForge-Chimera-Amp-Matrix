@@ -924,6 +924,8 @@ spectralforge::appendMultibandSixBandParameters(p);
 spectralforge::appendTruePeakLimiterParameters(p);
 // OVERSAMPLING Auto, version hint 33.
 spectralforge::appendOversamplingAutoParameters(p);
+// Metro Clean TT-800 remodel: CLASSIC channel and O/D SYMMETRY, version hint 34.
+spectralforge::appendMetroCleanTT800Parameters(p);
 return p;
 }
 
