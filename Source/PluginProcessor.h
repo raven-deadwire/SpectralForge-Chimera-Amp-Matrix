@@ -39,6 +39,7 @@
 #include "HostBypass.h"
 #include "LoudnessMeter.h"
 #include "OversamplingAuto.h"
+#include "PostSecondSlotParameters.h"
 
 class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
@@ -162,8 +163,12 @@ public:
     juce::String userIRName(int lane) const {return library.userName(lane);}
     float preCompressorReduction() const {return preReduction.load();}
     float postCompressorReduction() const {return postReduction.load();}
-    float postModuleLevel(int position) const {return postPeaks[(size_t)juce::jlimit(0,5,position)].load();}
-    float postNativeMeter(int section) const {return nativePostMeters[(size_t)juce::jlimit(0,2,section)].load();}
+    // POST meters of a rack row (0-5: dynamics, preamp, EQ, modulation, delay,
+    // reverb) in POST slot 1 or 2 (docs/POST_SECOND_SLOTS.md).
+    float postModuleLevel(int position,int slot=0) const {return (slot>0?postPeaks2:postPeaks)[(size_t)juce::jlimit(0,5,position)].load();}
+    float postNativeMeter(int section,int slot=0) const {return (slot>0?nativePostMeters2:nativePostMeters)[(size_t)juce::jlimit(0,2,section)].load();}
+    // Whether the second POST preamp currently runs (and adds its latency).
+    bool postSecondPreampActive() const noexcept {return preamp2Reported.load(std::memory_order_relaxed);}
     juce::String cabStatus(int lane) const { return library.status(lane); }
     spectralforge::IRMetadata cabMetadata(int lane) const { return library.metadata(lane,(int)state.getRawParameterValue("cabtype"+juce::String(lane+1))->load()); }
     std::array<uint64_t,4> cabDisplayRevision(int lane) const noexcept {return library.displayRevision(lane);}
@@ -194,6 +199,7 @@ public:
     // The native amp settings a routing context plays with (Auto Set renders candidates offline).
     spectralforge::AmpNativeState autoSetAmpState(int context,int channel=-1) const noexcept {return nativeAmps.read(context,channel);}
     spectralforge::PostNativeState autoSetPostState() const noexcept {return nativePost.read();}
+    spectralforge::PostNativeState postNativeState(int slot) const noexcept {return slot>0?nativePost2.read():nativePost.read();}
     spectralforge::MultibandDynamics& multibandDynamics() noexcept {return multiband;}
     spectralforge::DeEsser& deEsser() noexcept {return deesser;}
     float pedalCompressorReduction(int owner) const noexcept {return pedalBoard.compressorReduction(owner);}
@@ -254,7 +260,7 @@ public:
     void setAmpChannel(int lane,int channel);
     void setAmpNativeRoute(int lane,int route);
     void activateNativeAmp(int lane);
-    void activateNativePost(int section);
+    void activateNativePost(int section,int slot=0);
 private:
     friend struct ChimeraBetaTestAccess;
     bool removeTesterCodeAt(const juce::File&);
@@ -337,6 +343,17 @@ private:
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
     spectralforge::CreativeFX creative;
+    // POST second slots (docs/POST_SECOND_SLOTS.md): an independent rack and
+    // CREATIVE instance, their parameter readers, and whether the second
+    // preamp runs (audio thread; it changes only at an order-switch silence
+    // because it adds latency).
+    spectralforge::PostFXChain postFX2;
+    spectralforge::CreativeFX creative2;
+    spectralforge::PostNativeParameterCache nativePost2;
+    spectralforge::PostSlotFXParameters postSlot2;
+    bool preamp2Active{};std::atomic<bool> preamp2Reported{false};
+    spectralforge::FXState readPostSlot2(const spectralforge::FXState& slot1) const noexcept;
+    void processPostRack(juce::AudioBuffer<float>& buffer,const spectralforge::FXState& fx,const spectralforge::FXState& fx2);
     spectralforge::SynthLayer synth;
     std::atomic<double> synthTracked{0.0};
     // Sidechain and SYNTH bus (docs/SIDECHAIN_SYNTH_BUS.md). The key and bus
@@ -345,7 +362,7 @@ private:
     std::atomic<float>* synthOutput{};std::atomic<float>* keyComp{};std::atomic<float>* keyGates{};std::atomic<float>* keyMultiband{};
     juce::AudioBuffer<float> keyBuffer;const juce::AudioBuffer<float>* externalKey{};
     // The key delayed by HQ saturation (tone region) and the POST preamp, for keyed modules placed after them.
-    spectralforge::KeyDelay toneKeyDelay,postKeyDelay;const juce::AudioBuffer<float>* toneKeyDelayed{};const juce::AudioBuffer<float>* postKeyDelayed{};float* busLeft{};float* busRight{};
+    spectralforge::KeyDelay toneKeyDelay,postKeyDelay,postKeyDelay2;const juce::AudioBuffer<float>* toneKeyDelayed{};const juce::AudioBuffer<float>* postKeyDelayed{};const juce::AudioBuffer<float>* postKeyDelayed2{};float* busLeft{};float* busRight{};
     spectralforge::SignalOrderParameters signalOrder;spectralforge::SignalOrder activeOrder;   // activeOrder: audio thread
     spectralforge::OrderSwitch toneSwitch,postSwitch;
     double hostPpq{std::numeric_limits<double>::quiet_NaN()},hostPpqBpm{std::numeric_limits<double>::quiet_NaN()},hostBarStart{std::numeric_limits<double>::quiet_NaN()},hostBarBeats{},chunkPpq{std::numeric_limits<double>::quiet_NaN()};
@@ -409,8 +426,8 @@ private:
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
     spectralforge::LoudnessMeter loudness;
     std::atomic<float> preReduction{0},postReduction{0};
-    std::array<std::atomic<float>,6> postPeaks{};
-    std::array<std::atomic<float>,3> nativePostMeters{};
+    std::array<std::atomic<float>,6> postPeaks{},postPeaks2{};
+    std::array<std::atomic<float>,3> nativePostMeters{},nativePostMeters2{};
     std::atomic<float> cpuAverage{0},cpuPeak{0};
     int maximumBlock{512};
     double rate{48000};

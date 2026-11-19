@@ -38,8 +38,7 @@ commit and CI run, including platform and capture context.
 
 ## Reference heads 26-30 (1.6)
 
-`head-shell-26.png` through `head-shell-30.png` are **procedural** drawings by
-`Tools/generate_reference_head_shells.py`, not AI-generated or photographic art.
-- They show original Chimera fascias carrying the working names, with no manufacturer logo or trade dress.
-- The script also writes their provenance entries and prints the metadata rows and reviewed plate fixtures.
-- Replacing them with photographic art keeps the same rules: one complete RGBA shell per model and a blank control plate.
+`head-shell-26.png` through `head-shell-30.png` are **photographic artwork supplied by the product owner** on 2026-11-18. They replace the earlier procedural drawings.
+- Each is the supplied 1672×941 RGBA WebP, decoded and written unchanged as PNG.
+- They show original Chimera enclosures with a blank control plate and no manufacturer logo or trade dress. Northlight is a handle-less desktop unit.
+- `provenance.json` records the hashes and alpha bounds. `Source/AmpHeadShellMetadata.h` holds the control frames and baselines, and `Tests/CabHeadAppearanceTests.h` holds the reviewed plates.

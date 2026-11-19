@@ -77,5 +77,43 @@ class ComparatorTests(unittest.TestCase):
         match.require_complete_comparison({('default', 0): r})
 
 
+
+class SessionTotalTests(unittest.TestCase):
+    """app.check_processed_every_block: the session total after a tolerated macOS shutdown crash."""
+    line = "[chimera-obs] '" + match.app.FILTER + "': session total: 0:00:10 of audio, unprocessed blocks {}\n"
+
+    def setUp(self):
+        self.crashes = match.app.tolerated_shutdown_crashes
+
+    def tearDown(self):
+        match.app.tolerated_shutdown_crashes = self.crashes
+
+    def test_one_clean_total_passes(self):
+        match.app.tolerated_shutdown_crashes = 0
+        match.app.check_processed_every_block(self.line.format(0))
+
+    def test_missing_total_fails_without_a_crash(self):
+        match.app.tolerated_shutdown_crashes = 0
+        with self.assertRaises(RuntimeError):
+            match.app.check_processed_every_block("")
+
+    def test_missing_total_is_accepted_after_a_tolerated_crash(self):
+        match.app.tolerated_shutdown_crashes = 1
+        match.app.check_processed_every_block("")
+
+    def test_unprocessed_blocks_fail_even_after_a_crash(self):
+        match.app.tolerated_shutdown_crashes = 1
+        with self.assertRaises(RuntimeError):
+            match.app.check_processed_every_block(self.line.format(3))
+        with self.assertRaises(RuntimeError):
+            match.app.check_processed_every_block(self.line.format(3), 2)
+
+    def test_more_totals_than_expected_fail(self):
+        for crashes in (0, 1):
+            match.app.tolerated_shutdown_crashes = crashes
+            with self.assertRaises(RuntimeError):
+                match.app.check_processed_every_block(self.line.format(0) * 2)
+
+
 if __name__ == '__main__':
     unittest.main()

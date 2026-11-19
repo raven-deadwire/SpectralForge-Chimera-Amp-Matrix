@@ -79,7 +79,16 @@ public:
 // and compute delay still elapse while input is fed in real time, so they stay
 // in the audio-time result. See docs/TUNER_TIMING_ATTRIBUTION.md.
 constexpr double kFeederLateLimitMs=50;
-constexpr int kMaxRouteAttempts=3;
+// A late feeder is a busy runner, and a busy runner stays busy: on macos-15 one
+// route ran 50.9, 50.9 and 52.1 ms late in three back-to-back attempts (3.6 s)
+// while the other 31 routes of that run were valid at once (#312). An invalid
+// attempt therefore waits before it repeats, longer each time, and a route gets
+// five attempts. The validity limit and the tuner gates are unchanged, and a
+// valid attempt is still final. All waits of one run share kRepeatPauseBudgetMs
+// so a runner that is late throughout cannot run the test into its timeout.
+constexpr int kMaxRouteAttempts=5;
+constexpr int kRepeatPauseMs[kMaxRouteAttempts-1]={250,1000,2000,4000};
+constexpr int kRepeatPauseBudgetMs=20000;
 struct NativeResult {double acquire{-1},settle{-1},cents{99999},pushUs{},
     wallAcquire{-1},wallSettle{-1},acquireLate{-1},settleLate{-1},lateMax{},lateP99{};int feeds{};
     bool feederValid() const {return lateMax<=kFeederLateLimitMs;}};
@@ -332,7 +341,7 @@ int main(int argc,char** argv){try{
         worst[kind]=std::max(worst[kind],std::abs(ce));baselineWorst[kind]=std::max(baselineWorst[kind],std::abs(be));++count;
         require(candidate.second>.9f&&std::abs(ce)<.1,"Synthetic candidate error exceeds 0.1 cent");
     }
-    int failedRoutes=0,feederInvalidRoutes=0,repeatedAttempts=0;
+    int failedRoutes=0,feederInvalidRoutes=0,repeatedAttempts=0,repeatPauseMs=0;
     {
     DeferredRouteDiagnostics routeDiagnostics;
     auto& diagnostics=routeDiagnostics.stream;
@@ -354,7 +363,11 @@ int main(int argc,char** argv){try{
             if(b.feederValid())break;
             summary<<"FEEDER_LATE rate="<<rate<<" block="<<block<<" hz="<<hz<<" attempt="<<attempt<<" late_max_ms="<<b.lateMax
                    <<" limit_ms="<<kFeederLateLimitMs<<" (attempt invalid, not judged)\n";
-            if(attempt<kMaxRouteAttempts)++repeatedAttempts;
+            if(attempt<kMaxRouteAttempts){
+                ++repeatedAttempts;
+                const int pause=std::min(kRepeatPauseMs[attempt-1],kRepeatPauseBudgetMs-repeatPauseMs);
+                if(pause>0){repeatPauseMs+=pause;std::this_thread::sleep_for(std::chrono::milliseconds(pause));}
+            }
         }
         for(const auto& pair:{std::make_pair("baseline",a),std::make_pair("new",b)}){const auto& r=pair.second;routeDiagnostics.rows<<std::setprecision(10)<<"worker,"<<pair.first<<','<<rate<<','<<block<<','<<hz<<",1,"<<r.cents<<",0,0,"<<r.acquire<<','<<r.settle<<','<<r.pushUs<<'\n';}
         if(!b.feederValid()){
@@ -364,7 +377,8 @@ int main(int argc,char** argv){try{
                 <<" wall_acquire="<<b.wallAcquire<<" wall_settle="<<b.wallSettle<<" late_max_ms="<<b.lateMax<<'\n';
         }
     }
-    summary<<"ROUTE_TIMING_END,failed="<<failedRoutes<<",feeder_invalid="<<feederInvalidRoutes<<",repeated_attempts="<<repeatedAttempts<<'\n';
+    summary<<"ROUTE_TIMING_END,failed="<<failedRoutes<<",feeder_invalid="<<feederInvalidRoutes<<",repeated_attempts="<<repeatedAttempts
+           <<",repeat_pause_ms="<<repeatPauseMs<<'\n';
     } // Flush complete route evidence before lifecycle assertions can throw.
     channelContinuity();lifecycle();stalledWorkerFreshness();timingAttribution();
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
