@@ -1,0 +1,115 @@
+# 1.5.0-beta.1 candidate
+
+## Owner instructions (Asia/Seoul)
+
+- **2026-11-19:** "다음 릴리즈 언제 가능하냐". Offered a fast path (current
+  main plus the small open PRs, as 1.4.2-beta.1) and a feature path, the owner
+  answered "빠른 경로로 1.4.2-beta.1 준비해줘", then "만료일 유지하고 CI 통과하면
+  #339 머지해서 공개 진행해줘".
+- **Scope change:** before #339 could be merged, #334, #335, #336 and #342
+  were merged to main (and #341 after them). The fast path excluded the first
+  three, and #342 did not exist when it was chosen. A release is published
+  only from main, so 1.4.2-beta.1 as prepared could no longer be published:
+  its notes said the parameters and saved projects were unchanged, which was
+  no longer true of main. #339 was therefore not merged although its CI had
+  passed.
+- **2026-11-20:** told this and offered three options, the owner chose
+  option 1 ("1번"): include the features and release as **1.5.0-beta.1**.
+
+Preparation is authorized. **Publication is not yet**: the owner's earlier
+"merge #339 and publish" was given for the 1.4.2-beta.1 scope. Publishing
+1.5.0-beta.1 needs the owner's decision on this scope and on the release-gate
+totals below, the latest exact-source workflows and a fresh source-bound
+receipt (`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The 1.4.1-beta.1
+authorization and its receipt (bound to source
+`6bc7216cd2dc72772daaca65a89edbaf6b5a8c43`) do not carry over. No failed or
+unexecuted check is promoted to PASS. No 1.4.2-beta.1 was published.
+
+**License period:** 2027-05-31 23:59 KST (`2027-05-31T14:59:00Z`, Unix
+`1811775540`), the date of 1.4.0-beta.1 and 1.4.1-beta.1. The owner confirmed
+keeping it on 2026-11-19 for the release then named 1.4.2-beta.1; it is
+carried to 1.5.0-beta.1 unchanged. A verified tester code lifts the expiry
+with no end date.
+
+## Source
+
+- **Branch:** `claude/release-1.5.0-beta.1`, from main `161aedd` (after #341).
+- **Identity:** `VERSION` 1.5.0, `RELEASE_CHANNEL` beta.1,
+  `Validation/beta-lifecycle-policy.json` 1.5.0-beta.1.
+- **Release scope:** `Validation/release-policy.json` `release_scope` records
+  the 1.5.0-beta.1 preparation authorization (profile `beta_1_3`, the two
+  transpose deferrals kept).
+
+## What is in it since 1.4.1-beta.1
+
+All of it is already on main; this branch adds only the release identity,
+the notes and the gate totals.
+
+| PR | Change | Saved projects |
+|---|---|---|
+| #342 | POST second slots: 269 appended parameters, 14-block POST order | load with every second slot off; audio bit-identical (tested) |
+| #335 | POST page: drag rack rows to reorder | no change |
+| #336 | Metro Clean remodelled as a two-channel head; 48 appended parameters | open on MODERN; **sound can differ** (VOICING / HI MID retired, HIGH PASS and mid-frequency ranges changed) |
+| #334 | Reference heads 26–30: new artwork | no change |
+| #326, #328, #329, #330, #331, #337, #338, #341 | Auto Set phases 33–40, all off by default | no change |
+| #332 | OBS tests tolerate the runner's timing (tests only) | no change |
+| #340 | Windows AAX and installer code-signing guide (document) | no change |
+| #325, #327, #333 | tuner fixture digest, 1.4.1 receipt, 1.4.1 notes | no change |
+
+Open PRs not included: #343 (Auto Set phase 41, still open), #301 (draft that
+conflicts with the published manual), #249, #199 and #196 (1.4.0-beta.1 took
+the parts the owner chose; #199's evidence files hold digests of real tester
+codes and stay out of main). #339 is superseded by this branch.
+
+## Release gate: E1 coverage totals
+
+The strict report needs 21 PASS / 107 BLOCKED. With the new parameters and
+screens, the `E1.DSP` and `E1.STATE_UI` checks no longer matched the totals
+in `Validation/ci-check-map.json`, which still named the 1.4 catalogue; #342's
+own CI reported 19 PASS / 109 BLOCKED although every test passed. The same
+happened before 1.4.0-beta.1, and the owner approved updating the totals then.
+
+This branch updates the totals to the values the tests print on this source.
+**This change needs the owner's approval before publication.** Check
+ownership, producers, platforms and every other requirement are unchanged.
+See `Tools/fixtures/README.md`.
+
+## Notes and lifecycle
+
+- **Release notes:** [OPEN_BETA_1_5_RELEASE_NOTES.md](OPEN_BETA_1_5_RELEASE_NOTES.md),
+  summarised at the top of the packaged
+  [OPEN_BETA_RELEASE_NOTES.md](OPEN_BETA_RELEASE_NOTES.md). The packaged notes
+  are worded for the published release, so they need no change before
+  publication.
+- **Lifecycle:** recorded in [BETA_LIFECYCLE.md](BETA_LIFECYCLE.md).
+
+## Final-source evidence (open)
+
+- [ ] **Builds and tests:** Windows, macOS and Linux full product builds,
+      CTest, package verification and candidate assembly succeed on the final
+      commit of this branch, with a strict report of 21 PASS / 107 BLOCKED,
+      and the seven required workflows succeed on the product source on main.
+- [ ] **Version shown everywhere:** the packages, update manifest, SETTINGS
+      and embedded notes show 1.5.0-beta.1 and the 2027-05-31 expiry.
+- [ ] **Lifecycle P0:** expiry while running, relaunch, update from
+      1.4.1-beta.1 with projects, presets and personal IRs.
+- [ ] **Tester codes:** the existing HMAC codes are accepted by the
+      1.5.0-beta.1 build (secret configured for the candidate build).
+- [ ] **Manual:** the EN/DE/KO manual shows 1.5.0-beta.1 and describes the
+      new functions. Open: a review of the German and Korean text by a native
+      speaker.
+- [ ] **Owner decisions:** the E1 totals update and publication of this
+      scope.
+- [ ] **Approval receipt:** a fresh approval receipt binds the final SHA,
+      version, strict policy and CI-map fingerprints.
+
+## Not validated
+
+- real guitar and bass DI listening, including the Drop A takes;
+- real DAW and audio-device acceptance;
+- signing and notarization;
+- AAX (not included in this release);
+- the Metro Clean channels, the POST second slots and the Auto Set steps
+  added since 1.4.0 on real instruments (automated tests only).
+
+Synthetic and CI results do not stand in for these.

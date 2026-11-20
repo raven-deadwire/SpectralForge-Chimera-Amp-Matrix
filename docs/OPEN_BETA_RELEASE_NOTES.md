@@ -1,15 +1,28 @@
-# SpectralForge Chimera 1.4.2-beta.1 (open beta)
+# SpectralForge Chimera 1.5.0-beta.1 (open beta)
 
-**1.4.2-beta.1** collects what was integrated on main after the public
-1.4.1-beta.1. The model catalog, parameters and saved-state format are the
-same as 1.4.1-beta.1. Highlights:
+**1.5.0-beta.1** collects what was integrated on main after the public
+1.4.1-beta.1. The selectable model counts are the same as 1.4.1-beta.1; every
+new parameter is appended, so released parameter IDs, order, ranges and
+defaults are unchanged.
 
-- seven more Auto Set steps, all **off by default**, that extend the amp
-  settings to both rigs of a Dual routing: gain and tone, presence and
-  resonance, channel selection and input trim in a Dual Blend; gain, channel
-  selection and input trim in a Dual Crossover;
-- two real-OBS app tests tolerate the timing of the macOS CI runner (no
-  product change; the OBS filter code is the same as 1.4.1-beta.1).
+**Projects that use Metro Clean can sound different** (see below). No other
+change alters the sound of a saved project.
+
+Highlights:
+
+- **POST second slots:** each of the seven POST sections gets an independent
+  second slot (for example two delays at once). Every second slot starts off,
+  and an existing project loads with the same audio, sample for sample;
+- **drag on the POST page:** drag a rack row by its grip to reorder the POST
+  chain, as in the ROUTING graph;
+- **Metro Clean remodel:** the bass amp becomes a two-channel head, MODERN
+  (the former Metro Clean) and the new, more driven CLASSIC, with an O/D
+  SYMMETRY control. Saved projects open on MODERN with their knob values, but
+  the former VOICING and HI MID controls are retired and no longer shape the
+  sound, and HIGH PASS and the mid frequency follow new ranges;
+- **new artwork** for reference heads 26–30 (no sound change);
+- eight more Auto Set steps, all **off by default**, for the amps of both
+  Dual rigs and of the Matrix MID and HIGH lanes.
 
 **License period:** this beta expires at **2027-05-31T14:59:00Z /
 2027-05-31 23:59:00 KST**, the same date as 1.4.0-beta.1 and 1.4.1-beta.1,
@@ -24,11 +37,12 @@ verification and candidate assembly, and after the owner accepts publication
 with the disclosed gaps (`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The
 strict report it requires is 21 PASS / 107 unexecuted BLOCKED, including 42
 strict hard gates. Real guitar/bass DI listening, real DAW/audio-device
-acceptance, publisher signing / macOS notarization and AAX in Pro Tools are
-not validated, as in 1.4.1-beta.1. The Auto Set steps added in 1.4.1 and 1.4.2
-have had synthetic tests only. This is not a stable or strict-validation pass.
-Full notes: `docs/OPEN_BETA_1_4_2_RELEASE_NOTES.md`; candidate record:
-`docs/RELEASE_1_4_2_CANDIDATE.md` (both in the release's source).
+acceptance and publisher signing / macOS notarization are not validated, and
+AAX is not included. The Metro Clean channels, the POST second slots and the
+Auto Set steps added since 1.4.0 have had automated tests only. This is not a
+stable or strict-validation pass. Full notes:
+`docs/OPEN_BETA_1_5_RELEASE_NOTES.md`; candidate record:
+`docs/RELEASE_1_5_0_CANDIDATE.md` (both in the release's source).
 
 ---
 
