@@ -25,6 +25,28 @@ release assets and historical evidence remain immutable. This branch adds a
 countdown and documentation corrections for review; it is not a newly published
 release and has no new release approval.
 
+## Approved next version: 1.4.1-beta.1 (2026-11-16 KST)
+
+On 2026-11-16 the owner confirmed version 1.4.1-beta.1 and keeping the
+1.4.0-beta.1 expiry, 2027-05-31 23:59 KST (1.4.0-beta.1 was published on
+2026-11-13 with that date). `Validation/beta-lifecycle-policy.json` and
+`VERSION` (1.4.1) now name 1.4.1-beta.1; `RELEASE_CHANNEL` stays beta.1.
+
+| Policy field | Approved 1.4.1-beta.1 value |
+| --- | --- |
+| Product / package version | `1.4.1` / `1.4.1-beta.1` |
+| UTC expiry (inclusive) | `2027-05-31T14:59:00Z` |
+| Korea expiry | `2027-05-31 23:59:00 KST (UTC+09:00)` |
+| Unix expiry | `1811775540` |
+| Approval | `expiry_approved: true` |
+| Advance warning | `1209600` seconds (14 days) |
+
+The date is approved for this version only, and is not a release approval.
+The lifecycle P0 checks (running-instance expiry, relaunch, update from
+1.4.0-beta.1 with projects/IRs) and every existing release gate still apply
+to the exact 1.4.1-beta.1 source and packages
+([candidate](RELEASE_1_4_1_CANDIDATE.md)).
+
 ## Approved next version: 1.3.2-beta.2 (2026-10-26 KST)
 
 The owner approved option B of

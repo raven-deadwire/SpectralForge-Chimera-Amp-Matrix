@@ -82,13 +82,15 @@ argument; the released groups keep their hints.
 
 ## Head artwork
 
-`Tools/generate_reference_head_shells.py` draws each complete head shell
-procedurally:
-- `head-shell-26.png` … `head-shell-30.png`;
-- the compact fascia rasters (`acrystal.png` and the others);
-- the provenance entries, the metadata rows and the reviewed plate fixtures.
+The complete head shells `head-shell-26.png` … `head-shell-30.png` are photographic artwork supplied by the product owner on 2026-11-18. They replace the earlier procedural drawings. Each PNG is the supplied 1672×941 RGBA image converted losslessly from WebP, with no cropping, resizing or repainting.
 
-The fascias are original Chimera designs carrying the working name, with no manufacturer logo or trade dress. They are simpler than the photographic shells 0–25. Northlight is a compact desktop unit with no handle. Live knobs and labels remain JUCE controls on the blank plate.
+- Crystal 120: silver-grey woven grille, silver panel, black tolex.
+- Bluestack 100: warm brown basketweave, gold panel, cream piping.
+- Eightyfire: dark, tight grille, gold panel, black corner protectors.
+- Fortress 103: dark grey grille, bright silver panel, black trim.
+- Northlight: compact navy metal desktop unit with steel-blue trim and no handle.
+
+The compact fascia rasters (`acrystal.png` and the others) are the alpha-bounded crop of each shell at 960 px wide. `Source/AmpHeadShellMetadata.h` holds the alpha bounds, control frame and support baseline. `Tests/CabHeadAppearanceTests.h` holds the blank plates measured on the raw PNGs. The control frames keep each knob row at the same relative position on its plate as before. The artwork carries no manufacturer logo or trade dress. Live knobs and labels remain JUCE controls on the blank plate.
 
 ## Measurements (`ChimeraReferenceAmpTests`, 48 kHz)
 
@@ -129,3 +131,10 @@ A measurement fix during development: an earlier version of the THD helper used 
 - Matching the hardware's sound. The coefficients are authored, with no capture or circuit fit.
 - Listening on real DI, and DAW automation/recall.
 - Photographic head artwork like models 0–25.
+
+## Later: model 11 re-based on the Subway TT-800
+
+Metro Clean (model 11, released before 1.6) was re-based from the Subway
+D-800+ to the Subway TT-800 two-channel panel and checked by
+`ChimeraReferenceAmpTests` alongside these heads. Panel, DSP assumptions and
+the saved-session mapping: [METRO_CLEAN_TT800.md](METRO_CLEAN_TT800.md).

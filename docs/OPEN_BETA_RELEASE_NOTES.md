@@ -1,4 +1,49 @@
-# SpectralForge Chimera 1.4.0-beta.1 (open beta)
+# SpectralForge Chimera 1.4.1-beta.1 (open beta)
+
+**1.4.1-beta.1** collects what was integrated on main after the public
+1.4.0-beta.1. The model catalog, parameters and saved-state format are the
+same as 1.4.0-beta.1. Highlights:
+
+- seven new Auto Set steps, all **off by default**: room ambience (Room Core),
+  the Dual and Matrix cabinet cuts, factory IR choice, mic placement, mic
+  alignment and blend, and the boost pedal in a Dual Blend;
+- the OBS filter keeps a preset pushed while OBS is saving the filter, and no
+  longer rewrites an unchanged state into the scene;
+- more stable timing-sensitive tests on busy CI runners (no product change).
+
+**OBS filter on its own (added 2026-11-18):** the installers above already offer
+the OBS Studio filter as an optional item (on Windows it is part of the Windows
+installer). To add only the filter, use `chimera-obs-macos-universal-5bbc2715df.zip`
+(macOS 12+, Apple silicon and Intel) or `chimera-obs-linux-x86_64-5bbc2715df.tar.gz`
+(x86_64, glibc 2.38+, OBS from your distribution's packages; Flatpak and Snap are not
+supported; the editor window needs X11 or XWayland). Close OBS and run `./install.sh`
+from the unpacked folder; the Chimera VST3 must be installed. Checksums are in
+`chimera-obs-SHA256SUMS.txt`. These packages were built and tested by OBS add-on run
+44147274342 from source `5bbc2715`, whose OBS code is identical to this release. The
+macOS module is ad-hoc signed and not notarized. They are not listed in `SHA256SUMS.txt`.
+
+**License period:** this beta expires at **2027-05-31T14:59:00Z /
+2027-05-31 23:59:00 KST**, the same date as 1.4.0-beta.1, with a warning from
+14 days before. Instances already open keep running; instances opened after
+expiry keep their state with output muted. A verified beta tester code
+(SETTINGS → *Enter beta tester code...*) lifts the expiry on that computer with
+no end date.
+
+Validation status: the publisher releases this version only after the exact
+source passes the Windows, macOS and Linux product builds, CTest, package
+verification and candidate assembly. The strict report it requires is
+21 PASS / 107 unexecuted BLOCKED, including 42 strict hard gates; the owner
+accepted publication with these disclosed gaps
+(`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). Real guitar/bass DI listening,
+real DAW/audio-device acceptance, publisher signing / macOS notarization and
+AAX in Pro Tools are not validated, as in 1.4.0-beta.1. The new Auto Set steps
+have had synthetic tests only. This is not a stable or strict-validation pass.
+Full notes: `docs/OPEN_BETA_1_4_1_RELEASE_NOTES.md`; candidate record:
+`docs/RELEASE_1_4_1_CANDIDATE.md` (both in the release's source).
+
+---
+
+# Public 1.4.0-beta.1
 
 **1.4.0-beta.1** collects everything integrated on main since the public
 1.3.2-beta.1, from the 1.3.3 Room Core through the 1.10 SYNTH and the 2.0
