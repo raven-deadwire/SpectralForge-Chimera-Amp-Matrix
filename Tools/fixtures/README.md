@@ -78,6 +78,40 @@ artifacts could not be downloaded from this environment, so this fixture is a
 local run, not a CI receipt. Like the other excerpts it is a regression input
 only and certifies no source.
 
+## 1.5 controls (E1 coverage totals)
+
+1.5.0-beta.1 adds the Metro Clean two-channel controls (#336) and the POST
+second slots (#342). Every test passed, but #342's own CI reported
+**19 PASS / 109 BLOCKED**: `E1.DSP` and `E1.STATE_UI` still required the 1.4
+totals while the tests printed new ones. The map now requires the totals the
+tests print on the 1.5.0-beta.1 source:
+
+- `ChimeraAmpNativeTests`: 455 controls and `CONTROL_RESPONSE count=455`
+  (was 450), 204 sample-rate/channel routes (was 201) and 477 isolated
+  inactive controls (was 463). Unchanged: 31 serialized / 30 active models
+  and 124 oversampling paths;
+- `ChimeraUITests`: 136 channel cases (was 134) and 2410 channel/control
+  visibility cases (was 2362). Unchanged: 31 serialized panels and 9 POST
+  models / 306 controls.
+
+The legacy parameter contract marker is unchanged (3686 entries, the same
+SHA-256). Check ownership, producers, platforms, control failures, allocation,
+gain/default, isolation, completion and legacy compatibility requirements are
+unchanged. The live map digest in `Tools/weekly_publication.py` is now
+`75d0a3aff20cea56e81a7fe4441c427e0829023835cb4d18dd090d4cb5f5d26d`; the
+1.4.0-beta.1 and 1.4.1-beta.1 receipts approved the previous map
+(`5adbf284…`).
+
+`e1-ctest-1.5.log` holds the `ChimeraUITests`, `ChimeraAmpNativeTests` and
+`ChimeraGateProcessorTests` sections of `LastTest.log`, unmodified, from a local
+Linux Release build (`CHIMERA_UI_PROBES=ON`, Xvfb with Openbox) of main
+`161aedd3040dba6795fdfa884e6976715a1bbba0`, whose `Source`, `Tests`, `cmake`
+and `CMakeLists.txt` are byte-identical to the 1.5.0-beta.1 preparation
+branch. Excerpt SHA-256 `007f8be0494e2ad742ec74136b57cc3ecfb26c60f0d902e04c8a92947365a981`. The CI artifacts could not be downloaded from
+this environment, so this fixture is a local run, not a CI receipt. Like the
+other excerpts it is a regression input only and certifies no source.
+`e1-ctest-1.4.log` stays as the input that must no longer certify the live map.
+
 `ci-check-map-1.3.json` freezes the map the 1.3.x publishers approved
 (`d59f7e55…20f`). Historical publishers and the preset-maintenance check of the
 published 1.3.2-beta.1 receipt validate against it. The weekly publisher pins the
