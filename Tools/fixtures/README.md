@@ -105,9 +105,10 @@ unchanged. The live map digest in `Tools/weekly_publication.py` is now
 `e1-ctest-1.5.log` holds the `ChimeraUITests`, `ChimeraAmpNativeTests` and
 `ChimeraGateProcessorTests` sections of `LastTest.log`, unmodified, from a local
 Linux Release build (`CHIMERA_UI_PROBES=ON`, Xvfb with Openbox) of main
-`161aedd3040dba6795fdfa884e6976715a1bbba0`, whose `Source`, `Tests`, `cmake`
-and `CMakeLists.txt` are byte-identical to the 1.5.0-beta.1 preparation
-branch. Excerpt SHA-256 `007f8be0494e2ad742ec74136b57cc3ecfb26c60f0d902e04c8a92947365a981`. The CI artifacts could not be downloaded from
+`161aedd3040dba6795fdfa884e6976715a1bbba0`. The 1.5.0-beta.1 preparation
+branch was byte-identical to it in `Source`, `Tests`, `cmake` and
+`CMakeLists.txt` until #343 (Auto Set phase 41) was merged in; the fixture was
+not re-recorded for #343. Excerpt SHA-256 `007f8be0494e2ad742ec74136b57cc3ecfb26c60f0d902e04c8a92947365a981`. The CI artifacts could not be downloaded from
 this environment, so this fixture is a local run, not a CI receipt. Like the
 other excerpts it is a regression input only and certifies no source.
 `e1-ctest-1.4.log` stays as the input that must no longer certify the live map.
