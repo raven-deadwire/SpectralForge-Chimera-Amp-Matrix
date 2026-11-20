@@ -288,50 +288,16 @@ class AmpNativeDSP {
             if(c==0){config.scalar[0]=volume(a(0));eq(true,a(1),a(2),a(3),55,380,3600);preLow=a(11)*6;bright=a(12)*6;}
             else {config.scalar[0]=gain(a(4));config.scalar[5]=a(5);config.scalar[2]=volume(a(6));eq(false,a(7),a(9),a(10),55,frequency(a(8),150,2500),3500);preLow=a(13)*6;bright=a(14)*6;config.stages=3;}
             hp=10;lp=9000;config.sag=.17f;break; }
-        case 11: { // Metro Clean: Subway TT-800 (docs/METRO_CLEAN_TT800.md).
-            // Shared input: transparent J-FET buffer, HIGH/LOW GAIN, DEEP and
-            // BRIGHT, then the common V1 stage. Each channel owns a two-pole
-            // 25-125 Hz HIGHPASS (linear sweep, noon ~75 Hz) ahead of its tube
-            // gain stage. MODERN (channel 0, the released D-800+ state) runs V3
-            // into an active Baxandall EQ; CLASSIC runs V2 into a passive
-            // Bass 400-style tonestack with its inherent ~500 Hz mid dip.
-            // Tapers, corner frequencies and stage gains are authored, not a
-            // measured TT-800 circuit fit.
-            const auto v=[&s](std::string_view key){return ampNativeValue(s,key);};
-            const bool classic=c==1;config.eqAfter=0;config.stageGain={1.15f,1.02f,1,1,1,1};
-            // A fixed 10 Hz two-pole sub-sonic stage. The variable two-pole
-            // corner is pre-warped so the pair's combined -3 dB point is the
-            // panel frequency (Butterworth approximation).
-            hp=10;const float deep=v("hw.deep");
-            const float cutoff=std::max(18.f,(25.f+100.f*v(classic?"hw.classic.high_pass":"hw.high_pass"))*(deep>.5f?.7f:1.f));
-            add(true,0,cutoff*std::pow(1.f-2.f*std::pow(hp/cutoff,4.f),.25f));
-            // DEEP: mild very-low boost plus the lowered high pass above.
-            if(deep>.5f)add(true,3,55,4);
-            bright=v("hw.bright")*5;
-            if(classic) {
-                // V2 overdrives more readily: three stages, linear gain taper.
-                config.scalar[0]=gain(v("hw.classic.gain"));config.stages=3;config.stageGain={1.6f,2.f,1.2f,1,1,1};
-                const float bass=v("hw.classic.bass"),mid=v("hw.classic.mid"),shift=v("hw.classic.mid_shift"),treble=v("hw.classic.treble");
-                add(false,3,80,-10.f+24.f*bass,.6f);
-                // MID FREQ: NORM is the narrow classic ~500 Hz dip; SHIFT moves
-                // it up, widens it and makes it shallower (flatter, modern).
-                add(false,2,500.f*(1.f+shift),(-12.f+13.f*mid)*(1.f-.5f*shift),1.3f-.7f*shift);
-                add(false,4,2500,-10.f+26.f*treble,.6f);
-                // Authored make-up/level trim: the driven V2 path otherwise
-                // runs about 6 dB above MODERN at the instant-setting positions.
-                config.scalar[2]=.5f;config.scalar[3]=volume(v("hw.classic.volume"));
-            } else {
-                config.scalar[0]=gain(v("hw.input"));
-                add(false,3,50,tone(v("hw.bass"),12),.6f);
-                // Bell of about 1/3 octave each side; MID FREQ linear 150 Hz-2 kHz.
-                add(false,2,150.f+1850.f*v("hw.lo_mid_frequency"),tone(v("hw.lo_mid"),12),2.1f);
-                add(false,4,4000,tone(v("hw.treble"),12),.6f);
-                config.scalar[3]=volume(v("hw.master"));
-            }
-            // O/D SYMMETRY: SYM keeps the released near-symmetric output clip;
-            // ASYM offsets the soft clip for a gradual, soft-knee entry.
-            config.powerBias=.02f+.3f*v("hw.od_symmetry");
-            config.mute=v("hw.mute")>.5f;config.scalar[8]=v("hw.input_type")>.5f?db(-10):1;config.sag=.008f;lp=18000;break; }
+        case 11: {
+            // D-800+: fixed two-pole 22 Hz + variable two-pole high pass,
+            // followed by gain and voicing. Butterworth approximation, not a
+            // measured hardware fit. The combined -3 dB range is 30..150 Hz.
+            config.scalar[0]=gain(a(0));hp=22;config.eqAfter=0;
+            const float cutoff=frequency(a(1),30,150);
+            add(true,0,cutoff*std::pow(1.f-2.f*std::pow(22.f/cutoff,4.f),.25f));
+            const float voice=a(2);add(true,3,65,voice*5);add(true,2,550,-voice*8,.65f);add(true,4,3500,voice*4);
+            add(false,3,40,tone(a(3),12));add(false,2,frequency(a(4),150,1800),tone(a(5),12),.85f);add(false,2,frequency(a(6),300,5000),tone(a(7),12),.85f);add(false,4,5000,tone(a(8),12));
+            config.scalar[3]=volume(a(9));preLow=a(10)*5;bright=a(11)*5;config.mute=a(12)>.5f;config.scalar[8]=a(13)>.5f?db(-10):1;config.stageGain={1.15f,1.02f,1,1,1,1};config.sag=.008f;lp=18000;break; }
         case 12: {
             config.scalar[0]=volume(a(c==0?0:3));config.scalar[3]=a(7)>.5f?1.6f:volume(a(6));
             config.stageGain=c==0?std::array<float,6>{{2.3f,1.75f,1,1,1,1}}:std::array<float,6>{{3.7f,1.3f,1,1,1,1}};

@@ -10,7 +10,7 @@ AMP,legacy.amp.7,Darkglass B7K Ultra + Aguilar DB751 — reference chain,20,part
 AMP,legacy.amp.8,VOX AC30CH Custom Head,10,primary_core_reviewed,https://voxamps.com/product/ac30-custom-head/,NOT CERTIFIED: control response is not hardware matching
 AMP,legacy.amp.9,Orange Rockerverb 50 MKIII — target panel,11,primary_panel_pending,,NOT CERTIFIED: control response is not hardware matching
 AMP,legacy.amp.10,Fender Super Bassman,17,primary_core_reviewed,https://www.fender.com/products/super-bassman | https://www.fender.com/cdn/shop/files/2249000000_fen_amp_fal_1_nr.png?v=1742864859&width=1445,NOT CERTIFIED: control response is not hardware matching
-AMP,legacy.amp.11,Mesa Subway TT-800 — two-channel panel,19,partial_primary_review,Mesa Subway TT-800 owner's manual (PDF 2020-05-20),NOT CERTIFIED: control response is not hardware matching
+AMP,legacy.amp.11,Mesa Subway D-800+ — not D-800,14,primary_panel_pending,https://www.tone3000.com/tones/mesa-subway-d-800-di-flat-41431,NOT CERTIFIED: control response is not hardware matching
 AMP,legacy.amp.12,Matchless C-30 / DC-30 — original panel target,9,primary_core_reviewed,https://www.matchlessamplifiers.com/amplifiers-and-cabinets/c-30,NOT CERTIFIED: control response is not hardware matching
 AMP,legacy.amp.13,ODS #102-style clone — exact hardware/panel pending,11,primary_panel_pending,,NOT CERTIFIED: control response is not hardware matching
 AMP,legacy.amp.14,EICH T900,8,primary_core_reviewed,https://www.eich-amps.com/t900,NOT CERTIFIED: control response is not hardware matching

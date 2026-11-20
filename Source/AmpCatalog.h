@@ -36,7 +36,7 @@ inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
     {"Chime 30", "VOX AC30 Top Boost", "Bright edge breakup / responsive upper mids", false},
     {"Amber Crown", "Orange Rockerverb 50 MKIII", "Dense low mids / thick high gain", false},
     {"Vintage Valve", "Fender Super Bassman", "Rounded tube bass / retained fundamentals", true},
-    {"Metro Clean", "Mesa Subway TT-800", "Two-channel bass / classic passive and modern active EQ", true},
+    {"Metro Clean", "Mesa Subway D-800+", "High-headroom bass / broad clean bandwidth", true},
     {"Prism Chime", "Matchless DC-30", "Complex chime / firm mids and responsive breakup", false},
     {"Silk Lead", "Dumble Overdrive Special", "Smooth singing drive / rounded high mids", false},
     {"Taste Punch", "EICH T900", "Open bass dynamics / clear mids and extended lows", true},

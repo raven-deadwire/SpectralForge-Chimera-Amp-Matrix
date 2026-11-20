@@ -47,8 +47,6 @@ The diameter column is allocated slot width as a percentage of the rendered fron
 | Náströnd | Chimera 오리지널: 어두운 홈 그립과 니켈 캡, 밝은 포인터 | 3.2% → 4.5% | SpectralForge Original · Chimera original |
 | Niflheimr | Chimera 오리지널: 어두운 홈 그립과 니켈 캡, 밝은 포인터 | 5.6% retained | SpectralForge Original · Chimera original |
 
-> **Later change (Metro Clean TT-800 remodel):** model 11 now references the Mesa Subway TT-800. The knob profile (black soft-lobe body) and the 4.6% slot are kept; the same blank plate now carries two rows of four positions (channel GAIN · HIGHPASS · BASS · MID / MID FREQ · TREBLE · VOLUME · O/D SYM) shared by the MODERN and CLASSIC channels. The D-800+ photographs above remain the knob-shape evidence; the TT-800 manual's front-panel drawing gives the control set, not knob photographs. See [METRO_CLEAN_TT800.md](METRO_CLEAN_TT800.md).
-
 ## Evidence limits and deliberate adaptations
 
 - Gallien-Krueger 800RB: archived product photograph plus manufacturer service material; exact specimen year is unresolved.

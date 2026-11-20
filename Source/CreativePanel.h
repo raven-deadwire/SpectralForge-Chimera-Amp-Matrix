@@ -16,21 +16,20 @@ inline void styleButton(juce::TextButton& button) {
 
 class CreativePanel final : public juce::Component,private juce::Timer {
 public:
-    // `slotIndex` 1: the second CREATIVE slot (docs/POST_SECOND_SLOTS.md).
-    explicit CreativePanel(ChimeraProcessor& owner,int slotIndex=0):processor(owner),slot(slotIndex) {
-        setComponentID(slot?"creativePanel_2":"creativePanel");
+    explicit CreativePanel(ChimeraProcessor& owner):processor(owner) {
+        setComponentID("creativePanel");
         for(auto* label:{&title,&character}){addAndMakeVisible(*label);label->setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));}
-        title.setText(slot?"CREATIVE 2":"CREATIVE",juce::dontSendNotification);title.setFont(juce::FontOptions(13.f,juce::Font::bold));character.setFont(juce::FontOptions(11.f));
-        model.setComponentID(id("creativeModel"));model.addItemList(creativeModelNames(),1);addAndMakeVisible(model);
-        modelAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.parameters(),id("creativeModel"),model);
-        enabled.setComponentID(id("creativeOn"));styleButton(enabled);addAndMakeVisible(enabled);
-        enabledAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processor.parameters(),id("creativeOn"),enabled);
+        title.setText("CREATIVE",juce::dontSendNotification);title.setFont(juce::FontOptions(13.f,juce::Font::bold));character.setFont(juce::FontOptions(11.f));
+        model.setComponentID("creativeModel");model.addItemList(creativeModelNames(),1);addAndMakeVisible(model);
+        modelAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.parameters(),"creativeModel",model);
+        enabled.setComponentID("creativeOn");styleButton(enabled);addAndMakeVisible(enabled);
+        enabledAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processor.parameters(),"creativeOn",enabled);
         const std::array<const char*,6> ids{"creativeA","creativeB","creativeC","creativeMix","creativeSync","creativeOutput"};
         for(size_t i=0;i<ids.size();++i){
             auto control=std::make_unique<NativeControlView>();
-            const auto& range=processor.parameters().getParameter(id(ids[i]))->getNormalisableRange();
-            if(i==4)control->bind(processor.parameters(),id(ids[i]),"SYNC","CREATIVE",1,creativeSyncNames(),0,creativeSyncNames().size()-1,1,3);
-            else control->bind(processor.parameters(),id(ids[i]),i==3?"MIX":i==5?"OUTPUT":"A","CREATIVE",0,{},range.start,range.end,range.interval,3);
+            const auto& range=processor.parameters().getParameter(ids[i])->getNormalisableRange();
+            if(i==4)control->bind(processor.parameters(),ids[i],"SYNC","CREATIVE",1,creativeSyncNames(),0,creativeSyncNames().size()-1,1,3);
+            else control->bind(processor.parameters(),ids[i],i==3?"MIX":i==5?"OUTPUT":"A","CREATIVE",0,{},range.start,range.end,range.interval,3);
             addAndMakeVisible(*control);controls.push_back(std::move(control));
         }
         refreshModel();timerCallback();startTimerHz(10);setSize(760,270);
@@ -56,12 +55,11 @@ public:
     }
     juce::String controlLabel(int index) const {return controls[size_t(index)]->label.getText();}
 private:
-    ChimeraProcessor& processor;int slot{};juce::Label title,character;juce::ComboBox model;juce::TextButton enabled{"ON"};
-    juce::String id(const char* x) const {return postSlotID(slot,x);}
+    ChimeraProcessor& processor;juce::Label title,character;juce::ComboBox model;juce::TextButton enabled{"ON"};
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modelAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> enabledAttachment;
     std::vector<std::unique_ptr<NativeControlView>> controls;int shownModel{-1};
-    int selected() const {return juce::jlimit(0,creativeModelCount-1,juce::roundToInt(processor.parameters().getRawParameterValue(id("creativeModel"))->load()));}
+    int selected() const {return juce::jlimit(0,creativeModelCount-1,juce::roundToInt(processor.parameters().getRawParameterValue("creativeModel")->load()));}
     void timerCallback() override {
         if(selected()!=shownModel)refreshModel();
         enabled.setButtonText(enabled.getToggleState()?"ON":"OFF");
@@ -71,19 +69,17 @@ private:
 // Compact POST-page row: CREATIVE caption, model, on/off and ALL.
 class CreativeStrip final : public juce::Component,private juce::Timer {
 public:
-    // `slotIndex` 1: the second CREATIVE slot's strip (docs/POST_SECOND_SLOTS.md).
-    explicit CreativeStrip(ChimeraProcessor& owner,int slotIndex=0):processor(owner),slot(slotIndex) {
-        const juce::String suffix=slot?"_2":"";
-        setComponentID("creativeStrip"+suffix);
-        caption.setText(slot?"CREATIVE 2":"CREATIVE",juce::dontSendNotification);caption.setFont(juce::FontOptions(11.f,juce::Font::bold));
+    explicit CreativeStrip(ChimeraProcessor& owner):processor(owner) {
+        setComponentID("creativeStrip");
+        caption.setText("CREATIVE",juce::dontSendNotification);caption.setFont(juce::FontOptions(11.f,juce::Font::bold));
         caption.setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));caption.setJustificationType(juce::Justification::centredRight);addAndMakeVisible(caption);
         note.setText("AFTER DELAY / BEFORE REVERB",juce::dontSendNotification);note.setFont(juce::FontOptions(9.f));
         note.setColour(juce::Label::textColourId,juce::Colour(0xff9b968c));addAndMakeVisible(note);
-        model.setComponentID("creativeStrip"+suffix+".model");model.addItemList(creativeModelNames(),1);model.setTooltip(slot?"Second CREATIVE model":"CREATIVE model (after DELAY, before REVERB)");addAndMakeVisible(model);
-        modelAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.parameters(),postSlotID(slot,"creativeModel"),model);
-        enabled.setComponentID("creativeStrip"+suffix+".on");styleButton(enabled);enabled.setTooltip(slot?"Enable or bypass the second CREATIVE slot":"Enable or bypass the CREATIVE slot");addAndMakeVisible(enabled);
-        enabledAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processor.parameters(),postSlotID(slot,"creativeOn"),enabled);
-        all.setButtonText("ALL");all.setComponentID("creativeStrip"+suffix+".all");all.setTooltip("Open all CREATIVE controls");addAndMakeVisible(all);
+        model.setComponentID("creativeStrip.model");model.addItemList(creativeModelNames(),1);model.setTooltip("CREATIVE model (after DELAY, before REVERB)");addAndMakeVisible(model);
+        modelAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.parameters(),"creativeModel",model);
+        enabled.setComponentID("creativeStrip.on");styleButton(enabled);enabled.setTooltip("Enable or bypass the CREATIVE slot");addAndMakeVisible(enabled);
+        enabledAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processor.parameters(),"creativeOn",enabled);
+        all.setButtonText("ALL");all.setComponentID("creativeStrip.all");all.setTooltip("Open all CREATIVE controls");addAndMakeVisible(all);
         all.onClick=[this]{if(onOpen)onOpen();};
         timerCallback();startTimerHz(10);
     }
@@ -95,15 +91,11 @@ public:
         enabled.setBounds(area.removeFromRight(43));area.removeFromRight(8);
         model.setBounds(area.removeFromRight(190));area.removeFromRight(8);
         caption.setBounds(area.removeFromRight(70));area.removeFromRight(8);
-        // The left edge is the POST page's drag grip; the right end leaves room
-        // for the editor's slot 1 / 2 selector.
-        note.setBounds(area.withTrimmedLeft(14).withTrimmedRight(52));
+        note.setBounds(area);
     }
-    // Names the neighbours in the current POST order.
-    void setPlacement(const juce::String& text) {if(note.getText()!=text)note.setText(text,juce::dontSendNotification);}
     juce::ComboBox& modelBox() noexcept {return model;}
 private:
-    ChimeraProcessor& processor;int slot{};juce::Label caption,note;juce::ComboBox model;juce::TextButton enabled{"OFF"},all;
+    ChimeraProcessor& processor;juce::Label caption,note;juce::ComboBox model;juce::TextButton enabled{"OFF"},all;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modelAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> enabledAttachment;
     void timerCallback() override {enabled.setButtonText(enabled.getToggleState()?"ON":"OFF");}

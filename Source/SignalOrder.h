@@ -3,7 +3,6 @@
 #include <array>
 #include <atomic>
 #include <cmath>
-#include <vector>
 
 // 1.4 constrained signal-order editor (docs/SIGNAL_ORDER_1_4.md,
 // docs/SIGNAL_PATH_EDITOR.md). Two serial regions can be reordered:
@@ -17,30 +16,19 @@
 namespace spectralforge {
 inline constexpr int signalOrderParameterVersion = 29;
 enum class OrderRegion { tone = 0, post = 1 };
-// POST: seven sections, each with two slots (docs/POST_SECOND_SLOTS.md). The
-// POST region orders 14 blocks: block b is section b % 7 in slot b / 7, so
-// blocks 0-6 are the released modules (slot 1) and 7-13 their second slots.
-inline constexpr int toneModuleCount = 6, postModuleCount = 7, postBlockCount = 2 * postModuleCount;
+inline constexpr int toneModuleCount = 6, postModuleCount = 7;
 enum ToneModule { toneEQModule, compressorModule, multibandModule, saturationModule, filterModule, deesserModule };
 enum PostModule { postDynamicsModule, postPreampModule, postEQModule, postModulationModule, postDelayModule, postCreativeModule, postReverbModule };
-inline constexpr int postBlock(int section, int slot) noexcept { return section + slot * postModuleCount; }
-inline constexpr int postBlockSection(int block) noexcept { return block % postModuleCount; }
-inline constexpr int postBlockSlot(int block) noexcept { return block / postModuleCount; }
-// Movable blocks in a region (POST: 14).
-inline int moduleCount(OrderRegion r) noexcept { return r == OrderRegion::tone ? toneModuleCount : postBlockCount; }
+inline int moduleCount(OrderRegion r) noexcept { return r == OrderRegion::tone ? toneModuleCount : postModuleCount; }
 inline juce::StringArray toneModuleNames() { return {"Tone EQ", "Clean compressor", "Multiband", "Saturation", "Filter", "De-esser"}; }
 inline juce::StringArray postModuleNames() { return {"POST dynamics", "POST preamp", "POST EQ", "Modulation", "Delay", "Creative", "Reverb"}; }
-// "Delay" for slot 1 (the released name), "Delay 2" for slot 2.
-inline juce::String postBlockName(int block) { return postModuleNames()[postBlockSection(block)] + (postBlockSlot(block) > 0 ? " 2" : ""); }
-inline juce::String moduleName(OrderRegion r, int module) { return r == OrderRegion::tone ? toneModuleNames()[module] : postBlockName(module); }
+inline juce::String moduleName(OrderRegion r, int module) { return (r == OrderRegion::tone ? toneModuleNames() : postModuleNames())[module]; }
 inline juce::String orderSlotID(OrderRegion r, int slot) { return juce::String(r == OrderRegion::tone ? "orderTone" : "orderPost") + juce::String(slot + 1); }
-// Signal-path node of each module (slot 2 blocks: "post2.section4", ...).
+// Signal-path node of each module.
 inline juce::String moduleNodeID(OrderRegion r, int module) {
     static const std::array<const char*, toneModuleCount> tone{"tone.eq", "common.comp", "common.multiband", "common.saturation", "common.filter", "common.deesser"};
     static const std::array<const char*, postModuleCount> post{"post.section0", "post.section1", "post.section2", "post.section3", "post.section4", "post.creative", "post.section5"};
-    if (r == OrderRegion::tone) return tone[size_t(module)];
-    const juce::String id = post[size_t(postBlockSection(module))];
-    return postBlockSlot(module) > 0 ? id.replace("post.", "post2.") : id;
+    return r == OrderRegion::tone ? tone[size_t(module)] : post[size_t(module)];
 }
 
 // One region's order: slot -> module. Valid when it is a permutation.
@@ -67,10 +55,7 @@ template <int N> struct RegionOrder {
     bool operator==(const RegionOrder&) const = default;
 };
 using ToneOrder = RegionOrder<toneModuleCount>;
-// The POST order holds all 14 blocks. Its initial order is the released one
-// followed by the second slots, which is also what an old project (without
-// orderPost8-14) loads.
-using PostOrder = RegionOrder<postBlockCount>;
+using PostOrder = RegionOrder<postModuleCount>;
 struct SignalOrder {
     ToneOrder tone = ToneOrder::initial();
     PostOrder post = PostOrder::initial();
@@ -79,9 +64,6 @@ struct SignalOrder {
 
 // 1.9 routing polish (docs/MODULATION_1_9.md): named orders for each region,
 // applied as one order command (one undo entry).
-// A preset names the order of the seven POST sections (or six tone modules).
-// Applied to POST it orders the slot 1 blocks and puts the second slots after
-// them, in the same section order (presetOrder()).
 struct OrderPreset { const char* name; std::array<int, postModuleCount> slots; };
 inline const std::array<OrderPreset, 4>& tonePresets() {
     static const std::array<OrderPreset, 4> presets{{
@@ -100,13 +82,6 @@ inline const std::array<OrderPreset, 4>& postPresets() {
     return presets;
 }
 inline const std::array<OrderPreset, 4>& orderPresets(OrderRegion r) { return r == OrderRegion::tone ? tonePresets() : postPresets(); }
-// The full slot list a preset applies (tone: 6 modules, POST: 14 blocks).
-inline std::vector<int> presetOrder(OrderRegion r, const OrderPreset& preset) {
-    std::vector<int> slots;
-    if (r == OrderRegion::tone) { for (int i = 0; i < toneModuleCount; ++i) slots.push_back(preset.slots[size_t(i)]); return slots; }
-    for (int slot = 0; slot < 2; ++slot) for (int i = 0; i < postModuleCount; ++i) slots.push_back(postBlock(preset.slots[size_t(i)], slot));
-    return slots;
-}
 
 // Click-safe change at a region's output: fade out (5 ms, raised cosine),
 // switch at silence, fade in (5 ms). The switch happens at a block boundary,

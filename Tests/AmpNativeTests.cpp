@@ -43,7 +43,7 @@ AmpNativeState audibleControlState(int model,int control) {
     if(model==7){set(s,"hw.b7k.distortion",1);set(s,"hw.b7k.lo_mids",.8f);set(s,"hw.b7k.hi_mids",.8f);}
     if(model==5)set(s,"hw.ch1.midrange",.8f);
     if(model==10){set(s,"hw.overdrive.mid_level",.8f);set(s,"hw.overdrive.blend",.7f);}
-    if(model==11)set(s,"hw.lo_mid",.8f); // MID FREQ needs a non-flat MID
+    if(model==11){set(s,"hw.lo_mid",.8f);set(s,"hw.hi_mid",.8f);}
     if(model==12)set(s,"hw.master",.25f);
     if(model==15){set(s,"presence",.8f);for(int ch=1;ch<=4;++ch)set(s,"ch"+std::to_string(ch)+".gate",1);}
     if(model==18)set(s,"hw.midrange",.8f);
@@ -64,11 +64,11 @@ AmpNativeState audibleControlState(int model,int control) {
 void catalog() {
     size_t count=0;for(int m=0;m<ampModelCount;++m){const auto& p=ampNativePanel(m);require(!p.controls.empty()&&p.controls.size()<=maxAmpNativeControls,"Native panel dimensions");require(p.defaultChannel<(int)p.channels.size(),"Native defaultchannel");
         auto s=defaultAmpNativeState(m);for(size_t c=0;c<p.controls.size();++c){const auto& k=p.controls[c];require(k.minimum<=k.initial&&k.initial<=k.maximum,"Native initial range");require(ampNativeControlIndex(m,k.key)==(int)c,"Duplicate native key");require(k.channelMask>0,"Invisible native control");require(s.values[c]==k.initial,"Native state default");++count;}}
-    require(count==455,"Native control count changed without review");
+    require(count==450,"Native control count changed without review");
     require(ampNativeContext(0,0)==0&&ampNativeContext(1,0)==1&&ampNativeContext(1,1)==2&&ampNativeContext(2,0)==3&&ampNativeContext(2,1)==4&&ampNativeContext(2,2)==5,"Six context identity");
     require(ampNativePanel(21).channels.size()==2,"Hot Lead normal route missing");
     auto bad=defaultAmpNativeState(3);bad.channel=99;bad.inputRoute=-99;bad.values[0]=NAN;bad.inputTrimDb=INFINITY;sanitiseAmpNativeState(bad);require(bad.channel==2&&bad.inputRoute==0&&bad.values[0]==ampNativePanel(3).controls[0].initial&&bad.inputTrimDb==0,"Native invalid values not sanitized");
-    std::cout<<"PASS catalog 31 serialized / 30 active models, 455 controls, six contexts\n";
+    std::cout<<"PASS catalog 31 serialized / 30 active models, 450 controls, six contexts\n";
 }
 void controlResponses() {
     size_t tested=0,failed=0;double minimum=1e9;std::string least;
@@ -118,12 +118,12 @@ void bassEQSpecificationRanges() {
     // Small-signal tone measurements keep nonlinear stages out of this check.
     // The end-to-end difference checks published boost/cut span, not curve fit.
     struct Case {int model;const char* key;float frequency;float span;};
-    for(const auto f:{Case{5,"hw.ch1.midrange",800,40},Case{11,"hw.lo_mid",520,24},Case{11,"hw.lo_mid",1600,24},Case{14,"hw.lo_mid",250,24}}) {
+    for(const auto f:{Case{5,"hw.ch1.midrange",800,40},Case{11,"hw.lo_mid",520,24},Case{11,"hw.hi_mid",1200,24},Case{14,"hw.lo_mid",250,24}}) {
         std::array<double,2> measured{};
         for(int end=0;end<2;++end) {
             auto s=defaultAmpNativeState(f.model);s.channel=0;set(s,f.key,float(end));
             if(f.model==5)set(s,"hw.ch1.mid_frequency",1);
-            if(f.model==11){set(s,"hw.high_pass",0);set(s,"hw.lo_mid_frequency",float((f.frequency-150.)/1850.));} // TT-800 MODERN: linear 150 Hz-2 kHz
+            if(f.model==11){set(s,"hw.voicing",0);set(s,"hw.high_pass",0);set(s,"hw.lo_mid_frequency",float(std::log(520./150.)/std::log(1800./150.)));set(s,"hw.hi_mid_frequency",float(std::log(1200./300.)/std::log(5000./300.)));}
             AmpNativeDSP dsp;dsp.prepare(48000);dsp.set(s);dsp.reset();double energy=0;
             for(int n=0;n<48000;++n){const float y=dsp.tick(1.e-5f*std::sin(float(2*pi*f.frequency*n/48000)),0);if(n>=24000)energy+=double(y)*y;}
             measured[size_t(end)]=energy;

@@ -174,30 +174,15 @@ def amp_panels():
         [('vintage','VINTAGE'),('overdrive','OVERDRIVE')],initial='overdrive',
         note='Vintage Mid와 OD의 Mid Frequency/Mid Level을 구분. 제조사 사진의 두 중역 노브를 기준으로 웹 설명의 중복된 Mid를 세 번째 노브로 만들지 않았습니다. 기존 레퍼런스는 DI 출력입니다.',routes=['INPUT 1','INPUT 2 · -6 dB'])
 
-    # Subway TT-800 (official owner's manual): shared input section, two
-    # independent preamps and a shared power section. The D-800+ keys that the
-    # TT-800 Subway channel retains keep their released IDs on MODERN (channel
-    # zero), so released single-channel state recalls that channel. The
-    # D-800+ VOICING and HI MID pair have no TT-800 control; their released
-    # host parameters stay registered as retired (AmpNativeParameters.h).
-    subway = [choice('hw.input_type','GAIN SWITCH',['HIGH','LOW'],'INPUT',
-                     note='HIGH/LOW input gain. Released PASSIVE/ACTIVE index 0/1 = HIGH/LOW.'),
-              toggle('hw.deep','DEEP','INPUT'),toggle('hw.bright','BRIGHT','INPUT'),toggle('hw.mute','MUTE','INPUT')]
-    subway += [knob(k,label,'MODERN',['modern']) for k,label in
-               [('hw.input','GAIN'),('hw.high_pass','HIGHPASS'),('hw.bass','BASS'),('hw.lo_mid','MID'),
-                ('hw.lo_mid_frequency','MID FREQ'),('hw.treble','TREBLE'),('hw.master','VOLUME')]]
-    # Manual "instant gratification" positions on a 300-degree pot:
-    # 9:00 = .2, 10:00 = .3, 10:30 = .35, 3:30 = .85; MID FREQ fully NORM.
-    # Volume stays at the MODERN channel's released noon for an even switch.
-    subway += [knob('hw.classic.'+k,label,'CLASSIC',['classic'],initial=v) for k,label,v in
-               [('gain','GAIN',.5),('high_pass','HIGHPASS',.2),('bass','BASS',.35),('mid','MID',.85),
-                ('mid_shift','MID FREQ',0),('treble','TREBLE',.3),('volume','VOLUME',.5)]]
-    subway += [knob('hw.od_symmetry','O/D SYMMETRY','POWER',initial=0)]
-    p['legacy.amp.11'] = panel('Mesa Subway TT-800 \u2014 two-channel panel',subway,
-        [],[('modern','MODERN'),('classic','CLASSIC')],initial='modern',review=PARTIAL,
-        note='공식 TT-800 오너 매뉴얼 기준. 공유 입력부(HIGH/LOW GAIN·DEEP·BRIGHT·MUTE), 패시브 톤스택 CLASSIC 채널, 액티브 Baxandall MODERN 채널, 공유 O/D SYMMETRY. 기존 D-800+ 단일 채널 상태는 MODERN 채널로 불러옵니다.',
-        omitted='FX loops, DI outputs, tuner/aux, headphone cab emulation, impedance-tracking damping and footswitch jack are not simulated. Tube type choice (12AT7/12AU7) is not a control.',
-        scope='Panel functions from the official Subway TT-800 owner\'s manual (PDF, 2020-05-20). Tapers, tonestack values and clip curves are authored; the fixed capture is a D-800+ DI reference, not a TT-800 capture.')
+    subway = knobs('hw.','input gain high_pass voicing bass lo_mid_frequency lo_mid hi_mid_frequency hi_mid treble master','PANEL')
+    # The actual D-800+ has INPUT gain, not separate generic Drive + Gain.
+    subway = [c for c in subway if c['id']!='hw.gain']
+    subway[0]['label']='INPUT'
+    subway += [toggle('hw.deep','DEEP'),toggle('hw.bright','BRIGHT'),toggle('hw.mute','MUTE'),choice('hw.input_type','INPUT TYPE',['PASSIVE','ACTIVE'])]
+    p['legacy.amp.11'] = panel('Mesa Subway D-800+ — not D-800',subway,
+        ['https://www.tone3000.com/tones/mesa-subway-d-800-di-flat-41431'],review=PENDING,
+        note='2017 D-800+라는 장비/DI 범위는 캡처 제작자가 명시. + 모델의 HPF·Voicing·가변 중역을 구분한 대상 정의이며 제조사 전체 패널 최종 확인은 대기입니다. D-800 자료로 대체하지 않습니다.',
+        omitted='Exact HPF/mid frequency endpoints, switch labels and physical DI controls need the D-800+ manual.')
 
     match = knobs('hw.ch1.','volume bass treble','CH1 / 12AX7',['ch1'])
     match += [knob('hw.ch2.volume','VOLUME','CH2 / EF86',['ch2']),choice('hw.ch2.tone','TONE',['1','2','3','4','5','6'],'CH2 / EF86',['ch2'])]
