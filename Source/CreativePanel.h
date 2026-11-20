@@ -91,10 +91,8 @@ public:
         enabled.setBounds(area.removeFromRight(43));area.removeFromRight(8);
         model.setBounds(area.removeFromRight(190));area.removeFromRight(8);
         caption.setBounds(area.removeFromRight(70));area.removeFromRight(8);
-        note.setBounds(area.withTrimmedLeft(14));   // the left edge is the POST page's drag grip
+        note.setBounds(area);
     }
-    // Names the neighbours in the current POST order.
-    void setPlacement(const juce::String& text) {if(note.getText()!=text)note.setText(text,juce::dontSendNotification);}
     juce::ComboBox& modelBox() noexcept {return model;}
 private:
     ChimeraProcessor& processor;juce::Label caption,note;juce::ComboBox model;juce::TextButton enabled{"OFF"},all;

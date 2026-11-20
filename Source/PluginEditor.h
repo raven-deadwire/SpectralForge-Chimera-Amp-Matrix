@@ -18,7 +18,6 @@
 #include "EasyModeView.h"
 #include "EffectModelSync.h"
 #include "CreativePanel.h"
-#include "PostRackDrag.h"
 #include "SynthPage.h"
 
 class CabRoomOverview;
@@ -211,13 +210,6 @@ private:
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};
     static constexpr std::array<int,6> rackOrder{7,8,9,10,1,2};
-    // POST page rows follow the POST order (docs/SIGNAL_ORDER_1_4.md, "Drag on
-    // the POST page"): row r (rackOrder) sits in display slot rackSlots[r].
-    std::array<int,6> rackSlots{0,1,2,3,4,5};
-    spectralforge::PostOrder shownRackOrder=spectralforge::PostOrder::initial();
-    int rackRowY(int row) const noexcept {return spectralforge::postRack::rowY(rackSlots[(size_t)juce::jlimit(0,5,row)]);}
-    std::unique_ptr<spectralforge::postRack::Overlay> rackDrag;
-    void layoutRack();
     struct LaneUI {
         int lastModel{-1};
         spectralforge::ui::Changed<std::array<uint64_t,6>> cabKey;
