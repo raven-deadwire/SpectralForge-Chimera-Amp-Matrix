@@ -480,7 +480,14 @@ void secondSlotsLatency() {
     set(*p,s2("pn_preamp_m0_bypass"),1);run(*p,8,.1,220);const int off=p->getLatencySamples();
     std::cout<<"MEASURE second POST preamp latency: base "<<base<<", on "<<on<<", off again "<<off<<" samples\n";
     require(active && on>base && off==base && !p->postSecondPreampActive(),"Second preamp latency not reported or not released");
-    std::cout<<"PASS the second preamp reports its latency only while it runs\n";
+    // The reported latency changes in the same block as the audio switch,
+    // never one block later: checked after every block of both transitions.
+    for(const float bypass:{0.f,1.f}){
+        set(*p,s2("pn_preamp_m0_bypass"),bypass);
+        for(int k=0;k<40;++k){run(*p,1,.1,220,k);const bool running=p->postSecondPreampActive();const int now=p->getLatencySamples();
+            require(running ? now==on : now==base,"Reported latency lags the second preamp switch at block "+std::to_string(k));}
+        require(p->postSecondPreampActive()==(bypass<.5f),"Second preamp did not switch within 40 blocks");}
+    std::cout<<"PASS the second preamp reports its latency only while it runs, from the block it switches in\n";
 }
 void secondSlotsOrder() {
     auto p=make();

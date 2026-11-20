@@ -119,6 +119,10 @@ MODULATION, DELAY, CREATIVE and REVERB. Each now has **two slots**.
   - Because the timing shifts, switching the second preamp on or off goes
     through the same 5 ms fade as an order change. The latency change then
     happens in silence.
+  - The plugin reports the new latency in the same audio block where the
+    second preamp switches in or out, never a block later (tested after
+    every block). How quickly a DAW then moves its delay compensation is up
+    to the DAW and has not been checked in a DAW yet.
 - **Sidechain key:** a keyed POST dynamics block hears the key delayed by
   every preamp that runs ahead of it (0, 1 or 2 preamps).
 - **CPU:**
