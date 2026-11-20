@@ -16,7 +16,7 @@ as the specification's first editable regions require.
 | Region | Modules | Fixed boundaries |
 |---|---|---|
 | **Tone / dynamics block** | Tone EQ, clean compressor, multiband, saturation, filter, de-esser | After the rig sum, the optional post-rig gate and the Room return; before POST |
-| **POST rack** | POST dynamics, POST preamp, POST EQ, modulation, delay, CREATIVE, reverb | After the tone / dynamics block; before the doubler / click, Final EQ, output trim and limiter |
+| **POST rack** | POST dynamics, POST preamp, POST EQ, modulation, delay, CREATIVE, reverb, each in slot 1 and slot 2 (14 blocks, [POST_SECOND_SLOTS.md](POST_SECOND_SLOTS.md)) | After the tone / dynamics block; before the doubler / click, Final EQ, output trim and limiter |
 
 - **Fixed blocks:** the input gate, Transpose, PRE, amps, cabinets, Room sends
   and return, Final EQ, output trim and the limiter cannot be moved.
@@ -72,10 +72,45 @@ order command; no DSP rebuild during hover".
 - **Evidence:** `SIGNAL_ORDER_SNAPSHOT=<dir>` makes `ChimeraSignalOrderTests`
   write the graph mid-drag.
 
+## Drag on the POST page
+
+The POST rack page (RACK / AFTER RIG MERGE) takes the same drag as the
+ROUTING graph, so a unit can be moved where it is edited.
+
+- **Rows follow the order:** the six rack rows (POST dynamics, preamp, EQ,
+  modulation, delay, reverb) are drawn in the POST order. CREATIVE keeps its
+  strip above the rows; its note names its neighbours, for example
+  "AFTER DELAY / BEFORE REVERB". In the released order the page looks as
+  before.
+- **Grip:** the left strip of each row (six dots under the power light) and
+  the left edge of the CREATIVE strip are drag handles, with a hand cursor.
+  Knobs, model boxes, ON and ALL keep working as before; only the grip starts
+  a drag.
+- **Drag:** press a grip and move more than 6 pixels. Every block is outlined,
+  the block under the pointer is highlighted and a caption such as
+  "POST DYNAMICS > POSITION 5" follows the pointer.
+- **Drop:** releasing over another block moves the dragged unit to that
+  block's place in the POST order. It is one placement command, the same as
+  the ROUTING graph's: one undo entry, the 5 ms order crossfade, nothing else
+  written.
+- **Cancel:** Escape, releasing over the unit's own row, or releasing outside
+  every block changes nothing. A press that moves less than 6 pixels is a
+  plain click and changes nothing.
+- **No writes while hovering** (tested).
+- **Tests:** `ChimeraSignalOrderTests` ("POST page drag") drives the shipped
+  editor: drag, hover, drop, undo, Escape, outside, own row, click and the
+  CREATIVE strip. `SIGNAL_ORDER_SNAPSHOT=<dir>` also writes
+  `post_page_drag.png` mid-drag.
+
 ## State, automation and undo
 
 - **Parameters:** 13 slot parameters (`orderTone1`–`6`, `orderPost1`–`7`) at
   version hint 29, appended last.
+  - **Second slots:** the POST region now orders 14 blocks, each section's
+    slot 1 and slot 2 ([POST_SECOND_SLOTS.md](POST_SECOND_SLOTS.md)).
+    `orderPost8`–`14` were appended at version hint 35, and `orderPost1`–`7`
+    accept blocks 0–13. A project without the new slots loads the released
+    order with the second slots after REVERB.
   - Each slot holds the module in that position.
   - They are **not automatable** (order is not an automation target).
 - **Stable identities:** a module keeps its own parameter bank. Moving it
@@ -163,7 +198,8 @@ while switching.
     ([SIDECHAIN_SYNTH_BUS.md](SIDECHAIN_SYNTH_BUS.md)).
 
 - **Interaction:** dragging on the compact strip (it has no per-module
-  blocks), and touch-specific long-press handling.
+  blocks), and touch-specific long-press handling. (The POST page itself
+  now drags; see "Drag on the POST page".)
 - **Placements:** advanced ones, such as a whole-wet compressor after POST
   (1.9).
 - **Checks:** pointer checks in hosts, listening to real tails during a move,

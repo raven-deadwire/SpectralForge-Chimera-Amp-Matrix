@@ -137,7 +137,7 @@ def run(args: argparse.Namespace) -> None:
     totals = re.findall(rf"\[chimera-obs\] '{re.escape(app.FILTER)}': session total: .*unprocessed blocks (\d+)", log)
     check(len(totals) == 1 and int(totals[0]) > 0,
           f"the session total counts the blocks after Chimera ran that it did not process (unprocessed: {totals})")
-    check(log.count("[chimera-obs] unloaded Chimera filter instance") == 1, "the filter instance is unloaded")
+    app.check_unloaded(log, 1, "the filter instance is unloaded")
     print(f"PASS real OBS Studio {version['obsVersion']}: with Chimera not loaded the filter is silent by default, passes "
           f"its input unchanged when set to, processes once Chimera loads, is silent again when the bundle goes missing, "
           f"and counts those unprocessed blocks ({totals[0]})")

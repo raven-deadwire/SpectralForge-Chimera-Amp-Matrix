@@ -2265,7 +2265,7 @@ private:
         juce::StringArray ids{postNativeModeID(0),postNativeModelID(0),postNativeModelExtensionID(0),
             postNativeBypassID(0,0),postNativeTrimID(0,0),postNativeLevelID(0,0)};
         for(int c=0;c<postNativeModel(0,0).controlCount;++c)ids.add(postNativeControlID(0,0,c));
-        for(int slot=0;slot<postModuleCount;++slot)ids.add(orderSlotID(OrderRegion::post,slot));
+        for(int slot=0;slot<postBlockCount;++slot)ids.add(orderSlotID(OrderRegion::post,slot));
         return ids;
     }
     // Phase 16: the POST Console VCA as glue. The current model only hears
@@ -2276,7 +2276,9 @@ private:
         if(locked(lockBus)){keep("locked");return;}
         if(!(t==busAtStart)){keep("POST bus section changed while listening");return;}
         PostOrder order;
-        for(int slot=0;slot<postModuleCount;++slot)order.slots[size_t(slot)]=juce::roundToInt(raw(orderSlotID(OrderRegion::post,slot)));
+        // All 14 POST blocks (docs/POST_SECOND_SLOTS.md): a second slot moved
+        // ahead of POST dynamics also changes what the bus compressor hears.
+        for(int slot=0;slot<postBlockCount;++slot)order.slots[size_t(slot)]=juce::roundToInt(raw(orderSlotID(OrderRegion::post,slot)));
         if(!order.valid() || order.slots[0]!=postDynamicsModule){keep("POST dynamics must be first for bus Auto Set; order and controls kept");return;}
         const auto controls=busWriteIDs();
         const auto expectedReads=size_t(busReadIDs().size());
