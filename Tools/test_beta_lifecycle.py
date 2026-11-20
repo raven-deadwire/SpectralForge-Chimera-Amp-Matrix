@@ -148,22 +148,22 @@ class BetaLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unset"):
             beta_lifecycle.validate_metadata(pending, self.root, SHA, publication=True, now=self.now)
 
-    def test_committed_1_4_1_beta1_approval_is_distinct_from_earlier_betas(self):
+    def test_committed_1_5_0_beta1_approval_is_distinct_from_earlier_betas(self):
         source = Path(__file__).resolve().parents[1]
         policy = json.loads((source / beta_lifecycle.POLICY_PATH).read_text())
-        self.assertEqual((source / "VERSION").read_text().strip(), "1.4.1")
+        self.assertEqual((source / "VERSION").read_text().strip(), "1.5.0")
         self.assertEqual((source / "RELEASE_CHANNEL").read_text().strip(), "beta.1")
-        self.assertEqual(policy["version"], "1.4.1-beta.1")
+        self.assertEqual(policy["version"], "1.5.0-beta.1")
         self.assertEqual(policy["expires_at_utc"], "2027-05-31T14:59:00Z")
         self.assertIs(policy["expiry_approved"], True)
         metadata = beta_lifecycle.configure_metadata(source, SHA, now=self.now)
         self.assertEqual(metadata["expires_at_unix"], 1811775540)
         self.assertEqual(beta_lifecycle.expiry_kst(metadata), "2027-05-31 23:59:00")
         self.assertIn("2027-05-31T14:59:00Z", beta_lifecycle.notice(metadata))
-        # The published 1.4.0-beta.1 policy cannot configure the 1.4.1-beta.1 source.
-        (self.root / "VERSION").write_text("1.4.1\n")
+        # The published 1.4.1-beta.1 policy cannot configure the 1.5.0-beta.1 source.
+        (self.root / "VERSION").write_text("1.5.0\n")
         (self.root / "RELEASE_CHANNEL").write_text("beta.1\n")
-        self.policy(version="1.4.0-beta.1", expires_at_utc="2027-05-31T14:59:00Z", expiry_approved=True)
+        self.policy(version="1.4.1-beta.1", expires_at_utc="2027-05-31T14:59:00Z", expiry_approved=True)
         with self.assertRaisesRegex(ValueError, "version differs"):
             beta_lifecycle.configure_metadata(self.root, SHA, now=self.now)
 
