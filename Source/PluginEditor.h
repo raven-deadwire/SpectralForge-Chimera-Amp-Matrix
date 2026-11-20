@@ -19,7 +19,6 @@
 #include "EffectModelSync.h"
 #include "CreativePanel.h"
 #include "PostRackDrag.h"
-#include "PostSlotRow.h"
 #include "SynthPage.h"
 
 class CabRoomOverview;
@@ -206,6 +205,7 @@ private:
     };
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
     std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
+    void openCreativePanel();
     std::unique_ptr<spectralforge::synthUI::SynthPage> synthPage;   // page 4
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
@@ -218,19 +218,6 @@ private:
     int rackRowY(int row) const noexcept {return spectralforge::postRack::rowY(rackSlots[(size_t)juce::jlimit(0,5,row)]);}
     std::unique_ptr<spectralforge::postRack::Overlay> rackDrag;
     void layoutRack();
-    // POST second slots (docs/POST_SECOND_SLOTS.md): each row and the CREATIVE
-    // strip show slot 1 or slot 2 of their section (presentation only).
-    std::array<std::unique_ptr<PostNativePanel>,3> postPanels2;
-    std::array<std::unique_ptr<spectralforge::postSlotUI::EffectSlotRow>,3> effectRows2;   // rows 3-5
-    std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip2;
-    std::array<std::unique_ptr<spectralforge::postSlotUI::SlotSelector>,spectralforge::postModuleCount> slotSelectors;
-    std::array<int,spectralforge::postModuleCount> shownSlot{};
-    // Rack row (0-5) to POST section, and whether a row shows its second slot.
-    static int rowSection(int row) noexcept {return spectralforge::postRack::rowModules[(size_t)juce::jlimit(0,5,row)];}
-    bool rowShowsSecond(int row) const noexcept {return shownSlot[(size_t)rowSection(row)]>0;}
-    void showPostSlot(int section,int slot);
-    void openRackEffect(int family,int slot);
-    void openCreativePanel(int slot=0);
     struct LaneUI {
         int lastModel{-1};
         spectralforge::ui::Changed<std::array<uint64_t,6>> cabKey;

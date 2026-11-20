@@ -260,8 +260,6 @@ public:
         for(int s=0;s<3;++s)for(int m=0;m<postNativeModelsPerSection;++m){engines[s][m].prepare(spec.sampleRate,s,m);morph[s][m].reset(spec.sampleRate,.02);morph[s][m].setCurrentAndTargetValue(m==0?1.f:0.f);}reset();
     }
     void reset() noexcept {for(auto& section:engines)for(auto& model:section)model.reset();preampAlignment.reset();selectedReady={};readings={{-120,-120,-120}};reductions={};}
-    // One section from silence (a second slot waking up, docs/POST_SECOND_SLOTS.md).
-    void resetSection(int section) noexcept {const int s=juce::jlimit(0,2,section);for(auto& model:engines[(size_t)s])model.reset();if(s==1)preampAlignment.reset();selectedReady[(size_t)s]=false;readings[(size_t)s]=-120;reductions[(size_t)s]=0;}
     float meter(int section) const noexcept {return readings[juce::jlimit(0,2,section)];}
     // External sidechain for the block about to be processed (or none).
     void setKey(const juce::AudioBuffer<float>* externalKey) noexcept {key=externalKey;}

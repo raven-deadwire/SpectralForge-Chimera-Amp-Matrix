@@ -111,14 +111,6 @@ void everythingOnStaysBounded(){
         // Random gain stages can stack to +30 dB; the final limiter is what
         // keeps a session in range, so it is on (Studio, -1 dBTP) here.
         set(*p,"liveLimiterOn",1);set(*p,"limiterMode",1);set(*p,"liveLimiterCeiling",-1);
-        // The POST second slots (docs/POST_SECOND_SLOTS.md) copy the released
-        // POST rack, DELAY included. The released DELAY's switch (version 1)
-        // stays off here, but its slot 2 copy is switched on: its repeats of a
-        // signal raised by the stacked random gains (up to 0.85 feedback, a
-        // second up to 2 s apart) need longer than 4 s to fall 60 dB, by
-        // design. It keeps running, without repeats; its tails are checked in
-        // ChimeraSignalOrderTests.
-        set(*p,"slot2_delayfeedback",0);
         const auto y=render(*p,48000,128,1.,4.);
         float peak=0;bool finite=true;for(float x:y){finite=finite && std::isfinite(x);peak=std::max(peak,std::abs(x));}
         // Last 100 ms of the 4 s silence, both channels.

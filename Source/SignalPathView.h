@@ -90,7 +90,7 @@ public:
         setDescription(compact?"PRE, amplifier heads, cabinets, Tone EQ, POST and Final EQ. Open Routing for the complete signal path, including global utilities.":"Complete signal path with utility positions, taps, parallel branches and rig summing. Select a block to open its controls.");
         setFocusContainerType(juce::Component::FocusContainerType::focusContainer);
         for(const auto* id:routingParameters)processor.parameters().addParameterListener(id,this);
-        if(!compact){setSize(1140,700);startTimerHz(25);}refresh();
+        if(!compact){setSize(1140,650);startTimerHz(25);}refresh();
     }
     ~SignalPathView() override {
         stopTimer();cancelPendingUpdate();
@@ -326,7 +326,7 @@ private:
         menu.addSubMenu("Place at position",positions);
         juce::PopupMenu presets;
         {const auto& list=spectralforge::orderPresets(place->region);
-         for(size_t i=0;i<list.size();++i){const auto order=spectralforge::presetOrder(place->region,list[i]);const bool same=order==slots;presets.addItem(200+int(i),list[i].name,!same,same);}}
+         for(size_t i=0;i<list.size();++i){bool same=true;for(int k=0;k<count;++k)same=same&&slots[(size_t)k]==list[i].slots[(size_t)k];presets.addItem(200+int(i),list[i].name,!same,same);}}
         menu.addSubMenu("Order presets",presets);
         menu.addSeparator();
         menu.addItem(5,"Undo order change",processor.canUndoOrder());menu.addItem(6,"Redo order change",processor.canRedoOrder());
@@ -341,8 +341,7 @@ private:
             if(result>=1 && result<=7)safe->orderCommand(id,commands[(size_t)result-1]);
         });
     }
-    // 1140 x 700: the POST second slots added a third row of blocks (docs/POST_SECOND_SLOTS.md).
-    float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/700.f);}
+    float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/650.f);}
     void timerCallback() override {if(spectralforge::ui::visible(*this)){refresh();if(selection)select(selection());}}
     void updateSelection(){
         auto editingStage=selected;
@@ -368,7 +367,7 @@ private:
         }
         for(auto& b:buttons){
             const auto id=b->getComponentID().substring(5);
-            const bool grouped=!compact&&((selected=="rigs"&&id=="split")||(selected=="head"&&id.startsWith("amp.context"))||(selected=="cab"&&id.startsWith("cab.context"))||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&(id.startsWith("post.")||id.startsWith("post2."))));
+            const bool grouped=!compact&&((selected=="rigs"&&id=="split")||(selected=="head"&&id.startsWith("amp.context"))||(selected=="cab"&&id.startsWith("cab.context"))||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&id.startsWith("post.")));
             b->setToggleState(id==(compact?editingStage:selected)||grouped,juce::dontSendNotification);
         }
     }

@@ -16,7 +16,7 @@ as the specification's first editable regions require.
 | Region | Modules | Fixed boundaries |
 |---|---|---|
 | **Tone / dynamics block** | Tone EQ, clean compressor, multiband, saturation, filter, de-esser | After the rig sum, the optional post-rig gate and the Room return; before POST |
-| **POST rack** | POST dynamics, POST preamp, POST EQ, modulation, delay, CREATIVE, reverb, each in slot 1 and slot 2 (14 blocks, [POST_SECOND_SLOTS.md](POST_SECOND_SLOTS.md)) | After the tone / dynamics block; before the doubler / click, Final EQ, output trim and limiter |
+| **POST rack** | POST dynamics, POST preamp, POST EQ, modulation, delay, CREATIVE, reverb | After the tone / dynamics block; before the doubler / click, Final EQ, output trim and limiter |
 
 - **Fixed blocks:** the input gate, Transpose, PRE, amps, cabinets, Room sends
   and return, Final EQ, output trim and the limiter cannot be moved.
@@ -106,11 +106,6 @@ ROUTING graph, so a unit can be moved where it is edited.
 
 - **Parameters:** 13 slot parameters (`orderTone1`–`6`, `orderPost1`–`7`) at
   version hint 29, appended last.
-  - **Second slots:** the POST region now orders 14 blocks, each section's
-    slot 1 and slot 2 ([POST_SECOND_SLOTS.md](POST_SECOND_SLOTS.md)).
-    `orderPost8`–`14` were appended at version hint 35, and `orderPost1`–`7`
-    accept blocks 0–13. A project without the new slots loads the released
-    order with the second slots after REVERB.
   - Each slot holds the module in that position.
   - They are **not automatable** (order is not an automation target).
 - **Stable identities:** a module keeps its own parameter bank. Moving it
