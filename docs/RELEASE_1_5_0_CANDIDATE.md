@@ -7,7 +7,7 @@
   answered "빠른 경로로 1.4.2-beta.1 준비해줘", then "만료일 유지하고 CI 통과하면
   #339 머지해서 공개 진행해줘".
 - **Scope change:** before #339 could be merged, #334, #335, #336 and #342
-  were merged to main (and #341 and #343 after them). The fast path excluded the first
+  were merged to main (and #341, #343 and #345 after them). The fast path excluded the first
   three, and #342 did not exist when it was chosen. A release is published
   only from main, so 1.4.2-beta.1 as prepared could no longer be published:
   its notes said the parameters and saved projects were unchanged, which was
@@ -33,7 +33,7 @@ with no end date.
 
 ## Source
 
-- **Branch:** `claude/release-1.5.0-beta.1`, from main `161aedd` (after #341), with main `b93caa5` (#343) merged in.
+- **Branch:** `claude/release-1.5.0-beta.1`, from main `161aedd` (after #341), with main `b3e78e6` (#343, #345) merged in.
 - **Identity:** `VERSION` 1.5.0, `RELEASE_CHANNEL` beta.1,
   `Validation/beta-lifecycle-policy.json` 1.5.0-beta.1.
 - **Release scope:** `Validation/release-policy.json` `release_scope` records
@@ -51,7 +51,7 @@ the notes and the gate totals.
 | #335 | POST page: drag rack rows to reorder | no change |
 | #336 | Metro Clean remodelled as a two-channel head; 48 appended parameters | open on MODERN; **sound can differ** (VOICING / HI MID retired, HIGH PASS and mid-frequency ranges changed) |
 | #334 | Reference heads 26–30: new artwork | no change |
-| #326, #328, #329, #330, #331, #337, #338, #341, #343 | Auto Set phases 33–41, all off by default | no change |
+| #326, #328, #329, #330, #331, #337, #338, #341, #343, #345 | Auto Set phases 33–42, all off by default | no change |
 | #332 | OBS tests tolerate the runner's timing (tests only) | no change |
 | #340 | Windows AAX and installer code-signing guide (document) | no change |
 | #325, #327, #333 | tuner fixture digest, 1.4.1 receipt, 1.4.1 notes | no change |
@@ -83,12 +83,23 @@ See `Tools/fixtures/README.md`.
   publication.
 - **Lifecycle:** recorded in [BETA_LIFECYCLE.md](BETA_LIFECYCLE.md).
 
+## Auto Set steps merged while this branch is open
+
+New Auto Set phases are being merged to main every few hours. Each one is off
+by default and leaves saved projects unchanged. The notes therefore describe
+the group ("phase 33 onward, for the amps of the Dual rigs and the Matrix MID
+and HIGH lanes") and point to `docs/AUTO_SET_PHASE*.md` in the release source
+for the exact list, instead of a count that the next merge would make wrong.
+A merge of any other kind before publication still needs the notes revisited.
+
 ## Evidence so far
 
 - PR #344 at `5feebf7` (before #343 was merged in) passed CI on the first
   attempt: 26 checks succeeded, 2 skipped. Its strict report is
   21 PASS / 107 BLOCKED, hard gates 21 / 63, on Windows, macOS and Linux, so
   the new E1 totals match what the tests print on all three platforms.
+- PR #344 at `417bab9` (with #343) passed CI on the first attempt: 26
+  succeeded, 2 skipped; strict report 21 PASS / 107 BLOCKED.
 - Local Linux build of main `161aedd`: the three E1 tests pass and print the
   new totals. No full local product build or full CTest run was done.
 

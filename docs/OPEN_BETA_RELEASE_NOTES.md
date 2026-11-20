@@ -21,8 +21,8 @@ Highlights:
   the former VOICING and HI MID controls are retired and no longer shape the
   sound, and HIGH PASS and the mid frequency follow new ranges;
 - **new artwork** for reference heads 26–30 (no sound change);
-- nine more Auto Set steps, all **off by default**, for the amps of both
-  Dual rigs and of the Matrix MID and HIGH lanes.
+- more Auto Set steps (phase 33 onward), all **off by default**, for the
+  amps of both Dual rigs and of the Matrix MID and HIGH lanes.
 
 **License period:** this beta expires at **2027-05-31T14:59:00Z /
 2027-05-31 23:59:00 KST**, the same date as 1.4.0-beta.1 and 1.4.1-beta.1,
