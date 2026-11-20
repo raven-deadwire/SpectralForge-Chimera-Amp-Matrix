@@ -82,15 +82,13 @@ argument; the released groups keep their hints.
 
 ## Head artwork
 
-The complete head shells `head-shell-26.png` … `head-shell-30.png` are photographic artwork supplied by the product owner on 2026-11-18. They replace the earlier procedural drawings. Each PNG is the supplied 1672×941 RGBA image converted losslessly from WebP, with no cropping, resizing or repainting.
+`Tools/generate_reference_head_shells.py` draws each complete head shell
+procedurally:
+- `head-shell-26.png` … `head-shell-30.png`;
+- the compact fascia rasters (`acrystal.png` and the others);
+- the provenance entries, the metadata rows and the reviewed plate fixtures.
 
-- Crystal 120: silver-grey woven grille, silver panel, black tolex.
-- Bluestack 100: warm brown basketweave, gold panel, cream piping.
-- Eightyfire: dark, tight grille, gold panel, black corner protectors.
-- Fortress 103: dark grey grille, bright silver panel, black trim.
-- Northlight: compact navy metal desktop unit with steel-blue trim and no handle.
-
-The compact fascia rasters (`acrystal.png` and the others) are the alpha-bounded crop of each shell at 960 px wide. `Source/AmpHeadShellMetadata.h` holds the alpha bounds, control frame and support baseline. `Tests/CabHeadAppearanceTests.h` holds the blank plates measured on the raw PNGs. The control frames keep each knob row at the same relative position on its plate as before. The artwork carries no manufacturer logo or trade dress. Live knobs and labels remain JUCE controls on the blank plate.
+The fascias are original Chimera designs carrying the working name, with no manufacturer logo or trade dress. They are simpler than the photographic shells 0–25. Northlight is a compact desktop unit with no handle. Live knobs and labels remain JUCE controls on the blank plate.
 
 ## Measurements (`ChimeraReferenceAmpTests`, 48 kHz)
 
