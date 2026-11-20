@@ -1,0 +1,46 @@
+# SpectralForge Chimera — Open Beta 1.4.1
+
+**Version 1.4.1-beta.1 · Windows / macOS / Linux · 공개 베타**
+
+공개된 1.4.0-beta.1(2026-11-13) 이후 main에 통합된 작업을 묶은 베타입니다. 만료일은 1.4.0-beta.1과 같은 **2027-05-31 23:59 KST**입니다. 이 소스 그대로의 Windows·macOS·Linux 자동 검증을 통과해야 공개되며, 아래 알려진 한계를 공개한 상태로 소유자가 공개를 승인했습니다([후보 기록](RELEASE_1_4_1_CANDIDATE.md)). 안정판이나 엄격 검증 통과가 아닙니다.
+
+모델 카탈로그(AMP 30, PRE 51, POST 39, CREATIVE 9, SYNTH 3), 파라미터와 저장 형식은 1.4.0-beta.1과 같습니다. 자동 시험은 실제 악기 DI·DAW·청음 검증을 대신하지 않습니다.
+
+## 주요 변경
+
+### Auto Set (새 단계는 모두 기본 꺼짐)
+
+새 단계 7개는 AUTO SET 옆 옵션 버튼에서 켭니다. DI·청음 확인을 아직 거치지 않아 기본값은 꺼짐이며, 켜지 않으면 Auto Set 결과는 1.4.0-beta.1과 같습니다. 각 단계는 잠금·강도·UNDO AUTO를 따릅니다.
+
+- **Room ambience (26단계):** Room Core의 룸을 설정합니다. 듣는 시간은 늘지 않습니다.
+- **Dual·Matrix 레인 캐비닛 컷 (27·28단계):** Classic에만 있던 캐비닛 LOW/HIGH 컷 설정을 Dual 두 리그와 Matrix LOW·MID·HIGH 레인으로 넓힙니다.
+- **Dual·Matrix 캐비닛 팩토리 IR 선택 (29단계):** 각 리그·레인에서 들리는 마이크의 팩토리 IR을 고릅니다.
+- **Dual·Matrix 캐비닛 마이크 배치 (30단계):** 각 리그·레인의 모델링 마이크 위치와 거리를 정합니다.
+- **Dual·Matrix 캐비닛 마이크 정렬·블렌드 (31단계):** 각 캐비닛의 두 마이크 타이밍·극성·블렌드를 정합니다.
+- **Dual Blend의 부스트 페달 (32단계):** "Boost pedal before the amp" 단계의 옵션입니다. Dual Blend에서 두 리그를 합친 소리로 판단합니다.
+
+자세한 규칙은 `docs/AUTO_SET_PHASE26.md` … `docs/AUTO_SET_PHASE32.md`에 있습니다.
+
+### OBS 필터
+
+- **저장 중에 넣은 프리셋 보존:** OBS가 필터를 저장하는 동안 스크립트나 obs-websocket으로 넣은 프리셋이 이전 소리로 덮어써져 사라지던 문제를 고쳤습니다. 저장이 프리셋을 덮어쓴 경우에도 프리셋을 적용하고 장면에 다시 기록합니다.
+- **불필요한 쓰기 제거:** 상태가 바뀌지 않았으면 저장할 때 설정을 다시 쓰지 않습니다.
+- **필터만 받는 별도 패키지 (2026-11-18 추가):** 설치 파일에는 OBS 필터가 이미 선택 항목으로 들어 있습니다(Windows는 Windows 설치기에 포함). 필터만 추가하려면 릴리즈의 `chimera-obs-macos-universal-5bbc2715df.zip`(macOS 12 이상, Apple silicon·Intel) 또는 `chimera-obs-linux-x86_64-5bbc2715df.tar.gz`(x86_64, glibc 2.38 이상, 배포판 패키지로 설치한 OBS, Flatpak·Snap 미지원, 에디터 창은 X11 또는 XWayland 필요)를 받아 OBS를 종료한 뒤 `./install.sh`를 실행합니다. Chimera VST3가 설치되어 있어야 합니다. 체크섬은 `chimera-obs-SHA256SUMS.txt`에 있고, `SHA256SUMS.txt`에는 들어 있지 않습니다. OBS add-on 실행 44147274342가 소스 `5bbc2715`로 빌드·시험했으며, 이 소스의 OBS 코드는 이 릴리즈와 같습니다. macOS 모듈은 임시 서명이며 공증 전입니다.
+
+### 시험과 CI (제품 동작 변화 없음)
+
+- 타이머로 갱신되는 UI 검사, 튜너 피더 지연 재시도, CAB 타이밍 게이트가 바쁜 CI 러너에서 간헐적으로 실패하던 것을 안정화했습니다. 판정 기준은 그대로입니다.
+- 실제 OBS 앱 시험을 Windows·macOS 편집기까지 넓히고, macOS 러너의 녹화 시작 실패를 다시 시도하고 기록합니다.
+
+## 알려진 한계
+
+1.4.0-beta.1의 한계가 그대로 남아 있습니다.
+
+- 실제 기타·베이스 DI 청음과 Drop A 테이크 검증은 하지 않았습니다.
+- 실제 DAW·오디오 장치 수용 시험은 하지 않았습니다.
+- 퍼블리셔 서명과 macOS 공증은 없습니다.
+- Pro Tools의 AAX는 검증하지 않았습니다.
+- 새 Auto Set 단계 7개는 합성 신호 시험만 거쳤습니다.
+- 새 독일어·한국어 설명서 문구의 원어민 검토가 남아 있습니다.
+
+실행하지 않은 검사는 통과로 보고하지 않습니다.

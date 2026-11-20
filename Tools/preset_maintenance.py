@@ -57,8 +57,12 @@ ALLOWED_TESTS = frozenset({"Tests/GateProcessorTests.cpp", "Tests/GraphicalEQEdi
 # and this exact digest after reviewing the comparison and regression evidence.
 # Receipt: docs/evidence/tuner-stall-20261030/owner-approval.json.
 # Product gates and the exact-file, fail-closed comparison remain unchanged.
+# On 2026-11-16 the owner approved re-registering the digest for PR323's
+# change: up to five feeder-invalid attempts with a pause before each repeat.
+# The 50 ms feeder limit and every tuner gate are unchanged.
+# Receipt: docs/evidence/tuner-feeder-repeat-20261116/owner-approval.json.
 TUNER_DIAGNOSTICS_PATH = "Tests/PrecisionTunerIntegrationTests.cpp"
-TUNER_DIAGNOSTICS_SHA256 = "8f71de6fc444877dd306d4c9d2483ed5262557d513fdb1c32a489e629298c7fc"
+TUNER_DIAGNOSTICS_SHA256 = "e0649f4a78a94d670dbeab94a3de5847bb7c35133c92a169d887bf3eb5c441f9"
 ALLOWED_DOCS = frozenset({"docs/PRESETS.md", "docs/MANUAL.html", "docs/COMMON_DYNAMICS_1_3_2.md",
     "docs/GRAPHICAL_EQ_1_3_1.md", "docs/SIGNAL_EQ_INTEGRATION_1_3_1.md", "docs/PRESET_DYNAMICS_EQ.md"})
 ADDITIONS = frozenset({RECIPE_PATH, POLICY_PATH, WORKFLOW_PATH,

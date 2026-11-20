@@ -134,7 +134,12 @@ The gate now uses this basis:
   record wall and audio results, lateness at the deciding reads, and the
   route's maximum and p99 lateness. If any read in an attempt is more than
   50 ms late, the attempt is not a valid real-time measurement. It is logged
-  as `FEEDER_LATE` and the A/B route pair is repeated, up to three attempts.
+  as `FEEDER_LATE` and the A/B route pair is repeated, up to five attempts.
+  A repeat waits first (250 ms, 1 s, 2 s, then 4 s): three back-to-back
+  attempts all ran 50.9 to 52.1 ms late on one macos-15 runner (#312), so an
+  immediate repeat measures the same busy moment. The waits of one run share
+  a 20 s budget, after which repeats start at once. `ROUTE_TIMING_END` reports
+  the total as `repeat_pause_ms`.
   A feeder-valid attempt is final: a tuner gate failure is never repeated.
   If every attempt is feeder-invalid, the test fails with "Feeder lateness
   invalidated every attempt of a route". That is reported as a runner timing

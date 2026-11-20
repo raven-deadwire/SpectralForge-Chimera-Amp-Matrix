@@ -807,28 +807,28 @@
       "catalogStatus": "active",
       "asset": "Assets/Artwork/HeadShells/head-shell-26.png",
       "identityReference": "Assets/Artwork/acrystal.png",
-      "sha256": "e52f9bd28ae34ee9d1503550506f35df7208a5ffac74f7a37c99055ec4c50628",
-      "byteLength": 21064,
+      "sha256": "bde8dee0878e6abe92d7be01a931bb1f5ec08a4ce4090272295e96de3bf8e34f",
+      "byteLength": 1790230,
       "pixelSize": [
         1672,
         941
       ],
       "pixelMode": "RGBA",
       "alphaBounds": [
-        36,
-        96,
-        1601,
-        747
+        43,
+        85,
+        1586,
+        796
       ],
       "runtimeMetadataIndex": 26,
       "generation": {
-        "tool": "Tools/generate_reference_head_shells.py",
+        "tool": "Owner-supplied artwork",
         "instructionRecord": {
-          "kind": "procedural_drawing",
-          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+          "kind": "owner_supplied_image",
+          "text": "Photographic head artwork supplied by the product owner on 2026-11-18 as 1672x941 RGBA WebP; original Chimera enclosure with a blank control plate, no manufacturer logo."
         }
       },
-      "postGenerationProcessing": "None. The script writes the production PNG directly."
+      "postGenerationProcessing": "Lossless format conversion only: the decoded WebP RGBA pixels are written unchanged as PNG; no cropping, resizing, repainting or alpha processing."
     },
     {
       "modelIndex": 27,
@@ -836,28 +836,28 @@
       "catalogStatus": "active",
       "asset": "Assets/Artwork/HeadShells/head-shell-27.png",
       "identityReference": "Assets/Artwork/abluestack.png",
-      "sha256": "9a35578136161a9e58865630b35cecd2880592ce0b89c476030a070fa1f2e129",
-      "byteLength": 21228,
+      "sha256": "f8689411b53f66223e748eefc1f61b6221f6ad11c409b14a738c685cd9a43776",
+      "byteLength": 2165395,
       "pixelSize": [
         1672,
         941
       ],
       "pixelMode": "RGBA",
       "alphaBounds": [
-        36,
-        76,
-        1601,
-        767
+        49,
+        68,
+        1574,
+        808
       ],
       "runtimeMetadataIndex": 27,
       "generation": {
-        "tool": "Tools/generate_reference_head_shells.py",
+        "tool": "Owner-supplied artwork",
         "instructionRecord": {
-          "kind": "procedural_drawing",
-          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+          "kind": "owner_supplied_image",
+          "text": "Photographic head artwork supplied by the product owner on 2026-11-18 as 1672x941 RGBA WebP; original Chimera enclosure with a blank control plate, no manufacturer logo."
         }
       },
-      "postGenerationProcessing": "None. The script writes the production PNG directly."
+      "postGenerationProcessing": "Lossless format conversion only: the decoded WebP RGBA pixels are written unchanged as PNG; no cropping, resizing, repainting or alpha processing."
     },
     {
       "modelIndex": 28,
@@ -865,28 +865,28 @@
       "catalogStatus": "active",
       "asset": "Assets/Artwork/HeadShells/head-shell-28.png",
       "identityReference": "Assets/Artwork/aeightyfire.png",
-      "sha256": "587c13ddf41cdbcc6ea5f6d8045e0b4d584cbc36d199c15707acedc5e1d3c1ab",
-      "byteLength": 17250,
+      "sha256": "2ace54bb4472808a82a8318bc52904a82845bd647caf72857e5e78dbc9c1d066",
+      "byteLength": 1856700,
       "pixelSize": [
         1672,
         941
       ],
       "pixelMode": "RGBA",
       "alphaBounds": [
-        36,
-        76,
-        1601,
-        767
+        48,
+        74,
+        1577,
+        810
       ],
       "runtimeMetadataIndex": 28,
       "generation": {
-        "tool": "Tools/generate_reference_head_shells.py",
+        "tool": "Owner-supplied artwork",
         "instructionRecord": {
-          "kind": "procedural_drawing",
-          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+          "kind": "owner_supplied_image",
+          "text": "Photographic head artwork supplied by the product owner on 2026-11-18 as 1672x941 RGBA WebP; original Chimera enclosure with a blank control plate, no manufacturer logo."
         }
       },
-      "postGenerationProcessing": "None. The script writes the production PNG directly."
+      "postGenerationProcessing": "Lossless format conversion only: the decoded WebP RGBA pixels are written unchanged as PNG; no cropping, resizing, repainting or alpha processing."
     },
     {
       "modelIndex": 29,
@@ -894,28 +894,28 @@
       "catalogStatus": "active",
       "asset": "Assets/Artwork/HeadShells/head-shell-29.png",
       "identityReference": "Assets/Artwork/afortress.png",
-      "sha256": "ae875a3ab63b1328ca8173aa527d7e2bcd54df70a8e331ded25fd511f34e5aa8",
-      "byteLength": 20483,
+      "sha256": "10f501d0d35da3028d0c4d2939cc3beec22cc5386fdca86485ca2b2963332085",
+      "byteLength": 1709494,
       "pixelSize": [
         1672,
         941
       ],
       "pixelMode": "RGBA",
       "alphaBounds": [
-        36,
-        86,
-        1601,
-        757
+        42,
+        72,
+        1589,
+        812
       ],
       "runtimeMetadataIndex": 29,
       "generation": {
-        "tool": "Tools/generate_reference_head_shells.py",
+        "tool": "Owner-supplied artwork",
         "instructionRecord": {
-          "kind": "procedural_drawing",
-          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+          "kind": "owner_supplied_image",
+          "text": "Photographic head artwork supplied by the product owner on 2026-11-18 as 1672x941 RGBA WebP; original Chimera enclosure with a blank control plate, no manufacturer logo."
         }
       },
-      "postGenerationProcessing": "None. The script writes the production PNG directly."
+      "postGenerationProcessing": "Lossless format conversion only: the decoded WebP RGBA pixels are written unchanged as PNG; no cropping, resizing, repainting or alpha processing."
     },
     {
       "modelIndex": 30,
@@ -923,28 +923,28 @@
       "catalogStatus": "active",
       "asset": "Assets/Artwork/HeadShells/head-shell-30.png",
       "identityReference": "Assets/Artwork/anorthlight.png",
-      "sha256": "42924b31afac7552a2072bc23e6da8015f202c0ddb1ce1e896349f34be696b55",
-      "byteLength": 13340,
+      "sha256": "16a6a48d2259bac0ba2be9d7732e0d0d81da45a3d77a62c0dba4c16b90bf76f8",
+      "byteLength": 472194,
       "pixelSize": [
         1672,
         941
       ],
       "pixelMode": "RGBA",
       "alphaBounds": [
-        236,
-        420,
-        1201,
+        117,
+        334,
+        1438,
         393
       ],
       "runtimeMetadataIndex": 30,
       "generation": {
-        "tool": "Tools/generate_reference_head_shells.py",
+        "tool": "Owner-supplied artwork",
         "instructionRecord": {
-          "kind": "procedural_drawing",
-          "text": "Original Chimera fascia drawn from rectangles, lines and the model alias; no manufacturer logo or trade dress."
+          "kind": "owner_supplied_image",
+          "text": "Photographic head artwork supplied by the product owner on 2026-11-18 as 1672x941 RGBA WebP; original Chimera enclosure with a blank control plate, no manufacturer logo."
         }
       },
-      "postGenerationProcessing": "None. The script writes the production PNG directly."
+      "postGenerationProcessing": "Lossless format conversion only: the decoded WebP RGBA pixels are written unchanged as PNG; no cropping, resizing, repainting or alpha processing."
     }
   ]
 }

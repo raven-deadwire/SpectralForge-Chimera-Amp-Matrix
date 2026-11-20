@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include "PostInsert.h"
+#include "PostSlots.h"
 
 namespace spectralforge {
 
@@ -36,20 +37,22 @@ inline juce::StringArray creativeSyncNames() { return {"Free", "1/2", "1/4", "1/
 // Quarter-note beats per step for each synced choice (index 0 is free).
 inline constexpr std::array<double, 7> creativeSyncBeats{0., 2., 1., .5, .25, 1. / 3., 1. / 6.};
 
-inline void appendCreativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    constexpr int v = creativeParameterVersion;
-    const auto percent = [&](const char* id, const char* name, float initial) {
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id, v}, name, juce::NormalisableRange<float>{0.f, 100.f, .01f}, initial,
+// `slot` 1 builds the second CREATIVE slot (docs/POST_SECOND_SLOTS.md).
+inline void appendCreativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int slot = 0, int v = creativeParameterVersion) {
+    const auto id = [slot](const char* x) { return postSlotID(slot, x); };
+    const auto name = [slot](const char* x) { return postSlotName(slot, x); };
+    const auto percent = [&](const char* key, const char* label, float initial) {
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id(key), v}, name(label), juce::NormalisableRange<float>{0.f, 100.f, .01f}, initial,
             juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float value, int) { return juce::String(juce::roundToInt(value)) + " %"; })));
     };
-    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"creativeOn", v}, "Creative", false));
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"creativeModel", v}, "Creative model", creativeModelNames(), 0));
+    layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{id("creativeOn"), v}, name("Creative"), false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{id("creativeModel"), v}, name("Creative model"), creativeModelNames(), 0));
     percent("creativeA", "Creative A", 50.f);
     percent("creativeB", "Creative B", 50.f);
     percent("creativeC", "Creative C", 50.f);
     percent("creativeMix", "Creative mix", 50.f);
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"creativeSync", v}, "Creative sync", creativeSyncNames(), 3));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"creativeOutput", v}, "Creative output", juce::NormalisableRange<float>{-24.f, 12.f, .01f}, 0.f,
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{id("creativeSync"), v}, name("Creative sync"), creativeSyncNames(), 3));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id("creativeOutput"), v}, name("Creative output"), juce::NormalisableRange<float>{-24.f, 12.f, .01f}, 0.f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float value, int) { return juce::String(value, 1) + " dB"; })));
 }
 
@@ -368,10 +371,11 @@ private:
 // and switching on/off (20 ms). Off and settled returns at once.
 class CreativeFX final : public PostInsert {
 public:
-    void bind(juce::AudioProcessorValueTreeState& state) {
-        on = state.getRawParameterValue("creativeOn");model = state.getRawParameterValue("creativeModel");
-        a = state.getRawParameterValue("creativeA");b = state.getRawParameterValue("creativeB");c = state.getRawParameterValue("creativeC");
-        mix = state.getRawParameterValue("creativeMix");sync = state.getRawParameterValue("creativeSync");output = state.getRawParameterValue("creativeOutput");
+    void bind(juce::AudioProcessorValueTreeState& state, int slot = 0) {
+        const auto get = [&](const char* x) { return state.getRawParameterValue(postSlotID(slot, x)); };
+        on = get("creativeOn");model = get("creativeModel");
+        a = get("creativeA");b = get("creativeB");c = get("creativeC");
+        mix = get("creativeMix");sync = get("creativeSync");output = get("creativeOutput");
     }
     void prepare(const juce::dsp::ProcessSpec& spec) {
         rate = spec.sampleRate;
