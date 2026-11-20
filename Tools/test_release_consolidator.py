@@ -21,7 +21,7 @@ ATTEMPT = '2'
 class Consolidation(unittest.TestCase):
     # Completed E1 sections for the live map; historical publisher suites
     # replay the 6782 checkpoint sections against the frozen 1.3 map.
-    DSP_LOG = 'Tools/fixtures/e1-ctest-1.4.log'
+    DSP_LOG = 'Tools/fixtures/e1-ctest-tt800.log'
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -174,20 +174,33 @@ class Consolidation(unittest.TestCase):
         self.assertEqual(self.status(result, 'E1.STATE_UI'), 'BLOCKED')
         self.assertEqual(self.status(result, 'E1.LEGACY'), 'PASS')
 
+    def test_complete_1_4_coverage_does_not_certify_the_tt800_catalogue(self):
+        # The 1.4 sections passed the map until model 11 became the two-channel
+        # TT-800 panel (455 controls). All green, they must not certify it.
+        previous = (evidence.ROOT / 'Tools/fixtures/e1-ctest-1.4.log').read_text(encoding='utf-8')
+        for kind in ('windows', 'linux', 'macos'):
+            self.raw_change(kind, 'dsp_log', lambda _: previous)
+        result, _ = self.run_gate()
+        self.assertEqual(self.status(result, 'E1.DSP'), 'BLOCKED')
+        self.assertEqual(self.status(result, 'E1.STATE_UI'), 'BLOCKED')
+        self.assertEqual(self.status(result, 'E1.LEGACY'), 'PASS')
+        self.assertEqual(result['counts']['checks']['pass'], 19)
+        self.assertEqual(result['counts']['checks']['blocked'], 109)
+
     def test_current_e1_coverage_totals_remain_exact(self):
         current = (self.folder('windows') / 'raw/LastTest.log').read_text(encoding='utf-8')
         cases = {name: True for name in ('ChimeraAmpNativeTests', 'ChimeraUITests')}
         for cid, before, after in (
             ('E1.DSP', '31 serialized / 30 active', '26 serialized / 30 active'),
-            ('E1.DSP', '/ 30 active models, 450 controls', '/ 25 active models, 450 controls'),
-            ('E1.DSP', '450 controls, six contexts', '407 controls, six contexts'),
-            ('E1.DSP', 'CONTROL_RESPONSE count=450', 'CONTROL_RESPONSE count=407'),
-            ('E1.DSP', 'sample-rates/channel routes=201', 'sample-rates/channel routes=183'),
-            ('E1.DSP', 'inactive channel controls isolated=463', 'inactive channel controls isolated=448'),
+            ('E1.DSP', '/ 30 active models, 455 controls', '/ 25 active models, 455 controls'),
+            ('E1.DSP', '455 controls, six contexts', '450 controls, six contexts'),
+            ('E1.DSP', 'CONTROL_RESPONSE count=455', 'CONTROL_RESPONSE count=450'),
+            ('E1.DSP', 'sample-rates/channel routes=204', 'sample-rates/channel routes=201'),
+            ('E1.DSP', 'inactive channel controls isolated=477', 'inactive channel controls isolated=463'),
             ('E1.DSP', 'integrated native oversampling paths=124', 'integrated native oversampling paths=104'),
             ('E1.STATE_UI', 'all 31 serialized amplifier panels', 'all 26 serialized amplifier panels'),
-            ('E1.STATE_UI', '134 channel cases', '122 channel cases'),
-            ('E1.STATE_UI', '2362 channel/control visibility cases', '2246 channel/control visibility cases'),
+            ('E1.STATE_UI', '136 channel cases', '134 channel cases'),
+            ('E1.STATE_UI', '2410 channel/control visibility cases', '2362 channel/control visibility cases'),
             ('E1.STATE_UI', '9 POST models / 306 controls', '9 POST models / 144 controls'),
         ):
             with self.subTest(cid=cid, coverage=before):

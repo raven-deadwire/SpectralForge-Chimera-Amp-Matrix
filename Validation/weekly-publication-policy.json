@@ -7,7 +7,7 @@
   "profile": "beta_1_3",
   "approved_product_source_sha": "6bc7216cd2dc72772daaca65a89edbaf6b5a8c43",
   "strict_policy_sha256": "630af5677fdb8952b11757aa4e8b44bfa3697bebdd667bdaa39411fed8ae9219",
-  "ci_check_map_sha256": "5adbf2843ba6f0223c67752f9577d2bc8d6561b10790d5e97cf0c367744edea1",
+  "ci_check_map_sha256": "75d0a3aff20cea56e81a7fe4441c427e0829023835cb4d18dd090d4cb5f5d26d",
   "decision": "OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS",
   "release_approved": true,
   "publication_authorized": true,

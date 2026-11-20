@@ -78,6 +78,39 @@ artifacts could not be downloaded from this environment, so this fixture is a
 local run, not a CI receipt. Like the other excerpts it is a regression input
 only and certifies no source.
 
+## TT-800 panel (E1 coverage totals)
+
+Pull request 336 re-based amp model 11 (Metro Clean) on the two-channel Subway
+TT-800 panel: one channel with 14 controls became two channels with 19. The
+product run
+[44635910921](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/44635910921)
+on `161aedd3040dba6795fdfa884e6976715a1bbba0` completed every test on all three
+platforms, but its consolidated result fell from 21 to **19 PASS / 109 BLOCKED**:
+`E1.DSP` and `E1.STATE_UI` still required the 1.4 totals while the tests printed
+the new ones. The map now requires these exact totals:
+
+- `ChimeraAmpNativeTests`: 31 serialized / 30 active models, 455 controls,
+  `CONTROL_RESPONSE count=455`, 204 sample-rate/channel routes, 477 isolated
+  inactive controls and 124 oversampling paths (unchanged);
+- `ChimeraUITests`: 31 serialized panels, 136 channel cases, 2410 channel/control
+  visibility cases and 9 POST models / 306 controls (unchanged).
+
+Check ownership, producers, platforms, control failures, allocation, gain/default,
+isolation, completion and legacy compatibility requirements are unchanged. The
+weekly publisher pins the new map's digest; no historical approval used the 1.4
+map's digest outside `weekly_publication.py` and `weekly-publication-policy.json`.
+
+`e1-ctest-tt800.log` holds the `ChimeraUITests`, `ChimeraAmpNativeTests` and
+`ChimeraGateProcessorTests` sections of `LastTest.log`, unmodified, from a local
+Linux Release build (`CHIMERA_UI_PROBES=ON`, Xvfb) of
+`b3e78e643c6da7a8f69d58a019258a000c47b0ae`. Excerpt SHA-256
+`ce3f6d4125ccabb151b9c30b1b857a390287f44216e7ffc2f1eab5f485aacd59`. The CI
+artifacts could not be downloaded from this environment, so this fixture is a
+local run, not a CI receipt; the Windows `ChimeraUITests` line that `E1.STATE_UI`
+reads was not observed, only the Linux one. `e1-ctest-1.4.log` is now a negative
+fixture: complete 1.4 output cannot certify the TT-800 panel. Like the other
+excerpts these are regression inputs only and certify no source.
+
 `ci-check-map-1.3.json` freezes the map the 1.3.x publishers approved
 (`d59f7e55…20f`). Historical publishers and the preset-maintenance check of the
 published 1.3.2-beta.1 receipt validate against it. The weekly publisher pins the
