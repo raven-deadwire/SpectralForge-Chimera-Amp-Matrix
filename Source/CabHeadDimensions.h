@@ -26,7 +26,7 @@ inline constexpr std::array headDimensions{
     HeadDimensions{.70500f, .28400f, .26600f, false}, // Chime 30: AC30CH head format
     HeadDimensions{.55000f, .27000f, .28000f, false}, // Amber Crown: Rockerverb 50 MKIII
     HeadDimensions{.62230f, .25400f, .34290f, false}, // Vintage Valve: Super Bassman
-    HeadDimensions{.33655f, .066675f,.25781f, false}, // Metro Clean: Subway D-800+
+    HeadDimensions{.33655f, .066675f,.25781f, false}, // Metro Clean: compact Subway envelope (D-800+ measured; TT-800 manual lists none)
     HeadDimensions{.54610f, .27305f, .26670f, false}, // Prism Chime: HC-30 head format
     HeadDimensions{.58000f, .26000f, .27000f, true }, // Silk Lead: authored ODS-style head envelope
     HeadDimensions{.27000f, .04500f, .21000f, false}, // Taste Punch: T900 (not T900 Classic)

@@ -1,25 +1,30 @@
 #pragma once
 #include "PostNativeCatalog.h"
+#include "PostSlots.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 namespace spectralforge {
 // Append after every previously shipped parameter; never repurpose old IDs.
-inline void addPostNativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+// `slot` 1 builds the second slot's copy (docs/POST_SECOND_SLOTS.md): the same
+// definitions under "slot2_" IDs at `version`.
+inline void addPostNativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout,int slot=0,int version=1) {
     using ID=juce::ParameterID;
+    const auto id=[slot](const juce::String& x){return postSlotID(slot,x);};
+    const auto name=[slot](const juce::String& x){return postSlotName(slot,x);};
     for(int s=0;s<3;++s) {
-        layout.add(std::make_unique<juce::AudioParameterBool>(ID{postNativeModeID(s),1},"POST native section "+juce::String(s+1),true,juce::AudioParameterBoolAttributes().withAutomatable(false)));
-        layout.add(std::make_unique<juce::AudioParameterInt>(ID{postNativeModelID(s),1},"POST section "+juce::String(s+1)+" model",0,2,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
+        layout.add(std::make_unique<juce::AudioParameterBool>(ID{id(postNativeModeID(s)),version},name("POST native section "+juce::String(s+1)),true,juce::AudioParameterBoolAttributes().withAutomatable(false)));
+        layout.add(std::make_unique<juce::AudioParameterInt>(ID{id(postNativeModelID(s)),version},name("POST section "+juce::String(s+1)+" model"),0,2,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
         for(int m=0;m<postNativeReleasedModelsPerSection;++m) {
             const auto& model=postNativeModel(s,m);const auto prefix="POST "+juce::String::fromUTF8(model.name)+" ";
-            layout.add(std::make_unique<juce::AudioParameterBool>(ID{postNativeBypassID(s,m),1},prefix+"bypass",true));
-            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeTrimID(s,m),1},prefix+"software trim",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
-            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeLevelID(s,m),1},prefix+"software level",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
+            layout.add(std::make_unique<juce::AudioParameterBool>(ID{id(postNativeBypassID(s,m)),version},name(prefix+"bypass"),true));
+            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{id(postNativeTrimID(s,m)),version},name(prefix+"software trim"),juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
+            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{id(postNativeLevelID(s,m)),version},name(prefix+"software level"),juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
             for(int c=0;c<model.controlCount;++c) {
                 const auto& p=model.controls[c];
                 // Released automation flags are fixed. EXTERNAL SIDE-CHAIN was
                 // released unconnected (not automatable) and keeps that flag now
                 // that it works (docs/SIDECHAIN_SYNTH_BUS.md).
                 const bool automatable=p.connected && juce::String(p.id)!="external_sidechain";
-                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeControlID(s,m,c),1},prefix+juce::String::fromUTF8(p.label),
+                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{id(postNativeControlID(s,m,c)),version},name(prefix+juce::String::fromUTF8(p.label)),
                     juce::NormalisableRange<float>(p.minimum,p.maximum,p.interval),p.initial,
                     juce::AudioParameterFloatAttributes().withAutomatable(automatable)));
             }
@@ -34,19 +39,26 @@ inline int postExpansionParameterCount() noexcept {
     for(int s=0;s<postNativeSectionCount;++s){++count;for(int m=postNativeReleasedModelsPerSection;m<postNativeModelsPerSection;++m)count+=3+postNativeModel(s,m).controlCount;}
     return count;
 }
-inline void appendPostExpansionParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    using ID=juce::ParameterID;constexpr int v=postExpansionParameterVersion;
+inline int postNativeReleasedParameterCount() noexcept {
+    int count=0;
+    for(int s=0;s<postNativeSectionCount;++s){count+=2;for(int m=0;m<postNativeReleasedModelsPerSection;++m)count+=3+postNativeModel(s,m).controlCount;}
+    return count;
+}
+inline void appendPostExpansionParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout,int slot=0,int v=postExpansionParameterVersion) {
+    using ID=juce::ParameterID;
+    const auto id=[slot](const juce::String& x){return postSlotID(slot,x);};
+    const auto name=[slot](const juce::String& x){return postSlotName(slot,x);};
     for(int s=0;s<postNativeSectionCount;++s) {
         // A fixed raw range: later models never renormalise saved selections.
-        layout.add(std::make_unique<juce::AudioParameterInt>(ID{postNativeModelExtensionID(s),v},"POST section "+juce::String(s+1)+" model extension",0,15,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
+        layout.add(std::make_unique<juce::AudioParameterInt>(ID{id(postNativeModelExtensionID(s)),v},name("POST section "+juce::String(s+1)+" model extension"),0,15,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
         for(int m=postNativeReleasedModelsPerSection;m<postNativeModelsPerSection;++m) {
             const auto& model=postNativeModel(s,m);const auto prefix="POST "+juce::String::fromUTF8(model.name)+" ";
-            layout.add(std::make_unique<juce::AudioParameterBool>(ID{postNativeBypassID(s,m),v},prefix+"bypass",true));
-            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeTrimID(s,m),v},prefix+"software trim",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
-            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeLevelID(s,m),v},prefix+"software level",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
+            layout.add(std::make_unique<juce::AudioParameterBool>(ID{id(postNativeBypassID(s,m)),v},name(prefix+"bypass"),true));
+            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{id(postNativeTrimID(s,m)),v},name(prefix+"software trim"),juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
+            layout.add(std::make_unique<juce::AudioParameterFloat>(ID{id(postNativeLevelID(s,m)),v},name(prefix+"software level"),juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
             for(int c=0;c<model.controlCount;++c) {
                 const auto& p=model.controls[c];
-                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeControlID(s,m,c),v},prefix+juce::String::fromUTF8(p.label),
+                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{id(postNativeControlID(s,m,c)),v},name(prefix+juce::String::fromUTF8(p.label)),
                     juce::NormalisableRange<float>(p.minimum,p.maximum,p.interval),p.initial,
                     juce::AudioParameterFloatAttributes().withAutomatable(p.connected)));
             }
@@ -56,10 +68,11 @@ inline void appendPostExpansionParameters(juce::AudioProcessorValueTreeState::Pa
 struct PostNativeParameterCache {
     struct Bank { std::atomic<float>* bypass{};std::atomic<float>* trim{};std::atomic<float>* level{};std::array<std::atomic<float>*,postNativeMaxControls> values{}; };
     std::array<std::atomic<float>*,3> modes{},models{},extensions{};std::array<std::array<Bank,postNativeModelsPerSection>,3> banks{};
-    void bind(juce::AudioProcessorValueTreeState& apvts) {
+    void bind(juce::AudioProcessorValueTreeState& apvts,int slot=0) {
+        const auto get=[&](const juce::String& x){return apvts.getRawParameterValue(postSlotID(slot,x));};
         for(int s=0;s<3;++s) {
-            modes[s]=apvts.getRawParameterValue(postNativeModeID(s));models[s]=apvts.getRawParameterValue(postNativeModelID(s));extensions[s]=apvts.getRawParameterValue(postNativeModelExtensionID(s));
-            for(int m=0;m<postNativeModelsPerSection;++m) {auto& b=banks[s][m];b.bypass=apvts.getRawParameterValue(postNativeBypassID(s,m));b.trim=apvts.getRawParameterValue(postNativeTrimID(s,m));b.level=apvts.getRawParameterValue(postNativeLevelID(s,m));for(int c=0;c<postNativeModel(s,m).controlCount;++c)b.values[c]=apvts.getRawParameterValue(postNativeControlID(s,m,c));}
+            modes[s]=get(postNativeModeID(s));models[s]=get(postNativeModelID(s));extensions[s]=get(postNativeModelExtensionID(s));
+            for(int m=0;m<postNativeModelsPerSection;++m) {auto& b=banks[s][m];b.bypass=get(postNativeBypassID(s,m));b.trim=get(postNativeTrimID(s,m));b.level=get(postNativeLevelID(s,m));for(int c=0;c<postNativeModel(s,m).controlCount;++c)b.values[c]=get(postNativeControlID(s,m,c));}
         }
     }
     static float value(const std::atomic<float>* p,float fallback) noexcept {if(!p)return fallback;const float x=p->load();return std::isfinite(x)?x:fallback;}

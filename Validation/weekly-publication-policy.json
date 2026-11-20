@@ -2,11 +2,11 @@
   "schema": "spectralforge.chimera.weekly-publication-policy",
   "schema_version": 1,
   "policy_version": 1,
-  "product_version": "1.4.0",
-  "version": "1.4.0-beta.1",
+  "product_version": "1.4.1",
+  "version": "1.4.1-beta.1",
   "profile": "beta_1_3",
-  "approved_product_source_sha": "1e02b889794810e14f66996ccaccc560f0f0163b",
-  "strict_policy_sha256": "5366826887632d54985a1bf31c7fc51720d16342af5fa25f215082af928d1828",
+  "approved_product_source_sha": "6bc7216cd2dc72772daaca65a89edbaf6b5a8c43",
+  "strict_policy_sha256": "630af5677fdb8952b11757aa4e8b44bfa3697bebdd667bdaa39411fed8ae9219",
   "ci_check_map_sha256": "5adbf2843ba6f0223c67752f9577d2bc8d6561b10790d5e97cf0c367744edea1",
   "decision": "OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS",
   "release_approved": true,
@@ -15,9 +15,9 @@
     "approved": true,
     "publication_authorized": true,
     "validation_gaps_accepted": true,
-    "instruction": "main CI 통과하면 공개 진행해줘 / CI 통과하면 #302 머지하고 공개 진행해줘 / CI 통과하면 #304 머지하고 공개 진행해줘 / 지금 돌고 있는 것들 끝나면 1.4버전 릴리즈하고 홈페이지에 배포까지 진행 / 라이센스 유효기간 넣어서 / 나랑 테스터들은 코드로 무기한 연장 / CI 통과하면 #304 #305 머지하고 공개 진행해줘",
-    "context": "On 2026-11-11 (Asia/Seoul) the owner instructed publication of the integrated 1.4.0-beta.1 beta once main CI passed. Before that instruction it was disclosed that real guitar/bass DI listening, real DAW and audio-device acceptance, signing/notarization and AAX in Pro Tools are not validated, and that the strict report keeps 107 unexecuted BLOCKED checks, 42 of them strict hard gates. This authorizes the beta publication with those disclosed gaps. It does not report personal DAW/listening testing and does not waive any exact-source CI requirement.",
-    "scope": "Publish 1.4.0-beta.1 from exact product source 1e02b889794810e14f66996ccaccc560f0f0163b only after the official publisher verifies every required latest exact-source workflow, package and artifact. The Product run 43274011867 must carry a source-bound strict report of 21 PASS / 107 unexecuted BLOCKED checks, including 42 blocked strict hard gates; preserve that report and every individually disclosed validation gap. Keep the transpose deferrals (I2.PITCH_LIVE, I2.PITCH_DI), signing/notarization limitations, real DI/listening and actual DAW/device acceptance gaps. Beta expiry 2027-05-31 23:59 KST. No unperformed or failed test is promoted to PASS, no required workflow is waived, and no validation rule, platform coverage or waiver inventory is changed."
+    "instruction": "지금 가능한거 다 넣어 / ㅇㅇ (버전 1.4.1-beta.1, 만료일 2027-05-31 23:59 KST 유지 확인) / 둘다 승인 (CI 통과 후 #324 머지와 1.4.1-beta.1 공개) / 1 (OBS 두 워크플로는 직전 커밋 통과 결과로 인정하고 머지·공개 진행) / 공개 끝나면 결과 알려줘",
+    "context": "On 2026-11-16 (Asia/Seoul) the owner approved merging PR 324 and publishing 1.4.1-beta.1 once CI passed. After that approval and before publication, the owner was told in the same conversation that real guitar/bass DI listening, real DAW and audio-device acceptance, signing/notarization and AAX in Pro Tools are not validated, that the seven new Auto Set steps have had synthetic tests only, and that the German and Korean manual text has no native-speaker review; the owner did not withdraw the approval. On 2026-11-17 the owner chose to merge although two workflows outside the publisher's required set, OBS add-on and OBS long recording, did not pass on the final PR head 1910312 (macOS only: hosted runners not acquired, a start/end sync drift of -35.8 ms and +99.2 ms over 61 minutes, and two real-OBS app checks); both had passed on the preceding commit 8ddd992, which has the same code and differs only in documents. On the product source the cab-realtime workflow failed on macOS in ChimeraCabExtendedTimingTests on attempts 1 and 2, got no macOS runner on attempt 3, and passed on attempt 4. This authorizes the beta publication with the disclosed gaps. It does not report personal DAW/listening testing and does not waive any exact-source CI requirement.",
+    "scope": "Publish 1.4.1-beta.1 from exact product source 6bc7216cd2dc72772daaca65a89edbaf6b5a8c43 only after the official publisher verifies every required latest exact-source workflow, package and artifact. The Product run 44061796357 must carry a source-bound strict report of 21 PASS / 107 unexecuted BLOCKED checks, including 42 blocked strict hard gates; preserve that report and every individually disclosed validation gap. Keep the transpose deferrals (I2.PITCH_LIVE, I2.PITCH_DI), signing/notarization limitations, real DI/listening and actual DAW/device acceptance gaps. Beta expiry 2027-05-31 23:59 KST. No unperformed or failed test is promoted to PASS, no required workflow is waived, and no validation rule, platform coverage or waiver inventory is changed."
   },
   "required_ci_checks": [
     {

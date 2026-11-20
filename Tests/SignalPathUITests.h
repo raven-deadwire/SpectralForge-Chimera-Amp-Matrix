@@ -27,7 +27,7 @@ inline void topology(ChimeraProcessor& p) {
     for(int mode=0;mode<3;++mode)for(int dual=0;dual<2;++dual)for(int gate=0;gate<2;++gate){set(p,"mode",float(mode));set(p,"dualtype",float(dual));set(p,"gateAfterRig",float(gate));auto s=read(p);
         int amps=0,cabs=0;for(const auto& n:s.nodes){amps+=n.id.startsWith("amp.context");cabs+=n.target==Target::cab;}
         require(amps==mode+1&&cabs==mode+1,"Path lane count differs from DSP");
-        require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.creative")&&edge(s,"post.creative","post.section5")&&edge(s,"post.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
+        require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.creative")&&edge(s,"post.creative","post.section5")&&edge(s,"post.section5","post2.section0")&&edge(s,"post2.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
         require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","common.multiband")&&edge(s,"common.multiband","common.saturation")&&edge(s,"common.saturation","common.filter")&&edge(s,"common.filter","common.deesser")&&edge(s,"common.deesser","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
         require(s.find("tone.eq")->target==Target::toneEQ && s.find("final.eq")->target==Target::finalEQ,"EQ editor target mismatch");
         for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Expanded path blocks overlap");
@@ -227,7 +227,8 @@ inline void compactDestination(juce::Component& editor,SignalPathView& strip,con
         require(!dialog("cabWorkspace"),"Aggregate CAB navigation opened an arbitrary single-lane workspace");
         require(!pathButton(strip,heads?"cab":"head").getToggleState(),"HEAD and CAB were selected together");
     }
-    else if(id=="post")require(visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel"),
+    // The row shows whichever slot was last opened (a ROUTING "POST DYNAMICS 2" block opens slot 2, docs/POST_SECOND_SLOTS.md).
+    else if(id=="post")require((visible("postNativePanel0") || visible("postNativePanel0_2")) && !visible("universalPedalBoard") && !visible("toneEQ_panel"),
                                "POST workflow action did not open the rack");
     else if(id=="synth")require(visible("synthPage") && !visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel") && !visible("finalEQ_panel"),
                                 "SYNTH workflow action did not open the SYNTH page alone");

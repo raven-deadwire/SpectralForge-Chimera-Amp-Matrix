@@ -12,6 +12,7 @@ struct Node {
     juce::String id,label,status,detail;
     Target target{}; int lane{-1},section{-1}; bool active{true};
     juce::Rectangle<int> bounds;
+    int slot{};   // POST: 1 for a second-slot block (docs/POST_SECOND_SLOTS.md)
     bool operator==(const Node&) const = default;
 };
 struct Edge {juce::String from,to;bool tap{};bool operator==(const Edge&) const = default;};
@@ -111,9 +112,12 @@ inline Snapshot read(ChimeraProcessor& p) {
     // 1.4 signal order (docs/SIGNAL_ORDER_1_4.md): the tone / dynamics block
     // and the POST rack are drawn in their saved order. The slots run along
     // the lower rows; each module keeps its node ID wherever it is placed.
+    // POST holds 14 blocks since the second slots (docs/POST_SECOND_SLOTS.md),
+    // so the path snakes over three rows: left to right at y 510, right to
+    // left at 580, and left to right again at 650 into the fixed utilities.
     const auto order=p.requestedOrder();
-    static constexpr std::array<std::pair<int,int>,toneModuleCount+postModuleCount> slots{{
-        {16,510},{138,510},{260,510},{382,510},{504,510},{626,510},{748,510},{870,510},{992,510},{992,580},{870,580},{748,580},{626,580}}};
+    static constexpr int pathRow=9;
+    const auto place=[](int index){const int row=index/pathRow,column=index%pathRow;return std::pair<int,int>{16+122*(row==1?pathRow-1-column:column),510+70*row};};
     const juce::String toneFirst=moduleNodeID(OrderRegion::tone,order.tone.slots[0]),postFirst=moduleNodeID(OrderRegion::post,order.post.slots[0]);
     // SYNTH (docs/SYNTH_PAGE.md): tracks the clean input and joins the rig at
     // its insert point: into the amps, at the start of the tone / dynamics
@@ -125,7 +129,7 @@ inline Snapshot read(ChimeraProcessor& p) {
      edge("input","synth",true);edge("synth",joins[size_t(insert)]);}
     const juce::String movable=" Right-click (or Alt + arrow keys) to move it within its block.";
     for(int slot=0;slot<toneModuleCount;++slot){
-        const auto [x,y]=slots[size_t(slot)];const int module=order.tone.slots[size_t(slot)];
+        const auto [x,y]=place(slot);const int module=order.tone.slots[size_t(slot)];
         const juce::String where="Position "+juce::String(slot+1)+" of the tone / dynamics block, after the rig sum and before POST.";
         switch(module){
             case toneEQModule:addEQ(0,"tone.eq","TONE EQ",Target::toneEQ,x,y,"12-band Tone EQ. "+where+movable);break;
@@ -137,27 +141,37 @@ inline Snapshot read(ChimeraProcessor& p) {
         }
         const auto id=moduleNodeID(OrderRegion::tone,module);edge(previous,id);previous=id;
     }
-    for(int slot=0;slot<postModuleCount;++slot){
-        const auto [x,y]=slots[size_t(toneModuleCount+slot)];const int module=order.post.slots[size_t(slot)];
+    for(int slot=0;slot<postBlockCount;++slot){
+        const auto [x,y]=place(toneModuleCount+slot);const int block=order.post.slots[size_t(slot)];
+        const int module=postBlockSection(block),rack=postBlockSlot(block);
+        const auto pid=[rack](const juce::String& id){return postSlotID(rack,id);};
         const juce::String where=" Position "+juce::String(slot+1)+" of the POST rack."+movable;
+        // Second slots read "DELAY 2" with the model as status, so they stand apart from slot 1.
+        const auto second=[&](juce::String model,bool active){return std::pair<juce::String,juce::String>{postBlockName(block).toUpperCase(),active?model:juce::String("BYPASSED")};};
         if(module==postCreativeModule){
-            const int creativeModel=juce::jlimit(0,creativeModelCount-1,int(v("creativeModel")));
-            add("post.creative",creativeModels[size_t(creativeModel)].name,Target::post,x,y,on("creativeOn"),{},-1,creativeSection,"CREATIVE slot. Off leaves the signal untouched."+where);
+            const int creativeModel=juce::jlimit(0,creativeModelCount-1,int(v(pid("creativeModel"))));const bool active=on(pid("creativeOn"));
+            const juce::String detail=juce::String(rack?"Second CREATIVE slot. ":"CREATIVE slot. ")+"Off leaves the signal untouched."+where;
+            if(rack){const auto [label,status]=second(creativeModels[size_t(creativeModel)].name,active);add(moduleNodeID(OrderRegion::post,block),label,Target::post,x,y,active,status,-1,creativeSection,detail);s.nodes.back().slot=1;}
+            else add("post.creative",creativeModels[size_t(creativeModel)].name,Target::post,x,y,active,{},-1,creativeSection,detail);
         } else {
             // POST sections 0-5: dynamics, preamp, EQ, modulation, delay, reverb.
             const int position=module<postCreativeModule?module:5;
             const std::array<int,6> families{7,8,9,10,1,2};const int family=families[size_t(position)];
-            const int selected=effectFamilyExtended(family)?effectSelectedModel(family,v(modelFamilies[size_t(family)].parameter),v(effectExtensionID(family))):int(v(modelFamilies[size_t(family)].parameter));
-            juce::String label=effectFamilyMenuName(family,selected);bool active=on(enable[size_t(family)]);
-            if(position<3&&(on(postNativeModeID(position))||v(postNativeModelExtensionID(position))>.5f)){const int model=postNativeSelectedModel(v(postNativeModelID(position)),v(postNativeModelExtensionID(position)));label=postNativeModel(position,model).name;active=!on(postNativeBypassID(position,model));}
-            add("post.section"+juce::String(position),label,Target::post,x,y,active,{},-1,position,juce::String(where).trimStart());
+            const int selected=effectFamilyExtended(family)?effectSelectedModel(family,v(pid(modelFamilies[size_t(family)].parameter)),v(pid(effectExtensionID(family)))):int(v(pid(modelFamilies[size_t(family)].parameter)));
+            juce::String label=effectFamilyMenuName(family,selected);bool active=on(pid(enable[size_t(family)]));
+            if(position<3&&(on(pid(postNativeModeID(position)))||v(pid(postNativeModelExtensionID(position)))>.5f)){const int model=postNativeSelectedModel(v(pid(postNativeModelID(position))),v(pid(postNativeModelExtensionID(position))));label=postNativeModel(position,model).name;active=!on(pid(postNativeBypassID(position,model)));}
+            if(rack){const auto [name,status]=second(label,active);add(moduleNodeID(OrderRegion::post,block),name,Target::post,x,y,active,status,-1,position,"Second "+postModuleNames()[module]+" slot: "+label+"."+where);s.nodes.back().slot=1;}
+            else add("post.section"+juce::String(position),label,Target::post,x,y,active,{},-1,position,juce::String(where).trimStart());
         }
-        const auto id=moduleNodeID(OrderRegion::post,module);edge(previous,id);previous=id;
+        const auto id=moduleNodeID(OrderRegion::post,block);edge(previous,id);previous=id;
     }
-    add("utilities","DOUBLER / CLICK",Target::utilities,504,580,(on("doubleron")&&p.getMainBusNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getMainBusNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
-    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,382,580,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
-    add("output","OUTPUT TRIM",Target::output,260,580,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
-    add("output.limiter","LIVE LIMITER",Target::dynamics,138,580,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Live: sample-peak ceiling, no lookahead or latency. Studio true peak: 1 ms lookahead, ceiling in dBTP, reported latency.");edge("output","output.limiter");
+    {const int first=toneModuleCount+postBlockCount;
+     const auto at=[&](int k){return place(first+k);};
+    add("utilities","DOUBLER / CLICK",Target::utilities,at(0).first,at(0).second,(on("doubleron")&&p.getMainBusNumOutputChannels()==2)||on("metronome"),(on("doubleron")&&p.getMainBusNumOutputChannels()==2)?"STEREO DOUBLER":on("metronome")?"CLICK":"BYPASSED",-1,-1,"Doubler is inactive for mono processing. Metronome is added after POST.");edge(previous,"utilities");
+    addEQ(1,"final.eq","FINAL EQ",Target::finalEQ,at(1).first,at(1).second,"12-band Final EQ after POST, stereo doubler and metronome, before output trim and tuner mute.");edge("utilities","final.eq");
+    add("output","OUTPUT TRIM",Target::output,at(2).first,at(2).second,true,on("tuneron")&&on("tunermute")?"TUNER MUTED":"TRIM",-1,-1,"Output gain and tuner mute follow Final EQ and feed the final limiter.");edge("final.eq","output");
+    add("output.limiter","LIVE LIMITER",Target::dynamics,at(3).first,at(3).second,on("liveLimiterOn"),{},-1,-1,"Last gain stage before output meters. Live: sample-peak ceiling, no lookahead or latency. Studio true peak: 1 ms lookahead, ceiling in dBTP, reported latency.");edge("output","output.limiter");
+    }
     return s;
 }
 } // namespace spectralforge::signalPath
