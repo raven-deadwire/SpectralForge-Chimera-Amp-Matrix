@@ -294,11 +294,13 @@ public:
                 const auto ampRow=rig==0?Phase::dualAmp1:Phase::dualAmp2,powerRow=dualPowerRow(rig);
                 const bool ampRuns=runOptions.dualAmp && !locked(lockAmp),powerRuns=runOptions.dualPower && !locked(lockPower),channelRuns=runOptions.dualChannel && !locked(lockChannel),
                            trimRuns=runOptions.dualTrim && !locked(lockTrim);
-                if(why.isEmpty() && (ampRuns || powerRuns || channelRuns || trimRuns)){passes.push_back(ampRow);continue;}
-                if(runOptions.dualChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{dualChannelRow(rig)}:Skipped{dualChannelRow(rig),channelWhy});
-                if(runOptions.dualAmp)lockedPhases.push_back(locked(lockAmp)?Skipped{ampRow}:Skipped{ampRow,why});
-                if(runOptions.dualTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{dualTrimRow(rig)}:Skipped{dualTrimRow(rig),trimWhy});
-                if(runOptions.dualPower)lockedPhases.push_back(locked(lockPower)?Skipped{powerRow}:Skipped{powerRow,powerWhy});
+                // Phase 43: a rig that is muted, or not soloed while the other is, is not heard: no pass, the reason on its rows.
+                const auto silent=why.isEmpty()?laneSilentWhy(rig,2):juce::String();
+                if(why.isEmpty() && silent.isEmpty() && (ampRuns || powerRuns || channelRuns || trimRuns)){passes.push_back(ampRow);continue;}
+                if(runOptions.dualChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{dualChannelRow(rig)}:Skipped{dualChannelRow(rig),silent.isNotEmpty()?silent:channelWhy});
+                if(runOptions.dualAmp)lockedPhases.push_back(locked(lockAmp)?Skipped{ampRow}:Skipped{ampRow,silent.isNotEmpty()?silent:why});
+                if(runOptions.dualTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{dualTrimRow(rig)}:Skipped{dualTrimRow(rig),silent.isNotEmpty()?silent:trimWhy});
+                if(runOptions.dualPower)lockedPhases.push_back(locked(lockPower)?Skipped{powerRow}:Skipped{powerRow,silent.isNotEmpty()?silent:powerWhy});
                 if(mode==0)break;
             }
         };
@@ -315,10 +317,11 @@ public:
             const bool gainRuns=runOptions.crossGain && !locked(lockAmp),channelRuns=runOptions.crossChannel && !locked(lockChannel),trimRuns=runOptions.crossTrim && !locked(lockTrim);
             for(int rig=0;rig<2;++rig) {
                 const auto row=rig==0?Phase::crossGain1:Phase::crossGain2;
-                if(why.isEmpty() && (gainRuns || channelRuns || trimRuns)){passes.push_back(row);continue;}
-                if(runOptions.crossChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{crossChannelRow(rig)}:Skipped{crossChannelRow(rig),channelWhy});
-                if(runOptions.crossGain)lockedPhases.push_back(locked(lockAmp)?Skipped{row}:Skipped{row,why});
-                if(runOptions.crossTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{crossTrimRow(rig)}:Skipped{crossTrimRow(rig),trimWhy});
+                const auto silent=why.isEmpty()?laneSilentWhy(rig,2):juce::String();
+                if(why.isEmpty() && silent.isEmpty() && (gainRuns || channelRuns || trimRuns)){passes.push_back(row);continue;}
+                if(runOptions.crossChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{crossChannelRow(rig)}:Skipped{crossChannelRow(rig),silent.isNotEmpty()?silent:channelWhy});
+                if(runOptions.crossGain)lockedPhases.push_back(locked(lockAmp)?Skipped{row}:Skipped{row,silent.isNotEmpty()?silent:why});
+                if(runOptions.crossTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{crossTrimRow(rig)}:Skipped{crossTrimRow(rig),silent.isNotEmpty()?silent:trimWhy});
                 if(mode==0)break;
             }
         }
@@ -336,10 +339,11 @@ public:
                                   :raw("dualtype")<=.5f?"Dual Blend: the Amp gain and tone of both Dual Blend rigs step sets the heads":"Dual Crossover: the Amp gain of both Dual Crossover rigs step sets the heads";
             for(const auto row:{Phase::matrixGain2,Phase::matrixGain3}) {
                 const auto channelRow=matrixChannelRow(dualAmpLane(row));
-                if(why.isEmpty() && (gainRuns || channelRuns || trimRuns)){passes.push_back(row);continue;}
-                if(runOptions.matrixChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{channelRow}:Skipped{channelRow,channelWhy});
-                if(runOptions.matrixGain)lockedPhases.push_back(locked(lockAmp)?Skipped{row}:Skipped{row,why});
-                if(runOptions.matrixTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{matrixTrimRow(dualAmpLane(row))}:Skipped{matrixTrimRow(dualAmpLane(row)),trimWhy});
+                const auto silent=why.isEmpty()?laneSilentWhy(dualAmpLane(row),3):juce::String();
+                if(why.isEmpty() && silent.isEmpty() && (gainRuns || channelRuns || trimRuns)){passes.push_back(row);continue;}
+                if(runOptions.matrixChannel)lockedPhases.push_back(locked(lockChannel)?Skipped{channelRow}:Skipped{channelRow,silent.isNotEmpty()?silent:channelWhy});
+                if(runOptions.matrixGain)lockedPhases.push_back(locked(lockAmp)?Skipped{row}:Skipped{row,silent.isNotEmpty()?silent:why});
+                if(runOptions.matrixTrim)lockedPhases.push_back(locked(lockTrim)?Skipped{matrixTrimRow(dualAmpLane(row))}:Skipped{matrixTrimRow(dualAmpLane(row)),silent.isNotEmpty()?silent:trimWhy});
                 if(mode==0)break;
             }
         }
@@ -913,6 +917,15 @@ private:
     // Phase 33: one Dual Blend rig's GAIN and tone, as phase 8 sets the Classic head's.
     // The rig tap heard that rig alone, so the rule is phase 8's unchanged: each rig is
     // set toward the style's drive and tone as if it played alone.
+    // Phase 43: why a Dual rig (lanes 2) or a Matrix lane (lanes 3) is not heard, or empty: it is muted,
+    // or another one is soloed and it is not, as the engine mutes lanes.
+    juce::String laneSilentWhy(int lane,int lanes) const {
+        const juce::String name=lanes==3?"lane":"rig";
+        if(raw("mute"+juce::String(lane+1))>.5f)return "this "+name+" is muted";
+        bool anySolo=false;for(int i=0;i<lanes;++i)anySolo=anySolo || raw("solo"+juce::String(i+1))>.5f;
+        if(anySolo && raw("solo"+juce::String(lane+1))<=.5f)return "another "+name+" is soloed";
+        return {};
+    }
     AmpTarget dualRigTarget(int rig) const {
         AmpTarget t;t.mode=juce::jlimit(0,2,juce::roundToInt(raw("mode")));t.context=ampNativeContext(t.mode,rig);
         t.model=processor.selectedAmpModel(rig);t.channel=processor.selectedAmpChannel(rig);t.route=processor.selectedAmpNativeRoute(rig);
@@ -935,6 +948,7 @@ private:
         auto t=dualRigTarget(rig);
         if(!(t==dualAmpAtStart) || (raw("dualtype")>.5f)!=dualAmpTypeAtStart){keep("routing, Dual type, amp, channel or input changed while listening");return;}
         if(t.mode!=1 || dualAmpTypeAtStart){keep("no longer a Dual Blend");return;}
+        if(const auto silent=laneSilentWhy(rig,2);silent.isNotEmpty()){keep(silent);return;}
         if(!t.on){keep("the amp is switched off");return;}
         if(!t.native){keep("classic amp engine; switch the head panel on to let Auto Set set it");return;}
         // The head as it played while the pass listened, before either step writes.
@@ -974,6 +988,7 @@ private:
         auto t=dualRigTarget(rig);
         if(!(t==dualAmpAtStart) || (raw("dualtype")>.5f)!=dualAmpTypeAtStart){keep("routing, Dual type, amp, channel or input changed while listening");return;}
         if(t.mode!=1 || !dualAmpTypeAtStart){keep("no longer a Dual Crossover");return;}
+        if(const auto silent=laneSilentWhy(rig,2);silent.isNotEmpty()){keep(silent);return;}
         if(!t.on){keep("the amp is switched off");return;}
         if(!t.native){keep("classic amp engine; switch the head panel on to let Auto Set set it");return;}
         // Phase 38 first, as phase 35 leads a Dual Blend rig's pass: the GAIN step then works on the
@@ -1007,6 +1022,7 @@ private:
         auto t=dualRigTarget(lane);
         if(!(t==dualAmpAtStart)){keep("routing, amp, channel or input changed while listening");return;}
         if(t.mode!=2){keep("no longer the Matrix routing");return;}
+        if(const auto silent=laneSilentWhy(lane,3);silent.isNotEmpty()){keep(silent);return;}
         if(!t.on){keep("the amp is switched off");return;}
         if(!t.native){keep("classic amp engine; switch the head panel on to let Auto Set set it");return;}
         // Phase 41 first, as phase 38 leads a Dual Crossover rig's pass: the GAIN step then works on the
