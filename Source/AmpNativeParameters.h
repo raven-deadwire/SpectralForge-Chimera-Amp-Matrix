@@ -19,38 +19,6 @@ inline juce::String ampNativeControlID(int context,int model,int control,int cha
 inline juce::String ampNativeInputTrimID(int context) { return ampNativePrefix(context)+"_inputTrim"; }
 inline juce::String ampNativeOutputLevelID(int context) { return ampNativePrefix(context)+"_outputLevel"; }
 inline constexpr const char* ampNativeContextNames[]{"Classic","Dual A","Dual B","Matrix Low","Matrix Mid","Matrix High"};
-// Metro Clean (model 11) was released with a 14-control single-channel panel.
-// Its TT-800 remodel (docs/METRO_CLEAN_TT800.md) keeps those 14 host
-// parameters at their released positions, IDs, ranges and defaults. Eleven
-// carry the TT-800 shared input and MODERN channel controls; the three without
-// a TT-800 counterpart stay registered as retired parameters that no engine
-// reads. Every other TT-800 control is appended (metroCleanTT800ParameterVersion).
-struct ReleasedNativeControl {const char* key; const char* label; bool knob; float initial; float maximum;};
-inline constexpr int metroCleanAmpModel=static_cast<int>(AmpModel::subwayClean);
-inline constexpr ReleasedNativeControl metroCleanReleasedControls[]{
-    {"hw.input","INPUT",true,.5f,1.f},{"hw.high_pass","HIGH PASS",true,.5f,1.f},{"hw.voicing","VOICING",true,.5f,1.f},
-    {"hw.bass","BASS",true,.5f,1.f},{"hw.lo_mid_frequency","LO MID FREQUENCY",true,.5f,1.f},{"hw.lo_mid","LO MID",true,.5f,1.f},
-    {"hw.hi_mid_frequency","HI MID FREQUENCY",true,.5f,1.f},{"hw.hi_mid","HI MID",true,.5f,1.f},{"hw.treble","TREBLE",true,.5f,1.f},
-    {"hw.master","MASTER",true,.5f,1.f},{"hw.deep","DEEP",false,0.f,1.f},{"hw.bright","BRIGHT",false,0.f,1.f},
-    {"hw.mute","MUTE",false,0.f,1.f},{"hw.input_type","INPUT TYPE",false,0.f,1.f}};
-constexpr bool metroCleanReleasedKey(std::string_view key) noexcept {
-    for(const auto& released:metroCleanReleasedControls)if(key==released.key)return true;
-    return false;
-}
-// Retired released IDs: registered for host/session compatibility only.
-inline juce::String metroCleanRetiredID(int context,const char* key) {
-    return ampNativePrefix(context)+"_m"+juce::String(metroCleanAmpModel)+"_"+juce::String(key).replaceCharacter('.','_');
-}
-inline constexpr int metroCleanTT800ParameterVersion=34;
-constexpr int metroCleanTT800ParameterCount() noexcept {
-    int count=0;
-    for(const auto& control:ampNativePanels[size_t(metroCleanAmpModel)].controls)if(!metroCleanReleasedKey(control.key))++count;
-    return count*ampNativeContextCount;
-}
-inline juce::String metroCleanParameterName(int context,const AmpNativeControl& control) {
-    return juce::String(ampNativeContextNames[context])+" native "+juce::String::fromUTF8(ampInfo(metroCleanAmpModel).name)+" "
-        +juce::String::fromUTF8(control.group)+" "+juce::String::fromUTF8(control.label);
-}
 inline void addAmpNativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
     const auto structural=juce::AudioParameterIntAttributes().withAutomatable(false);
     for(int context=0;context<ampNativeContextCount;++context) {
@@ -68,19 +36,6 @@ inline void addAmpNativeParameters(juce::AudioProcessorValueTreeState::Parameter
             // panel revision gains another channel or an input route.
             layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeChannelID(context,model),1},name+"channel",0,15,panel.defaultChannel,structural));
             layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeRouteID(context,model),1},name+"input route",0,15,0,structural));
-            if(model==metroCleanAmpModel) {
-                // Released order, ranges and defaults; never the remodelled panel order.
-                for(const auto& released:metroCleanReleasedControls) {
-                    const int c=ampNativeControlIndex(model,released.key);
-                    const auto id=c>=0?ampNativeControlID(context,model,c):metroCleanRetiredID(context,released.key);
-                    const auto label=c>=0?metroCleanParameterName(context,panel.controls[size_t(c)]):name+"retired "+released.label;
-                    jassert(c<0 || (panel.controls[size_t(c)].initial==released.initial && panel.controls[size_t(c)].maximum==released.maximum
-                        && (panel.controls[size_t(c)].kind==AmpNativeControlKind::knob)==released.knob));
-                    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id,1},label,
-                        juce::NormalisableRange<float>(0.f,released.maximum,released.knob?.001f:1.f),released.initial));
-                }
-                continue;
-            }
             for(size_t c=0;c<panel.controls.size();++c) {
                 const auto& k=panel.controls[c];
                 layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,model,(int)c),1},name+k.label,
@@ -113,19 +68,6 @@ inline void appendNewAmpNativeParameters(juce::AudioProcessorValueTreeState::Par
                 if(model==firstOriginalAmpModel && c==size_t(original::Control::midFrequency))range.setSkewForCentre(850);
                 layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,model,int(c)),version},name+k.label,range,k.initial));
             }
-        }
-}
-// Metro Clean TT-800 controls without a released D-800+ parameter (the CLASSIC
-// channel and O/D SYMMETRY), version hint 34, after every earlier bank. Their
-// defaults leave a released session on the MODERN channel sounding as saved.
-inline void appendMetroCleanTT800Parameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    const auto& panel=ampNativePanel(metroCleanAmpModel);
-    for(int context=0;context<ampNativeContextCount;++context)
-        for(size_t c=0;c<panel.controls.size();++c) {
-            const auto& k=panel.controls[c];
-            if(metroCleanReleasedKey(k.key))continue;
-            layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,metroCleanAmpModel,int(c)),metroCleanTT800ParameterVersion},
-                metroCleanParameterName(context,k),juce::NormalisableRange<float>(k.minimum,k.maximum,k.kind==AmpNativeControlKind::knob?.001f:1.f),k.initial));
         }
 }
 inline juce::String originalResponseID(int context,int channel) {return "originalAmp_c"+juce::String(context)+"_nastrond_ch"+juce::String(channel)+"_response";}

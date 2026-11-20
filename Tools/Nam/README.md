@@ -31,20 +31,11 @@ comparable with v2 numbers.
 
 | Component | Revision |
 | --- | --- |
-| Chimera native DSP | `62749fbea4d2496dcb6c22ad3bfea77a54c2e2ef` since 2026-11-19 (Metro Clean re-based on the Subway TT-800, raven-deadwire/SpectralForge-Chimera-Amp-Matrix#336). It renders Náströnd bit for bit like `fe28038c` and `4ef21c16`; see below. Before that: `fe28038cb2c227f1c0d8c1bee8ecae6d80fec0a2` since 2026-11-01 (the 1.3.3–1.10 integration branch, raven-deadwire/SpectralForge-Chimera-Amp-Matrix#245). It renders Náströnd bit for bit like `4ef21c16`, the capture source of the existing A2 data and reports; see below. Before that: `4ef21c16`, main with the five-channel revision (2026-10-24), and `d9356044`, v1.2.0-beta.1. |
+| Chimera native DSP | `fe28038cb2c227f1c0d8c1bee8ecae6d80fec0a2` since 2026-11-01 (the 1.3.3–1.10 integration branch, raven-deadwire/SpectralForge-Chimera-Amp-Matrix#245). It renders Náströnd bit for bit like `4ef21c16`, the capture source of the existing A2 data and reports; see below. Before that: `4ef21c16`, main with the five-channel revision (2026-10-24), and `d9356044`, v1.2.0-beta.1. |
 | JUCE | 8.0.8 |
 | sdatkinson/neural-amp-modeler | `0072676419459f5d39e36f5b9fd4172f28d62cbf` |
 | tone-3000/tone3000-plugin | `ef6f178ae1ac6412b55fec6f058d86e640e5aaaf` |
 | TONE3000's NAM core | `1f42f88535884450104b8711d7595019afa0495b` |
-
-### 2026-11-19 retarget (owner decision)
-
-- **Why:** Metro Clean (model 11) is re-based on the Subway TT-800. That changes `AmpNativeDSP.h`, `AmpNativeCatalog.h` and `AmpCatalog.h` in the renderer's include closure.
-- **Evidence:** `compare_capture_render.py` was run on two `ChimeraNamRender` builds of the same renderer source, one against `fe28038c`'s `Source/` and one against `62749fbe`'s.
-  - Both builds report the same catalogue.
-  - The run covered the same 105 jobs as the 2026-11-01 retarget.
-  - All 105 outputs are byte-identical (`jobs 105, identical 105, different 0`).
-- **Consequence:** existing captures, level anchors and reports stay valid, and their own `source` fields are unchanged.
 
 ### 2026-11-01 retarget (owner decision)
 
