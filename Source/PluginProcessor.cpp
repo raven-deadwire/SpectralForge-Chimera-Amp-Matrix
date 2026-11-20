@@ -616,7 +616,10 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
      // The second POST preamp adds latency, so it starts and stops at the
      // same silent switch as an order change (docs/POST_SECOND_SLOTS.md).
      const bool preamp2=spectralforge::PostFXChain::engaged(fx2,spectralforge::postPreampModule);
-     if(postSwitch.begin(requested.post!=activeOrder.post || preamp2!=preamp2Active,immediate)){activeOrder.post=requested.post;preamp2Active=preamp2;preamp2Reported.store(preamp2,std::memory_order_relaxed);}}
+     if(postSwitch.begin(requested.post!=activeOrder.post || preamp2!=preamp2Active,immediate)){activeOrder.post=requested.post;
+         // Report the new latency in this block, where the audio switches.
+         if(preamp2!=preamp2Active)setLatencySamples(getLatencySamples()+(preamp2?1:-1)*postFX2.latency());
+         preamp2Active=preamp2;preamp2Reported.store(preamp2,std::memory_order_relaxed);}}
     synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);   // at the start of the tone / dynamics block
     measureStage(2,buffer);
     bool latentBefore=false;   // HQ saturation ran ahead: keyed detectors read the key delayed to match
