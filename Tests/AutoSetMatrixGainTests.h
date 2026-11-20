@@ -35,7 +35,9 @@ void matrixGainCapture() {
 struct MatrixGainRun {std::vector<float> before,values,undone;Controller::Status status;std::array<juce::String,2> gainID;};
 // The Matrix MID and HIGH lanes on the native head runAmp gives the Classic rig, at the given GAIN fractions.
 // Each lane's pass hears the DI as that lane's band and that lane's head alone (no cabinet) on the rig tap.
-MatrixGainRun runMatrixGain(const Controller::Options& options,std::array<float,2> gainFraction,const std::function<void(ChimeraProcessor&)>& prepare={},const std::function<void(ChimeraProcessor&)>& during={}) {
+// heads: called once both heads are set and before they are rendered (a channel the pass should hear).
+MatrixGainRun runMatrixGain(const Controller::Options& options,std::array<float,2> gainFraction,const std::function<void(ChimeraProcessor&)>& prepare={},const std::function<void(ChimeraProcessor&)>& during={},
+                            const std::function<void(ChimeraProcessor&)>& heads={}) {
     using P=Controller::Phase;
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
@@ -51,6 +53,12 @@ MatrixGainRun runMatrixGain(const Controller::Options& options,std::array<float,
         const auto controls=roleControls(model,channel,route);
         result.gainID[size_t(index)]=spectralforge::ampNativeControlID(context,model,controls[ampGain],channel);
         p->parameters().getParameter(result.gainID[size_t(index)])->setValueNotifyingHost(gainFraction[size_t(index)]);
+    }
+    if(heads)heads(*p);
+    for(int index=0;index<2;++index) {
+        const int lane=index+1,context=spectralforge::ampNativeContext(2,lane);
+        const int channel=p->selectedAmpChannel(lane),route=p->selectedAmpNativeRoute(lane);
+        const auto controls=roleControls(model,channel,route);
         std::array<float,4> now{};for(int r=0;r<4;++r)if(controls[size_t(r)]>=0)now[size_t(r)]=get(*p,spectralforge::ampNativeControlID(context,model,controls[size_t(r)],channel));
         post[size_t(index)]=nativeAmpRenderer(p->autoSetAmpState(context),controls,di,48000)(now);
     }
