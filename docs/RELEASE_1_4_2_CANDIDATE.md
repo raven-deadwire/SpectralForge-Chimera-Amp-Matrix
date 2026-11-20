@@ -19,6 +19,16 @@ exact-source workflows to succeed and a fresh source-bound receipt
 `6bc7216cd2dc72772daaca65a89edbaf6b5a8c43`) do not carry over. No failed or
 unexecuted check is promoted to PASS.
 
+**Scope kept, source rebuilt (2026-11-20, Asia/Seoul).** #339 was closed
+unmerged after #334, #335, #336 and #342 reached main, and #344 proposed
+1.5.0-beta.1 instead. The publisher runs only on main, and main may differ
+from the product source only in the approval receipt, so the fast-path scope
+cannot be published while those features are on main. Shown this, the owner
+chose to keep the 1.4.2-beta.1 scope and to take main back to it for the
+release ("1.4.2 원래 범위로 진행해줘", then "main 잠깐 되돌리기", confirmed
+over #344 with "1.4.2 원래 범위"). After publication the reverted features
+are restored on main.
+
 **License period:** 2027-05-31 23:59 KST (`2027-05-31T14:59:00Z`, Unix
 `1811775540`), the date of 1.4.0-beta.1 and 1.4.1-beta.1, confirmed by the
 owner for 1.4.2-beta.1 on 2026-11-19. A verified tester code lifts the expiry
@@ -26,8 +36,12 @@ with no end date.
 
 ## Source
 
-- **Branch:** `claude/release-1.4.2-beta.1`, from main `2aa300e` (after #333
-  and #337).
+- **Branch:** `claude/release-1.4.2-scope`, from main `b3e78e6` (after #345).
+  It reverts the merges of #342 (POST second slots), #336 (Metro Clean
+  TT-800), #335 (POST rack drag) and #334 (reference head art), then carries
+  the preparation commits of the closed #339 (first cut from main `2aa300e`).
+  The product source equals #339's apart from Auto Set phases 40–42 and two
+  repository documents.
 - **Identity:** `VERSION` 1.4.2, `RELEASE_CHANNEL` beta.1,
   `Validation/beta-lifecycle-policy.json` 1.4.2-beta.1.
 - **Release scope:** `Validation/release-policy.json` `release_scope` records
@@ -50,12 +64,14 @@ Open PRs and how each is included:
 
 | PR | Included as |
 |---|---|
-| #338 | merged whole (Auto Set phase 39, off by default) |
-| #334, #335, #336 | not included: the owner chose the fast path; they change the screens and the Metro Clean sound and are left for the next feature release |
+| #338 | on main (Auto Set phase 39, off by default) |
+| #341, #343, #345 | on main (Auto Set phases 40–42 for the Matrix MID and HIGH lanes, off by default) |
+| #340 | on main (AAX / Windows signing guide; repository document) |
+| #334, #335, #336, #342 | reverted for this release: the owner chose the fast path; they change the screens, the Metro Clean sound and the parameter list, and return to main after publication |
 | #301 | not included: a draft that conflicts with the published manual |
 | #249, #199, #196 | not included again: 1.4.0-beta.1 took the parts the owner chose; #199's evidence files hold digests of real tester codes and stay out of main |
 
-Open PRs created after this branch was cut are not in it.
+Open PRs (#344, #346, #347, #348, #349) are not in it.
 
 ## Notes and lifecycle
 
@@ -70,7 +86,9 @@ Open PRs created after this branch was cut are not in it.
 
 - Main `fde0d90` (through phase 36) passed the build workflow twice, each
   with a strict report of 21 PASS / 107 BLOCKED.
-- #338's own CI was still running when this branch was cut.
+- #338's own CI was still running when the first branch was cut.
+- The four reverts applied without conflicts; the product source differs
+  from #339's only by Auto Set phases 40–42 (`git diff 632beb9`).
 - No local product build of this branch was run. Local: `test_beta_lifecycle`,
   `test_publish_release`, `test_weekly_publication`, `test_preset_maintenance`
   and `test_packaging_version` pass.

@@ -4,10 +4,11 @@
 1.4.1-beta.1. The model catalog, parameters and saved-state format are the
 same as 1.4.1-beta.1. Highlights:
 
-- seven more Auto Set steps, all **off by default**, that extend the amp
-  settings to both rigs of a Dual routing: gain and tone, presence and
-  resonance, channel selection and input trim in a Dual Blend; gain, channel
-  selection and input trim in a Dual Crossover;
+- ten more Auto Set steps, all **off by default**, that extend the amp
+  settings to both rigs of a Dual routing and to the MID and HIGH lanes of
+  the Matrix: gain and tone, presence and resonance, channel selection and
+  input trim in a Dual Blend; gain, channel selection and input trim in a
+  Dual Crossover and in the Matrix MID and HIGH lanes;
 - two real-OBS app tests tolerate the timing of the macOS CI runner (no
   product change; the OBS filter code is the same as 1.4.1-beta.1).
 
