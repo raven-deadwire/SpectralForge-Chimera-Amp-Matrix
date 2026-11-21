@@ -1,10 +1,14 @@
 #pragma once
+#include <iomanip>
+#include <sstream>
 // Phase 44: the rig and lane passes of phases 33, 37 and 40 on the real engine, through processBlock
 // (docs/AUTO_SET_PHASE44.md). Earlier tests fed the controller's taps directly.
 // Included by AutoSetTests.cpp after the Matrix gain tests (DI and run() are used here).
 
 // One whole run with the played DI going through processBlock: the engine feeds the taps itself.
-struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefore{},gainAfter{};std::array<AmpResult,2> analysis{};std::array<bool,2> analysed{};};
+// levelBeforeDb, levelAfterDb (phase 46): each lane's level on the rig tap, measured on the same notes before and after the run.
+struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefore{},gainAfter{};std::array<AmpResult,2> analysis{};std::array<bool,2> analysed{};
+                         std::array<float,2> levelBeforeDb{},levelAfterDb{},trimAfter{},outputBefore{},outputAfter{};std::array<int,2> channelBefore{},channelAfter{};};
 // lanes: the two lanes the passes listen to (Dual rigs 0 and 1, Matrix lanes 1 and 2).
 // lowNotes: pure 82 and 98 Hz notes, which do not reach a MID or HIGH band.
 RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,const Controller::Options& options,std::array<float,2> gainFraction,
@@ -47,6 +51,24 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
         if(tick)c.tick(now);
     };
     play(400,false); // let the routing settle before the run starts, as a session that has been playing
+    // Phase 46: a lane's level as the rig tap hears it, on two seconds of the notes from their start.
+    const auto laneLevelDb=[&](int lane) {
+        p->setAutoSetRigLane(lane);offset=0;play(60,false);
+        p->autoSetCapture().listen({Tap::amp,Tap::cab});offset=0;play(375,false);
+        std::vector<float> amp,rig;p->autoSetCapture().drainAmpSamples(amp);p->autoSetCapture().drainSamples(rig);
+        p->autoSetCapture().listen(std::nullopt);p->setAutoSetRigLane(-1);
+        double energy=0;for(const float v:rig)energy+=double(v)*v;
+        return rig.empty()?-200.f:float(10*std::log10(energy/double(rig.size())+1e-20));
+    };
+    const auto read=[&](std::array<float,2>& output,std::array<int,2>& channel) {
+        for(int index=0;index<2;++index) {
+            output[size_t(index)]=get(*p,spectralforge::ampNativeOutputLevelID(spectralforge::ampNativeContext(mode,lanes[size_t(index)])));
+            channel[size_t(index)]=p->selectedAmpChannel(lanes[size_t(index)]);
+        }
+    };
+    for(int index=0;index<2;++index)result.levelBeforeDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);
+    read(result.outputBefore,result.channelBefore);
+    offset=0;play(200,false);
     c.start();
     P last=P::idle;
     for(int step=0;c.busy() && step<240;++step) {
@@ -62,6 +84,11 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
     check(!c.busy(),"The run on the real engine did not finish");
     result.status=c.current();
     for(int index=0;index<2;++index)result.gainAfter[size_t(index)]=get(*p,gainID[size_t(index)]);
+    read(result.outputAfter,result.channelAfter);
+    for(int index=0;index<2;++index) {
+        result.trimAfter[size_t(index)]=get(*p,spectralforge::ampNativeInputTrimID(spectralforge::ampNativeContext(mode,lanes[size_t(index)])));
+        result.levelAfterDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);
+    }
     p->releaseResources();
     return result;
 }
@@ -133,4 +160,54 @@ void rigPassEngine() {
     const auto whole=runRigPassEngine(1,0,{0,1},blend,{.05f,.05f},{},true);
     check(stepOf(whole.status,P::dualAmp1) && !stepOf(whole.status,P::dualAmp1)->result.contains("no playing heard"),"Low notes were not heard by a Dual Blend rig: "+stepOf(whole.status,P::dualAmp1)->result.toStdString());
     std::cout<<"PASS auto set rig pass engine: Dual Blend, Dual Crossover and Matrix rig and lane passes through processBlock: playing heard, low GAIN raised, drive closer to the target; a muted rig kept\n";
+}
+// Phase 46: the input trim and channel steps of the rig and lane passes on the real engine. The trim step says
+// "loudness held": here each lane's level is measured on the rig tap before and after the run.
+void rigPassEngineTrimAndChannel() {
+    using P=Controller::Phase;
+    constexpr int model=2,rhythm=0,lead=1;
+    Controller::Options base{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+    base.sync=base.cabIR=base.polarity=false;
+    // Both heads on the given channel; gain>=0: that channel's GAIN at that fraction of its range.
+    const auto heads=[=](int mode,std::array<int,2> lanes,int channel,float gain) {
+        return [=](ChimeraProcessor& p) {
+            for(const int lane:lanes) {
+                const int context=spectralforge::ampNativeContext(mode,lane);
+                auto* q=p.parameters().getParameter(spectralforge::ampNativeChannelID(context,model));q->setValueNotifyingHost(q->convertTo0to1(float(channel)));
+                if(gain>=0)p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,roleControls(model,channel,0)[ampGain],channel))->setValueNotifyingHost(gain);
+            }
+        };
+    };
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(1)<<v;return o.str();};
+    struct Case {const char* name;int mode,dualType;std::array<int,2> lanes;std::array<P,2> trimRows,channelRows;bool Controller::Options::*trim;bool Controller::Options::*channel;float trimGain;};
+    const std::array<Case,3> cases{{
+        {"Dual Blend",1,0,{0,1},{P::dualTrim1,P::dualTrim2},{P::dualChannel1,P::dualChannel2},&Controller::Options::dualTrim,&Controller::Options::dualChannel,0.f},
+        {"Dual Crossover",1,1,{0,1},{P::crossTrim1,P::crossTrim2},{P::crossChannel1,P::crossChannel2},&Controller::Options::crossTrim,&Controller::Options::crossChannel,0.f},
+        {"Matrix",2,0,{1,2},{P::matrixTrim2,P::matrixTrim3},{P::matrixChannel2,P::matrixChannel3},&Controller::Options::matrixTrim,&Controller::Options::matrixChannel,.2f}}};
+    for(const auto& k:cases) {
+        // Trim: rock, RHYTHM with GAIN at its bottom. The trim rises, OUTPUT LEVEL falls, and the lane stays about as loud.
+        auto trimOptions=base;trimOptions.*(k.trim)=true;
+        const auto t=runRigPassEngine(k.mode,k.dualType,k.lanes,trimOptions,{0.f,0.f},heads(k.mode,k.lanes,rhythm,k.trimGain));
+        check(t.status.phase==P::done,std::string(k.name)+": the trim run on the real engine did not finish");
+        std::string measured;
+        for(int index=0;index<2;++index) {
+            const auto* step=stepOf(t.status,k.trimRows[size_t(index)]);
+            check(step && step->changed && t.trimAfter[size_t(index)]>0 && t.outputAfter[size_t(index)]<t.outputBefore[size_t(index)],
+                  std::string(k.name)+": the trim was not raised with the level lowered on the real engine: "+(step?step->result.toStdString():std::string("no step")));
+            const float moved=t.levelAfterDb[size_t(index)]-t.levelBeforeDb[size_t(index)];
+            // Without the level held, a 12 dB trim into a clean head would raise the lane by about 10 dB.
+            check(std::abs(moved)<2.f,std::string(k.name)+": the lane's level moved by "+db(moved)+" dB after the trim: "+step->result.toStdString());
+            measured+=std::string(index?" | ":"")+"trim +"+db(t.trimAfter[size_t(index)])+" dB, OUTPUT LEVEL "+db(t.outputAfter[size_t(index)]-t.outputBefore[size_t(index)])+" dB, lane level "+db(t.levelBeforeDb[size_t(index)])+" > "+db(t.levelAfterDb[size_t(index)])+" dB";
+        }
+        std::cout<<"MEASURE auto set rig pass engine trim, "<<k.name<<": "<<measured<<'\n';
+        // Channel: clean, both heads on LEAD. Each moves to RHYTHM.
+        auto channelOptions=base;channelOptions.style=Style::clean;channelOptions.*(k.channel)=true;
+        const auto c=runRigPassEngine(k.mode,k.dualType,k.lanes,channelOptions,{.5f,.5f},heads(k.mode,k.lanes,lead,-1.f));
+        for(int index=0;index<2;++index) {
+            const auto* step=stepOf(c.status,k.channelRows[size_t(index)]);
+            check(step && step->changed && c.channelBefore[size_t(index)]==lead && c.channelAfter[size_t(index)]==rhythm,
+                  std::string(k.name)+": the channel was not switched on the real engine: "+(step?step->result.toStdString():std::string("no step")));
+        }
+    }
+    std::cout<<"PASS auto set rig pass engine trim and channel: Dual Blend, Dual Crossover and Matrix through processBlock: trim raised, OUTPUT LEVEL lowered, each lane's measured level within 2 dB; clean LEAD > RHYTHM\n";
 }
