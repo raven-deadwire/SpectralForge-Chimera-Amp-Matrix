@@ -1,6 +1,7 @@
 #pragma once
 #include "ModelCatalog.h"
 #include "EffectSelectionCatalog.h"
+#include "PostSlots.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 
 namespace spectralforge {
@@ -11,12 +12,14 @@ namespace spectralforge {
 // the extended DELAY / REVERB / MODULATION selectors.
 class ExtendedEffectModelSync final : private juce::ComboBox::Listener {
 public:
-    ExtendedEffectModelSync(juce::AudioProcessorValueTreeState& state,int familyIndex,juce::ComboBox& box)
+    // `slot` 1: the POST second slot's choice and extension (docs/POST_SECOND_SLOTS.md).
+    ExtendedEffectModelSync(juce::AudioProcessorValueTreeState& state,int familyIndex,juce::ComboBox& box,int slot=0)
         :family(familyIndex),combo(box) {
         const auto refresh=[this](float){update();};
-        choice=std::make_unique<juce::ParameterAttachment>(*state.getParameter(modelFamilies[(size_t)family].parameter),refresh);
-        extension=std::make_unique<juce::ParameterAttachment>(*state.getParameter(effectExtensionID(family)),refresh);
-        choiceValue=state.getRawParameterValue(modelFamilies[(size_t)family].parameter);extensionValue=state.getRawParameterValue(effectExtensionID(family));
+        const auto choiceID=postSlotID(slot,modelFamilies[(size_t)family].parameter),extensionID=postSlotID(slot,effectExtensionID(family));
+        choice=std::make_unique<juce::ParameterAttachment>(*state.getParameter(choiceID),refresh);
+        extension=std::make_unique<juce::ParameterAttachment>(*state.getParameter(extensionID),refresh);
+        choiceValue=state.getRawParameterValue(choiceID);extensionValue=state.getRawParameterValue(extensionID);
         combo.addListener(this);update();
     }
     ~ExtendedEffectModelSync() override {combo.removeListener(this);}

@@ -10,31 +10,33 @@
 
 class PostNativePanel final : public juce::Component {
 public:
-    PostNativePanel(ChimeraProcessor& owner,int sectionIndex,bool expanded=false):processor(owner),section(sectionIndex),detailed(expanded) {
-        setComponentID("postNativePanel"+juce::String(section));
+    // `slotIndex` 1: the section's second POST slot (docs/POST_SECOND_SLOTS.md),
+    // the same panel on its "slot2_" parameters.
+    PostNativePanel(ChimeraProcessor& owner,int sectionIndex,bool expanded=false,int slotIndex=0):processor(owner),section(sectionIndex),slot(slotIndex),detailed(expanded) {
+        setComponentID("postNativePanel"+juce::String(section)+(slot?"_2":""));
         for(auto* label:{&title,&reference,&meterLabel,&sourceStatus}) {addAndMakeVisible(*label);label->setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));}
-        sourceStatus.setComponentID("postCompressorStatus");sourceStatus.setFont(juce::FontOptions(10.5f));sourceStatus.setVisible(detailed && section==0);
+        sourceStatus.setComponentID("postCompressorStatus");sourceStatus.setFont(juce::FontOptions(10.5f));sourceStatus.setVisible(detailed && section==0 && slot==0);
         title.setFont(juce::FontOptions(detailed?11.f:15.f,juce::Font::bold));reference.setFont(juce::FontOptions(10.5f));meterLabel.setFont(juce::FontOptions(detailed?11.f:9.f));
-        reference.setComponentID("postNativeReference"+juce::String(section));reference.setMinimumHorizontalScale(1.f);
-        title.setText(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER",juce::dontSendNotification);
+        reference.setComponentID("postNativeReference"+juce::String(section)+suffix());reference.setMinimumHorizontalScale(1.f);
+        title.setText(juce::String(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER")+(slot?" 2":""),juce::dontSendNotification);
         addAndMakeVisible(model);addAndMakeVisible(bypass);addAndMakeVisible(viewport);addAndMakeVisible(expand);
-        expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section));expand.setTooltip(section==0?"Open all compressor controls with its live input/output spectrum":"Open all processor controls");expand.setVisible(!detailed);
+        expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section)+suffix());expand.setTooltip(section==0?"Open all compressor controls with its live input/output spectrum":"Open all processor controls");expand.setVisible(!detailed);
         expand.onClick=[this]{openDetails();};
-        model.setComponentID(spectralforge::postNativeModelID(section));model.setName(title.getText()+" model");
+        model.setComponentID(pid(spectralforge::postNativeModelID(section)));model.setName(title.getText()+" model");
         for(int m=0;m<spectralforge::postNativeModelsPerSection;++m)model.addItem(juce::String::fromUTF8(spectralforge::postNativeModel(section,m).name),m+1);
         bypass.setClickingTogglesState(true);
         if(!detailed){bypass.getProperties().set("pedalPower",true);bypass.setColour(juce::TextButton::buttonColourId,juce::Colour(0xff41654c));bypass.setColour(juce::TextButton::buttonOnColourId,juce::Colour(0xff353a39));bypass.setColour(juce::TextButton::textColourOffId,juce::Colour(0xffe1dbce));bypass.setColour(juce::TextButton::textColourOnId,juce::Colour(0xffb1b5b3));}
         // Models 0-2 use the released selector (extension 0); 3-5 set the
         // appended extension and leave the released selector untouched.
-        model.onChange=[this]{model.acceptSelection();processor.activateNativePost(section);const int chosen=model.getSelectedId()-1;
+        model.onChange=[this]{model.acceptSelection();processor.activateNativePost(section,slot);const int chosen=model.getSelectedId()-1;
             const auto write=[this](const juce::String& id,float value){if(auto* parameter=processor.parameters().getParameter(id)){parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(value));parameter->endChangeGesture();}};
-            if(chosen<spectralforge::postNativeReleasedModelsPerSection){write(spectralforge::postNativeModelID(section),(float)chosen);write(spectralforge::postNativeModelExtensionID(section),0.f);}
-            else write(spectralforge::postNativeModelExtensionID(section),(float)(chosen-spectralforge::postNativeReleasedModelsPerSection+1));
+            if(chosen<spectralforge::postNativeReleasedModelsPerSection){write(pid(spectralforge::postNativeModelID(section)),(float)chosen);write(pid(spectralforge::postNativeModelExtensionID(section)),0.f);}
+            else write(pid(spectralforge::postNativeModelExtensionID(section)),(float)(chosen-spectralforge::postNativeReleasedModelsPerSection+1));
             refresh();};
-        bypass.onClick=[this]{processor.activateNativePost(section);if(bypassAttachment)bypassAttachment->setValueAsCompleteGesture(bypass.getToggleState()?1.f:0.f);updateBypass();};
-        viewport.setComponentID("postNativeViewport"+juce::String(section));content.setComponentID("postNativeControls"+juce::String(section));
+        bypass.onClick=[this]{processor.activateNativePost(section,slot);if(bypassAttachment)bypassAttachment->setValueAsCompleteGesture(bypass.getToggleState()?1.f:0.f);updateBypass();};
+        viewport.setComponentID("postNativeViewport"+juce::String(section)+suffix());content.setComponentID("postNativeControls"+juce::String(section)+suffix());
         viewport.setViewedComponent(&content,false);viewport.setScrollBarsShown(true,false);viewport.setScrollBarThickness(9);
-        if(detailed && section==0) {
+        if(detailed && section==0 && slot==0) {   // the spectrum analyses slot 1 only
             spectrum=std::make_unique<spectralforge::DynamicsSpectrumPanel>(processor.dynamicsAnalysis(),processor.eqCaptureBoundary());
             spectrum->setComponentID("postCompressorSpectrum");spectrum->setStage(spectralforge::DynamicsStage::postCompressor);
             spectrum->setPostNativeSource(1);
@@ -45,14 +47,14 @@ public:
     int selectedModel() const noexcept {return currentModel<0?0:currentModel;}
     int selectedFromParameters() const {
         const auto raw=[this](const juce::String& id){const auto* value=processor.parameters().getRawParameterValue(id);return value?value->load():0.f;};
-        return spectralforge::postNativeSelectedModel(raw(spectralforge::postNativeModelID(section)),raw(spectralforge::postNativeModelExtensionID(section)));
+        return spectralforge::postNativeSelectedModel(raw(pid(spectralforge::postNativeModelID(section))),raw(pid(spectralforge::postNativeModelExtensionID(section))));
     }
     void openDetails() {
         if(detailed){toFront(true);return;}
         if(dialog){dialog->toFront(true);return;}
         // Navigation only. Attachments initialise without enabling native POST
         // or sending parameter gestures; actual control edits retain activation.
-        refresh();auto* full=new PostNativePanel(processor,section,true);
+        refresh();auto* full=new PostNativePanel(processor,section,true,slot);
         full->setLookAndFeel(&getLookAndFeel());full->setSize(section==0?1000:920,section==0?670:480);full->refresh();
         juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);
         options.dialogTitle=title.getText()+" / "+juce::String::fromUTF8(spectralforge::postNativeModel(section,selectedModel()).name);
@@ -75,14 +77,14 @@ public:
             currentModel=nextModel;const auto& spec=spectralforge::postNativeModel(section,currentModel);model.resetSyncExplicit(currentModel+1);
             // Provenance stays in the catalog; the public caption explains the processor.
             reference.setText(spectralforge::postNativeDescription(section,currentModel),juce::dontSendNotification);reference.setTooltip(reference.getText());
-            bypassAttachment.reset();bypass.setComponentID(spectralforge::postNativeBypassID(section,currentModel));
-            if(auto* parameter=processor.parameters().getParameter(spectralforge::postNativeBypassID(section,currentModel))) {
+            bypassAttachment.reset();bypass.setComponentID(pid(spectralforge::postNativeBypassID(section,currentModel)));
+            if(auto* parameter=processor.parameters().getParameter(pid(spectralforge::postNativeBypassID(section,currentModel)))) {
                 bypassAttachment=std::make_unique<juce::ParameterAttachment>(*parameter,[this](float v){bypass.setToggleState(v>.5f,juce::dontSendNotification);updateBypass();});bypassAttachment->sendInitialUpdate();
             }
             controls.clear();
             for(int i=0;i<spec.controlCount;++i) {
                 const auto& c=spec.controls[(size_t)i];auto control=std::make_unique<NativeControlView>();
-                control->bind(processor.parameters(),spectralforge::postNativeControlID(section,currentModel,i),juce::String::fromUTF8(c.label),c.connected?"PANEL":"HARDWARE ONLY",
+                control->bind(processor.parameters(),pid(spectralforge::postNativeControlID(section,currentModel,i)),juce::String::fromUTF8(c.label),c.connected?"PANEL":"HARDWARE ONLY",
                     c.kind==spectralforge::PostNativeControlKind::knob?0:c.kind==spectralforge::PostNativeControlKind::choice?1:2,
                     juce::StringArray::fromTokens(juce::String::fromUTF8(c.options),"|",{}),c.minimum,c.maximum,c.interval,spectralforge::art::rackStyle(section+7,currentModel).knobStyle);
                 if(c.kind==spectralforge::PostNativeControlKind::knob) {
@@ -93,11 +95,11 @@ public:
                     else if(key.contains("gain")||key=="input"||key=="output"||key=="makeup"||key=="trim")control->slider.setTextValueSuffix(" dB");
                 }
                 control->setEnabled(c.connected);const auto note=juce::String::fromUTF8(c.note).replace("Digital implementation range; hardware taper uncalibrated.","").trim();const auto tooltip=juce::String::fromUTF8(c.label)+(note.isEmpty()?"":"\n"+note);control->label.setTooltip(tooltip);control->slider.setTooltip(tooltip);control->choice.setTooltip(tooltip);control->toggle.setTooltip(tooltip);
-                control->activate=[this]{processor.activateNativePost(section);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
+                control->activate=[this]{processor.activateNativePost(section,slot);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
             for(int i=0;i<2;++i) {
-                auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),i?spectralforge::postNativeLevelID(section,currentModel):spectralforge::postNativeTrimID(section,currentModel),i?"OUTPUT LEVEL":"INPUT TRIM","CHIMERA",0,{},-24,24,.01,3);
-                control->slider.setTextValueSuffix(" dB");control->activate=[this]{processor.activateNativePost(section);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
+                auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),i?pid(spectralforge::postNativeLevelID(section,currentModel)):pid(spectralforge::postNativeTrimID(section,currentModel)),i?"OUTPUT LEVEL":"INPUT TRIM","CHIMERA",0,{},-24,24,.01,3);
+                control->slider.setTextValueSuffix(" dB");control->activate=[this]{processor.activateNativePost(section,slot);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
             const auto front=frontControls();
             const auto hardware=spectralforge::art::rackStyle(section+7,currentModel);
@@ -119,7 +121,7 @@ public:
     }
     void refreshMeter() {
         ++meterCount;
-        const bool nativeActive=processor.parameters().getRawParameterValue(spectralforge::postNativeModeID(section))->load()>.5f;
+        const bool nativeActive=processor.parameters().getRawParameterValue(pid(spectralforge::postNativeModeID(section)))->load()>.5f;
         if(spectrum) {
             if(sourceNativeKey.update(nativeActive?1:0)) {
                 spectrum->sourceChanged();sourceStatus.setText(nativeActive?"NATIVE COMPRESSOR SOURCE ACTIVE":"NATIVE COMPRESSOR INACTIVE / stored controls",juce::dontSendNotification);
@@ -131,12 +133,12 @@ public:
             return;
         }
         juce::String label="OUT ",unit=" dBFS";bool meterOff=false;
-        const auto meterChoice=[this](int control){if(const auto* p=processor.parameters().getRawParameterValue(spectralforge::postNativeControlID(section,currentModel,control)))return(int)p->load();return 0;};
+        const auto meterChoice=[this](int control){if(const auto* p=processor.parameters().getRawParameterValue(pid(spectralforge::postNativeControlID(section,currentModel,control))))return(int)p->load();return 0;};
         if(section==0){label="GR ";unit=" dB";
             if(currentModel==1){const int mode=meterChoice(6);meterOff=mode==3;if(mode==1 || mode==2){label=mode==1?"+4 ":"+8 ";unit=" VU";}}
             if(currentModel==2){const int mode=meterChoice(3);if(mode!=1){label=mode==0?"+4 ":"+10 ";unit=" VU";}}
         }else if(section==1 && currentModel==2)label=meterChoice(11)?"POST ":"INPUT ";
-        const auto caption=meterOff?juce::String("METER OFF"):label+juce::String(processor.postNativeMeter(section),1)+unit;
+        const auto caption=meterOff?juce::String("METER OFF"):label+juce::String(processor.postNativeMeter(section,slot),1)+unit;
         if(meterText.update(caption))meterLabel.setText(caption,juce::dontSendNotification);
         if(meterUnit.update(unit))meterLabel.setTooltip(unit==" VU"?"Digital VU reference: +4 dBu = -18 dBFS. Hardware meter calibration is not reproduced.":"Live processor meter");
     }
@@ -155,7 +157,8 @@ public:
     }
     void resized() override {
         if(!detailed) {
-            title.setBounds(28,2,186,19);model.setBounds(28,23,182,24);reference.setBounds(28,47,182,15);
+            // The title leaves x 170-212 to the editor's slot 1 / 2 switch.
+            title.setBounds(28,2,140,19);model.setBounds(28,23,182,24);reference.setBounds(28,47,182,15);
             bypass.setBounds(221,13,43,25);expand.setBounds(221,42,43,19);meterLabel.setBounds(300,20,108,24);
             viewport.setBounds(438,1,getWidth()-448,62);viewport.setScrollBarsShown(false,false);
             const auto front=frontControls();const int cell=viewport.getWidth()/juce::jmax(1,(int)front.size());
@@ -181,7 +184,9 @@ private:
     spectralforge::ui::Changed<int> sourceNativeKey;
     spectralforge::ui::Changed<juce::String> meterText,meterUnit;
     uint64_t refreshCount{},meterCount{};
-    ChimeraProcessor& processor;int section{},currentModel{-1};bool detailed{};StableAmpComboBox model;juce::TextButton bypass,expand;
+    ChimeraProcessor& processor;int section{},slot{},currentModel{-1};bool detailed{};
+    juce::String pid(const juce::String& id) const {return spectralforge::postSlotID(slot,id);}
+    juce::String suffix() const {return slot?"_2":"";}StableAmpComboBox model;juce::TextButton bypass,expand;
     juce::Component::SafePointer<juce::DialogWindow> dialog;
     std::unique_ptr<spectralforge::DynamicsSpectrumPanel> spectrum;
     juce::Label title,reference,meterLabel,sourceStatus;juce::Viewport viewport;juce::Component content;
