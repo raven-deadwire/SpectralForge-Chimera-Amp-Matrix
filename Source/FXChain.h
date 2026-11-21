@@ -166,39 +166,96 @@ class PostFXChain {
     }
     ModulationModule modulation;EchoModule echo;SpaceModule space;
     PostInsert* creative{};
+    // Second slots (docs/POST_SECOND_SLOTS.md) skip a section that is off:
+    // it keeps running for `holdSamples` after it turns off (so every off
+    // ramp finishes), then costs nothing; it is reset when it wakes up again.
+    bool skipsIdle{};int holdSamples{4800};std::array<int,postModuleCount> hold{};
+    void resetModule(int module) {
+        switch(module) {
+            case postDynamicsModule:compressor.reset();native.resetSection(0);nativeReady[0]=false;break;
+            case postPreampModule:preamp.reset();native.resetSection(1);nativeReady[1]=false;break;
+            case postEQModule:eq.reset();native.resetSection(2);nativeReady[2]=false;break;
+            case postModulationModule:modulation.reset();break;
+            case postDelayModule:echo.reset();break;
+            case postReverbModule:space.reset();break;
+            default:break;
+        }
+    }
 public:
     // 1.9 CREATIVE slot (docs/CREATIVE_1_9.md), owned by the processor: after DELAY, before REVERB.
     void setCreative(PostInsert* slot) noexcept {creative=slot;}
     void setAnalysis(DynamicsAnalysis* value) noexcept {analysis=value;}
+    // A second-slot rack: off sections are skipped (see hold above).
+    void setSkipsIdle(bool value) noexcept {skipsIdle=value;}
     std::array<float,6> stagePeaks{};
     float compressorReduction() const {return busReduction;}
     float nativeMeter(int section) const {return native.meter(section);}
     // `delayed`: the key delayed by the preamp's latency, for POST dynamics
     // placed after the preamp (docs/SIGNAL_ORDER_1_4.md).
     void setKey(const juce::AudioBuffer<float>* key,const juce::AudioBuffer<float>* delayed=nullptr) noexcept {keys={key,delayed!=nullptr?delayed:key};native.setKey(key);}
-    void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);native.prepare(spec,preamp.latency());transition.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);for(auto& mix:nativeMix){mix.reset(spec.sampleRate,.02);mix.setCurrentAndTargetValue(0);}nativeReady={};busReduction=0;stagePeaks={};}
+    void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);native.prepare(spec,preamp.latency());transition.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);for(auto& mix:nativeMix){mix.reset(spec.sampleRate,.02);mix.setCurrentAndTargetValue(0);}nativeReady={};busReduction=0;stagePeaks={};holdSamples=juce::jmax(1,int(spec.sampleRate*.1));hold={};}
     int latency() const {return preamp.latency();}
     std::array<const juce::AudioBuffer<float>*,2> keys{};
-    void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();native.reset();nativeReady={};busReduction=0;stagePeaks={};}
-    // Runs the rack in `order` (docs/SIGNAL_ORDER_1_4.md); the default is the
-    // released order. Each meter reads its module's output; DELAY's meter
-    // includes CREATIVE when CREATIVE directly follows it, as before.
-    void process(juce::AudioBuffer<float>& buffer,const FXState& state,const PostOrder& order=PostOrder::initial()) {
+    void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();native.reset();nativeReady={};busReduction=0;stagePeaks={};hold={};}
+    // Whether a section is switched on: the native engine's selected bank
+    // when it plays, else the released module's switch. CREATIVE manages
+    // itself (off and settled costs nothing).
+    static bool engaged(const FXState& state,int module) noexcept {
+        const auto native=[&](int section,bool legacyOn){const auto& s=state.postNative.sections[(size_t)section];
+            const bool useNative=s.nativeEnabled || s.selected>=postNativeReleasedModelsPerSection;
+            return useNative?!s.banks[(size_t)juce::jlimit(0,postNativeModelsPerSection-1,s.selected)].bypass:legacyOn;};
+        switch(module) {
+            case postDynamicsModule:return native(0,state.busCompOn);
+            case postPreampModule:return native(1,state.preampOn);
+            case postEQModule:return native(2,state.eqOn);
+            case postModulationModule:return state.chorusOn;
+            case postDelayModule:return state.delayOn;
+            case postReverbModule:return state.reverbOn;
+            default:return true;
+        }
+    }
+    // Marks a section idle now (the processor stops the second preamp only at
+    // an order-switch silence); it is reset when it runs again.
+    void sleep(int module) noexcept {if(module>=0 && module<postModuleCount)hold[(size_t)module]=0;}
+    // Whether `module` processes this block (always, except an idle second slot).
+    bool runs(const FXState& state,int module) const noexcept {return !skipsIdle || module==postCreativeModule || engaged(state,module) || hold[(size_t)module]>0;}
+    // Runs one module. `key`: the sidechain key for POST dynamics (already
+    // delayed by any preamp ahead of it). `delayMeter`: CREATIVE directly
+    // follows this rack's DELAY, so DELAY's meter includes it, as before.
+    void processModule(juce::AudioBuffer<float>& buffer,const FXState& state,int module,const juce::AudioBuffer<float>* key,bool delayMeter=false) {
         const auto peak=[&](int i){stagePeaks[(size_t)i]=buffer.getMagnitude(0,buffer.getNumSamples());};
-        bool preampBefore=false;
-        for(int slot=0;slot<postModuleCount;++slot) {
-            if(order.slots[(size_t)slot]==postDynamicsModule)native.setKey(preampBefore?keys[1]:keys[0]);
-            if(order.slots[(size_t)slot]==postPreampModule)preampBefore=true;
-            switch(order.slots[(size_t)slot]) {
-                case postDynamicsModule:processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});peak(0);break;
-                case postPreampModule:processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});peak(1);break;
-                case postEQModule:processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});peak(2);break;
-                case postModulationModule:modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);peak(3);break;
-                case postDelayModule:echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);peak(4);break;
-                case postCreativeModule:if(creative)creative->process(buffer,state.tempo);if(slot>0 && order.slots[(size_t)slot-1]==postDelayModule)peak(4);break;
-                case postReverbModule:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);peak(5);break;
-                default:break;
+        if(skipsIdle && module!=postCreativeModule) {
+            auto& left=hold[(size_t)module];
+            if(engaged(state,module)){if(left==0)resetModule(module);left=holdSamples;}
+            else if(left>0)left=juce::jmax(0,left-buffer.getNumSamples());
+            else {   // idle: untouched, no cost; the meter reads the passing signal
+                const int stage=module<postCreativeModule?module:5;if(module!=postCreativeModule)peak(stage);return;
             }
+        }
+        switch(module) {
+            case postDynamicsModule:native.setKey(key);processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});peak(0);break;
+            case postPreampModule:processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});peak(1);break;
+            case postEQModule:processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});peak(2);break;
+            case postModulationModule:modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);peak(3);break;
+            case postDelayModule:echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);peak(4);break;
+            case postCreativeModule:if(creative)creative->process(buffer,state.tempo);if(delayMeter)peak(4);break;
+            case postReverbModule:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);peak(5);break;
+            default:break;
+        }
+    }
+    // Runs this rack's blocks (slot 1: blocks 0-6) in `order`
+    // (docs/SIGNAL_ORDER_1_4.md); the default is the released order. Each
+    // meter reads its module's output; DELAY's meter includes CREATIVE when
+    // CREATIVE directly follows it, as before. The processor itself runs both
+    // racks interleaved (ChimeraProcessor::processPostRack).
+    void process(juce::AudioBuffer<float>& buffer,const FXState& state,const PostOrder& order=PostOrder::initial()) {
+        bool preampBefore=false;int previous=-1;
+        for(int slot=0;slot<postBlockCount;++slot) {
+            const int block=order.slots[(size_t)slot];
+            if(postBlockSlot(block)!=0)continue;
+            processModule(buffer,state,block,preampBefore?keys[1]:keys[0],block==postCreativeModule && previous==postDelayModule);
+            if(block==postPreampModule)preampBefore=true;
+            previous=block;
         }
     }
 };

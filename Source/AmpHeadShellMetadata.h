@@ -58,12 +58,12 @@ inline constexpr std::array definitions{
         {{{722,475,45,21},{790,475,51,21},{862,475,51,21},{934,475,51,21},{1006,475,49,21}}}}, // 24: Nastroend
     Definition{"headshell25_png",1672,941,{13,73,1646,791},{13,205,1646,634},864,true,
         {{{682,474,44,20},{745,474,46,20},{810,474,46,20},{875,474,46,20},{940,474,44,20}}}}, // 25: Niflheimr
-    // 26-30: procedural shells from Tools/generate_reference_head_shells.py.
-    Definition{"headshell26_png",1672,941,{36,96,1601,747},{54,214,1564,580},842,true}, // 26: Crystal 120
-    Definition{"headshell27_png",1672,941,{36,76,1601,767},{54,194,1564,600},842,true}, // 27: Bluestack 100
-    Definition{"headshell28_png",1672,941,{36,76,1601,767},{54,194,1564,600},842,true}, // 28: Eightyfire
-    Definition{"headshell29_png",1672,941,{36,86,1601,757},{54,204,1564,590},842,true}, // 29: Fortress 103
-    Definition{"headshell30_png",1672,941,{236,420,1201,393},{254,452,1164,312},812,false}, // 30: Northlight
+    // 26-30: owner-supplied photographic shells (2026-11-18); plates reviewed on the raw PNGs.
+    Definition{"headshell26_png",1672,941,{43,85,1586,796},{75,257,1523,542},881,true}, // 26: Crystal 120
+    Definition{"headshell27_png",1672,941,{49,68,1574,808},{93,286,1485,491},876,true}, // 27: Bluestack 100
+    Definition{"headshell28_png",1672,941,{48,74,1577,810},{91,260,1492,533},884,true}, // 28: Eightyfire
+    Definition{"headshell29_png",1672,941,{42,72,1589,812},{79,318,1514,467},884,true}, // 29: Fortress 103
+    Definition{"headshell30_png",1672,941,{117,334,1438,393},{170,381,1331,304},727,false}, // 30: Northlight
 };
 static_assert(definitions.size()==static_cast<size_t>(ampModelCount),
               "Every amplifier needs an explicitly mapped complete shell");

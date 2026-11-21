@@ -83,9 +83,17 @@ class AmpCatalogTests(unittest.TestCase):
         keys=self.keys('legacy.amp.10')
         self.assertIn('hw.overdrive.mid_frequency',keys);self.assertIn('hw.overdrive.mid_level',keys)
         self.assertNotIn('hw.overdrive.mid',keys);self.assertIn('hw.vintage.mid',keys)
-    def test_subway_is_plus_with_pending_primary_panel(self):
-        m=self.amps['legacy.amp.11'];self.assertIn('D-800+',m['amp_panel']['reference'])
-        self.assertIn('hw.high_pass',self.keys(m['id']));self.assertEqual(m['amp_panel']['review_status'],PENDING)
+    def test_subway_tt800_two_channels_keep_released_keys(self):
+        m=self.amps['legacy.amp.11'];p=m['amp_panel'];keys=self.keys(m['id'])
+        self.assertIn('TT-800',p['reference']);self.assertEqual(p['review_status'],PARTIAL)
+        self.assertEqual([c['id'] for c in p['channels']],['modern','classic']);self.assertEqual(p['initial_channel'],'modern')
+        # Released D-800+ keys keep their IDs; channel zero recalls released state.
+        for k in ('hw.input','hw.high_pass','hw.bass','hw.lo_mid','hw.lo_mid_frequency','hw.treble','hw.master'):
+            self.assertEqual(keys[k]['channels'],['modern'])
+        for k in ('hw.deep','hw.bright','hw.mute','hw.input_type','hw.od_symmetry'):self.assertEqual(keys[k]['channels'],[])
+        self.assertEqual(keys['hw.input_type']['options'],['HIGH','LOW'])
+        for k in ('gain','high_pass','bass','mid','mid_shift','treble','volume'):self.assertEqual(keys['hw.classic.'+k]['channels'],['classic'])
+        for k in ('hw.voicing','hw.hi_mid','hw.hi_mid_frequency'):self.assertNotIn(k,keys)
     def test_matchless_channel_two_rotary_not_bass_middle_treble(self):
         keys=self.keys('legacy.amp.12');self.assertEqual(len(keys['hw.ch2.tone']['options']),6)
         self.assertNotIn('hw.ch2.bass',keys);self.assertIn('hw.master_bypass',keys)

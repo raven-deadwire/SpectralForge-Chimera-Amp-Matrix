@@ -29,9 +29,10 @@ CI_IDS = historical.CI_IDS
 GAP_IDS = historical.GAP_IDS
 TRANSPOSE_IDS = frozenset({"I2.PITCH_LIVE", "I2.PITCH_DI"})
 # The live map. Ownership, producers and platforms are unchanged from the
-# historical map; only the E1 coverage totals follow the 1.4 catalogue
-# (31 serialized / 30 active amps). A historical approval keeps its own digest.
-CI_CHECK_MAP_SHA256 = "5adbf2843ba6f0223c67752f9577d2bc8d6561b10790d5e97cf0c367744edea1"
+# historical map; only the E1 coverage totals follow the released catalogue:
+# 1.4 (31 serialized / 30 active amps), then 1.5 (the Metro Clean two-channel
+# controls: 455 amp controls). A historical approval keeps its own digest.
+CI_CHECK_MAP_SHA256 = "75d0a3aff20cea56e81a7fe4441c427e0829023835cb4d18dd090d4cb5f5d26d"
 # Version, channel and approval metadata can evolve without weakening a gate.
 # Changing any validation rule still requires a reviewed policy/code revision.
 VALIDATION_RULES_SHA256 = "8acd522fcf39d08b55bad079a5d706efc8e14e5a38730d3d77a699da610074fc"

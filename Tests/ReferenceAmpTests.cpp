@@ -1,4 +1,5 @@
-// Measurements for the 1.6 reference heads (models 26-30) on the native engine.
+// Measurements for the 1.6 reference heads (models 26-30) and the TT-800
+// Metro Clean remodel (model 11) on the native engine.
 // These check the documented panel functions, not a match to the hardware.
 #include "AmpNativeDSP.h"
 #include <algorithm>
@@ -157,10 +158,71 @@ void northlight() {
     require(bassTHD<-45,"Northlight distorts a clean bass note");
     std::cout<<"PASS Northlight flat response, band spans, pad, damping, clean headroom\n";
 }
+
+// Metro Clean, remodelled on the Subway TT-800 owner's manual (model 11).
+void metroClean() {
+    constexpr int model=11;
+    const auto gainAt=[&](AmpNativeState s,double hz,double amplitude=1.e-3) {
+        const auto out=render(s,int(rate),sine(hz,amplitude));return db(tone(out.left,hz,int(rate/2)));
+    };
+    // Each channel's HIGHPASS: linear 25-125 Hz, noon ~75 Hz (-3 dB), relative
+    // to the same channel with its filter at 25 Hz.
+    for(int channel=0;channel<2;++channel) {
+        const char* key=channel==0?"hw.high_pass":"hw.classic.high_pass";
+        auto flat=defaultAmpNativeState(model);flat.channel=channel;set(flat,key,0);
+        for(const auto [position,hz]:{std::pair{.5f,75.},std::pair{1.f,125.}}) {
+            auto s=flat;set(s,key,position);
+            const double drop=gainAt(s,hz)-gainAt(flat,hz);
+            std::cout<<"MEASURE Metro Clean channel "<<channel<<" HIGHPASS "<<position<<" at "<<hz<<" Hz: "<<drop<<" dB\n";
+            require(std::abs(drop+3)<.8,"TT-800 HIGHPASS corner differs from the manual's 25-125 Hz linear sweep");
+        }
+    }
+    // MODERN active Baxandall: MID +/-12 dB at the selected linear frequency.
+    auto modern=defaultAmpNativeState(model);modern.channel=0;set(modern,"hw.high_pass",0);
+    set(modern,"hw.lo_mid_frequency",.5f);
+    auto cut=modern,boost=modern;set(cut,"hw.lo_mid",0);set(boost,"hw.lo_mid",1);
+    const double midSpan=gainAt(boost,1075)-gainAt(cut,1075),offBand=gainAt(boost,300)-gainAt(cut,300);
+    std::cout<<"MEASURE Metro Clean MODERN MID span at 1075 Hz "<<midSpan<<" dB, at 300 Hz "<<offBand<<" dB\n";
+    require(std::abs(midSpan-24)<.6 && offBand<6,"MODERN MID is not a +/-12 dB bell at its linear MID FREQ");
+    for(const char* key:{"hw.bass","hw.treble"}) {
+        auto lo=modern,hi=modern;set(lo,key,0);set(hi,key,1);const double hz=key[3]=='b'?20.:16000.;
+        const double span=gainAt(hi,hz)-gainAt(lo,hz);
+        std::cout<<"MEASURE Metro Clean MODERN "<<key<<" span at "<<hz<<" Hz: "<<span<<" dB\n";
+        require(span>18 && span<24.5,"MODERN shelving band exceeds or misses its +/-12 dB range");
+    }
+    // CLASSIC passive tonestack: inherent ~500 Hz dip at NORM; SHIFT is flatter.
+    auto classic=defaultAmpNativeState(model);classic.channel=1;set(classic,"hw.classic.gain",.1f);
+    set(classic,"hw.classic.mid",.3f);
+    const double norm=gainAt(classic,500)-gainAt(classic,150);
+    auto shifted=classic;set(shifted,"hw.classic.mid_shift",1);
+    const double shift=gainAt(shifted,500)-gainAt(shifted,150);
+    std::cout<<"MEASURE Metro Clean CLASSIC 500 Hz vs 150 Hz: NORM "<<norm<<" dB, SHIFT "<<shift<<" dB\n";
+    require(norm<-4 && shift>norm+2,"CLASSIC tonestack lacks the NORM mid dip or the flatter SHIFT");
+    // CLASSIC (V2) overdrives more readily than MODERN at equal GAIN.
+    auto m=defaultAmpNativeState(model);m.channel=0;auto c=m;c.channel=1;
+    const auto mOut=render(m,int(rate),sine(110,.3)),cOut=render(c,int(rate),sine(110,.3));
+    const double modernTHD=thd(mOut.left,110,int(rate/2)),classicTHD=thd(cOut.left,110,int(rate/2));
+    std::cout<<"MEASURE Metro Clean 110 Hz at 0.3, GAIN noon: THD MODERN "<<modernTHD<<" dB, CLASSIC "<<classicTHD<<" dB\n";
+    require(classicTHD>modernTHD+6,"CLASSIC does not overdrive more readily than MODERN");
+    // O/D SYMMETRY: ASYM adds even harmonics when the output stage is driven.
+    auto sym=defaultAmpNativeState(model);sym.channel=0;set(sym,"hw.master",1);set(sym,"hw.input",.8f);
+    auto asym=sym;set(asym,"hw.od_symmetry",1);
+    const auto symOut=render(sym,int(rate),sine(110,.3)),asymOut=render(asym,int(rate),sine(110,.3));
+    const int length=window(symOut.left,110,int(rate/2));
+    const auto second=[&](const std::vector<float>& v){return db(tone(v,220,int(rate/2),length)/tone(v,110,int(rate/2),length));};
+    std::cout<<"MEASURE Metro Clean O/D SYMMETRY second harmonic: SYM "<<second(symOut.left)<<" dB, ASYM "<<second(asymOut.left)<<" dB\n";
+    require(second(asymOut.left)>second(symOut.left)+6,"O/D SYMMETRY does not change the output clip symmetry");
+    // DEEP: mild very-low boost plus a lower effective high pass.
+    auto plain=defaultAmpNativeState(model);plain.channel=0;auto deep=plain;set(deep,"hw.deep",1);
+    const double deepLift=gainAt(deep,60)-gainAt(plain,60),deepMid=gainAt(deep,1000)-gainAt(plain,1000);
+    std::cout<<"MEASURE Metro Clean DEEP at 60 Hz "<<deepLift<<" dB, at 1 kHz "<<deepMid<<" dB\n";
+    require(deepLift>3 && std::abs(deepMid)<.5,"DEEP is not a low-frequency extension");
+    std::cout<<"PASS Metro Clean TT-800 HIGHPASS, MODERN Baxandall, CLASSIC tonestack/drive, O/D SYMMETRY, DEEP\n";
+}
 }
 
 int main() {
-    try {crystal();britishHeads();northlight();}
+    try {crystal();britishHeads();northlight();metroClean();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

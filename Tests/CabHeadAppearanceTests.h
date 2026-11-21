@@ -104,12 +104,12 @@ inline constexpr std::array<spectralforge::headShell::PixelRect,31> reviewedHead
     {97,604,1347,161}, // 23
     {108,522,1555,225}, // 24
     {77,509,1514,261}, // 25
-    // 26-30: plates written by Tools/generate_reference_head_shells.py.
-    {80,568,1512,212}, // 26
-    {80,548,1512,232}, // 27
-    {80,548,1512,232}, // 28
-    {80,540,1512,240}, // 29
-    {280,551,1112,199}, // 30
+    // 26-30: plates measured on the owner-supplied shells (2026-11-18).
+    {100,588,1472,198}, // 26
+    {118,576,1436,190}, // 27
+    {116,574,1442,206}, // 28
+    {104,584,1464,190}, // 29
+    {200,478,1272,194}, // 30
 }};
 inline juce::Rectangle<float> reviewedHeadPlate(int model) {
     return spectralforge::cabHead::pixels(reviewedHeadPlates[static_cast<size_t>(model)]);
