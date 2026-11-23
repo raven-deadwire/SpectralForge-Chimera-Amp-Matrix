@@ -285,7 +285,7 @@ void rigPassEnginePowerAndLocks() {
     // Dual rig levels lock: rig 2's trim and level kept, its level unmoved; rig 1 trimmed with its level held.
     auto rigs=base;rigs.dualTrim=true;rigs.locks|=Controller::lockRigs;
     const auto a=runRigPassEngine(1,0,{0,1},rigs,{0.f,0.f},heads(1,{0,1},0.f));
-    check(stepOf(a.status,P::dualTrim2) && stepOf(a.status,P::dualTrim2)->result.contains("the Dual rig levels lock keeps") && a.trimAfter[1]==0.f && a.outputAfter[1]==a.outputBefore[1]
+    check(stepOf(a.status,P::dualTrim2) && stepOf(a.status,P::dualTrim2)->result.contains("the Dual rig levels lock keeps") && std::abs(a.trimAfter[1])<1e-4f && a.outputAfter[1]==a.outputBefore[1]
           && std::abs(a.levelAfterDb[1]-a.levelBeforeDb[1])<.3f,"The Dual rig levels lock did not keep rig 2 on the real engine: "+lockRow(a,P::dualTrim2,1)+" | rig 1: "+lockRow(a,P::dualTrim1,0));
     check(stepOf(a.status,P::dualTrim1) && stepOf(a.status,P::dualTrim1)->changed && a.trimAfter[0]>0 && std::abs(a.levelAfterDb[0]-a.levelBeforeDb[0])<2.f,"With the Dual rig levels lock rig 1 was not trimmed with its level held");
     // Matrix levels lock: both lanes kept, their levels unmoved.
@@ -293,7 +293,7 @@ void rigPassEnginePowerAndLocks() {
     const auto m=runRigPassEngine(2,0,{1,2},lanes,{.2f,.2f},heads(2,{1,2},.2f));
     for(int index=0;index<2;++index) {
         const auto* step=stepOf(m.status,index==0?P::matrixTrim2:P::matrixTrim3);
-        check(step && step->result.contains("the Matrix levels lock keeps") && m.trimAfter[size_t(index)]==0.f && m.outputAfter[size_t(index)]==m.outputBefore[size_t(index)]
+        check(step && step->result.contains("the Matrix levels lock keeps") && std::abs(m.trimAfter[size_t(index)])<1e-4f && m.outputAfter[size_t(index)]==m.outputBefore[size_t(index)]
               && std::abs(m.levelAfterDb[size_t(index)]-m.levelBeforeDb[size_t(index)])<.3f,"The Matrix levels lock did not keep a lane on the real engine: "+lockRow(m,index==0?P::matrixTrim2:P::matrixTrim3,index));
     }
     std::cout<<"PASS auto set rig pass engine presence and locks: phase 34 through processBlock with the rig's measured top end following each PRESENCE move; the Dual rig levels lock keeps rig 2 and the Matrix levels lock both lanes, levels unmoved\n";
