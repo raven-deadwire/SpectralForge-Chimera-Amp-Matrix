@@ -2,12 +2,12 @@
   "schema": "spectralforge.chimera.weekly-publication-policy",
   "schema_version": 1,
   "policy_version": 1,
-  "product_version": "1.4.1",
-  "version": "1.4.1-beta.1",
+  "product_version": "1.5.0",
+  "version": "1.5.0-beta.1",
   "profile": "beta_1_3",
-  "approved_product_source_sha": "6bc7216cd2dc72772daaca65a89edbaf6b5a8c43",
-  "strict_policy_sha256": "630af5677fdb8952b11757aa4e8b44bfa3697bebdd667bdaa39411fed8ae9219",
-  "ci_check_map_sha256": "5adbf2843ba6f0223c67752f9577d2bc8d6561b10790d5e97cf0c367744edea1",
+  "approved_product_source_sha": "95a215eda8368c84e75bd0e8d32e9659b106361c",
+  "strict_policy_sha256": "affe0edc92084d0a0dd02dc6c62783f45a2f127caa9a9aa8a51a927721cf3e86",
+  "ci_check_map_sha256": "75d0a3aff20cea56e81a7fe4441c427e0829023835cb4d18dd090d4cb5f5d26d",
   "decision": "OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS",
   "release_approved": true,
   "publication_authorized": true,
@@ -15,9 +15,9 @@
     "approved": true,
     "publication_authorized": true,
     "validation_gaps_accepted": true,
-    "instruction": "지금 가능한거 다 넣어 / ㅇㅇ (버전 1.4.1-beta.1, 만료일 2027-05-31 23:59 KST 유지 확인) / 둘다 승인 (CI 통과 후 #324 머지와 1.4.1-beta.1 공개) / 1 (OBS 두 워크플로는 직전 커밋 통과 결과로 인정하고 머지·공개 진행) / 공개 끝나면 결과 알려줘",
-    "context": "On 2026-11-16 (Asia/Seoul) the owner approved merging PR 324 and publishing 1.4.1-beta.1 once CI passed. After that approval and before publication, the owner was told in the same conversation that real guitar/bass DI listening, real DAW and audio-device acceptance, signing/notarization and AAX in Pro Tools are not validated, that the seven new Auto Set steps have had synthetic tests only, and that the German and Korean manual text has no native-speaker review; the owner did not withdraw the approval. On 2026-11-17 the owner chose to merge although two workflows outside the publisher's required set, OBS add-on and OBS long recording, did not pass on the final PR head 1910312 (macOS only: hosted runners not acquired, a start/end sync drift of -35.8 ms and +99.2 ms over 61 minutes, and two real-OBS app checks); both had passed on the preceding commit 8ddd992, which has the same code and differs only in documents. On the product source the cab-realtime workflow failed on macOS in ChimeraCabExtendedTimingTests on attempts 1 and 2, got no macOS runner on attempt 3, and passed on attempt 4. This authorizes the beta publication with the disclosed gaps. It does not report personal DAW/listening testing and does not waive any exact-source CI requirement.",
-    "scope": "Publish 1.4.1-beta.1 from exact product source 6bc7216cd2dc72772daaca65a89edbaf6b5a8c43 only after the official publisher verifies every required latest exact-source workflow, package and artifact. The Product run 44061796357 must carry a source-bound strict report of 21 PASS / 107 unexecuted BLOCKED checks, including 42 blocked strict hard gates; preserve that report and every individually disclosed validation gap. Keep the transpose deferrals (I2.PITCH_LIVE, I2.PITCH_DI), signing/notarization limitations, real DI/listening and actual DAW/device acceptance gaps. Beta expiry 2027-05-31 23:59 KST. No unperformed or failed test is promoted to PASS, no required workflow is waived, and no validation rule, platform coverage or waiver inventory is changed."
+    "instruction": "1번 (기능을 포함해 1.5.0-beta.1로 전환) / 1번 2번 승인 (게이트 수치 갱신, CI 통과 후 #344 머지와 1.5.0-beta.1 공개) / 승인 기록 PR은 빌드 안 기다리고 머지해줘 / 1.5 (다른 세션의 1.4.2 되돌리기 PR #350과 충돌한다는 보고에 대한 답)",
+    "context": "On 2026-11-19 (Asia/Seoul) the owner chose a fast-path 1.4.2-beta.1 and confirmed keeping the beta expiry 2027-05-31 23:59 KST. Feature PRs 334, 335, 336 and 342 were then merged to main, and on 2026-11-20 the owner chose to include them and release as 1.5.0-beta.1. Before approving, the owner was told that projects using Metro Clean can sound different (the former VOICING and HI MID controls are retired, HIGH PASS and the mid frequency follow new ranges), that the POST second slots, the Metro Clean channels and the new Auto Set steps have had automated tests only, and that the release gate's E1 coverage totals had to follow the new control counts (455 amp controls, 204 routes, 477 isolated controls, 136 channel cases, 2410 visibility cases); the owner approved that totals change and the publication on 2026-11-20. The gaps disclosed for 1.4.1-beta.1 remain: real guitar/bass DI listening, real DAW and audio-device acceptance and signing/notarization are not validated, and AAX is not included. Another session then opened PR 350 to revert the features and publish 1.4.2-beta.1, stating an owner choice of that scope; told of the conflict, the owner answered \"1.5\" and PR 350 was closed. After PR 344 was merged, later Auto Set phases (43 to 46, off by default or tests and documents only), a POST second-preamp latency-report fix (PR 347) and an OBS test guide (PR 349) reached main; the product source below includes them. On earlier main commits of this release cab-realtime failed once on macOS in ChimeraCabExpansionIntegrationTests; the required workflows were run again on the product source. This authorizes the beta publication with the disclosed gaps. It does not report personal DAW/listening testing and does not waive any exact-source CI requirement.",
+    "scope": "Publish 1.5.0-beta.1 from exact product source 95a215eda8368c84e75bd0e8d32e9659b106361c only after the official publisher verifies every required latest exact-source workflow, package and artifact. The Product run 44893110564 must carry a source-bound strict report of 21 PASS / 107 unexecuted BLOCKED checks, including 42 blocked strict hard gates; preserve that report and every individually disclosed validation gap. Keep the transpose deferrals (I2.PITCH_LIVE, I2.PITCH_DI), signing/notarization limitations, real DI/listening and actual DAW/device acceptance gaps. Beta expiry 2027-05-31 23:59 KST. No unperformed or failed test is promoted to PASS, no required workflow is waived, and no validation rule, platform coverage or waiver inventory is changed beyond the owner-approved E1 coverage totals already in the product source."
   },
   "required_ci_checks": [
     {
