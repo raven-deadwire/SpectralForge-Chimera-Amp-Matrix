@@ -149,6 +149,8 @@ target_include_directories(ChimeraHostBypassTests PRIVATE Source)
 add_test(NAME ChimeraHostBypassTests COMMAND ChimeraHostBypassTests)
 add_test(NAME ChimeraAAXPackagingTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_aax_native.py")
+add_test(NAME ChimeraWindowsAAXInstallerInputTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_aax_windows_release.py")
 if(CHIMERA_BUILD_AAX)
   juce_add_console_app(ChimeraAAXContractTests PRODUCT_NAME "Chimera AAX Contract Tests")
   target_sources(ChimeraAAXContractTests PRIVATE Tests/AAXContractTests.cpp)
