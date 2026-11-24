@@ -166,7 +166,9 @@ void recall(ChimeraProcessor& processor) {
         const auto* p = dynamic_cast<juce::RangedAudioParameter*>(restored->getParameters()[i]);
         // OVERSAMPLING Auto is the one appended value a legacy project does
         // not take at its default: it restores off (docs/OVERSAMPLING_AUTO.md).
-        const float expected = p->paramID == "oversamplingAuto" ? 0.f : p->getDefaultValue();
+        // The Laser of an older project stays the filter sweep (docs/CREATIVE_PAGE.md).
+        const float expected = p->paramID == "oversamplingAuto" ? 0.f
+                             : p->paramID.endsWith("creativeLaserMode") ? 1.f : p->getDefaultValue();
         check(std::abs(p->getValue() - expected) < 1.e-5f,
               "Legacy project inherited a new dynamics value from the previous session");
     }

@@ -81,7 +81,7 @@ inline void capture(juce::Component& root,const juce::File& folder,const juce::S
     require(staged.overwriteTargetFileWithTemporary(),"Cannot replace Signal Path snapshot");
     verify(file);
 }
-inline constexpr std::array<const char*,7> compactStages{"pre","head","cab","tone.eq","post","final.eq","synth"};
+inline constexpr std::array<const char*,8> compactStages{"pre","head","cab","tone.eq","post","final.eq","creative","synth"};
 inline juce::TextButton& pathButton(SignalPathView& view,const juce::String& id) {
     auto* button=find<juce::TextButton>(view,"path."+id);
     require(button,"Signal path navigation button missing");return *button;
@@ -95,7 +95,7 @@ inline void accessibleButton(juce::TextButton& button,const juce::String& label)
 }
 inline void compactContract(SignalPathView& strip,int mode) {
     int count=0;for(auto* child:strip.getChildren())if(child->getComponentID().startsWith("path."))++count;
-    require(count==int(compactStages.size()),"Compact workflow must contain exactly seven editing stages");
+    require(count==int(compactStages.size()),"Compact workflow must contain exactly eight editing stages");
     require(strip.getHeight()>=44,"Primary navigation hit area is too small");
     int previousRight=0;
     for(size_t i=0;i<compactStages.size();++i) {

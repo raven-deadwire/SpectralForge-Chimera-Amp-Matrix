@@ -893,6 +893,7 @@ target_link_libraries(ChimeraFilterModulationTests PRIVATE ChimeraAmpMatrix Chim
 add_test(NAME ChimeraFilterModulationTests COMMAND ChimeraFilterModulationTests)
 juce_add_console_app(ChimeraCreativeTests PRODUCT_NAME "Chimera Creative Tests")
 target_sources(ChimeraCreativeTests PRIVATE Tests/CreativeTests.cpp)
+target_compile_definitions(ChimeraCreativeTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)   # runDispatchLoopUntil (Windows builds without CHIMERA_UI_PROBES)
 target_include_directories(ChimeraCreativeTests PRIVATE Source)
 target_link_libraries(ChimeraCreativeTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCreativeTests COMMAND ChimeraCreativeTests)

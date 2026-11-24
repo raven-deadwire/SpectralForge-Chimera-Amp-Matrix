@@ -388,8 +388,11 @@ std::map<juce::String,float> secondSlotValues(ChimeraProcessor& p){
     for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_"))v[r->getParameterID()]=p.parameters().getRawParameterValue(r->getParameterID())->load();
     return v;
 }
-bool secondSlotsAtDefault(ChimeraProcessor& p){
-    for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_") && std::abs(r->getValue()-r->getDefaultValue())>1.e-6f)return false;
+bool secondSlotsAtDefault(ChimeraProcessor& p,bool oldProject=false){
+    // A project from before the CREATIVE page keeps the Laser's filter sweep (docs/CREATIVE_PAGE.md).
+    for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_")){
+        const float expected=oldProject && r->getParameterID().endsWith("creativeLaserMode")?1.f:r->getDefaultValue();
+        if(std::abs(r->getValue()-expected)>1.e-6f)return false;}
     return true;
 }
 void secondSlotsBank() {
@@ -428,7 +431,7 @@ void secondSlotsOldState() {
     auto p=make();set(*p,s2("delayon"),1);set(*p,s2("delaytime"),90);set(*p,s2("creativeOn"),1);p->placeModule(OrderRegion::post,postBlock(postDelayModule,1),0);
     p->setStateInformation(old.getData(),int(old.getSize()));
     PostOrder expected=PostOrder::initial().placed(postReverbModule,0);
-    require(secondSlotsAtDefault(*p) && p->requestedOrder().post==expected,"An old project does not load with slot 2 off and the released order (second slots after it)");
+    require(secondSlotsAtDefault(*p,true) && p->requestedOrder().post==expected,"An old project does not load with slot 2 off and the released order (second slots after it)");
     // ... and sounds bit-identical to the same project with no second-slot data touched.
     auto reference=make();set(*reference,"delayon",1);set(*reference,"reverbon",1);reference->placeModule(OrderRegion::post,postReverbModule,0);
     const auto a=run(*p,120,.1,330),b=run(*reference,120,.1,330);double diff=0;for(size_t n=0;n<a.size();++n)diff=std::max(diff,double(std::abs(a[n]-b[n])));
