@@ -232,6 +232,8 @@ inline void compactDestination(juce::Component& editor,SignalPathView& strip,con
                                "POST workflow action did not open the rack");
     else if(id=="synth")require(visible("synthPage") && !visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel") && !visible("finalEQ_panel"),
                                 "SYNTH workflow action did not open the SYNTH page alone");
+    else if(id=="creative")require(visible("creativePage") && !visible("synthPage") && !visible("postNativePanel0") && !visible("universalPedalBoard") && !visible("toneEQ_panel") && !visible("finalEQ_panel"),
+                                   "CREATIVE workflow action did not open the CREATIVE page alone");
     else {
         const bool tone=id=="tone.eq";
         auto* selected=find<spectralforge::GraphicalEQPanel>(editor,tone?"toneEQ_panel":"finalEQ_panel");
