@@ -18,6 +18,7 @@
 #include "EasyModeView.h"
 #include "EffectModelSync.h"
 #include "CreativePanel.h"
+#include "CreativePage.h"
 #include "PostRackDrag.h"
 #include "PostSlotRow.h"
 #include "SynthPage.h"
@@ -207,6 +208,7 @@ private:
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
     std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
     std::unique_ptr<spectralforge::synthUI::SynthPage> synthPage;   // page 4
+    std::unique_ptr<spectralforge::creativeUI::CreativePage> creativePage;   // page 5
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};

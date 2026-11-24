@@ -402,12 +402,14 @@ void secondSlotsBank() {
     int copies=0;
     for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_")){
         auto* original=p->parameters().getParameter(r->getParameterID().substring(6));require(original!=nullptr,"Second-slot parameter without a slot 1 original: "+r->getParameterID().toStdString());
-        require(r->getVersionHint()==postSecondSlotParameterVersion && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
+        // The CREATIVE page's slot-2 copies came later, at their own version (docs/CREATIVE_PAGE.md).
+        const bool page=r->getVersionHint()==creativePageParameterVersion;
+        require((page || r->getVersionHint()==postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
                 && r->getNormalisableRange().start==original->getNormalisableRange().start && r->getNormalisableRange().end==original->getNormalisableRange().end,"Second-slot definition differs from slot 1: "+r->getParameterID().toStdString());
-        ++copies;}
+        if(!page)++copies;}
     require(copies+postSecondSlotOrderParameterCount==postSecondSlotParameterCount(),"Second-slot bank size");
     // Automation of released parameters still targets slot 1: same IDs, same indices.
-    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount(),"A released ID moved");
+    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount,"A released ID moved");
     std::cout<<"MEASURE second-slot bank: "<<postSecondSlotParameterCount()<<" parameters at version "<<postSecondSlotParameterVersion<<" ("<<copies<<" slot2_ copies + "<<postSecondSlotOrderParameterCount<<" order slots), all off by default\n";
     std::cout<<"PASS second slots: appended bank, slot 1 definitions, off by default, released IDs unchanged\n";
 }

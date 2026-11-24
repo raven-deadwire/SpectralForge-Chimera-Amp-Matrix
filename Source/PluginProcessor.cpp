@@ -542,6 +542,10 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const auto roomSends=room.sends();
     juce::AudioBuffer<float>* roomBus=room.wantsInput() ? &room.bus(buffer.getNumChannels(),buffer.getNumSamples()) : nullptr;
     synth.addAt(spectralforge::SynthInsert::ampInput,buffer);   // SYNTH insert: into the amps, like a pedal
+    // CREATIVE placement (docs/CREATIVE_PAGE.md): each slot runs at one of four points.
+    creative.setTransport(chunkPpq);creative2.setTransport(chunkPpq);
+    const auto creativeAt=[&](int point){creative.processAt(point,buffer,fx.tempo);creative2.processAt(point,buffer,fx.tempo);};
+    creativeAt(spectralforge::creativeAtAmpInput);
     // Phase 13 listens to lane1+lane2 (Dual), phase 17 to lane1-lane3 (Matrix).
     const bool matrixLanes=autoSetCaptureState.listening(spectralforge::autoset::Tap::lane3);
     const int lanesWanted=value(mode)==1 && !matrixLanes ? 2 : value(mode)==2 && matrixLanes ? 3 : 0;
@@ -621,6 +625,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
          if(preamp2!=preamp2Active)setLatencySamples(getLatencySamples()+(preamp2?1:-1)*postFX2.latency());
          preamp2Active=preamp2;preamp2Reported.store(preamp2,std::memory_order_relaxed);}}
     synth.addAt(spectralforge::SynthInsert::beforeToneEQ,buffer);   // at the start of the tone / dynamics block
+    creativeAt(spectralforge::creativeBeforeTone);
     measureStage(2,buffer);
     bool latentBefore=false;   // HQ saturation ran ahead: keyed detectors read the key delayed to match
     for(const int module:activeOrder.tone.slots) {
@@ -653,6 +658,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     postFX.setKey(nullptr);postFX2.setKey(nullptr);preFX.gate.setKey(nullptr);
     postSwitch.apply(buffer);
     synth.addAt(spectralforge::SynthInsert::afterPost,buffer);
+    creativeAt(spectralforge::creativeAfterPost);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
     for(int section=0;section<3;++section)nativePostMeters[(size_t)section].store(postFX.nativeMeter(section));
@@ -940,6 +946,8 @@ spectralforge::appendOversamplingAutoParameters(p);
 spectralforge::appendMetroCleanTT800Parameters(p);
 // POST second slots (docs/POST_SECOND_SLOTS.md), version hint 35.
 spectralforge::appendPostSecondSlotParameters(p);
+// CREATIVE page (docs/CREATIVE_PAGE.md), version hint 36: both slots.
+spectralforge::appendCreativePageParameters(p,0);spectralforge::appendCreativePageParameters(p,1);
 return p;
 }
 
@@ -1157,6 +1165,8 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         if((id.startsWith("nativeAmp_")&&id.endsWith("_enabled")) || (id.startsWith("pn_")&&id.endsWith("_native")))value=0;
         // Sessions saved before OVERSAMPLING Auto keep their stored choice.
         if(id=="oversamplingAuto")value=0;
+        // Sessions saved before the CREATIVE page keep the Laser's filter sweep.
+        if(id.endsWith("creativeLaserMode"))value=float(spectralforge::laserFilterSweep);
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
