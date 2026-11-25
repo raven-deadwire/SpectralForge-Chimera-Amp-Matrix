@@ -721,11 +721,50 @@ void secondSlotsPage() {
     std::cout<<"PASS POST page: slot 1 / 2 switches show each second slot without writing, DELAY 2 edits slot 2, drags as DELAY 2, scales 75-150 %\n";
 }
 
+// The POST page with four slots. CHIMERA_POST_SNAPSHOTS=<dir> also writes the
+// page and the routing graph as PNG files (2x).
+void extraSlotsPage() {
+    auto p=make();auto editor=std::make_unique<ChimeraEditor>(*p);editor->setEasyMode(false,false);editor->setSize(1180,780);
+    const auto pump=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(60);};pump();
+    findType<SignalPathView>(*editor)->buttonFor("post")->triggerClick();pump();
+    auto* selector=dynamic_cast<postSlotUI::SlotSelector*>(findID(*editor,"postSlot4"));auto* add=dynamic_cast<juce::Button*>(findID(*editor,"postAdd"));
+    require(selector!=nullptr && add!=nullptr && add->isVisible(),"Slot switch or + ADD missing");
+    for(int slot=0;slot<postSlotCount;++slot)require(selector->button(slot).isVisible() && selector->button(slot).getWidth()>=14,"Slot switch button "+std::to_string(slot+1)+" missing or too small");
+    // Each slot's rows exist and show when chosen; choosing writes nothing.
+    juce::MemoryBlock before,after;p->getStateInformation(before);
+    for(int slot=1;slot<postSlotCount;++slot){
+        selector->button(slot).triggerClick();pump();
+        auto* row=findID(*editor,"postSlotRow1"+postSlotSuffix(slot));
+        require(row!=nullptr && row->isVisible() && row->getY()==postRack::rowY(4),"DELAY "+std::to_string(slot+1)+" row not shown");
+        for(int other=1;other<postSlotCount;++other)if(other!=slot)require(!findID(*editor,"postSlotRow1"+postSlotSuffix(other))->isVisible(),"Two DELAY rows shown at once");
+    }
+    for(int section=0;section<3;++section)for(int slot=1;slot<postSlotCount;++slot)require(findID(*editor,"postNativePanel"+juce::String(section)+postSlotSuffix(slot))!=nullptr,"A native POST panel of slot 2-4 is missing");
+    for(int slot=1;slot<postSlotCount;++slot)require(findID(*editor,"creativeStrip"+postSlotSuffix(slot))!=nullptr,"A CREATIVE strip of slot 2-4 is missing");
+    p->getStateInformation(after);require(before==after,"Choosing a slot changed the project");
+    // The switch lights the slots that are on.
+    set(*p,postSlotID(2,"delayon"),1);juce::MessageManager::getInstance()->runDispatchLoopUntil(250);
+    require(selector->slotShownActive(2) && !selector->slotShownActive(1) && !selector->slotShownActive(3),"The slot switch does not light slot 3 alone");
+    // The switch stays clear of the row's controls.
+    {auto* row=findID(*editor,"postSlotRow1_3");selector->button(2).triggerClick();pump();
+     const auto box=selector->getBounds();
+     for(auto* child:row->getChildren())if(child->isVisible() && dynamic_cast<juce::Label*>(child)==nullptr)require(!child->getBounds().translated(row->getX(),row->getY()).intersects(box),"Slot switch overlaps a DELAY 3 control: "+child->getComponentID().toStdString());}
+    if(const auto directory=juce::SystemStats::getEnvironmentVariable("CHIMERA_POST_SNAPSHOTS",{});directory.isNotEmpty()){
+        const auto save=[&](juce::Component& c,const juce::String& name){juce::MessageManager::getInstance()->runDispatchLoopUntil(300);const auto image=c.createComponentSnapshot(c.getLocalBounds(),true,2.f);
+            juce::File file=juce::File(directory).getChildFile(name);file.getParentDirectory().createDirectory();file.deleteFile();juce::FileOutputStream out(file);juce::PNGImageFormat png;require(out.openedOk() && png.writeImageToStream(image,out),"Snapshot not written");};
+        set(*p,"delayon",1);set(*p,"reverbon",1);set(*p,postSlotID(2,"delaytime"),180);
+        p->addPostBlock(postReverbModule,postDynamicsModule);p->addPostBlock(postModulationModule);
+        save(*editor,"post-page-delay3.png");
+        SignalPathView graph(*p,false);graph.setSize(1140,700);save(graph,"routing-added.png");
+        for(int block=postModuleCount;block<postBlockCount;++block)p->setPostBlockOn(block,true);
+        graph.refresh();save(graph,"routing-all-28.png");
+    }
+    std::cout<<"PASS POST page: four-slot switches, slot 2-4 rows, lights, + ADD; choosing a slot writes nothing\n";
+}
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
     try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();
         secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();
-        extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();}
+        extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();extraSlotsPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
