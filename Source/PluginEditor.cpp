@@ -561,9 +561,12 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
     creativeStrip=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor);add(*creativeStrip);creativeStrip->onOpen=[this]{openCreativePanel();};
-    for(int i=0;i<3;++i){postPanels2[(size_t)i]=std::make_unique<PostNativePanel>(processor,i,false,1);canvas.addChildComponent(*postPanels2[(size_t)i]);}
-    for(int row=3;row<6;++row){const int family=rackOrder[(size_t)row];auto& r=effectRows2[(size_t)row-3];r=std::make_unique<spectralforge::postSlotUI::EffectSlotRow>(processor,family);canvas.addChildComponent(*r);r->onOpen=[this,family]{openRackEffect(family,1);};}
-    creativeStrip2=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor,1);canvas.addChildComponent(*creativeStrip2);creativeStrip2->onOpen=[this]{openCreativePanel(1);};
+    for(int slot=1;slot<spectralforge::postSlotCount;++slot){const auto e=(size_t)slot-1;
+        for(int i=0;i<3;++i){postPanelsExtra[e][(size_t)i]=std::make_unique<PostNativePanel>(processor,i,false,slot);canvas.addChildComponent(*postPanelsExtra[e][(size_t)i]);}
+        for(int row=3;row<6;++row){const int family=rackOrder[(size_t)row];auto& r=effectRowsExtra[e][(size_t)row-3];r=std::make_unique<spectralforge::postSlotUI::EffectSlotRow>(processor,family,slot);canvas.addChildComponent(*r);r->onOpen=[this,family,slot]{openRackEffect(family,slot);};}
+        creativeStripsExtra[e]=std::make_unique<spectralforge::creativeUI::CreativeStrip>(processor,slot);canvas.addChildComponent(*creativeStripsExtra[e]);creativeStripsExtra[e]->onOpen=[this,slot]{openCreativePanel(slot);};}
+    postAdd.setComponentID("postAdd");postAdd.setTooltip("Add another POST effect: up to four of each kind. The new effect goes to the end of the POST rack; ROUTING places it anywhere.");
+    postAdd.onClick=[this]{showPostAddMenu();};canvas.addChildComponent(postAdd);
     rackDrag=std::make_unique<spectralforge::postRack::Overlay>(processor);add(*rackDrag);rackDrag->changed=[this]{layoutControls();repaintDesign({20,298,1140,445});};
     {const std::array<const char*,spectralforge::postModuleCount> names{"POST DYNAMICS","POST PREAMP","POST EQ","MODULATION","DELAY","CREATIVE","REVERB"};
      for(int section=0;section<spectralforge::postModuleCount;++section){
@@ -679,8 +682,8 @@ void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
             // A second-slot block opens its section's slot 2 (docs/POST_SECOND_SLOTS.md).
             const int section=node.section==spectralforge::signalPath::creativeSection?spectralforge::postCreativeModule:node.section==5?spectralforge::postReverbModule:node.section;
             if(section>=0 && section<spectralforge::postModuleCount)showPostSlot(section,node.slot);
-            if(node.section>=0&&node.section<3){focus(node.slot?*postPanels2[size_t(node.section)]:*postPanels[size_t(node.section)]);}
-            else if(node.section==spectralforge::signalPath::creativeSection){focus((node.slot?creativeStrip2:creativeStrip)->modelBox());}
+            if(node.section>=0&&node.section<3){focus(node.slot?*postPanelsExtra[size_t(node.slot-1)][size_t(node.section)]:*postPanels[size_t(node.section)]);}
+            else if(node.section==spectralforge::signalPath::creativeSection){focus((node.slot?creativeStripsExtra[size_t(node.slot-1)]:creativeStrip)->modelBox());}
             else if(node.section>=3 && node.section<6 && !node.slot){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}
             break;}
         default:break;
@@ -776,7 +779,7 @@ void ChimeraEditor::timerCallback()
     // Detached ALL windows remain live when their owning tab is hidden.
     for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
-    for(auto& post:postPanels2)post->refreshIfNeeded();
+    for(auto& extra:postPanelsExtra)for(auto& post:extra)post->refreshIfNeeded();
     if(!spectralforge::ui::visible(*this)){stateDirty=true;return;}
     if(easyMode && easyView)easyView->showPreset(presets.getSelectedId(),presets.getText(),presetOrigin);
 
@@ -836,17 +839,9 @@ void ChimeraEditor::refreshVisibleState()
         }
     }
     if(rackDrag && processor.requestedOrder().post!=shownRackOrder){layoutControls();repaintDesign({20,298,1140,445});}
-    if(page==2){   // the "2" of each slot switch lights while that second slot is on
-        const auto second=processor.postNativeState(1);
-        const auto on=[&](const juce::String& id){const auto* v=processor.parameters().getRawParameterValue(spectralforge::postSlotID(1,id));return v!=nullptr && v->load()>.5f;};
-        for(int section=0;section<spectralforge::postModuleCount;++section){
-            bool active=false;
-            if(section<3){const auto& sec=second.sections[(size_t)section];const bool native=sec.nativeEnabled || sec.selected>=spectralforge::postNativeReleasedModelsPerSection;
-                active=native?!sec.banks[(size_t)sec.selected].bypass:on(section==0?"buscompon":section==1?"preampon":"eqon");}
-            else active=on(section==3?"choruson":section==4?"delayon":section==5?"creativeOn":"reverbon");
-            slotSelectors[(size_t)section]->setSecondActive(active);
-        }
-    }
+    if(page==2)   // a number of each slot switch lights while that slot (2-4) is on
+        for(int section=0;section<spectralforge::postModuleCount;++section)for(int slot=1;slot<spectralforge::postSlotCount;++slot)
+            slotSelectors[(size_t)section]->setSlotActive(slot,processor.postBlockOn(spectralforge::postBlock(section,slot)));
     for(int position=3;position<6;++position) {
         const int family=rackOrder[(size_t)position];auto& effect=effects[(size_t)family];
         if(!effect.model.isVisible())continue;
@@ -1016,11 +1011,12 @@ void ChimeraEditor::updateModeUI()
     {const bool rack=page==2 && !tunerViewOpen;
      for(size_t i=0;i<postPanels.size();++i) {
         postPanels[i]->setVisible(rack && shownSlot[i]==0);postPanels[i]->refreshIfNeeded();
-        postPanels2[i]->setVisible(rack && shownSlot[i]==1);postPanels2[i]->refreshIfNeeded();
+        for(int e=0;e<extraSlots;++e){postPanelsExtra[(size_t)e][i]->setVisible(rack && shownSlot[i]==e+1);postPanelsExtra[(size_t)e][i]->refreshIfNeeded();}
      }
-     for(int row=3;row<6;++row)effectRows2[(size_t)row-3]->setVisible(rack && rowShowsSecond(row));
+     for(int e=0;e<extraSlots;++e)for(int row=3;row<6;++row)effectRowsExtra[(size_t)e][(size_t)row-3]->setVisible(rack && shownSlot[(size_t)rowSection(row)]==e+1);
      creativeStrip->setVisible(rack && shownSlot[spectralforge::postCreativeModule]==0);
-     creativeStrip2->setVisible(rack && shownSlot[spectralforge::postCreativeModule]==1);
+     for(int e=0;e<extraSlots;++e)creativeStripsExtra[(size_t)e]->setVisible(rack && shownSlot[spectralforge::postCreativeModule]==e+1);
+     postAdd.setVisible(rack);if(rack)postAdd.toFront(false);
      rackDrag->setVisible(rack);if(rack)rackDrag->toFront(false);
      for(auto& selector:slotSelectors){selector->setVisible(rack);if(rack)selector->toFront(false);}}
     synthPage->setVisible(page==4 && !tunerViewOpen);
@@ -1169,14 +1165,14 @@ void ChimeraEditor::layoutRack()
     if(!rackDrag || !creativeStrip)return;
     const auto order=processor.requestedOrder().post;
     shownRackOrder=order;rackSlots=postRack::rowSlots(order);
-    for(size_t i=0;i<postPanels.size();++i){postPanels[i]->setBounds(20,rackRowY((int)i),1140,64);postPanels2[i]->setBounds(postPanels[i]->getBounds());}
-    for(int row=3;row<6;++row)effectRows2[(size_t)row-3]->setBounds(20,rackRowY(row),1140,64);
+    for(size_t i=0;i<postPanels.size();++i){postPanels[i]->setBounds(20,rackRowY((int)i),1140,64);for(auto& extra:postPanelsExtra)extra[i]->setBounds(postPanels[i]->getBounds());}
+    for(auto& extra:effectRowsExtra)for(int row=3;row<6;++row)extra[(size_t)row-3]->setBounds(20,rackRowY(row),1140,64);
     creativeStrip->setBounds(postRack::creativeStripBounds);creativeStrip->setPlacement(postRack::creativePlacement(order));
-    creativeStrip2->setBounds(postRack::creativeStripBounds);creativeStrip2->setPlacement(postRack::creativePlacement(order,1));
+    for(int e=0;e<extraSlots;++e){creativeStripsExtra[(size_t)e]->setBounds(postRack::creativeStripBounds);creativeStripsExtra[(size_t)e]->setPlacement(postRack::creativePlacement(order,e+1));}
     postRack::layout(*rackDrag,rackSlots,shownSlot);
-    // The slot 1 / 2 switch sits at the right end of each row's title.
-    for(int row=0;row<postRack::rowCount;++row)slotSelectors[(size_t)rowSection(row)]->setBounds(190,rackRowY(row)+3,42,17);
-    slotSelectors[postCreativeModule]->setBounds(postRack::creativeStripBounds.getX()+414,postRack::creativeStripBounds.getY()+2,44,20);
+    // The slot 1-4 switch sits at the right end of each row's title.
+    for(int row=0;row<postRack::rowCount;++row)slotSelectors[(size_t)rowSection(row)]->setBounds(166,rackRowY(row)+2,66,19);
+    slotSelectors[postCreativeModule]->setBounds(postRack::creativeStripBounds.getX()+382,postRack::creativeStripBounds.getY()+2,76,20);
 }
 void ChimeraEditor::layoutControls()
 {
@@ -1211,12 +1207,14 @@ void ChimeraEditor::layoutControls()
     easyOpen.setBounds(714,748,86,28);
     inputGuide.setBounds(16,2,456,60);
     layoutRack();
+    if(page==2)routingHelp.setBounds(20,302,208,24);   // room for + ADD (docs/POST_FOUR_SLOTS.md)
+    postAdd.setBounds(234,302,64,24);
     synthPage->setBounds(20,302,1140,438);
     creativePage->setBounds(20,302,1140,438);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=rackRowY(position);
-        // The header leaves x 190-232 to the slot 1 / 2 switch.
-        effect.header.setBounds(48,y+2,140,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
+        // The header leaves x 166-232 to the slot 1-4 switch.
+        effect.header.setBounds(48,y+2,116,19);effect.model.setBounds(48,y+23,182,24);effect.scope.setBounds(48,y+47,182,15);effect.enabled.setBounds(241,y+13,43,25);effect.expand.setBounds(241,y+42,43,19);
         int count=0;for(auto& attachment:effect.attachments)if(attachment)++count;const int cell=692/count;
         for(int k=0;k<count;++k){const int controlWidth=juce::jmin(144,cell-7),x=458+k*cell+(cell-controlWidth)/2;effect.labels[(size_t)k].setBounds(x,y+2,controlWidth,16);effect.controls[(size_t)k].setTextBoxStyle(juce::Slider::TextBoxRight,false,68,22);effect.controls[(size_t)k].setBounds(x,y+17,controlWidth,45);}
     }
@@ -1437,14 +1435,31 @@ void ChimeraEditor::openCreativePanel(int slot)
 void ChimeraEditor::openRackEffect(int family,int slot)
 {
     auto* full=new RackEffectDetailPanel(processor,family,slot);full->setLookAndFeel(&look);
-    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category+(slot?" 2":"");
+    juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category+spectralforge::postSlotNumber(slot);
     options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
+}
+// + ADD on the POST page (docs/POST_FOUR_SLOTS.md): switches on a free slot
+// of the chosen section, at the end of the rack, and shows its row.
+void ChimeraEditor::showPostAddMenu()
+{
+    juce::PopupMenu menu;const auto names=spectralforge::postModuleNames();
+    menu.addSectionHeader("ADD A POST EFFECT");
+    for(int section=0;section<spectralforge::postModuleCount;++section){
+        int used=1;for(int slot=1;slot<spectralforge::postSlotCount;++slot)if(processor.postBlockOn(spectralforge::postBlock(section,slot)))++used;
+        menu.addItem(1+section,names[section]+"  ("+juce::String(used)+" of "+juce::String(spectralforge::postSlotCount)+" in use)",used<spectralforge::postSlotCount);
+    }
+    juce::Component::SafePointer<ChimeraEditor> safe(this);
+    menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&postAdd),[safe](int result){
+        if(!safe || result<=0)return;
+        const int block=safe->processor.addPostBlock(result-1);
+        if(block>=0)safe->showPostSlot(spectralforge::postBlockSection(block),spectralforge::postBlockSlot(block));
+    });
 }
 // Presentation only: which slot a POST row (or the CREATIVE strip) shows.
 void ChimeraEditor::showPostSlot(int section,int slot)
 {
     if(section<0 || section>=spectralforge::postModuleCount)return;
-    shownSlot[(size_t)section]=juce::jlimit(0,1,slot);
+    shownSlot[(size_t)section]=juce::jlimit(0,spectralforge::postSlotCount-1,slot);
     if(auto& selector=slotSelectors[(size_t)section])selector->select(shownSlot[(size_t)section],false);
     updateModeUI();layoutControls();repaintDesign({20,298,1140,445});
 }

@@ -44,14 +44,17 @@ void model() {
     // Parameters: 13 released slots at version 29 and POST positions 8-14 at
     // version 35 (docs/POST_SECOND_SLOTS.md), not automatable, defaults are the
     // released order followed by the second slots.
-    auto p=make();int count=0,second=0;
+    // POST positions 15-28 came with slots 3 and 4 at version 37 (docs/POST_FOUR_SLOTS.md).
+    auto p=make();int count=0,second=0,extra=0;
     for(auto* raw:p->getParameters())if(auto* q=dynamic_cast<juce::RangedAudioParameter*>(raw))if(q->getParameterID().startsWith("order")){
-        const bool appended=q->getParameterID().startsWith("orderPost") && q->getParameterID().substring(9).getIntValue()>postModuleCount;
-        ++count;second+=appended;
-        require(!q->isAutomatable() && q->getVersionHint()==(appended?postSecondSlotParameterVersion:signalOrderParameterVersion),"Order slot automatable or wrong version");}
-    require(count==signalOrderParameterCount+postSecondSlotOrderParameterCount && second==postBlockCount-postModuleCount && p->requestedOrder()==SignalOrder{},"Order bank size or default wrong");
-    require(PostOrder::initial().slots[size_t(postModuleCount)]==postBlock(postDynamicsModule,1) && PostOrder::initial().position(postBlock(postReverbModule,1))==postBlockCount-1,"Second slots do not follow the released order");
-    std::cout<<"MEASURE model: "<<count<<" slot parameters (6 tone / dynamics, 14 POST), versions "<<signalOrderParameterVersion<<" / "<<postSecondSlotParameterVersion<<", not automatable\n";
+        const int position=q->getParameterID().startsWith("orderPost")?q->getParameterID().substring(9).getIntValue():0;
+        const bool appended=position>postModuleCount,late=position>postSecondSlotBlockCount;
+        ++count;second+=appended && !late;extra+=late;
+        require(!q->isAutomatable() && q->getVersionHint()==(late?postExtraSlotParameterVersion:appended?postSecondSlotParameterVersion:signalOrderParameterVersion),"Order slot automatable or wrong version");}
+    require(count==signalOrderParameterCount+postSecondSlotOrderParameterCount+postExtraSlotOrderParameterCount && second==postSecondSlotBlockCount-postModuleCount && extra==postBlockCount-postSecondSlotBlockCount && p->requestedOrder()==SignalOrder{},"Order bank size or default wrong");
+    require(PostOrder::initial().slots[size_t(postModuleCount)]==postBlock(postDynamicsModule,1) && PostOrder::initial().position(postBlock(postReverbModule,1))==postSecondSlotBlockCount-1
+            && PostOrder::initial().position(postBlock(postReverbModule,postSlotCount-1))==postBlockCount-1,"Slots 2-4 do not follow the released order");
+    std::cout<<"MEASURE model: "<<count<<" slot parameters (6 tone / dynamics, "<<postBlockCount<<" POST), versions "<<signalOrderParameterVersion<<" / "<<postSecondSlotParameterVersion<<" / "<<postExtraSlotParameterVersion<<", not automatable\n";
     std::cout<<"PASS order model: permutations, placement, defaults\n";
 }
 
@@ -199,7 +202,7 @@ void pathAndCommands() {
     auto s=signalPath::read(*p);
     const auto edge=[&](const char* a,const char* b){for(const auto& e:s.edges)if(e.from==a&&e.to==b)return true;return false;};
     require(edge("merge","common.saturation") && edge("common.saturation","tone.eq") && edge("common.deesser","post.section5") && edge("post.section5","post.section0")
-            && edge("post.section4","post.creative") && edge("post.creative","post2.section0") && edge("post2.section5","utilities"),"Signal path does not follow the saved order");
+            && edge("post.section4","post.creative") && edge("post.creative","utilities"),"Signal path does not follow the saved order");
     for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Path blocks overlap after a move");
     set(*p,"synthInsert",1);s=signalPath::read(*p);require(edge("synth","common.saturation"),"SYNTH 'before tone / dynamics' does not join the first block");
     // The routing graph: commands and keys move, navigation does not.
@@ -383,15 +386,17 @@ std::vector<float> renderInput(ChimeraProcessor& p,const std::vector<float>& inp
 }
 std::unique_ptr<ChimeraProcessor> cleanRig(){auto p=make();set(*p,"mode",0);set(*p,"ampon1",0);set(*p,"cab1",0);return p;}
 juce::String s2(const juce::String& id){return postSlotID(1,id);}
+// A parameter of POST slot 2, 3 or 4 ("slot2_", "slot3_", "slot4_": the same prefix length).
+bool extraSlotID(const juce::String& id){for(int slot=1;slot<postSlotCount;++slot)if(id.startsWith(postSlotPrefix(slot)))return true;return false;}
 std::map<juce::String,float> secondSlotValues(ChimeraProcessor& p){
     std::map<juce::String,float> v;
-    for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_"))v[r->getParameterID()]=p.parameters().getRawParameterValue(r->getParameterID())->load();
+    for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(extraSlotID(r->getParameterID()))v[r->getParameterID()]=p.parameters().getRawParameterValue(r->getParameterID())->load();
     return v;
 }
 bool secondSlotsAtDefault(ChimeraProcessor& p,bool oldProject=false){
     // A project from before the CREATIVE page keeps the Laser's filter sweep (docs/CREATIVE_PAGE.md).
-    for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_")){
-        const float expected=oldProject && r->getParameterID().endsWith("creativeLaserMode")?1.f:r->getDefaultValue();
+    for(auto* raw:p.getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(extraSlotID(r->getParameterID())){
+        const float expected=oldProject && r->getParameterID()=="slot2_creativeLaserMode"?1.f:r->getDefaultValue();
         if(std::abs(r->getValue()-expected)>1.e-6f)return false;}
     return true;
 }
@@ -403,16 +408,17 @@ void secondSlotsBank() {
     require(!anyOn && get(*p,s2("creativeOn"))==0 && get(*p,s2("delayon"))==0 && get(*p,s2("pn_bus_native"))==get(*p,"pn_bus_native") && get(*p,s2("pn_bus_m0_bypass"))==1,"A second slot does not start off");
     // The same definitions as slot 1: range, default and automation flag.
     int copies=0;
-    for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getParameterID().startsWith("slot2_")){
+    for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(extraSlotID(r->getParameterID())){
         auto* original=p->parameters().getParameter(r->getParameterID().substring(6));require(original!=nullptr,"Second-slot parameter without a slot 1 original: "+r->getParameterID().toStdString());
         // The CREATIVE page's slot-2 copies came later, at their own version (docs/CREATIVE_PAGE.md).
-        const bool page=r->getVersionHint()==creativePageParameterVersion;
-        require((page || r->getVersionHint()==postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
+        // Slots 3 and 4 came later still, all at version 37 (docs/POST_FOUR_SLOTS.md).
+        const bool late=!r->getParameterID().startsWith("slot2_"),page=late || r->getVersionHint()==creativePageParameterVersion;
+        require(r->getVersionHint()==(late?postExtraSlotParameterVersion:page?creativePageParameterVersion:postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
                 && r->getNormalisableRange().start==original->getNormalisableRange().start && r->getNormalisableRange().end==original->getNormalisableRange().end,"Second-slot definition differs from slot 1: "+r->getParameterID().toStdString());
         if(!page)++copies;}
     require(copies+postSecondSlotOrderParameterCount==postSecondSlotParameterCount(),"Second-slot bank size");
     // Automation of released parameters still targets slot 1: same IDs, same indices.
-    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount,"A released ID moved");
+    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount(),"A released ID moved");
     std::cout<<"MEASURE second-slot bank: "<<postSecondSlotParameterCount()<<" parameters at version "<<postSecondSlotParameterVersion<<" ("<<copies<<" slot2_ copies + "<<postSecondSlotOrderParameterCount<<" order slots), all off by default\n";
     std::cout<<"PASS second slots: appended bank, slot 1 definitions, off by default, released IDs unchanged\n";
 }
@@ -423,7 +429,7 @@ void secondSlotsOldState() {
     juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
     int removed=0;
     for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();
-        if(id.startsWith("slot2_") || (id.startsWith("orderPost") && id.substring(9).getIntValue()>postModuleCount)){tree.removeChild(i,nullptr);++removed;}}
+        if(extraSlotID(id) || (id.startsWith("orderPost") && id.substring(9).getIntValue()>postModuleCount)){tree.removeChild(i,nullptr);++removed;}}
     // Released order slots store only blocks 0-6, as 1.4 wrote them.
     for(int i=0;i<postModuleCount;++i)require(int(tree.getChildWithProperty("id",orderSlotID(OrderRegion::post,i)).getProperty("value"))<postModuleCount,"Fixture holds a second-slot block");
     juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
@@ -508,7 +514,7 @@ void secondSlotsOrder() {
     p->addListener(&watch);require(p->placeModule(OrderRegion::post,delay2,0),"DELAY 2 move refused");p->removeListener(&watch);
     require(p->requestedOrder().post.slots[0]==delay2 && watch.thirdValid==0,"DELAY 2 did not land first, or a third order was written");
     require(p->moveModule(OrderRegion::post,delay2,1) && p->requestedOrder().post.position(delay2)==1 && p->undoOrder() && p->requestedOrder().post.position(delay2)==0 && p->redoOrder() && p->requestedOrder().post.position(delay2)==1,"Move / undo / redo with 14 blocks");
-    require(!p->moveModule(OrderRegion::post,postBlock(postReverbModule,1),1) && p->placeModule(OrderRegion::post,postDynamicsModule,postBlockCount-1) && p->requestedOrder().post.slots[size_t(postBlockCount-1)]==postDynamicsModule,"Edges of the 14-block order");
+    require(!p->moveModule(OrderRegion::post,postBlock(postReverbModule,postSlotCount-1),1) && p->placeModule(OrderRegion::post,postDynamicsModule,postBlockCount-1) && p->requestedOrder().post.slots[size_t(postBlockCount-1)]==postDynamicsModule,"Edges of the 14-block order");
     // Stale slots: a duplicate keeps the last valid order.
     const auto valid=p->requestedOrder();run(*p,2);
     set(*p,orderSlotID(OrderRegion::post,postBlockCount-1),float(delay2));
@@ -517,12 +523,24 @@ void secondSlotsOrder() {
     // Presets order the sections; the second slots follow in the same order.
     auto q=make();require(q->applyOrderPreset(OrderRegion::post,1) && q->requestedOrder().post.slots[0]==postEQModule && q->requestedOrder().post.slots[size_t(postModuleCount)]==postBlock(postEQModule,1),"Order preset with second slots");
     // The routing graph: 14 POST blocks, the second ones labelled.
-    auto s=signalPath::read(*q);const auto* node=s.find("post2.section4");
-    require(node!=nullptr && node->label=="DELAY 2" && node->status=="BYPASSED" && node->slot==1 && !node->active,"DELAY 2 missing from the routing graph");
+    // An unused slot 2-4 is not drawn (docs/POST_FOUR_SLOTS.md); a slot that is on is.
+    auto s=signalPath::read(*q);
+    int idleNodes=0;for(const auto& n:s.nodes)idleNodes+=n.target==signalPath::Target::post;
+    require(s.find("post2.section4")==nullptr && idleNodes==postModuleCount,"An unused slot is drawn in the routing graph");
+    set(*q,s2("delayon"),1);s=signalPath::read(*q);const auto* node=s.find("post2.section4");
+    require(node!=nullptr && node->label=="DELAY 2" && node->status!="BYPASSED" && node->slot==1 && node->active,"DELAY 2 missing from the routing graph");
+    set(*q,postSlotID(3,"reverbon"),1);s=signalPath::read(*q);
+    require(s.find("post4.section5")!=nullptr && s.find("post4.section5")->label=="REVERB 4" && s.find("post4.section5")->slot==3,"REVERB 4 missing from the routing graph");
     int postNodes=0;for(const auto& n:s.nodes)postNodes+=n.target==signalPath::Target::post;
     for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Path blocks overlap with 14 POST blocks");
     for(const auto& n:s.nodes)require(n.bounds.getBottom()<=700,"A block falls outside the routing graph");
-    set(*q,s2("delayon"),1);s=signalPath::read(*q);require(s.find("post2.section4")->active && s.find("post2.section4")->status!="BYPASSED","DELAY 2 status does not follow its switch");
+    {   // Every block on: 28 POST blocks still fit three rows without overlap.
+        auto full=make();for(int block=postModuleCount;block<postBlockCount;++block)full->setPostBlockOn(block,true);
+        const auto all=signalPath::read(*full);int n=0;for(const auto& node:all.nodes)n+=node.target==signalPath::Target::post;
+        require(n==postBlockCount,"Not every active POST block is drawn");
+        for(size_t i=0;i<all.nodes.size();++i){require(all.nodes[i].bounds.getBottom()<=700 && all.nodes[i].bounds.getRight()<=1140,"A block falls outside the full routing graph");
+            for(size_t j=i+1;j<all.nodes.size();++j)require(!all.nodes[i].bounds.intersects(all.nodes[j].bounds),"Path blocks overlap with 28 POST blocks");}
+    }
     SignalPathView view(*q,false);view.setSize(1140,700);
     require(view.dropTargets(OrderRegion::post).size()==size_t(postBlockCount) && view.orderCommand("post2.section4",SignalPathView::OrderCommand::first) && q->requestedOrder().post.slots[0]==delay2,"Routing graph cannot move a second slot");
     std::cout<<"MEASURE routing graph: "<<postNodes<<" POST blocks; DELAY 2 at "<<s.find("post2.section4")->bounds.toString()<<"\n";

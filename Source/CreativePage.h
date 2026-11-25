@@ -105,7 +105,7 @@ private:
     synthUI::GraphParameter mode,a,c;
 };
 
-// One slot's controls. The page holds two and shows one.
+// One slot's controls. The page holds four and shows one.
 class CreativeSlotView final : public juce::Component,private juce::Timer {
 public:
     CreativeSlotView(ChimeraProcessor& owner,int slotIndex):processor(owner),slot(slotIndex),state(owner.parameters()),
@@ -115,7 +115,7 @@ public:
         pattern(state,id("creativePattern"),creativePatternNames(),"Slicer pattern"),length(state,id("creativeLength"),"STEPS"),attack(state,id("creativeAttack"),"ATTACK"),
         stereo(state,id("creativeStereo"),{"MONO","ALTERNATE L / R"},"Slicer stereo: both channels together, or steps alternating left and right"),
         laserMode(state,id("creativeLaserMode"),{"PITCH DIVE","PITCH RISE","FILTER SWEEP"},"Laser mode"),grid(state,slot),laser(state,slot) {
-        setComponentID(slot?"creativeSlot_2":"creativeSlot");
+        setComponentID("creativeSlot"+postSlotSuffix(slot));
         for(int i=0;i<creativeModelCount;++i){
             auto tile=std::make_unique<juce::TextButton>(juce::String(creativeModels[size_t(i)].name).toUpperCase());
             tile->setComponentID(id("creativeTile")+juce::String(i));tile->setTooltip(juce::String(creativeModels[size_t(i)].name)+": "+creativeModels[size_t(i)].character);
@@ -230,14 +230,14 @@ public:
     explicit CreativePage(ChimeraProcessor& owner) {
         setComponentID("creativePage");setTitle("Creative");setLookAndFeel(&look);
         title.setText("CREATIVE",juce::dontSendNotification);title.setFont(juce::FontOptions(15.f,juce::Font::bold));title.setColour(juce::Label::textColourId,inkColour);addAndMakeVisible(title);
-        hint.setText("Two slots. Each one picks a model and where it runs: before the amps, after them, in the POST rack or after it.",juce::dontSendNotification);
+        hint.setText("Four slots. Each one picks a model and where it runs: before the amps, after them, in the POST rack or after it.",juce::dontSendNotification);
         hint.setFont(juce::FontOptions(10.f));hint.setColour(juce::Label::textColourId,mutedColour);addAndMakeVisible(hint);
-        for(int i=0;i<2;++i){
+        for(int i=0;i<postSlotCount;++i){
             views[size_t(i)]=std::make_unique<CreativeSlotView>(owner,i);addChildComponent(*views[size_t(i)]);
-            auto& tab=tabs[size_t(i)];tab.setButtonText(i?"SLOT 2":"SLOT 1");tab.setComponentID(i?"creativePage.slot2":"creativePage.slot1");
-            tab.setTooltip(i?"Show the second CREATIVE slot":"Show the first CREATIVE slot");tab.setClickingTogglesState(false);
+            auto& tab=tabs[size_t(i)];tab.setButtonText("SLOT "+juce::String(i+1));tab.setComponentID("creativePage.slot"+juce::String(i+1));
+            tab.setTooltip("Show CREATIVE slot "+juce::String(i+1));tab.setClickingTogglesState(false);
             tab.setColour(juce::TextButton::buttonOnColourId,accentColour);tab.setColour(juce::TextButton::textColourOnId,juce::Colour(0xff111414));
-            tab.setConnectedEdges(i?juce::Button::ConnectedOnLeft:juce::Button::ConnectedOnRight);
+            tab.setConnectedEdges((i>0?juce::Button::ConnectedOnLeft:0)|(i<postSlotCount-1?juce::Button::ConnectedOnRight:0));
             tab.onClick=[this,i]{showSlot(i);};addAndMakeVisible(tab);
         }
         showSlot(0);
@@ -245,8 +245,8 @@ public:
     ~CreativePage() override {setLookAndFeel(nullptr);}
     // Display only: which slot's controls are on screen.
     void showSlot(int slot) {
-        shown=juce::jlimit(0,1,slot);
-        for(int i=0;i<2;++i){views[size_t(i)]->setVisible(i==shown);tabs[size_t(i)].setToggleState(i==shown,juce::dontSendNotification);}
+        shown=juce::jlimit(0,postSlotCount-1,slot);
+        for(int i=0;i<postSlotCount;++i){views[size_t(i)]->setVisible(i==shown);tabs[size_t(i)].setToggleState(i==shown,juce::dontSendNotification);}
         if(views[size_t(shown)])views[size_t(shown)]->refresh();
     }
     int shownSlot() const noexcept {return shown;}
@@ -259,12 +259,12 @@ public:
     void resized() override {
         auto r=getLocalBounds().reduced(12,8);
         auto top=r.removeFromTop(28);title.setBounds(top.removeFromLeft(110));
-        tabs[0].setBounds(top.removeFromLeft(74).reduced(0,2));tabs[1].setBounds(top.removeFromLeft(74).reduced(0,2));top.removeFromLeft(14);hint.setBounds(top);
+        for(auto& tab:tabs)tab.setBounds(top.removeFromLeft(68).reduced(0,2));top.removeFromLeft(14);hint.setBounds(top);
         r.removeFromTop(8);
         for(auto& v:views)v->setBounds(r);
     }
 private:
     synthUI::SynthLook look;   // declared first: destroyed after every child that uses it
-    juce::Label title,hint;std::array<juce::TextButton,2> tabs;std::array<std::unique_ptr<CreativeSlotView>,2> views;int shown{};
+    juce::Label title,hint;std::array<juce::TextButton,postSlotCount> tabs;std::array<std::unique_ptr<CreativeSlotView>,postSlotCount> views;int shown{};
 };
 } // namespace spectralforge::creativeUI

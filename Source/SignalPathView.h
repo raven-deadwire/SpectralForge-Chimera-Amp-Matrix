@@ -115,8 +115,9 @@ public:
         const auto place=movable(id);if(!place)return false;
         const int count=spectralforge::moduleCount(place->region);bool changed=false;
         switch(command){
-            case OrderCommand::earlier:changed=processor.moveModule(place->region,place->module,-1);break;
-            case OrderCommand::later:changed=processor.moveModule(place->region,place->module,1);break;
+            // Earlier / later step over blocks the graph does not draw (unused POST slots).
+            case OrderCommand::earlier:if(const int to=neighbour(*place,-1);to>=0)changed=processor.placeModule(place->region,place->module,to);break;
+            case OrderCommand::later:if(const int to=neighbour(*place,1);to>=0)changed=processor.placeModule(place->region,place->module,to);break;
             case OrderCommand::first:changed=processor.placeModule(place->region,place->module,0);break;
             case OrderCommand::last:changed=processor.placeModule(place->region,place->module,count-1);break;
             case OrderCommand::position:changed=processor.placeModule(place->region,place->module,position);break;
@@ -128,6 +129,39 @@ public:
         if(changed){refresh();if(auto* b=buttonFor(id))b->grabKeyboardFocus();}
         return changed;
     }
+    // Whether the graph draws a movable block (an unused POST slot 2-4 is hidden).
+    bool drawn(spectralforge::OrderRegion region,int module) const {return region==spectralforge::OrderRegion::tone || processor.postBlockShown(module);}
+    // The position of the nearest drawn block before (-1) or after (+1) this one, or -1.
+    int neighbour(const Placement& place,int direction) const {
+        const auto order=processor.requestedOrder();const bool tone=place.region==spectralforge::OrderRegion::tone;
+        const int count=spectralforge::moduleCount(place.region),from=tone?order.tone.position(place.module):order.post.position(place.module);
+        for(int i=from+direction;from>=0 && i>=0 && i<count;i+=direction)if(drawn(place.region,tone?order.tone.slots[(size_t)i]:order.post.slots[(size_t)i]))return i;
+        return -1;
+    }
+    // POST blocks (docs/POST_FOUR_SLOTS.md): switch on a free slot of `section`
+    // right after `afterId` (or at the end of the rack) and select it.
+    bool addPostBlock(int section,const juce::String& afterId={}) {
+        const auto after=movable(afterId);
+        const int block=processor.addPostBlock(section,after && after->region==spectralforge::OrderRegion::post?after->module:-1);
+        if(block<0)return false;
+        refresh();const auto id=spectralforge::moduleNodeID(spectralforge::OrderRegion::post,block);
+        if(auto* b=buttonFor(id)){b->grabKeyboardFocus();b->triggerClick();}
+        return true;
+    }
+    // Sections that still have a free slot, as menu items 300 + section.
+    juce::PopupMenu addMenu() const {
+        juce::PopupMenu menu;const auto names=spectralforge::postModuleNames();
+        for(int section=0;section<spectralforge::postModuleCount;++section){
+            int used=1;for(int slot=1;slot<spectralforge::postSlotCount;++slot)if(processor.postBlockOn(spectralforge::postBlock(section,slot)))++used;
+            menu.addItem(300+section,names[section]+"  ("+juce::String(used)+" of "+juce::String(spectralforge::postSlotCount)+" in use)",used<spectralforge::postSlotCount);
+        }
+        return menu;
+    }
+    void showAddMenu() {
+        juce::Component::SafePointer<SignalPathView> safe(this);
+        auto menu=addMenu();
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(addButton.get()),[safe](int result){if(safe && result>=300)safe->addPostBlock(result-300);});
+    }
     // 1.5 drag (docs/SIGNAL_ORDER_1_4.md): the valid drop targets are the
     // positions of the dragged block's own region. Hovering only updates the
     // preview; the drop is one placement command (one undo entry).
@@ -137,7 +171,7 @@ public:
         // A target counts only under the pointer (with a small margin), so a
         // release over another block or empty space cancels.
         const int margin=juce::roundToInt(14.f*graphScale());int best=-1;
-        for(size_t i=0;i<targets.size();++i)if(targets[i].expanded(margin).contains(at)){best=int(i);break;}
+        for(size_t i=0;i<targets.size();++i)if(!targets[i].isEmpty() && targets[i].expanded(margin).contains(at)){best=int(i);break;}
         dragId=id;dragPoint=at;dropSlot=best;repaint();
     }
     void endDrag(const juce::String& id,bool commit) {
@@ -149,12 +183,13 @@ public:
         const int from=place->region==spectralforge::OrderRegion::tone?order.tone.position(place->module):order.post.position(place->module);
         if(slot!=from)orderCommand(id,OrderCommand::position,slot);
     }
-    // Scaled bounds of each position in a region, in its current order.
+    // Scaled bounds of each position in a region, in its current order
+    // (empty for a position whose block is not drawn).
     std::vector<juce::Rectangle<int>> dropTargets(spectralforge::OrderRegion region) const {
         const auto order=processor.requestedOrder();std::vector<juce::Rectangle<int>> result;
         for(int slot=0;slot<spectralforge::moduleCount(region);++slot){
             const int module=region==spectralforge::OrderRegion::tone?order.tone.slots[(size_t)slot]:order.post.slots[(size_t)slot];
-            if(const auto* n=current.find(spectralforge::moduleNodeID(region,module)))result.push_back(n->bounds.toFloat().transformedBy(juce::AffineTransform::scale(graphScale())).getSmallestIntegerContainer());
+            const auto* n=current.find(spectralforge::moduleNodeID(region,module));result.push_back(n?n->bounds.toFloat().transformedBy(juce::AffineTransform::scale(graphScale())).getSmallestIntegerContainer():juce::Rectangle<int>());
         }
         return result;
     }
@@ -164,7 +199,7 @@ public:
         if(compact || dragId.isEmpty())return;
         const auto place=movable(dragId);if(!place)return;
         const auto targets=dropTargets(place->region);
-        g.setColour(juce::Colour(0x60d7a35a));for(const auto& r:targets)g.drawRoundedRectangle(r.toFloat().expanded(2),4,1);   // every valid target
+        g.setColour(juce::Colour(0x60d7a35a));for(const auto& r:targets)if(!r.isEmpty())g.drawRoundedRectangle(r.toFloat().expanded(2),4,1);   // every valid target
         g.setFont(juce::FontOptions(11.f,juce::Font::bold));
         if(dropSlot>=0 && dropSlot<int(targets.size())){
             const auto r=targets[(size_t)dropSlot].toFloat().expanded(3);
@@ -251,6 +286,13 @@ public:
             expandButton->setWantsKeyboardFocus(true);
             expandButton->onClick=[this]{if(expand)expand();};addAndMakeVisible(*expandButton);
         }
+        if(!compact&&!addButton){   // docs/POST_FOUR_SLOTS.md
+            addButton=std::make_unique<juce::TextButton>("+ ADD POST EFFECT");
+            addButton->setComponentID("signalPathAdd");addButton->setTitle("Add a POST effect");
+            addButton->setTooltip("Add another POST effect (up to four of each kind). It goes to the end of the POST rack; drag it, or right-click a POST block and choose \"Insert an effect after this block\".");
+            addButton->onClick=[this]{showAddMenu();};addAndMakeVisible(*addButton);
+        }
+        if(addButton)addButton->setExplicitFocusOrder(int(buttons.size())+2);
         if(expandButton)expandButton->setExplicitFocusOrder(int(buttons.size())+1);
         resized();updateSelection();repaint();
     }
@@ -265,7 +307,10 @@ public:
             }
             if(expandButton)expandButton->setBounds(juce::jmax(0,getWidth()-routingWidth),0,juce::jmin(routingWidth,getWidth()),getHeight());
         }
-        else for(auto& b:buttons)if(const auto* n=current.find(b->getComponentID().substring(5))){b->setBounds(n->bounds);b->setTransform(juce::AffineTransform::scale(graphScale()));}
+        else {
+            for(auto& b:buttons)if(const auto* n=current.find(b->getComponentID().substring(5))){b->setBounds(n->bounds);b->setTransform(juce::AffineTransform::scale(graphScale()));}
+            if(addButton){addButton->setBounds(16,476,150,24);addButton->setTransform(juce::AffineTransform::scale(graphScale()));}
+        }
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff171e20));
@@ -324,18 +369,23 @@ private:
         const auto place=movable(id);if(!place)return;
         const auto order=processor.requestedOrder();
         const auto& slots=place->region==spectralforge::OrderRegion::tone?std::vector<int>(order.tone.slots.begin(),order.tone.slots.end()):std::vector<int>(order.post.slots.begin(),order.post.slots.end());
-        int at=0;for(size_t i=0;i<slots.size();++i)if(slots[i]==place->module)at=int(i);
-        const int count=int(slots.size());const auto region=place->region==spectralforge::OrderRegion::tone?juce::String("tone / dynamics block"):juce::String("POST rack");
+        // Positions count the blocks the graph draws.
+        int at=0,count=0;for(size_t i=0;i<slots.size();++i)if(drawn(place->region,slots[i])){if(slots[i]==place->module)at=count;++count;}
+        const auto region=place->region==spectralforge::OrderRegion::tone?juce::String("tone / dynamics block"):juce::String("POST rack");
         juce::PopupMenu menu,positions;
         menu.addSectionHeader(spectralforge::moduleName(place->region,place->module).toUpperCase()+"  ("+juce::String(at+1)+" of "+juce::String(count)+" in the "+region+")");
         menu.addItem(1,"Move earlier",at>0);menu.addItem(2,"Move later",at<count-1);
         menu.addItem(3,"Move to the start",at>0);menu.addItem(4,"Move to the end",at<count-1);
-        for(int i=0;i<count;++i)positions.addItem(100+i,juce::String(i+1)+"  "+spectralforge::moduleName(place->region,slots[(size_t)i]),i!=at,i==at);
+        {int shown=0;for(size_t i=0;i<slots.size();++i)if(drawn(place->region,slots[i])){positions.addItem(100+int(i),juce::String(shown+1)+"  "+spectralforge::moduleName(place->region,slots[i]),shown!=at,shown==at);++shown;}}
         menu.addSubMenu("Place at position",positions);
         juce::PopupMenu presets;
         {const auto& list=spectralforge::orderPresets(place->region);
          for(size_t i=0;i<list.size();++i){const auto order=spectralforge::presetOrder(place->region,list[i]);const bool same=order==slots;presets.addItem(200+int(i),list[i].name,!same,same);}}
         menu.addSubMenu("Order presets",presets);
+        if(place->region==spectralforge::OrderRegion::post){
+            menu.addSubMenu("Insert an effect after this block",addMenu());
+            if(spectralforge::postBlockSlot(place->module)>0)menu.addItem(8,"Remove this block (switch it off)");
+        }
         menu.addSeparator();
         menu.addItem(5,"Undo order change",processor.canUndoOrder());menu.addItem(6,"Redo order change",processor.canRedoOrder());
         menu.addItem(7,"Reset the "+region+" order");
@@ -343,6 +393,8 @@ private:
         auto* target=buttonFor(id);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(target),[safe,id](int result){
             if(!safe||result==0)return;
+            if(result>=300){safe->addPostBlock(result-300,id);return;}
+            if(result==8){if(const auto place=movable(id)){safe->processor.setPostBlockOn(place->module,false);safe->refresh();}return;}
             if(result>=200){safe->orderCommand(id,OrderCommand::preset,result-200);return;}
             if(result>=100){safe->orderCommand(id,OrderCommand::position,result-100);return;}
             static constexpr std::array<OrderCommand,7> commands{OrderCommand::earlier,OrderCommand::later,OrderCommand::first,OrderCommand::last,OrderCommand::undo,OrderCommand::redo,OrderCommand::reset};
@@ -387,7 +439,7 @@ private:
     juce::String dragId;juce::Point<int> dragPoint;int dropSlot{-1};
     spectralforge::signalPath::Snapshot current;
     std::vector<std::unique_ptr<juce::TextButton>> buttons;
-    std::unique_ptr<juce::TextButton> expandButton;
+    std::unique_ptr<juce::TextButton> expandButton,addButton;
 };
 
 // Non-modal inspection: navigation leaves underlying editors immediately usable.

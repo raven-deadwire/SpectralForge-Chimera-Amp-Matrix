@@ -18,29 +18,30 @@ namespace spectralforge {
 inline constexpr int signalOrderParameterVersion = 29;
 enum class OrderRegion { tone = 0, post = 1 };
 // POST: seven sections, each with two slots (docs/POST_SECOND_SLOTS.md). The
-// POST region orders 14 blocks: block b is section b % 7 in slot b / 7, so
-// blocks 0-6 are the released modules (slot 1) and 7-13 their second slots.
-inline constexpr int toneModuleCount = 6, postModuleCount = 7, postBlockCount = 2 * postModuleCount;
+// POST region orders 28 blocks since slots 3 and 4 (docs/POST_FOUR_SLOTS.md):
+// block b is section b % 7 in slot b / 7, so blocks 0-6 are the released
+// modules (slot 1), 7-13 their second slots, 14-20 slot 3 and 21-27 slot 4.
+inline constexpr int toneModuleCount = 6, postModuleCount = 7, postSecondSlotBlockCount = 2 * postModuleCount, postBlockCount = 4 * postModuleCount;
 enum ToneModule { toneEQModule, compressorModule, multibandModule, saturationModule, filterModule, deesserModule };
 enum PostModule { postDynamicsModule, postPreampModule, postEQModule, postModulationModule, postDelayModule, postCreativeModule, postReverbModule };
 inline constexpr int postBlock(int section, int slot) noexcept { return section + slot * postModuleCount; }
 inline constexpr int postBlockSection(int block) noexcept { return block % postModuleCount; }
 inline constexpr int postBlockSlot(int block) noexcept { return block / postModuleCount; }
-// Movable blocks in a region (POST: 14).
+// Movable blocks in a region (POST: 28).
 inline int moduleCount(OrderRegion r) noexcept { return r == OrderRegion::tone ? toneModuleCount : postBlockCount; }
 inline juce::StringArray toneModuleNames() { return {"Tone EQ", "Clean compressor", "Multiband", "Saturation", "Filter", "De-esser"}; }
 inline juce::StringArray postModuleNames() { return {"POST dynamics", "POST preamp", "POST EQ", "Modulation", "Delay", "Creative", "Reverb"}; }
 // "Delay" for slot 1 (the released name), "Delay 2" for slot 2.
-inline juce::String postBlockName(int block) { return postModuleNames()[postBlockSection(block)] + (postBlockSlot(block) > 0 ? " 2" : ""); }
+inline juce::String postBlockName(int block) { return postModuleNames()[postBlockSection(block)] + (postBlockSlot(block) > 0 ? " " + juce::String(postBlockSlot(block) + 1) : juce::String()); }
 inline juce::String moduleName(OrderRegion r, int module) { return r == OrderRegion::tone ? toneModuleNames()[module] : postBlockName(module); }
 inline juce::String orderSlotID(OrderRegion r, int slot) { return juce::String(r == OrderRegion::tone ? "orderTone" : "orderPost") + juce::String(slot + 1); }
-// Signal-path node of each module (slot 2 blocks: "post2.section4", ...).
+// Signal-path node of each module (slot 2 blocks: "post2.section4", slot 3: "post3.section4", ...).
 inline juce::String moduleNodeID(OrderRegion r, int module) {
     static const std::array<const char*, toneModuleCount> tone{"tone.eq", "common.comp", "common.multiband", "common.saturation", "common.filter", "common.deesser"};
     static const std::array<const char*, postModuleCount> post{"post.section0", "post.section1", "post.section2", "post.section3", "post.section4", "post.creative", "post.section5"};
     if (r == OrderRegion::tone) return tone[size_t(module)];
     const juce::String id = post[size_t(postBlockSection(module))];
-    return postBlockSlot(module) > 0 ? id.replace("post.", "post2.") : id;
+    return postBlockSlot(module) > 0 ? id.replace("post.", "post" + juce::String(postBlockSlot(module) + 1) + ".") : id;
 }
 
 // One region's order: slot -> module. Valid when it is a permutation.
@@ -67,9 +68,9 @@ template <int N> struct RegionOrder {
     bool operator==(const RegionOrder&) const = default;
 };
 using ToneOrder = RegionOrder<toneModuleCount>;
-// The POST order holds all 14 blocks. Its initial order is the released one
-// followed by the second slots, which is also what an old project (without
-// orderPost8-14) loads.
+// The POST order holds all 28 blocks. Its initial order is the released one
+// followed by slots 2, 3 and 4, which is also what an old project (without
+// orderPost8-28) loads.
 using PostOrder = RegionOrder<postBlockCount>;
 struct SignalOrder {
     ToneOrder tone = ToneOrder::initial();
@@ -100,11 +101,11 @@ inline const std::array<OrderPreset, 4>& postPresets() {
     return presets;
 }
 inline const std::array<OrderPreset, 4>& orderPresets(OrderRegion r) { return r == OrderRegion::tone ? tonePresets() : postPresets(); }
-// The full slot list a preset applies (tone: 6 modules, POST: 14 blocks).
+// The full slot list a preset applies (tone: 6 modules, POST: 28 blocks).
 inline std::vector<int> presetOrder(OrderRegion r, const OrderPreset& preset) {
     std::vector<int> slots;
     if (r == OrderRegion::tone) { for (int i = 0; i < toneModuleCount; ++i) slots.push_back(preset.slots[size_t(i)]); return slots; }
-    for (int slot = 0; slot < 2; ++slot) for (int i = 0; i < postModuleCount; ++i) slots.push_back(postBlock(preset.slots[size_t(i)], slot));
+    for (int slot = 0; slot < postBlockCount / postModuleCount; ++slot) for (int i = 0; i < postModuleCount; ++i) slots.push_back(postBlock(preset.slots[size_t(i)], slot));
     return slots;
 }
 

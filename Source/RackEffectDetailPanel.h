@@ -11,10 +11,10 @@ class RackEffectDetailPanel final : public juce::Component,private juce::Timer {
 public:
     // `slotIndex` 1: the POST second slot (docs/POST_SECOND_SLOTS.md).
     RackEffectDetailPanel(ChimeraProcessor& owner,int familyIndex,int slotIndex=0):processor(owner),family(familyIndex),slot(slotIndex) {
-        setComponentID("postEffectDetail"+juce::String(family)+(slot?"_2":""));
+        setComponentID("postEffectDetail"+juce::String(family)+spectralforge::postSlotSuffix(slot));
         for(auto* label:{&title,&reference}){addAndMakeVisible(*label);label->setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));}
         title.setFont(juce::FontOptions(13.f,juce::Font::bold));reference.setFont(juce::FontOptions(11.f));
-        title.setText(juce::String(spectralforge::modelFamilies[(size_t)family].category)+(slot?" 2":""),juce::dontSendNotification);
+        title.setText(juce::String(spectralforge::modelFamilies[(size_t)family].category)+spectralforge::postSlotNumber(slot),juce::dontSendNotification);
         addAndMakeVisible(model);model.setComponentID(id(spectralforge::modelFamilies[(size_t)family].parameter));
         spectralforge::buildExtendedEffectMenu(*model.getRootMenu(),family);
         modelSync=std::make_unique<spectralforge::ExtendedEffectModelSync>(processor.parameters(),family,model,slot);
