@@ -402,7 +402,7 @@ void pageInProcessor() {
      auto tree=juce::ValueTree::fromXml(*xml);int removed=0;
      for(int i=tree.getNumChildren();--i>=0;){const auto id=tree.getChild(i).getProperty("id").toString();
          if(id.contains("creativeInsert")||id.contains("creativePattern")||id.contains("creativeLength")||id.contains("creativeAttack")||id.contains("creativeStereo")||id.contains("creativeLaserMode")||id.contains("creativeStep")){tree.removeChild(i,nullptr);++removed;}}
-     require(removed==2*creativePageParameterCount,"Saved state does not hold every CREATIVE page parameter ("+std::to_string(removed)+")");
+     require(removed==postSlotCount*creativePageParameterCount,"Saved state does not hold every CREATIVE page parameter ("+std::to_string(removed)+")");
      juce::MemoryBlock old;if(auto oldXml=tree.createXml())juce::AudioProcessor::copyXmlToBinary(*oldXml,old);
      auto q=make();q->setStateInformation(old.getData(),int(old.getSize()));
      const auto value=[&](const juce::String& id){return juce::roundToInt(q->parameters().getRawParameterValue(id)->load());};

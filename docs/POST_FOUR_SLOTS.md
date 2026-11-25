@@ -90,6 +90,21 @@ on, so it never sounds at its old position.
   change happens at the same 5 ms silent switch as an order change.
 - **Sidechain key:** a keyed POST dynamics block hears the key delayed by
   every preamp ahead of it (0 to 4).
+- **CPU:** a slot that is on costs about as much as its slot 1 counterpart,
+  so fourteen more blocks all on is a real load. Measured by
+  `ChimeraWholeProductTests` on a shared Linux machine whose speed varies
+  (one run, Matrix, OVERSAMPLING 4x, every module on with random settings):
+  - 48 kHz / 64: about 84 % of one core with all four slots, about 70 % with
+    slots 1 and 2 only.
+  - 96 kHz / 128: 181-197 % with all four slots, 116-134 % with slots 1 and 2.
+  - The suite's CPU gates (real time at 48 kHz, appended modules under three
+    quarters of a core at 96 kHz) still apply to slots 1 and 2. The four-slot
+    case is printed, not gated: it would not pass the 96 kHz budget.
+- **Idle floor:** the released reverbs keep an idle floor near -114 dBFS
+  (measured alone in slot 1, unchanged by this work). Several racks of gain
+  after a reverb can lift it. The whole-product decay check therefore runs
+  with slots 3 and 4 off; with them on it checks finite output under the
+  limiter ceiling.
 - **Memory and load time:** two more racks are prepared with the plugin. This
   was not measured.
 
