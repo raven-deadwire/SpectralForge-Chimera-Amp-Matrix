@@ -168,7 +168,7 @@ void recall(ChimeraProcessor& processor) {
         // not take at its default: it restores off (docs/OVERSAMPLING_AUTO.md).
         // The Laser of an older project stays the filter sweep (docs/CREATIVE_PAGE.md).
         const float expected = p->paramID == "oversamplingAuto" ? 0.f
-                             : p->paramID.endsWith("creativeLaserMode") ? 1.f : p->getDefaultValue();
+                             : (p->paramID == "creativeLaserMode" || p->paramID == "slot2_creativeLaserMode") ? 1.f : p->getDefaultValue();
         check(std::abs(p->getValue() - expected) < 1.e-5f,
               "Legacy project inherited a new dynamics value from the previous session");
     }

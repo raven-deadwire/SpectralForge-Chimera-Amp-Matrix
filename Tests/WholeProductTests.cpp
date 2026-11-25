@@ -118,7 +118,7 @@ void everythingOnStaysBounded(){
         // second up to 2 s apart) need longer than 4 s to fall 60 dB, by
         // design. It keeps running, without repeats; its tails are checked in
         // ChimeraSignalOrderTests.
-        set(*p,"slot2_delayfeedback",0);
+        set(*p,"slot2_delayfeedback",0);set(*p,"slot3_delayfeedback",0);set(*p,"slot4_delayfeedback",0);   // slots 3 and 4 likewise (docs/POST_FOUR_SLOTS.md)
         const auto y=render(*p,48000,128,1.,4.);
         float peak=0;bool finite=true;for(float x:y){finite=finite && std::isfinite(x);peak=std::max(peak,std::abs(x));}
         // Last 100 ms of the 4 s silence, both channels.
