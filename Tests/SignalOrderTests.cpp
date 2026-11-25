@@ -571,6 +571,104 @@ void secondSlotsState() {
     require(secondSlotsAtDefault(*p) && p->requestedOrder().post==PostOrder::initial(),"A factory preset kept a second slot");
     std::cout<<"PASS project save / load, A/B copy and factory presets round-trip slot 2\n";
 }
+// Slots 3 and 4 (docs/POST_FOUR_SLOTS.md).
+void extraSlotsBank() {
+    auto p=make();int bank=0,order=0;std::array<int,postSlotCount> copies{};
+    const int total=p->getParameters().size();
+    for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getVersionHint()==postExtraSlotParameterVersion){
+        require(r->getParameterIndex()>=total-postExtraSlotParameterCount(),"A slot 3 / 4 parameter is not in the last bank");++bank;
+        if(r->getParameterID().startsWith("orderPost")){++order;continue;}
+        const int slot=r->getParameterID().startsWith("slot3_")?2:r->getParameterID().startsWith("slot4_")?3:-1;require(slot>0,"Unexpected ID in the slot 3 / 4 bank: "+r->getParameterID().toStdString());
+        ++copies[size_t(slot)];
+        // The same definition as slot 2, which equals slot 1.
+        auto* twin=p->parameters().getParameter(postSlotID(1,r->getParameterID().substring(6)));require(twin!=nullptr,"No slot 2 twin: "+r->getParameterID().toStdString());
+        require(r->getDefaultValue()==twin->getDefaultValue() && r->isAutomatable()==twin->isAutomatable() && r->getNormalisableRange().start==twin->getNormalisableRange().start && r->getNormalisableRange().end==twin->getNormalisableRange().end
+                && r->getName(64).endsWith("(slot "+juce::String(slot+1)+")"),"Slot definition differs from slot 2: "+r->getParameterID().toStdString());}
+    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_");
+    require(bank==postExtraSlotParameterCount() && order==postExtraSlotOrderParameterCount && copies[2]==slot2 && copies[3]==slot2,"Slot 3 / 4 bank size");
+    for(int block=postModuleCount;block<postBlockCount;++block)require(!p->postBlockOn(block) && !p->postBlockShown(block),"A slot 2-4 block starts on");
+    for(int block=0;block<postModuleCount;++block)require(p->postBlockShown(block),"A slot 1 block is hidden");
+    std::cout<<"MEASURE slot 3 / 4 bank: "<<bank<<" parameters at version "<<postExtraSlotParameterVersion<<" ("<<order<<" order slots, "<<copies[2]<<" per slot); "<<total<<" parameters in all\n";
+    std::cout<<"PASS slots 3 and 4: appended bank, slot 2's definitions, off by default\n";
+}
+void extraSlotsAudio() {
+    // Four delays in series, each with its own time: every slot adds its own echo.
+    const std::array<float,postSlotCount> times{300,120,200,60};
+    const auto echoes=[&](int slots){
+        auto p=cleanRig();
+        for(int slot=0;slot<slots;++slot){set(*p,postSlotID(slot,"delayon"),1);set(*p,postSlotID(slot,"delaytime"),times[size_t(slot)]);set(*p,postSlotID(slot,"delayfeedback"),0);set(*p,postSlotID(slot,"delaymix"),.5f);}
+        run(*p,40,0.0);
+        std::vector<float> in(size_t(rate*.9),0.f);in[size_t(rate*.1)]=.5f;const auto out=renderInput(*p,in);
+        const auto energy=[&](double ms){double e=0;const int at=int(rate*(.1+ms*.001));for(int n=at-96;n<at+96;++n)e+=double(out[size_t(n)])*out[size_t(n)];return e;};
+        return std::array<double,4>{energy(0),energy(60),energy(200),energy(300)};};
+    const auto two=echoes(2),four=echoes(4);
+    std::cout<<"MEASURE four delays (300 / 120 / 200 / 60 ms), echo energy at 0 / 60 / 200 / 300 ms: slots 1-2 "<<two[0]<<" / "<<two[1]<<" / "<<two[2]<<" / "<<two[3]<<"; slots 1-4 "<<four[0]<<" / "<<four[1]<<" / "<<four[2]<<" / "<<four[3]<<"\n";
+    require(two[3]>two[1]*1000 && two[3]>two[2]*1000 && four[1]>four[0]*.05 && four[2]>four[0]*.05,"Delay 3 or 4 does not run as its own instance");
+    // Off: sample-exact no-op wherever the blocks sit and whatever their settings.
+    const auto base=[]{auto p=make();set(*p,"delayon",1);set(*p,"reverbon",1);return p;};
+    auto x=base(),y=base();
+    for(int slot=2;slot<postSlotCount;++slot){set(*y,postSlotID(slot,"delaytime"),90);set(*y,postSlotID(slot,"reverbmix"),1);set(*y,postSlotID(slot,"creativeModel"),3);
+        y->placeModule(OrderRegion::post,postBlock(postDelayModule,slot),0);y->placeModule(OrderRegion::post,postBlock(postReverbModule,slot),3);}
+    const auto a=run(*x,120,.1,330),b=run(*y,120,.1,330);double diff=0;for(size_t n=0;n<a.size();++n)diff=std::max(diff,double(std::abs(a[n]-b[n])));
+    require(diff==0 && x->getLatencySamples()==y->getLatencySamples(),"Unused slots 3 / 4 change the sound or the latency");
+    // Latency: each extra preamp adds its own, only while it runs.
+    auto p=make();run(*p,8,.1,220);const int none=p->getLatencySamples();std::array<int,postSlotCount> steps{};
+    for(int slot=1;slot<postSlotCount;++slot){set(*p,postSlotID(slot,"pn_preamp_m0_bypass"),0);run(*p,12,.1,220);steps[size_t(slot)]=p->getLatencySamples();require(p->postPreampActive(slot),"Preamp "+std::to_string(slot+1)+" did not start");}
+    const int each=steps[1]-none;
+    require(each>0 && steps[2]-steps[1]==each && steps[3]-steps[2]==each,"Extra preamps do not each add their latency");
+    for(int slot=1;slot<postSlotCount;++slot)set(*p,postSlotID(slot,"pn_preamp_m0_bypass"),1);
+    run(*p,24,.1,220);require(p->getLatencySamples()==none,"Extra preamp latency not released");
+    std::cout<<"MEASURE latency: none "<<none<<", +1 preamp "<<steps[1]<<", +2 "<<steps[2]<<", +3 "<<steps[3]<<" samples; unused slots: largest sample difference "<<diff<<"\n";
+    std::cout<<"PASS slots 3 and 4 run their own processors, are a sample-exact no-op when off, and report preamp latency per slot\n";
+}
+void extraSlotsOldState() {
+    // A 1.5 project: slots 1 and 2 only, 14 order positions with DELAY 2 placed first and on.
+    auto source=make();set(*source,"delayon",1);set(*source,s2("delayon"),1);set(*source,s2("delaytime"),150);source->placeModule(OrderRegion::post,postBlock(postDelayModule,1),0);
+    juce::MemoryBlock saved;source->getStateInformation(saved);
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;
+    for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();
+        if(id.startsWith("slot3_") || id.startsWith("slot4_") || (id.startsWith("orderPost") && id.substring(9).getIntValue()>postSecondSlotBlockCount)){tree.removeChild(i,nullptr);++removed;}}
+    for(int i=0;i<postSecondSlotBlockCount;++i)require(int(tree.getChildWithProperty("id",orderSlotID(OrderRegion::post,i)).getProperty("value"))<postSecondSlotBlockCount,"Fixture holds a slot 3 / 4 block");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    // Load it into a session whose slots 3 and 4 are on and moved.
+    auto p=make();set(*p,postSlotID(2,"delayon"),1);set(*p,postSlotID(3,"reverbon"),1);p->placeModule(OrderRegion::post,postBlock(postReverbModule,3),0);
+    p->setStateInformation(old.getData(),int(old.getSize()));
+    const PostOrder expected=PostOrder::initial().placed(postBlock(postDelayModule,1),0);
+    bool late=false;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if((r->getParameterID().startsWith("slot3_") || r->getParameterID().startsWith("slot4_")) && std::abs(r->getValue()-r->getDefaultValue())>1.e-6f)late=true;
+    require(!late && p->requestedOrder().post==expected && get(*p,s2("delayon"))==1 && get(*p,s2("delaytime"))==150,"A 1.5 project does not load with slots 3 / 4 off and its order");
+    auto reference=make();set(*reference,"delayon",1);set(*reference,s2("delayon"),1);set(*reference,s2("delaytime"),150);reference->placeModule(OrderRegion::post,postBlock(postDelayModule,1),0);
+    const auto a=run(*p,120,.1,330),b=run(*reference,120,.1,330);double diff=0;for(size_t n=0;n<a.size();++n)diff=std::max(diff,double(std::abs(a[n]-b[n])));
+    std::cout<<"MEASURE 1.5 project: removed "<<removed<<" slot 3 / 4 values; largest sample difference vs. the untouched project "<<diff<<"\n";
+    require(diff==0,"A 1.5 project does not sound bit-identical");
+    std::cout<<"PASS 1.5 project: slots 3 / 4 off, saved order kept, bit-identical audio\n";
+}
+void extraSlotsAdd() {
+    auto p=make();
+    // Add a delay after POST EQ: slot 2 switches on, right after POST EQ.
+    const int first=p->addPostBlock(postDelayModule,postEQModule);
+    require(first==postBlock(postDelayModule,1) && p->postBlockOn(first) && p->requestedOrder().post.position(first)==p->requestedOrder().post.position(postEQModule)+1,"Added delay is not slot 2 right after POST EQ");
+    // Two more: slots 3 and 4; the fifth is refused. Without an anchor a block goes after the last block in use.
+    const int second=p->addPostBlock(postDelayModule),third=p->addPostBlock(postDelayModule);
+    require(second==postBlock(postDelayModule,2) && third==postBlock(postDelayModule,3) && p->addPostBlock(postDelayModule)==-1,"Delay slots 3 / 4 not added, or a fifth accepted");
+    {const auto order=p->requestedOrder().post;int lastShown=-1;for(int i=0;i<postBlockCount;++i)if(p->postBlockShown(order.slots[size_t(i)]))lastShown=order.slots[size_t(i)];
+     require(lastShown==third && order.position(second)==order.position(third)-1,"A block added without an anchor is not last in the chain");}
+    // Every section: dynamics, preamp and EQ go through their native bank's bypass.
+    for(int section=0;section<postModuleCount;++section)if(section!=postDelayModule){const int block=p->addPostBlock(section);require(block==postBlock(section,1) && p->postBlockOn(block),"Could not add section "+std::to_string(section));}
+    // One undo step takes back the placement; switching off hides the block again.
+    p->setPostBlockOn(first,false);require(!p->postBlockOn(first) && !p->postBlockShown(first),"Removing a block did not switch it off");
+    // The graph: add from the view, after a chosen block; earlier / later step over hidden blocks.
+    auto q=make();SignalPathView view(*q,false);view.setSize(1140,700);
+    require(view.addPostBlock(postReverbModule,"post.section0") && q->postBlockOn(postBlock(postReverbModule,1)),"The routing graph cannot add a block");
+    auto s=signalPath::read(*q);const auto edge=[&](const char* a,const char* b){for(const auto& e:s.edges)if(e.from==a&&e.to==b)return true;return false;};
+    require(edge("post.section0","post2.section5") && edge("post2.section5","post.section1"),"The added block is not drawn right after the chosen block");
+    require(view.orderCommand("post.section5",SignalPathView::OrderCommand::earlier),"Move earlier refused");s=signalPath::read(*q);
+    require(edge("post.section5","post.creative") && edge("post.section4","post.section5"),"Move earlier did not step by one drawn block");
+    require(view.orderCommand("post.section5",SignalPathView::OrderCommand::later) && view.orderCommand("post.section5",SignalPathView::OrderCommand::later)==false,"Move later past the last drawn block");
+    const auto targets=view.dropTargets(OrderRegion::post);int shown=0;for(const auto& r:targets)shown+=!r.isEmpty();
+    require(targets.size()==size_t(postBlockCount) && shown==postModuleCount+1,"Drop targets do not match the drawn blocks");
+    std::cout<<"PASS add / remove: next free slot, placed after the chosen block, four per section, graph commands skip unused slots\n";
+}
 void secondSlotsPage() {
     auto p=make();auto editor=std::make_unique<ChimeraEditor>(*p);editor->setSize(1180,780);
     juce::MessageManager::getInstance()->runDispatchLoopUntil(30);
@@ -626,7 +724,8 @@ void secondSlotsPage() {
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
     try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();
-        secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();}
+        secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();
+        extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
