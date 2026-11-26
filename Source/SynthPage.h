@@ -288,40 +288,58 @@ private:
     juce::AudioProcessorValueTreeState& state;int osc;GraphParameter wave;
 };
 
-// Filter response on a log axis; drag horizontally for cutoff, vertically for resonance.
+// Both filters' responses on a log axis (filter 2 only while it is on). Drag
+// a handle: left / right for cutoff, up / down for resonance. A press takes
+// the nearer handle.
 class FilterCurve final : public juce::Component,public juce::SettableTooltipClient {
 public:
-    FilterCurve(juce::AudioProcessorValueTreeState& s,double sampleRate):state(s),cutoff(s,"synthCutoff"),resonance(s,"synthResonance"),rate(sampleRate) {
-        setComponentID("synthFilterCurve");setTitle("Filter response");setTooltip("Drag left / right for cutoff, up / down for resonance.");
+    FilterCurve(juce::AudioProcessorValueTreeState& s,double sampleRate):state(s),cutoff{GraphParameter(s,"synthCutoff"),GraphParameter(s,"synthFilter2Cutoff")},
+        resonance{GraphParameter(s,"synthResonance"),GraphParameter(s,"synthFilter2Resonance")},rate(sampleRate) {
+        setComponentID("synthFilterCurve");setTitle("Filter response");setTooltip("Drag a handle left / right for cutoff, up / down for resonance. Filter 2 is drawn while it is on.");
     }
     static float xForHz(float hz,float width){return width*float(std::log(hz/20.f)/std::log(1000.f));}
     static float hzForX(float x,float width){return 20.f*std::pow(1000.f,juce::jlimit(0.f,1.f,x/width));}
+    bool on(int f) const {return state.getRawParameterValue(f==0?"synthFilterOn":"synthFilter2On")->load()>.5f;}
+    juce::Point<float> handle(int f) const {
+        const auto r=getLocalBounds().toFloat();
+        return {xForHz(cutoff[size_t(f)].value(),r.getWidth()),r.getY()+r.getHeight()*(1.f-resonance[size_t(f)].value()*.01f)*.8f+6};
+    }
     void paint(juce::Graphics& g) override {
         const auto r=getLocalBounds().toFloat();g.setColour(juce::Colour(0xff0e1414));g.fillRoundedRectangle(r,4);
         g.setColour(edgeColour.withAlpha(.6f));for(const float hz:{100.f,1000.f,10000.f})g.drawVerticalLine(int(xForHz(hz,r.getWidth())),r.getY(),r.getBottom());
-        const int type=juce::roundToInt(state.getRawParameterValue("synthFilterType")->load());
-        const bool on=state.getRawParameterValue("synthFilterOn")->load()>.5f;
-        juce::Path path;
-        for(int x=0;x<=int(r.getWidth());x+=2){
-            const double db=juce::Decibels::gainToDecibels(synthFilterMagnitude(type,cutoff.value(),resonance.value()*.01,hzForX(float(x),r.getWidth()),rate),-60.0);
-            const float y=juce::jmap(float(juce::jlimit(-36.0,24.0,db)),-36.f,24.f,r.getBottom()-2,r.getY()+2);
-            if(x==0)path.startNewSubPath(float(x),y);else path.lineTo(float(x),y);
+        juce::String text;
+        for(int f=1;f>=0;--f){   // filter 1 on top
+            if(f==1 && !on(1))continue;
+            const int type=juce::roundToInt(state.getRawParameterValue(f==0?"synthFilterType":"synthFilter2Type")->load());
+            juce::Path path;
+            for(int x=0;x<=int(r.getWidth());x+=2){
+                const double hz=hzForX(float(x),r.getWidth()),c=cutoff[size_t(f)].value(),q=resonance[size_t(f)].value()*.01;
+                const double db=juce::Decibels::gainToDecibels(f==0?synthFilterMagnitude(type,c,q,hz,rate):synthFilter2Magnitude(type,c,q,hz,rate),-60.0);
+                const float y=juce::jmap(float(juce::jlimit(-36.0,24.0,db)),-36.f,24.f,r.getBottom()-2,r.getY()+2);
+                if(x==0)path.startNewSubPath(float(x),y);else path.lineTo(float(x),y);
+            }
+            const auto colour=f==0?accentColour:traceColour;
+            g.setColour(on(f)?colour:mutedColour.withAlpha(.4f));g.strokePath(path,juce::PathStrokeType(f==0?2.f:1.6f));
+            const auto h=handle(f);g.setColour(f==0?inkColour:traceColour);g.fillEllipse(h.x-4,h.y-4,8,8);
+            if(on(1)){g.setColour(juce::Colour(0xff0e1414));g.setFont(juce::FontOptions(7.f,juce::Font::bold));g.drawText(juce::String(f+1),juce::Rectangle<float>(h.x-4,h.y-4,8,8),juce::Justification::centred);}
+            text=juce::String(juce::roundToInt(cutoff[size_t(f)].value()))+" Hz / "+juce::String(juce::roundToInt(resonance[size_t(f)].value()))+" %"+(text.isEmpty()?juce::String():"    2: "+text);
         }
-        g.setColour(on?accentColour:mutedColour.withAlpha(.4f));g.strokePath(path,juce::PathStrokeType(2.f));
-        const float handle=xForHz(cutoff.value(),r.getWidth());g.setColour(inkColour);g.fillEllipse(handle-4,r.getY()+r.getHeight()*(1.f-resonance.value()*.01f)*.8f+2,8,8);
-        g.setColour(mutedColour);g.setFont(juce::FontOptions(9.f));g.drawText(juce::String(juce::roundToInt(cutoff.value()))+" Hz / "+juce::String(juce::roundToInt(resonance.value()))+" %",getLocalBounds().reduced(6,2),juce::Justification::topRight);
+        g.setColour(mutedColour);g.setFont(juce::FontOptions(9.f));g.drawText(text,getLocalBounds().reduced(6,2),juce::Justification::topRight);
     }
-    void mouseDown(const juce::MouseEvent& e) override {cutoff.begin();resonance.begin();apply(e);}
+    void mouseDown(const juce::MouseEvent& e) override {
+        active=on(1) && e.position.getDistanceFrom(handle(1))<e.position.getDistanceFrom(handle(0))?1:0;
+        cutoff[size_t(active)].begin();resonance[size_t(active)].begin();apply(e);
+    }
     void mouseDrag(const juce::MouseEvent& e) override {apply(e);}
-    void mouseUp(const juce::MouseEvent&) override {cutoff.end();resonance.end();}
+    void mouseUp(const juce::MouseEvent&) override {cutoff[size_t(active)].end();resonance[size_t(active)].end();}
     void refresh(){repaint();}
 private:
     void apply(const juce::MouseEvent& e){
-        cutoff.set(hzForX(float(e.x),float(getWidth())));
-        resonance.set(100.f*juce::jlimit(0.f,1.f,1.f-(float(e.y)-2.f)/(float(getHeight())*.8f)));
+        cutoff[size_t(active)].set(hzForX(float(e.x),float(getWidth())));
+        resonance[size_t(active)].set(100.f*juce::jlimit(0.f,1.f,1.f-(float(e.y)-2.f)/(float(getHeight())*.8f)));
         repaint();
     }
-    juce::AudioProcessorValueTreeState& state;GraphParameter cutoff,resonance;double rate;
+    juce::AudioProcessorValueTreeState& state;std::array<GraphParameter,2> cutoff,resonance;double rate;int active{};
 };
 
 // ADSR graph with three handles: attack peak (time), decay / sustain point
@@ -452,9 +470,26 @@ public:
         noiseColor=static_cast<Knob*>(add(std::make_unique<Knob>(state,"synthNoiseColor","COLOUR")));
         noiseLevel=static_cast<Knob*>(add(std::make_unique<Knob>(state,"synthNoiseLevel","LEVEL")));
         // Filter
-        filterOn=add(std::make_unique<Toggle>(state,"synthFilterOn","FILTER"));
-        filterType=add(std::make_unique<Choice>(state,"synthFilterType",synthFilterTypeNames(),"Filter type"));
+        filterOn=add(std::make_unique<Toggle>(state,"synthFilterOn","FILTER 1"));
+        filterType=add(std::make_unique<Choice>(state,"synthFilterType",synthFilterTypeNames(),"Filter 1 type"));
         addAndMakeVisible(filter);
+        // Filter 2, routing and distortion (docs/SYNTH_FILTERS.md).
+        filter2On=add(std::make_unique<Toggle>(state,"synthFilter2On","FILTER 2"));
+        filter2Type=add(std::make_unique<Choice>(state,"synthFilter2Type",synthFilter2TypeNames(),"Filter 2 type. Comb + and Comb - ring at the cutoff's pitch; KEY at 100 % makes them follow the note."));
+        for(const auto& [id,text]:std::initializer_list<std::pair<const char*,const char*>>{{"synthFilter2Cutoff","CUTOFF"},{"synthFilter2Resonance","RES"},{"synthFilter2KeyTrack","KEY"},{"synthFilter2Env","ENV 2"}})
+            filter2Knobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));
+        filterRouting=add(std::make_unique<Choice>(state,"synthFilterRouting",synthFilterRoutingNames(),"How the two filters are connected: one after the other, or side by side and mixed"));
+        {auto bar=std::make_unique<Bar>(state,"synthFilterBalance","Parallel balance: filter 1 alone on the left, both in the centre, filter 2 alone on the right");
+         bar->textFromValueFunction=[](double v){const int i=juce::roundToInt(v);return i==50?juce::String("1 = 2"):i<50?"1  "+juce::String(100-i)+" %":"2  "+juce::String(i)+" %";};bar->updateText();
+         filterBalance=static_cast<juce::Slider*>(add(std::move(bar)));}
+        distOn=add(std::make_unique<Toggle>(state,"synthDistOn","DIST"));
+        distType=add(std::make_unique<Choice>(state,"synthDistType",synthDistTypeNames(),"Distortion type. It runs in every voice, so chords stay clear."));
+        distPlace=add(std::make_unique<Choice>(state,"synthDistPlace",synthDistPlaceNames(),"Where the distortion sits. In Parallel, After filter 1 distorts filter 1's branch only."));
+        for(const auto& [id,text,tip,slot]:std::initializer_list<std::tuple<const char*,const char*,const char*,juce::Slider**>>{
+                {"synthDistDrive","DRIVE","Distortion drive: 0 to +36 dB into the shaper (Bit crush: 16 bits down to 3)",&distDrive},{"synthDistMix","MIX","Distortion mix: clean to distorted",&distMix}}){
+            auto bar=std::make_unique<Bar>(state,id,tip);const juce::String name(text);
+            bar->textFromValueFunction=[name](double v){return name+" "+juce::String(juce::roundToInt(v))+" %";};bar->updateText();
+            *slot=static_cast<juce::Slider*>(add(std::move(bar)));}
         for(const auto& [id,text]:std::initializer_list<std::pair<const char*,const char*>>{{"synthCutoff","CUTOFF"},{"synthResonance","RES"},{"synthDrive","DRIVE"},{"synthKeyTrack","KEY"},{"synthFilterEnv","ENV 2"}})
             filterKnobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));
         // Envelopes
@@ -558,9 +593,18 @@ public:
             for(int k=4;k<7;++k)panel.knobs[size_t(k)]->setBounds(row2.removeFromLeft(row2.getWidth()/(7-k)));
             panel.knobs[7]->setBounds(panel.knobs[6]->getBounds());   // START takes MORPH's place in Sample mode
         }
-        {auto r=p[3].first.reduced(8,6);auto head=r.removeFromTop(18);filterOn->setBounds(head.removeFromLeft(70));head.removeFromLeft(6);filterType->setBounds(head.removeFromLeft(120));
-         r.removeFromTop(4);filter.setBounds(r.removeFromTop(r.getHeight()-60));r.removeFromTop(4);
-         for(size_t k=0;k<filterKnobs.size();++k)filterKnobs[k]->setBounds(r.removeFromLeft(r.getWidth()/int(filterKnobs.size()-k)));}
+        {auto r=p[3].first.reduced(8,6);
+         // Routing on top, the curve, one row per filter (switch and type on the left, knobs beside), the distortion along the bottom.
+         auto head=r.removeFromTop(18);filterRouting->setBounds(head.removeFromLeft(124));head.removeFromLeft(6);filterBalance->setBounds(head.removeFromLeft(juce::jmin(110,head.getWidth()-96)));
+         auto dist=r.removeFromBottom(20);r.removeFromBottom(4);
+         distOn->setBounds(dist.removeFromLeft(42));dist.removeFromLeft(4);distType->setBounds(dist.removeFromLeft(86));dist.removeFromLeft(4);distPlace->setBounds(dist.removeFromLeft(104));dist.removeFromLeft(4);
+         distDrive->setBounds(dist.removeFromLeft(dist.getWidth()/2-2));dist.removeFromLeft(4);distMix->setBounds(dist);
+         const auto row=[](juce::Rectangle<int> area,juce::Component* on,juce::Component* type,const std::vector<Knob*>& knobs){
+             auto left=area.removeFromLeft(98);on->setBounds(left.removeFromTop(20).withTrimmedRight(26));left.removeFromTop(3);type->setBounds(left.removeFromTop(20));area.removeFromLeft(4);
+             const int w=area.getWidth()/5;for(auto* k:knobs)k->setBounds(area.removeFromLeft(w));};
+         auto second=r.removeFromBottom(42);r.removeFromBottom(3);auto first=r.removeFromBottom(42);r.removeFromBottom(3);
+         row(first,filterOn,filterType,filterKnobs);row(second,filter2On,filter2Type,filter2Knobs);
+         r.removeFromTop(4);filter.setBounds(r);}
         for(int e=0;e<2;++e){auto r=p[size_t(4+e)].first.reduced(8,6);r.removeFromTop(16);
             (e==0?ampEnvelope:modEnvelope).setBounds(r.removeFromTop(r.getHeight()-56));r.removeFromTop(4);
             for(size_t k=0;k<4;++k)envKnobs[size_t(e)][k]->setBounds(r.removeFromLeft(r.getWidth()/int(4-k)));}
@@ -652,6 +696,8 @@ public:
             p.table->setVisible(!sample);p.warp->setVisible(table);p.warpAmount->setVisible(table);
             for(juce::Component* c:{static_cast<juce::Component*>(p.load),static_cast<juce::Component*>(p.clear),p.loop,static_cast<juce::Component*>(p.root),static_cast<juce::Component*>(p.knobs[7])})c->setVisible(sample);
         }
+        const bool parallel=state.getRawParameterValue("synthFilterRouting")->load()>.5f;
+        filterBalance->setVisible(parallel);
         static const char* tips[]{"Dvergr Analog: slow pitch drift per oscillator (about 5 cents RMS at 100 %) and soft saturation into the filter",
                                   "Seidr Dynamic: the playing level (guitar level or velocity) moves the filter over 3 octaves, brightens the waves and sets the level over 12 dB",
                                   "Mimir Impact: each attack strikes an FM index (60 ms) and a noise click (4 ms)"};
@@ -666,7 +712,7 @@ private:
         const auto col=[&](int x,int width,int y,int height){return juce::Rectangle<int>(x,y,width-gap,height);};
         const int a0=w*22/100,a3=w-3*a0;
         const int b0=w*14/100,b1=w*14/100,b2=w*13/100,b3=w*21/100,b4=w*14/100,b5=w-b0-b1-b2-b3-b4;
-        return {{{col(0,a0,top,rowA),"OSC A"},{col(a0,a0,top,rowA),"OSC B"},{col(2*a0,a0,top,rowA),"OSC C"},{col(3*a0,a3+gap,top,rowA),"FILTER"},
+        return {{{col(0,a0,top,rowA),"OSC A"},{col(a0,a0,top,rowA),"OSC B"},{col(2*a0,a0,top,rowA),"OSC C"},{col(3*a0,a3+gap,top,rowA),"FILTERS / DIST"},
                  {col(0,b0,y2,h2),"ENV 1  AMP"},{col(b0,b1,y2,h2),"ENV 2  MOD"},{col(b0+b1,b2,y2,h2),"LFO 1 / 2"},{col(b0+b1+b2,b3,y2,h2),"MOD MATRIX"},
                  {col(b0+b1+b2+b3,b4,y2,h2),"SUB / NOISE"},{col(b0+b1+b2+b3+b4,b5+gap,y2,h2),"SCOPE / MASTER"}}};
     }
@@ -727,6 +773,8 @@ private:
     juce::Component* subOn{};juce::Component* subOctave{};juce::Component* subShape{};Knob* subLevel{};
     juce::Component* noiseOn{};Knob* noiseColor{};Knob* noiseLevel{};
     juce::Component* filterOn{};juce::Component* filterType{};FilterCurve filter;std::vector<Knob*> filterKnobs;
+    juce::Component* filter2On{};juce::Component* filter2Type{};std::vector<Knob*> filter2Knobs;juce::Component* filterRouting{};juce::Slider* filterBalance{};
+    juce::Component* distOn{};juce::Component* distType{};juce::Component* distPlace{};juce::Slider* distDrive{};juce::Slider* distMix{};
     EnvelopeGraph ampEnvelope,modEnvelope;std::array<std::vector<Knob*>,2> envKnobs;
     std::array<juce::Component*,2> lfoShape{},lfoSync{};std::array<Knob*,2> lfoRate{};std::array<LfoGraph,2> lfoGraphs;
     std::array<ModRow,synthModSlots> modRows;juce::Label modSourceTitle,modTargetTitle,modAmountTitle,modHint;juce::TextButton modAdd;int modRowsRevealed{1},shownModRows{-1};
