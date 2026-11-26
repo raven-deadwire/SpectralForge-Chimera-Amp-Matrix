@@ -38,7 +38,7 @@ void require(bool ok,const std::string& message){if(!ok)throw std::runtime_error
 double db(double v){return 20*std::log10(std::max(v,1.e-30));}
 struct Host final : juce::AudioProcessor {
     juce::AudioProcessorValueTreeState state;
-    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);return l;}
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);return l;}
     Host():state(*this,nullptr,"SYNTH",layout()){}
     void set(const char* id,float v){auto* p=state.getParameter(id);require(p!=nullptr,std::string("no parameter ")+id);p->setValueNotifyingHost(p->convertTo0to1(v));}
     const juce::String getName() const override {return "synth";}
@@ -472,6 +472,47 @@ struct Writes final : juce::AudioProcessorListener {
     void audioProcessorParameterChangeGestureBegin(juce::AudioProcessor*,int) override {++gestures;}
     void audioProcessorParameterChangeGestureEnd(juce::AudioProcessor*,int) override {++gestures;}
 };
+// Wavetable oscillators (docs/SYNTH_WAVETABLE.md).
+void wavetables() {
+    const auto run=[](int table,float wave,int note=57,int warp=0,float amount=0){Host h;clean(h,wave);h.set("synthOscATable",float(table));h.set("synthOscAWarp",float(warp));h.set("synthOscAWarpAmount",amount);return render(h,48000,silence(),hold({note})).l;};
+    // Classic shapes ignore the warp: the released oscillator, sample for sample.
+    {Host plain;clean(plain,2.5f);const auto a=render(plain,48000,silence(),hold({57})).l,b=run(0,2.5f,57,synthWarpSync,100);
+     double diff=0;for(size_t n=0;n<a.size();++n)diff=std::max(diff,double(std::abs(a[n]-b[n])));
+     std::cout<<"MEASURE classic shapes with a warp set: largest sample difference "<<diff<<"\n";require(diff==0,"Classic shapes changed with the wavetable parameters");}
+    // Every frame of every table: full scale, no DC, and it sounds.
+    {const auto& t=SynthWavetables::get();std::vector<float> cycle;
+     for(int table=1;table<synthTableCount;++table)for(int f=0;f<synthTableFrames;++f){
+        t.draw(table,double(f)/(synthTableFrames-1),cycle,2048);float peak=0;double mean=0;for(float x:cycle){peak=std::max(peak,std::abs(x));mean+=x;}mean/=cycle.size();
+        require(peak>.9f && peak<1.01f && std::abs(mean)<.01,std::string("Frame not normalised or has DC: ")+synthTables[size_t(table)].name+" frame "+std::to_string(f));}}
+    // Harmonics: a sine at the start, a saw at the end. Pulse starts as a square.
+    const auto sweep0=run(1,0),sweep4=run(1,4),pulse0=run(2,0),middle=run(1,2);
+    std::cout<<"MEASURE Harmonics harmonics 2 / 3 (dB re 1): start "<<harmonicDb(sweep0,220,2)<<" / "<<harmonicDb(sweep0,220,3)<<"; end "<<harmonicDb(sweep4,220,2)<<" / "<<harmonicDb(sweep4,220,3)
+             <<" (-6.0 / -9.5); middle "<<harmonicDb(middle,220,2)<<" / "<<harmonicDb(middle,220,20)<<" (harmonic 20); Pulse start "<<harmonicDb(pulse0,220,2)<<" / "<<harmonicDb(pulse0,220,3)<<" (-inf / -9.5)\n";
+    require(harmonicDb(sweep0,220,2)<-60 && harmonicDb(sweep0,220,3)<-60,"Harmonics does not start as a sine");
+    require(std::abs(harmonicDb(sweep4,220,2)+6.02)<.3 && std::abs(harmonicDb(sweep4,220,3)+9.54)<.3,"Harmonics does not end as a saw");
+    require(harmonicDb(middle,220,2)>-8 && harmonicDb(middle,220,20)<harmonicDb(sweep4,220,20)-20,"The wave position does not move through the frames");
+    require(harmonicDb(pulse0,220,2)<-40 && std::abs(harmonicDb(pulse0,220,3)+9.54)<.3,"Pulse does not start as a square");
+    // Band limit: C8 (4186 Hz) as a full saw. Harmonic 6 (25.1 kHz) would fold to 22.9 kHz, harmonic 7 to 18.7 kHz.
+    {const double f=hz(108);const auto high=run(1,4,108);
+     const double fold6=db(magnitude(high,12000,48000,rate-6*f)/magnitude(high,12000,48000,f)),fold7=db(magnitude(high,12000,48000,rate-7*f)/magnitude(high,12000,48000,f)),h4=harmonicDb(high,f,4);
+     std::cout<<"MEASURE band limit at C8: harmonic 4 (16.7 kHz) "<<h4<<" dB (-12.0 for a saw), folded harmonic 6 "<<fold6<<" dB, folded harmonic 7 "<<fold7<<" dB re the fundamental\n";
+     require(fold6<-70 && fold7<-70,"A wavetable aliases at C8");
+     require(std::abs(h4+12.04)<.5,"A wavetable loses harmonics well below half the sample rate at C8");
+     // A3 keeps the saw's harmonics to 16 kHz and beyond (harmonic 72 is 15.8 kHz, -37.1 dB for a saw).
+     require(std::abs(harmonicDb(sweep4,220,60)-db(1.0/60))<.5,"A wavetable is dull at A3");}
+    // Warp: 0 % is no warp; Sync at 100 % restarts a sine eight times per cycle.
+    {const auto off=run(1,0),zero=run(1,0,57,synthWarpSync,0),sync=run(1,0,57,synthWarpSync,100);
+     double diff=0;for(size_t n=0;n<off.size();++n)diff=std::max(diff,double(std::abs(off[n]-zero[n])));
+     std::cout<<"MEASURE warp: 0 % differs from Off by "<<diff<<"; Sync 100 % on a sine, harmonic 8 "<<harmonicDb(sync,220,8)<<" dB re 1\n";
+     require(diff==0 && harmonicDb(sync,220,8)>20,"Warp amount 0 is not neutral, or Sync does not multiply the cycle");
+     for(int warp=1;warp<synthWarpCount;++warp)for(double ph=0;ph<1;ph+=.01){const double w=synthWarpPhase(warp,1.0,ph);require(w>=0 && w<=1.0 && synthWarpPhase(warp,0.0,ph)==ph,"A warp leaves the 0-1 phase range");}}
+    // The matrix's Wave target moves the position, as it morphs the classic shapes.
+    {Host h;clean(h,0);h.set("synthOscATable",1);h.set("synthMod1Source",4);h.set("synthMod1Target",4);h.set("synthMod1Amount",100);   // Velocity -> Wave A
+     const auto moved=render(h,48000,silence(),hold({57})).l;std::cout<<"MEASURE position moved by the matrix (velocity to Wave A): harmonic 2 "<<harmonicDb(moved,220,2)<<" dB (unmodulated "<<harmonicDb(sweep0,220,2)<<")\n";
+     require(harmonicDb(moved,220,2)>-10,"The matrix's Wave target does not move a wavetable's position");}
+    std::cout<<"PASS wavetables: classic unchanged, frames normalised, position, band limit, warp\n";
+}
+
 void processorInsertsAndPage() {
     // Each insert point: silent input + MIDI A3 -> the synth reaches the output.
     std::array<std::vector<float>,4> outputs;std::string line;
@@ -534,12 +575,27 @@ void processorInsertsAndPage() {
     require(!page.control("synthOscBShapes")->isVisible() && page.control("synthOscBLoad")->isVisible() && page.control("synthOscBStart")->isVisible(),"Sample mode does not show its controls");
     writes.changes.clear();page.applyPatch(3);
     require(juce::roundToInt(raw("synthType"))==synthImpact && raw("synthOscBMode")<.5f && writes.changes.count(index("synthOscBRoot"))==0,"Mimir Impact patch: type, mode or kept root wrong");
+    // Wavetable controls (docs/SYNTH_WAVETABLE.md): nine parameters at version hint 38, appended last.
+    {int count=0;const int total=p->getParameters().size();
+     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthWavetableParameterVersion){
+        require(with->getParameterIndex()>=total-synthOscCount*synthWavetableParametersPerOsc && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
+     require(count==synthOscCount*synthWavetableParametersPerOsc && raw("synthOscATable")==0 && raw("synthOscAWarp")==0 && raw("synthOscAWarpAmount")==0,"Wavetable bank size or defaults wrong");
+     static_cast<juce::Button*>(page.control("synthOscBMode0"))->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(20);page.updateModes();
+     require(page.control("synthOscBTable")->isVisible() && !page.control("synthOscBWarp")->isVisible() && page.control("synthOscBShapes")->isVisible(),"Classic shapes do not show the shape strip and the table choice");
+     static_cast<juce::ComboBox*>(page.control("synthOscBTable"))->setSelectedId(4,juce::sendNotificationSync);page.updateModes();
+     require(juce::roundToInt(raw("synthOscBTable"))==3 && page.control("synthOscBWarp")->isVisible() && page.control("synthOscBWarpAmount")->isVisible() && !page.control("synthOscBShapes")->isVisible(),"Choosing a table does not show its warp controls");
+     auto& tableDisplay=page.waveDisplay(1);drag(tableDisplay,{20,20},{float(tableDisplay.getWidth())*.5f,20});
+     require(std::abs(raw("synthOscBWave")-2.f)<.08f,"Dragging across a wavetable does not set its position");
+     static_cast<juce::ComboBox*>(page.control("synthOscBTable"))->setSelectedId(1,juce::sendNotificationSync);page.updateModes();}
     // Optional evidence: SYNTH_PAGE_SNAPSHOT=<directory> writes the page, with a sample in osc B.
     if(const char* dir=std::getenv("SYNTH_PAGE_SNAPSHOT")){
         const auto wav=juce::File::createTempFile(".wav");
         {juce::AudioBuffer<float> b(1,48000);for(int n=0;n<48000;++n)b.setSample(0,n,float(.6*std::exp(-n/12000.0)*std::sin(2*pi*196.0*n/48000)*(1+.3*std::sin(2*pi*3.0*n/48000))));
          juce::WavAudioFormat format;auto stream=wav.createOutputStream();std::unique_ptr<juce::AudioFormatWriter> w(format.createWriterFor(stream.get(),48000,1,24,{},0));stream.release();w->writeFromAudioSampleBuffer(b,0,48000);}
         require(p->loadSynthSample(1,wav).wasOk(),"Snapshot sample did not load");wav.deleteFile();
+        {auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+         put("synthOscATable",9);put("synthOscAWave",1.6f);put("synthOscAWarp",float(synthWarpBendUp));put("synthOscAWarpAmount",35);
+         put("synthOscCOn",1);put("synthOscCTable",3);put("synthOscCWave",2.4f);}
         page.updateModes();page.resized();
         for(const float scale:{1.f,1.5f}){
             juce::Image image(juce::Image::ARGB,int(page.getWidth()*scale),int(page.getHeight()*scale),true);
@@ -556,7 +612,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

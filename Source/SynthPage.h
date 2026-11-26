@@ -96,6 +96,7 @@ public:
         showValue();resized();
     }
     void setCompact(){label.setVisible(false);resized();}
+    void setLabel(const juce::String& text){if(label.getText()!=text){label.setText(text,juce::dontSendNotification);slider.setName(text);slider.setTooltip(text);}}
     juce::Slider slider;
 private:
     void showValue(){value.setText(slider.getTextFromValue(slider.getValue()),juce::dontSendNotification);}
@@ -109,6 +110,17 @@ public:
     }
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> attachment;
+};
+// A horizontal bar on a 0-100 % parameter (the look's LinearBar).
+class Bar final : public juce::Slider {
+public:
+    Bar(juce::AudioProcessorValueTreeState& state,const juce::String& id,const juce::String& tip) {
+        setComponentID(id);setName(tip);setTooltip(tip);setSliderStyle(juce::Slider::LinearBar);setScrollWheelEnabled(false);
+        setColour(juce::Slider::textBoxTextColourId,inkColour);setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);
+        attachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state,id,*this);
+    }
+private:
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
 };
 class Toggle final : public juce::TextButton {
 public:
@@ -159,6 +171,8 @@ public:
         setTooltip("Click or drag across the wave to morph it; scroll for small steps; double-click snaps to a shape. In Sample mode, drag the start marker. Drop an audio file here to load it.");
     }
     bool sampleMode() const {return state.getRawParameterValue(synthOscID(osc,"Mode"))->load()>.5f;}
+    // The oscillator's wavetable (docs/SYNTH_WAVETABLE.md); 0 is the classic shapes.
+    int table() const {return juce::jlimit(0,synthTableCount-1,juce::roundToInt(state.getRawParameterValue(synthWavetableID(osc,"Table"))->load()));}
     float position() const {return state.getRawParameterValue(synthOscID(osc,"Wave"))->load();}
     // Wave position for a horizontal position: each shape sits above its tile
     // on the strip below (tile centres at 10 %, 30 % ... 90 % of the width).
@@ -170,6 +184,22 @@ public:
         const auto trace=on?traceColour:mutedColour.withAlpha(.4f);
         g.setColour(edgeColour);g.drawHorizontalLine(int(r.getCentreY()),r.getX()+4,r.getRight()-4);
         g.setFont(juce::FontOptions(9.f));
+        if(!sampleMode() && table()>0){
+            // A wavetable: six of its frames stacked back to front, and the
+            // frame at the wave position, through the warp, in front of them.
+            const auto& tables=SynthWavetables::get();const int t=table();const float at=position()*.25f;
+            const int warp=juce::roundToInt(state.getRawParameterValue(synthWavetableID(osc,"Warp"))->load());
+            const double amount=state.getRawParameterValue(synthWavetableID(osc,"WarpAmount"))->load()*.01;
+            const float depthX=r.getWidth()*.14f,depthY=r.getHeight()*.44f,w=r.getWidth()-10-depthX,h=r.getHeight()*.17f,baseY=r.getBottom()-5-h;
+            const auto curve=[&](float where,bool warped){juce::Path path;
+                for(int i=0;i<=96;++i){double phase=double(i)/96.0;if(phase>=1.0)phase=.999999;if(warped)phase=synthWarpPhase(warp,amount,phase);
+                    const float x=r.getX()+5+depthX*where+w*float(i)/96.f,y=baseY-depthY*where-h*float(tables.read(t,where,phase,1.0/4096.0));if(i==0)path.startNewSubPath(x,y);else path.lineTo(x,y);}
+                return path;};
+            for(int k=5;k>=0;--k){g.setColour(mutedColour.withAlpha(on?.34f:.18f));g.strokePath(curve(float(k)/5.f,false),juce::PathStrokeType(1.f));}
+            g.setColour(trace);g.strokePath(curve(at,true),juce::PathStrokeType(1.9f));
+            g.setColour(mutedColour);g.drawText(juce::String(synthTables[size_t(t)].name).toUpperCase()+"  "+juce::String(juce::roundToInt(at*100.f))+" %",getLocalBounds().reduced(6,2),juce::Justification::topRight);
+            return;
+        }
         if(!sampleMode()){
             juce::Path path;const float w=r.getWidth()-8,h=r.getHeight()*.36f;
             for(int i=0;i<=200;++i){const double phase=2.0*i/200.0;const float x=r.getX()+4+w*float(i)/200.f,y=r.getCentreY()-h*float(synthWaveDisplay(position(),phase));if(i==0)path.startNewSubPath(x,y);else path.lineTo(x,y);}
@@ -192,11 +222,12 @@ public:
     void mouseDown(const juce::MouseEvent& e) override {active().begin();mouseDrag(e);}
     void mouseDrag(const juce::MouseEvent& e) override {
         if(sampleMode())start.set(100.f*juce::jlimit(0.f,1.f,(e.position.x-4)/float(getWidth()-8)));
+        else if(table()>0)wave.set(4.f*juce::jlimit(0.f,1.f,(e.position.x-5)/float(juce::jmax(1,getWidth()-10))));   // a wavetable: left to right is first to last frame
         else wave.set(waveForX(e.position.x,float(getWidth())));
         repaint();
     }
     void mouseUp(const juce::MouseEvent&) override {wave.end();start.end();}
-    void mouseDoubleClick(const juce::MouseEvent&) override {if(!sampleMode()){wave.begin();wave.set(float(juce::roundToInt(position())));wave.end();repaint();}}
+    void mouseDoubleClick(const juce::MouseEvent&) override {if(!sampleMode() && table()==0){wave.begin();wave.set(float(juce::roundToInt(position())));wave.end();repaint();}}
     void mouseWheelMove(const juce::MouseEvent&,const juce::MouseWheelDetails& d) override {
         if(sampleMode()||d.deltaY==0)return;
         wave.begin();wave.set(juce::jlimit(0.f,4.f,position()+(d.deltaY>0?.05f:-.05f)));wave.end();repaint();
@@ -385,6 +416,10 @@ public:
             p.mode=static_cast<Segmented*>(add(std::make_unique<Segmented>(state,synthOscID(o,"Mode"),juce::StringArray{"WAVE","SAMPLE"},juce::String("Oscillator ")+"ABC"[o]+" mode")));
             p.display=static_cast<WaveDisplay*>(add(std::make_unique<WaveDisplay>(state,owner,o)));
             p.shapes=static_cast<WaveShapes*>(add(std::make_unique<WaveShapes>(state,o)));
+            // Wavetable (docs/SYNTH_WAVETABLE.md): the table, and its warp under the display.
+            p.table=add(std::make_unique<Choice>(state,synthWavetableID(o,"Table"),synthTableNames(),juce::String("Oscillator ")+"ABC"[o]+" wavetable. Classic is the five-shape oscillator; a table plays sixteen frames that POSITION moves through."));
+            p.warp=add(std::make_unique<Choice>(state,synthWavetableID(o,"Warp"),synthWarpNames(),"Warp: reshapes how the table is read. Bend pushes the wave to one side, Squeeze narrows its first half, Sync restarts it faster, Mirror folds it, Quantize steps it."));
+            p.warpAmount=add(std::make_unique<Bar>(state,synthWavetableID(o,"WarpAmount"),"Warp amount"));
             auto load=std::make_unique<juce::TextButton>("LOAD");load->setComponentID(synthOscID(o,"Load"));load->setTooltip("Load an audio file (WAV, AIFF, FLAC, OGG; up to 20 s) into this oscillator");
             load->onClick=[this,o]{chooseSample(o);};p.load=static_cast<juce::TextButton*>(add(std::move(load)));
             auto clear=std::make_unique<juce::TextButton>("X");clear->setComponentID(synthOscID(o,"Clear"));clear->setTooltip("Remove the sample and return to Wave mode");
@@ -483,9 +518,11 @@ public:
         for(int o=0;o<synthOscCount;++o){
             auto r=p[size_t(o)].first.reduced(8,6);auto& panel=oscPanels[size_t(o)];
             auto head=r.removeFromTop(18);panel.on->setBounds(head.removeFromLeft(50));head.removeFromLeft(4);panel.mode->setBounds(head.removeFromLeft(98));
-            head.removeFromLeft(4);panel.clear->setBounds(head.removeFromRight(18));head.removeFromRight(2);panel.load->setBounds(head.removeFromRight(juce::jmin(44,head.getWidth())));
+            head.removeFromLeft(4);panel.table->setBounds(head);   // Wave mode; LOAD and X take this space in Sample mode
+            panel.clear->setBounds(head.removeFromRight(18));head.removeFromRight(2);panel.load->setBounds(head.removeFromRight(juce::jmin(44,head.getWidth())));
             r.removeFromTop(4);panel.display->setBounds(r.removeFromTop(48));r.removeFromTop(3);
             auto strip=r.removeFromTop(18);panel.shapes->setBounds(strip);
+            {auto warpArea=strip;panel.warp->setBounds(warpArea.removeFromLeft(96));warpArea.removeFromLeft(4);panel.warpAmount->setBounds(warpArea);}
             panel.loop->setBounds(strip.removeFromLeft(44));strip.removeFromLeft(4);
             panel.root->setCompact();panel.root->setBounds(strip.removeFromLeft(80));panel.root->setIncDec();
             r.removeFromTop(3);
@@ -534,7 +571,9 @@ public:
     void updateModes() {
         for(int o=0;o<synthOscCount;++o){
             auto& p=oscPanels[size_t(o)];const bool sample=state.getRawParameterValue(synthOscID(o,"Mode"))->load()>.5f;
-            p.shapes->setVisible(!sample);p.knobs[6]->setVisible(!sample);
+            const bool table=!sample && state.getRawParameterValue(synthWavetableID(o,"Table"))->load()>.5f;
+            p.shapes->setVisible(!sample && !table);p.knobs[6]->setVisible(!sample);p.knobs[6]->setLabel(table?"POSITION":"MORPH");
+            p.table->setVisible(!sample);p.warp->setVisible(table);p.warpAmount->setVisible(table);
             for(juce::Component* c:{static_cast<juce::Component*>(p.load),static_cast<juce::Component*>(p.clear),p.loop,static_cast<juce::Component*>(p.root),static_cast<juce::Component*>(p.knobs[7])})c->setVisible(sample);
         }
         static const char* tips[]{"Dvergr Analog: slow pitch drift per oscillator (about 5 cents RMS at 100 %) and soft saturation into the filter",
@@ -569,7 +608,7 @@ private:
         filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();scope.repaint();
         repaint(oscPanels[0].shapes->getBounds().getUnion(oscPanels[2].shapes->getBounds()));
     }
-    struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
+    struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};juce::Component* table{};juce::Component* warp{};juce::Component* warpAmount{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
     struct ModRow {juce::Component* source{};juce::Component* target{};juce::Slider* amount{};std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> amountAttachment;};
     SynthLook look;   // declared first: destroyed after every child that uses it
     ChimeraProcessor& processor;juce::AudioProcessorValueTreeState& state;
