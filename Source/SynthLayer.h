@@ -240,22 +240,22 @@ inline constexpr int synthParameterCount = 12 + synthOscCount * 12 + 4 + 3 + 7 +
 // Patches. Applying one writes host parameters (a UI action, one gesture per
 // parameter); nothing applies a patch on its own. Unlisted parameters return
 // to their defaults. Each engine type has its factory patch.
-struct SynthPatch { const char* name; std::vector<std::pair<juce::String, float>> values; };
+struct SynthPatch { const char* name; std::vector<std::pair<juce::String, float>> values; const char* category{"Other"}; };
 inline std::vector<SynthPatch> synthPatches() {
     return {
         {"Init", {}},
         {"Dvergr Analog", {{"synthType", float(synthAnalog)}, {"synthCharacter", 60.f}, {"synthOscAWave", 2.f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 2.f},
                            {"synthOscBFine", 12.f}, {"synthOscBLevel", 70.f}, {"synthSubOn", 1.f}, {"synthSubShape", 1.f}, {"synthSubLevel", 50.f},
                            {"synthFilterType", 1.f}, {"synthCutoff", 1200.f}, {"synthResonance", 35.f}, {"synthFilterEnv", 50.f}, {"synthModEnvAttack", 2.f},
-                           {"synthModEnvDecay", 500.f}, {"synthModEnvSustain", 20.f}, {"synthAmpSustain", 85.f}}},
+                           {"synthModEnvDecay", 500.f}, {"synthModEnvSustain", 20.f}, {"synthAmpSustain", 85.f}}, "Bass"},
         {"Seidr Dynamic", {{"synthType", float(synthDynamic)}, {"synthCharacter", 70.f}, {"synthOscAWave", 3.5f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 2.f},
                            {"synthOscBFine", 5.f}, {"synthOscBLevel", 30.f}, {"synthOscCOn", 1.f}, {"synthOscCWave", 0.f}, {"synthOscCOctave", 1.f},
                            {"synthOscCLevel", 20.f}, {"synthFilterType", 0.f}, {"synthCutoff", 600.f}, {"synthAmpAttack", 80.f}, {"synthAmpDecay", 500.f},
                            {"synthAmpSustain", 90.f}, {"synthAmpRelease", 900.f}, {"synthLfo1Rate", .3f}, {"synthMod1Source", float(modLfo1)},
-                           {"synthMod1Target", float(targetWaveA)}, {"synthMod1Amount", 12.f}}},
+                           {"synthMod1Target", float(targetWaveA)}, {"synthMod1Amount", 12.f}}, "Pad"},
         {"Mimir Impact", {{"synthType", float(synthImpact)}, {"synthCharacter", 70.f}, {"synthOscAWave", 0.f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 0.f},
                           {"synthOscBOctave", 1.f}, {"synthOscBLevel", 0.f}, {"synthFM", 10.f}, {"synthFilterOn", 0.f}, {"synthAmpAttack", 1.f},
-                          {"synthAmpDecay", 500.f}, {"synthAmpSustain", 0.f}, {"synthAmpRelease", 500.f}}},
+                          {"synthAmpDecay", 500.f}, {"synthAmpSustain", 0.f}, {"synthAmpRelease", 500.f}}, "Pluck"},
     };
 }
 // A patch never changes these: switching, routing and level, and each
