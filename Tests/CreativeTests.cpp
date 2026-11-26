@@ -390,7 +390,9 @@ void pageInProcessor() {
     auto p=make();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))
         if(with->paramID.contains("creativeInsert")||with->paramID.contains("creativePattern")||with->paramID.contains("creativeLength")||with->paramID.contains("creativeAttack")||with->paramID.contains("creativeStereo")||with->paramID.contains("creativeLaserMode")||with->paramID.contains("creativeStep")){
-            ++count;require(with->getVersionHint()==creativePageParameterVersion,"CREATIVE page parameter has the wrong version hint");}
+            // Slots 3 and 4 came with their whole bank at version 37 (docs/POST_FOUR_SLOTS.md).
+            const bool late=with->paramID.startsWith("slot3_")||with->paramID.startsWith("slot4_");
+            if(!late)++count;require(with->getVersionHint()==(late?postExtraSlotParameterVersion:creativePageParameterVersion),"CREATIVE page parameter has the wrong version hint");}
     require(count==2*creativePageParameterCount,"CREATIVE page parameter count is "+std::to_string(count));
     const auto raw=[&](const juce::String& id){return p->parameters().getRawParameterValue(id)->load();};
     require(juce::roundToInt(raw("creativeLaserMode"))==laserPitchDive && juce::roundToInt(raw("creativeInsert"))==creativeInPostRack && juce::roundToInt(raw("creativePattern"))==0,"New-instance defaults are wrong");
@@ -400,7 +402,7 @@ void pageInProcessor() {
      auto tree=juce::ValueTree::fromXml(*xml);int removed=0;
      for(int i=tree.getNumChildren();--i>=0;){const auto id=tree.getChild(i).getProperty("id").toString();
          if(id.contains("creativeInsert")||id.contains("creativePattern")||id.contains("creativeLength")||id.contains("creativeAttack")||id.contains("creativeStereo")||id.contains("creativeLaserMode")||id.contains("creativeStep")){tree.removeChild(i,nullptr);++removed;}}
-     require(removed==2*creativePageParameterCount,"Saved state does not hold every CREATIVE page parameter ("+std::to_string(removed)+")");
+     require(removed==postSlotCount*creativePageParameterCount,"Saved state does not hold every CREATIVE page parameter ("+std::to_string(removed)+")");
      juce::MemoryBlock old;if(auto oldXml=tree.createXml())juce::AudioProcessor::copyXmlToBinary(*oldXml,old);
      auto q=make();q->setStateInformation(old.getData(),int(old.getSize()));
      const auto value=[&](const juce::String& id){return juce::roundToInt(q->parameters().getRawParameterValue(id)->load());};
