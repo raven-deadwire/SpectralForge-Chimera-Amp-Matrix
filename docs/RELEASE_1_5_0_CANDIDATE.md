@@ -1,5 +1,11 @@
 # 1.5.0-beta.1 candidate
 
+> **Published.** [v1.5.0-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.5.0-beta.1)
+> was published on 2026-11-23 at 15:17 UTC (2026-11-24 00:17 KST) from product
+> source `95a215eda8368c84e75bd0e8d32e9659b106361c`. This record was completed
+> after publication; the release's own copy still shows the state before the
+> owner's final decisions. The sections below say which is which.
+
 ## Owner instructions (Asia/Seoul)
 
 - **2026-11-19:** "다음 릴리즈 언제 가능하냐". Offered a fast path (current
@@ -16,11 +22,19 @@
 - **2026-11-20:** told this and offered three options, the owner chose
   option 1 ("1번"): include the features and release as **1.5.0-beta.1**.
 
-Preparation is authorized. **Publication is not yet**: the owner's earlier
-"merge #339 and publish" was given for the 1.4.2-beta.1 scope. Publishing
-1.5.0-beta.1 needs the owner's decision on this scope and on the release-gate
-totals below, the latest exact-source workflows and a fresh source-bound
-receipt (`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The 1.4.1-beta.1
+- **2026-11-20, later:** asked to approve the release-gate totals and the
+  merge and publication of this scope, the owner answered "1번 2번 승인", and
+  then "승인 기록 PR은 빌드 안 기다리고 머지해줘".
+- **Conflicting PR:** another session opened #350 to revert the features and
+  publish 1.4.2-beta.1, stating an owner choice of that scope. Publication was
+  held and the conflict reported; the owner answered "1.5". #350 was closed
+  without merging.
+
+At the time of the release source, preparation was authorized and publication
+was not: the owner's earlier "merge #339 and publish" had been given for the
+1.4.2-beta.1 scope. Publication was authorized by the decisions above and
+recorded in the receipt (`Validation/weekly-publication-policy.json`, #355,
+`OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`). The 1.4.1-beta.1
 authorization and its receipt (bound to source
 `6bc7216cd2dc72772daaca65a89edbaf6b5a8c43`) do not carry over. No failed or
 unexecuted check is promoted to PASS. No 1.4.2-beta.1 was published.
@@ -33,7 +47,9 @@ with no end date.
 
 ## Source
 
-- **Branch:** `claude/release-1.5.0-beta.1`, from main `161aedd` (after #341), with main `b3e78e6` (#343, #345) merged in.
+- **Preparation branch:** `claude/release-1.5.0-beta.1` (#344), from main `161aedd` (after #341), with main `b3e78e6` (#343, #345) merged in. Merged to main as `c329480`.
+- **Product source:** main `95a215e`, which adds #346, #347, #349, #351, #352 and #353 to the merge. The tag `v1.5.0-beta.1` points to it.
+- **Controller:** main `9bc1e25` (#355), which differs from the product source only in the receipt.
 - **Identity:** `VERSION` 1.5.0, `RELEASE_CHANNEL` beta.1,
   `Validation/beta-lifecycle-policy.json` 1.5.0-beta.1.
 - **Release scope:** `Validation/release-policy.json` `release_scope` records
@@ -52,11 +68,19 @@ the notes and the gate totals.
 | #336 | Metro Clean remodelled as a two-channel head; 48 appended parameters | open on MODERN; **sound can differ** (VOICING / HI MID retired, HIGH PASS and mid-frequency ranges changed) |
 | #334 | Reference heads 26–30: new artwork | no change |
 | #326, #328, #329, #330, #331, #337, #338, #341, #343, #345 | Auto Set phases 33–42, all off by default | no change |
+| #346, #352 | Auto Set phases 43 and 45: muted or solo-silenced rigs and lanes are kept without a listening pass, and "no playing heard" names the band; they refine steps that are off by default | no change |
+| #351, #353 | Auto Set phases 44 and 46: tests and documents only | no change |
+| #347 | POST second preamp: the plugin reports the changed latency in the block where the audio switches, not one block later | no change |
+| #349 | OBS filter test build guide for testers (document) | no change |
 | #332 | OBS tests tolerate the runner's timing (tests only) | no change |
 | #340 | Windows AAX and installer code-signing guide (document) | no change |
 | #325, #327, #333 | tuner fixture digest, 1.4.1 receipt, 1.4.1 notes | no change |
 
-Open PRs not included: #301 (draft that
+The rows from #346 down reached main after #344 was merged; they are in the
+release but were missing from this table in the release's own copy.
+
+Open PRs not included: #354 (Auto Set phase 47, still open; its new test fails
+on macOS), #301 (draft that
 conflicts with the published manual), #249, #199 and #196 (1.4.0-beta.1 took
 the parts the owner chose; #199's evidence files hold digests of real tester
 codes and stay out of main). #339 is superseded by this branch.
@@ -70,7 +94,9 @@ own CI reported 19 PASS / 109 BLOCKED although every test passed. The same
 happened before 1.4.0-beta.1, and the owner approved updating the totals then.
 
 This branch updates the totals to the values the tests print on this source.
-**This change needs the owner's approval before publication.** Check
+The owner approved the change on 2026-11-20 ("1번 2번 승인"); the release's own
+copy of this record still says the approval is needed. #348, a second PR with
+the same totals, was closed as superseded. Check
 ownership, producers, platforms and every other requirement are unchanged.
 See `Tools/fixtures/README.md`.
 
@@ -92,36 +118,59 @@ and HIGH lanes") and point to `docs/AUTO_SET_PHASE*.md` in the release source
 for the exact list, instead of a count that the next merge would make wrong.
 A merge of any other kind before publication still needs the notes revisited.
 
-## Evidence so far
+## Evidence
 
-- PR #344 at `5feebf7` (before #343 was merged in) passed CI on the first
-  attempt: 26 checks succeeded, 2 skipped. Its strict report is
-  21 PASS / 107 BLOCKED, hard gates 21 / 63, on Windows, macOS and Linux, so
-  the new E1 totals match what the tests print on all three platforms.
-- PR #344 at `417bab9` (with #343) passed CI on the first attempt: 26
-  succeeded, 2 skipped; strict report 21 PASS / 107 BLOCKED.
+Before the merge of #344:
+
+- #344 passed CI at `5feebf7`, `417bab9` and `f3f7155`: 26 checks succeeded,
+  2 skipped, each with a strict report of 21 PASS / 107 BLOCKED, hard gates
+  21 / 63, on Windows, macOS and Linux. At `f3f7155` the macOS
+  `ChimeraGraphicalEQGroupEditTests` failed once ("Delete entry removed the
+  wrong members", on a runner that logged a 926 ms dispatch overrun) and
+  passed on a full rerun of that workflow.
 - Local Linux build of main `161aedd`: the three E1 tests pass and print the
   new totals. No full local product build or full CTest run was done.
 
-## Final-source evidence (open)
+On the product source `95a215e`:
 
-- [ ] **Builds and tests:** Windows, macOS and Linux full product builds,
-      CTest, package verification and candidate assembly succeed on the final
-      commit of this branch, with a strict report of 21 PASS / 107 BLOCKED,
-      and the seven required workflows succeed on the product source on main.
-- [ ] **Version shown everywhere:** the packages, update manifest, SETTINGS
-      and embedded notes show 1.5.0-beta.1 and the 2027-05-31 expiry.
+- All seven required workflows succeeded on the first attempt: build (run
+  44893110564), update-candidate, cab-panel, cab-realtime, amp-head-controls,
+  signal-path and graphical-eq.
+- Strict report of the build run: 21 PASS / 107 BLOCKED, hard gates 21 / 63.
+
+On main commits between the merge and the product source, which were not
+published: at `c329480` five of the seven workflows had passed when #349
+moved main; at `3cea685` cab-realtime failed on macOS in
+`ChimeraCabExpansionIntegrationTests` and was not rerun, because #351 moved
+main again.
+
+Publication:
+
+- Receipt #355 was merged without waiting for its own build, as the owner
+  asked. The publisher's review mode and then its publication mode succeeded
+  (runs 45202776017 and 45202996883).
+- The release has 30 assets. The five installers and archives, the manual and
+  the checksums were fetched from the published URLs; the manual and the
+  release body show 1.5.0-beta.1.
+
+## Final-source evidence
+
+- [x] **Builds and tests:** Windows, macOS and Linux product builds, CTest,
+      package verification and candidate assembly succeeded on the product
+      source, with a strict report of 21 PASS / 107 BLOCKED, and the seven
+      required workflows succeeded on it.
+- [x] **Owner decisions:** the E1 totals update and the publication of this
+      scope (2026-11-20, confirmed "1.5" on 2026-11-23).
+- [x] **Approval receipt:** #355 binds the product SHA, version, strict
+      policy and CI-map fingerprints.
+- [ ] **Version shown everywhere:** checked in the release body and the
+      manual only. SETTINGS, the update manifest and the installed packages
+      were not inspected by hand.
 - [ ] **Lifecycle P0:** expiry while running, relaunch, update from
-      1.4.1-beta.1 with projects, presets and personal IRs.
-- [ ] **Tester codes:** the existing HMAC codes are accepted by the
-      1.5.0-beta.1 build (secret configured for the candidate build).
-- [ ] **Manual:** the EN/DE/KO manual shows 1.5.0-beta.1 and describes the
-      new functions. Open: a review of the German and Korean text by a native
-      speaker.
-- [ ] **Owner decisions:** the E1 totals update and publication of this
-      scope.
-- [ ] **Approval receipt:** a fresh approval receipt binds the final SHA,
-      version, strict policy and CI-map fingerprints.
+      1.4.1-beta.1 with projects, presets and personal IRs. Not performed.
+- [ ] **Tester codes:** acceptance of the existing HMAC codes by the
+      1.5.0-beta.1 build. Not performed.
+- [ ] **Manual:** a review of the German and Korean text by a native speaker.
 
 ## Not validated
 
