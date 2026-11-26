@@ -587,6 +587,27 @@ void processorInsertsAndPage() {
      auto& tableDisplay=page.waveDisplay(1);drag(tableDisplay,{20,20},{float(tableDisplay.getWidth())*.5f,20});
      require(std::abs(raw("synthOscBWave")-2.f)<.08f,"Dragging across a wavetable does not set its position");
      static_cast<juce::ComboBox*>(page.control("synthOscBTable"))->setSelectedId(1,juce::sendNotificationSync);page.updateModes();}
+    // Modulation matrix: only rows in use, + adds one, a knob's menu connects a source, x removes it.
+    {const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
+     page.applyPatch(0);pumpNow();
+     for(int m=0;m<synthModSlots;++m)page.clearModulation(m);
+     const auto shown=[&]{int n=0;for(int m=0;m<synthModSlots;++m)n+=page.control(synthModID(m,"Source"))->isVisible();return n;};
+     require(shown()==1 && page.control("synthModAdd")->isVisible(),"An empty matrix does not show one row and the + button");
+     static_cast<juce::Button*>(page.control("synthModAdd"))->triggerClick();pumpNow();
+     require(shown()==2,"+ does not add a row");
+     require(spectralforge::synthUI::SynthPage::modTargetFor("synthCutoff")==targetCutoff && spectralforge::synthUI::SynthPage::modTargetFor("synthOscBFine")==targetPitchB
+             && spectralforge::synthUI::SynthPage::modTargetFor("synthOscCWave")==targetWaveC && spectralforge::synthUI::SynthPage::modTargetFor("synthGlide")==0,"Knob to matrix target mapping wrong");
+     writes.gestures=0;
+     const int row=page.assignModulation(2,targetCutoff);   // LFO 1 -> Cutoff
+     require(row==0 && juce::roundToInt(raw(synthModID(0,"Source").toRawUTF8()))==2 && juce::roundToInt(raw(synthModID(0,"Target").toRawUTF8()))==targetCutoff && raw(synthModID(0,"Amount").toRawUTF8())==50 && writes.gestures==6,
+             "Connecting a source to a knob does not fill the first free row in one gesture per parameter");
+     require(page.assignModulation(2,targetCutoff)==0 && page.assignModulation(1,targetCutoff)==1,"A repeated connection made a second row, or a new one reused the row");
+     auto* cutoff=dynamic_cast<juce::Slider*>(page.control("synthCutoff"));auto* glide=dynamic_cast<juce::Slider*>(page.control("synthGlide"));
+     require(cutoff!=nullptr && std::abs(double(cutoff->getProperties().getWithDefault("mod",0.0))-1.0)<1e-6 && (glide==nullptr || double(glide->getProperties().getWithDefault("mod",0.0))==0),"A modulated knob is not marked");
+     static_cast<juce::Button*>(page.control(synthModID(1,"Clear")))->triggerClick();static_cast<juce::Button*>(page.control(synthModID(0,"Clear")))->triggerClick();pumpNow();
+     require(juce::roundToInt(raw(synthModID(0,"Source").toRawUTF8()))==0 && raw(synthModID(0,"Amount").toRawUTF8())==0 && shown()==1,"x does not clear a row");
+     auto* amount=dynamic_cast<juce::Slider*>(page.control(synthModID(0,"Amount")));
+     require(amount!=nullptr && amount->getSliderStyle()==juce::Slider::LinearBar && amount->getTextFromValue(-35.0)=="-35 %" && amount->getTextFromValue(20.0)=="+20 %","The amount is not a signed bar");}
     // Optional evidence: SYNTH_PAGE_SNAPSHOT=<directory> writes the page, with a sample in osc B.
     if(const char* dir=std::getenv("SYNTH_PAGE_SNAPSHOT")){
         const auto wav=juce::File::createTempFile(".wav");
@@ -596,6 +617,9 @@ void processorInsertsAndPage() {
         {auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
          put("synthOscATable",9);put("synthOscAWave",1.6f);put("synthOscAWarp",float(synthWarpBendUp));put("synthOscAWarpAmount",35);
          put("synthOscCOn",1);put("synthOscCTable",3);put("synthOscCWave",2.4f);}
+        page.assignModulation(2,targetWaveA);page.assignModulation(1,targetCutoff);page.assignModulation(4,targetLevelC);
+        {auto put=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};put(synthModID(1,"Amount"),-40);put(synthModID(2,"Amount"),70);}
+        page.refreshModulation();
         page.updateModes();page.resized();
         for(const float scale:{1.f,1.5f}){
             juce::Image image(juce::Image::ARGB,int(page.getWidth()*scale),int(page.getHeight()*scale),true);

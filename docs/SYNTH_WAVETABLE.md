@@ -59,6 +59,29 @@ The matrix targets Wave A / B / C move the position of a table, as they morph
 the classic shapes (tested with velocity). The warp amount is not a matrix
 target yet: adding one would change the released target list.
 
+## Modulation matrix (page only)
+
+The owner found the matrix hard to read: eight rows of "Off / Off / slider /
+0 %" with no labels. The parameters and the engine are unchanged; the page
+shows them differently.
+
+- **Titles:** SOURCE, MOVES TARGET, AMOUNT above the rows. An empty menu reads
+  "Source ..." or "Target ..." instead of "Off".
+- **Rows in use only:** the panel shows the rows up to the last one in use (at
+  least one). `+ ADD MODULATION` adds a row; `x` clears a row.
+- **Amount:** a bar that grows from the centre, right for up and left for down,
+  with the value as "+50 %" or "-40 %". Double-click sets 0.
+- **From a knob:** right-click a knob the matrix can move (oscillator pitch,
+  wave / position, level and detune, FM, cutoff, resonance, sub and noise
+  level, master level) and choose the source. This fills the first free row
+  at +50 %. The same menu removes every modulation of that knob.
+- **Marks:** a modulated knob shows a dot and an arc from its value towards
+  the side the modulation pushes it. The arc's length follows the summed
+  amount; it is an indicator, not the exact range.
+
+Not done: dragging a source onto a knob, more than eight rows, the warp
+amount or the filter drive as targets, and an animated value on the knob.
+
 ## On the page
 
 - A menu in each oscillator's header chooses the table (Wave mode).
