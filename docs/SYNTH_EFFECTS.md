@@ -120,6 +120,11 @@ unless said otherwise.
   2.0 (the safety stage's limit), no allocation on the audio thread.
 - Page at 1140 x 438: 22 effect controls in the lower row, none overlapping,
   smallest knob 50 px.
+- `ChimeraWholeProductTests` switches everything on with random settings and
+  expects silence 4 s after the input stops. A delay at up to 95 % feedback
+  or a reverb at up to 12 s cannot do that, so that test now sets the synth
+  delay's feedback to 0 and the reverb's decay to 1 s, as it already does for
+  the POST delays. Before that change it failed.
 - CPU was not measured.
 
 Screenshot: `docs/evidence/synth-effects-20261126/synth-page-effects.png`.
