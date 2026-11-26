@@ -38,7 +38,7 @@ void require(bool ok,const std::string& message){if(!ok)throw std::runtime_error
 double db(double v){return 20*std::log10(std::max(v,1.e-30));}
 struct Host final : juce::AudioProcessor {
     juce::AudioProcessorValueTreeState state;
-    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);appendSynthFiltersParameters(l);appendSynthSequencerParameters(l);return l;}
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);appendSynthFiltersParameters(l);appendSynthSequencerParameters(l);appendSynthEffectsParameters(l);return l;}
     Host():state(*this,nullptr,"SYNTH",layout()){}
     void set(const char* id,float v){auto* p=state.getParameter(id);require(p!=nullptr,std::string("no parameter ")+id);p->setValueNotifyingHost(p->convertTo0to1(v));}
     const juce::String getName() const override {return "synth";}
@@ -321,6 +321,96 @@ void sequencerAndMacros() {
 }
 
 std::vector<double> envelope(const std::vector<float>& x,int frame){std::vector<double> e;for(size_t n=0;n+size_t(frame)<=x.size();n+=size_t(frame))e.push_back(rms(x,int(n),int(n)+frame)*std::sqrt(2.0));return e;}
+void effects() {
+    // docs/SYNTH_EFFECTS.md. Every effect set but off: the rack is not run and the output is the released one.
+    const auto largest=[](const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,double(std::abs(a[n]-b[n])));return d;};
+    using Values=std::vector<std::pair<const char*,float>>;
+    // A sine note of `blocks` blocks (0: held), 5 ms release.
+    const auto play=[](const Values& values,int note=57,int blocks=0,int samples=48000,double tempo=120,std::function<void(Host&,int)> change={}){
+        Host h;clean(h,0);h.set("synthAmpRelease",5);for(const auto& [id,v]:values)h.set(id,v);
+        return render(h,samples,silence(),[&,note,blocks](int k,juce::MidiBuffer& m){if(change)change(h,k);if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,note,1.f),0);if(blocks>0 && k==blocks)m.addEvent(juce::MidiMessage::noteOff(1,note),0);},nullptr,tempo);};
+    {const auto dry=play({});
+     const auto set=play({{"synthFxChorusRate",2},{"synthFxChorusDepth",100},{"synthFxChorusMix",100},{"synthFxPhaserFeedback",90},{"synthFxDelayTime",100},{"synthFxDelayFeedback",90},{"synthFxDelayMix",100},{"synthFxDelayPingPong",1},
+                          {"synthFxReverbDecay",8},{"synthFxReverbMix",100},{"synthFxEqLow",12},{"synthFxEqHigh",-12}});
+     const double d=std::max(largest(dry.l,set.l),largest(dry.r,set.r));
+     // On at 0 % mix (the EQ: on at 0 dB) the effect runs and still passes the sound unchanged.
+     const auto zero=play({{"synthFxChorusOn",1},{"synthFxChorusMix",0},{"synthFxPhaserOn",1},{"synthFxPhaserMix",0},{"synthFxDelayOn",1},{"synthFxDelayMix",0},{"synthFxReverbOn",1},{"synthFxReverbMix",0}});
+     const auto flat=play({{"synthFxEqOn",1}});
+     const double z=largest(dry.l,zero.l),e=largest(dry.l,flat.l);
+     std::cout<<"MEASURE effects set but off: largest sample difference "<<d<<"; chorus, phaser, delay, reverb on at 0 % mix "<<z<<"; EQ on at 0 dB "<<e<<"\n";
+     require(d==0,"An effect that is off changed the synth");require(z==0 && e<1e-6,"An effect at 0 % mix or a flat EQ changed the synth");}
+    // Delay. A 21 ms note; Free 250 ms is 12000 samples. Mix 50 %: the first repeat is as loud as the note, each later one lower by the feedback.
+    {const int len=4;const auto burst=[](const std::vector<float>& x,int at){return rms(x,at+520,at+1000);};   // after the 10 ms the mix takes to arrive at the start
+     const auto x=play({{"synthFxDelayOn",1},{"synthFxDelaySync",0},{"synthFxDelayTime",250},{"synthFxDelayFeedback",50},{"synthFxDelayMix",50}},57,len,48000);
+     const double note=burst(x.l,0),first=burst(x.l,12000),second=burst(x.l,24000),third=burst(x.l,36000),between=rms(x.l,6000,11000);
+     const auto synced=play({{"synthFxDelayOn",1},{"synthFxDelaySync",4},{"synthFxDelayFeedback",0},{"synthFxDelayMix",50}},57,len,48000,120);
+     const auto slow=play({{"synthFxDelayOn",1},{"synthFxDelaySync",4},{"synthFxDelayFeedback",0},{"synthFxDelayMix",50}},57,len,48000,60);
+     const auto dotted=play({{"synthFxDelayOn",1},{"synthFxDelaySync",5},{"synthFxDelayFeedback",0},{"synthFxDelayMix",50}},57,len,48000,120);
+     const auto capped=play({{"synthFxDelayOn",1},{"synthFxDelaySync",1},{"synthFxDelayFeedback",0},{"synthFxDelayMix",50}},57,len,120000,30);   // 1/2 at 30 BPM is 4 s: held at 2 s
+     std::cout<<"MEASURE delay Free 250 ms, feedback 50 %, mix 50 %: note "<<db(note)<<" dBFS, repeats "<<db(first/note)<<" / "<<db(second/note)<<" / "<<db(third/note)<<" dB re the note, between "<<db(between)<<" dBFS; 1/8 at 120 BPM repeat at 12000 "
+              <<db(burst(synced.l,12000)/note)<<" dB, at 60 BPM at 24000 "<<db(burst(slow.l,24000)/note)<<" dB (at 12000 "<<db(burst(slow.l,12000))<<" dBFS); 1/8 D at 18000 "<<db(burst(dotted.l,18000)/note)<<" dB; 1/2 at 30 BPM at 96000 "<<db(burst(capped.l,96000)/note)<<" dB\n";
+     require(note>.02 && std::abs(db(first/note))<.5 && std::abs(db(second/first)+6.02)<.5 && std::abs(db(third/second)+6.02)<.5 && between<1e-5,"The delay's repeats are at the wrong time or level");
+     require(std::abs(db(burst(synced.l,12000)/note))<.5 && std::abs(db(burst(slow.l,24000)/note))<.5 && burst(slow.l,12000)<1e-5 && std::abs(db(burst(dotted.l,18000)/note))<.5,"The delay does not follow the tempo");
+     require(std::abs(db(burst(capped.l,96000)/note))<.5,"The delay is not held at 2 s");
+     // Ping-pong: the first repeat on the left only, the second on the right only.
+     const auto pp=play({{"synthFxDelayOn",1},{"synthFxDelaySync",0},{"synthFxDelayTime",250},{"synthFxDelayFeedback",50},{"synthFxDelayMix",50},{"synthFxDelayPingPong",1}},57,len,48000);
+     std::cout<<"MEASURE ping-pong: repeat 1 left "<<db(burst(pp.l,12000)/note)<<" dB, right "<<db(burst(pp.r,12000))<<" dBFS; repeat 2 left "<<db(burst(pp.l,24000))<<" dBFS, right "<<db(burst(pp.r,24000)/note)<<" dB\n";
+     require(std::abs(db(burst(pp.l,12000)/note))<.5 && burst(pp.r,12000)<1e-5 && burst(pp.l,24000)<1e-5 && std::abs(db(burst(pp.r,24000)/note)+6.02)<.5,"Ping-pong does not alternate sides");
+     // Switched on inside a held note: no click (a 110 Hz sine's own largest step is its level x 0.0144).
+     const auto on=play({{"synthFxDelaySync",0},{"synthFxDelayTime",100},{"synthFxDelayMix",50}},45,0,48000,120,[](Host& h,int k){if(k==60)h.set("synthFxDelayOn",1);});
+     double step=0,own=0;for(int n=4000;n<12000;++n)own=std::max(own,double(std::abs(on.l[size_t(n)]-on.l[size_t(n-1)])));for(int n=15000;n<17000;++n)step=std::max(step,double(std::abs(on.l[size_t(n)]-on.l[size_t(n-1)])));
+     // Switched off and on again later: nothing of the old repeats comes back.
+     const auto again=play({{"synthFxDelayOn",1},{"synthFxDelaySync",0},{"synthFxDelayTime",500},{"synthFxDelayFeedback",90},{"synthFxDelayMix",50}},57,len,96000,120,[](Host& h,int k){if(k==20)h.set("synthFxDelayOn",0);if(k==60)h.set("synthFxDelayOn",1);});
+     std::cout<<"MEASURE delay switched on inside a note: largest step between samples "<<step<<" (the note's own "<<own<<"); off at 0.1 s and on at 0.3 s after a note with 500 ms repeats: later output "<<db(rms(again.l,16000,96000))<<" dBFS\n";
+     require(step<1.2*own,"Switching the delay on clicks");require(rms(again.l,16000,96000)<1e-6,"An effect switched on again replays its old memory");}
+    // Reverb, mix 100 %. A held note: the tail's level is near the note's. After the note: it falls 60 dB in about DECAY.
+    {const auto dryHeld=play({},57,0,96000);
+     const auto held=play({{"synthFxReverbOn",1},{"synthFxReverbDecay",2},{"synthFxReverbDamp",0},{"synthFxReverbMix",100}},57,0,96000);
+     const double level=db(rms(held.l,48000,96000)/rms(dryHeld.l,48000,96000));
+     double levelLow=1e9,levelHigh=-1e9,levelMean=0;int levels=0;
+     for(int note=33;note<=96;note+=3){const double v=db(rms(play({{"synthFxReverbOn",1},{"synthFxReverbDecay",2},{"synthFxReverbDamp",0},{"synthFxReverbMix",100}},note,0,96000).l,48000,96000)/rms(play({},note,0,96000).l,48000,96000));
+         levelLow=std::min(levelLow,v);levelHigh=std::max(levelHigh,v);levelMean+=v;++levels;}
+     levelMean/=levels;
+     std::cout<<"MEASURE reverb level, held notes A1 to C7 in minor thirds, mix 100 %, re the dry note: mean "<<levelMean<<" dB, lowest "<<levelLow<<" dB, highest "<<levelHigh<<" dB\n";
+     const auto slope=[&](float decay,float damp,int note){const auto x=play({{"synthFxReverbOn",1},{"synthFxReverbDecay",decay},{"synthFxReverbDamp",damp},{"synthFxReverbMix",100}},note,40,int(48000*(decay+.5)));
+         const int a=int(10240+.15*decay*48000),b=int(10240+.65*decay*48000);return 2.0*(db(rms(x.l,a,a+4800))-db(rms(x.l,b,b+4800)));};   // dB lost over one DECAY
+     const double one=slope(1,0,57),four=slope(4,0,57),bright=slope(2,0,93),damped=slope(2,100,93);
+     const auto wide=play({{"synthFxReverbOn",1},{"synthFxReverbDecay",2},{"synthFxReverbMix",100}},57,40,48000);
+     double same=0,power=0;for(int n=12000;n<48000;++n){same+=double(wide.l[size_t(n)])*wide.r[size_t(n)];power+=.5*(double(wide.l[size_t(n)])*wide.l[size_t(n)]+double(wide.r[size_t(n)])*wide.r[size_t(n)]);}
+     std::cout<<"MEASURE reverb, mix 100 %: held A3, tail level "<<level<<" dB re the dry note; fall over one DECAY: 1 s "<<one<<" dB, 4 s "<<four<<" dB; A6 at 2 s, damping 0 % "<<bright<<" dB, 100 % "<<damped<<" dB; left-right correlation of the tail "<<same/power<<"\n";
+     require(std::abs(levelMean)<4 && levelHigh<10,"The reverb's level is far from the note's");
+     require(std::abs(one-60)<12 && std::abs(four-60)<12,"The reverb does not decay in the time set");
+     require(damped>bright+20,"Damping does not shorten the treble");require(std::abs(same/power)<.5,"The reverb's tail is not stereo");}
+    // Chorus, mix 100 %, depth 100 %, 1 Hz: the delay sweeps 6 ms each way, so the pitch moves by 3.8 % (65 cents) each way.
+    {const auto x=play({{"synthFxChorusOn",1},{"synthFxChorusRate",1},{"synthFxChorusDepth",100},{"synthFxChorusMix",100}},69,0,96000);
+     const double down=peakNear(x.l,48000-2400,48000+2400,440),up=peakNear(x.l,72000-2400,72000+2400,440),right=peakNear(x.r,48000-2400,48000+2400,440);
+     const auto still=play({{"synthFxChorusOn",1},{"synthFxChorusDepth",0},{"synthFxChorusMix",100}},69,0,48000);const auto dry=play({},69,0,48000);
+     double shifted=0;for(int n=2000;n<48000;++n)shifted=std::max(shifted,double(std::abs(still.l[size_t(n)]-dry.l[size_t(n-576)])));
+     std::cout<<"MEASURE chorus 1 Hz, depth 100 %, mix 100 %, A4: left at 1.0 s "<<down<<" Hz, at 1.5 s "<<up<<" Hz; right at 1.0 s "<<right<<" Hz; depth 0 %: against the dry note 12 ms earlier, largest difference "<<shifted<<"\n";
+     require(std::abs(down-423.7)<3 && std::abs(up-456.3)<3,"The chorus sweep is not 6 ms at the rate set");require(std::abs(right-440)<3,"The chorus's right channel is not a quarter cycle behind");
+     require(shifted<1e-4,"The chorus's centre delay is not 12 ms");}
+    // Phaser, depth 0 %, no feedback, mix 50 %: six stages centred on 800 Hz cancel there and pass at 440 Hz.
+    {const auto level=[&](int note,bool on){const auto x=play(on?Values{{"synthFxPhaserOn",1},{"synthFxPhaserDepth",0},{"synthFxPhaserFeedback",0},{"synthFxPhaserMix",50}}:Values{},note,0,48000);return rms(x.l,24000,48000);};
+     const double notch=db(level(79,true)/level(79,false)),pass=db(level(69,true)/level(69,false));
+     const auto moving=play({{"synthFxPhaserOn",1},{"synthFxPhaserRate",1},{"synthFxPhaserDepth",100},{"synthFxPhaserFeedback",0},{"synthFxPhaserMix",50}},79,0,96000);
+     double lo=1e9,hi=0;for(int n=48000;n+2400<=96000;n+=2400){const double v=rms(moving.l,n,n+2400);lo=std::min(lo,v);hi=std::max(hi,v);}
+     std::cout<<"MEASURE phaser at rest (depth 0 %): G5 784 Hz "<<notch<<" dB, A4 440 Hz "<<pass<<" dB; swept at 1 Hz, G5 level over a second: "<<db(hi/lo)<<" dB between lowest and highest\n";
+     require(notch<-18 && std::abs(pass)<.5,"The phaser's notches are not where they should be");require(db(hi/lo)>12,"The phaser does not sweep");}
+    // EQ against its own curve.
+    {double worst=0;
+     for(const auto& [low,high]:{std::pair<float,float>{12,0},{-12,0},{0,12},{0,-12},{6,-6}})for(const int note:{33,57,81,105}){
+         const auto on=play({{"synthLevel",-24},{"synthFxEqOn",1},{"synthFxEqLow",low},{"synthFxEqHigh",high}},note,0,48000),off=play({{"synthLevel",-24}},note,0,48000);   // low enough to stay under the safety stage at +12 dB
+         const double measured=db(magnitude(on.l,24000,48000,hz(note))/magnitude(off.l,24000,48000,hz(note))),expected=db(synthFxEqMagnitude(low,high,hz(note),rate));worst=std::max(worst,std::abs(measured-expected));}
+     std::cout<<"MEASURE EQ, five settings x A1 / A3 / A5 / A7: largest error against the shelf curves "<<worst<<" dB; the curve at +12 / +12 dB: 55 Hz "<<db(synthFxEqMagnitude(12,12,55,rate))<<" dB, 880 Hz "<<db(synthFxEqMagnitude(12,12,880,rate))<<" dB, 12 kHz "<<db(synthFxEqMagnitude(12,12,12000,rate))<<" dB\n";
+     require(worst<.1,"The EQ does not follow its curve");require(std::abs(db(synthFxEqMagnitude(12,12,55,rate))-12)<1 && std::abs(db(synthFxEqMagnitude(12,12,12000,rate))-12)<1,"The shelves do not reach their gain");}
+    // Everything on at once, full load: bounded, finite, no allocation on the audio thread.
+    {Host h;clean(h,2);for(const auto& [id,v]:Values{{"synthVoices",8},{"synthFxChorusOn",1},{"synthFxPhaserOn",1},{"synthFxPhaserFeedback",90},{"synthFxDelayOn",1},{"synthFxDelayFeedback",95},{"synthFxDelayMix",100},{"synthFxDelayPingPong",1},
+            {"synthFxReverbOn",1},{"synthFxReverbDecay",12},{"synthFxReverbMix",100},{"synthFxEqOn",1},{"synthFxEqLow",12},{"synthFxEqHigh",12},{"synthLevel",6}})h.set(id,v);
+     allocations=0;const auto x=render(h,96000,silence(),hold({40,47,52,56,59,64,68,71}));
+     double peak=0;bool finite=true;for(const float v:x.l){finite&=std::isfinite(v);peak=std::max(peak,double(std::abs(v)));}
+     std::cout<<"MEASURE every effect on, eight voices, +6 dB: peak "<<peak<<", allocations "<<allocations<<"\n";
+     require(finite && peak<=2.0 && allocations==0,"The effect rack is unbounded or allocates");}
+}
 void envelopes() {
     // Amp A 100 ms, D 200 ms, S 50 %, R 300 ms; note off at 1 s; 2 ms frames of a 2 kHz sine.
     Host h;clean(h,0);h.set("synthAmpAttack",100);h.set("synthAmpDecay",200);h.set("synthAmpSustain",50);h.set("synthAmpRelease",300);
@@ -707,7 +797,7 @@ void processorInsertsAndPage() {
     // Wavetable controls (docs/SYNTH_WAVETABLE.md): nine parameters at version hint 38, appended last.
     {int count=0;const int total=p->getParameters().size();
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthWavetableParameterVersion){
-        require(with->getParameterIndex()>=total-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount) && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
+        require(with->getParameterIndex()>=total-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+synthEffectsParameterCount) && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
      require(count==synthOscCount*synthWavetableParametersPerOsc && raw("synthOscATable")==0 && raw("synthOscAWarp")==0 && raw("synthOscAWarpAmount")==0,"Wavetable bank size or defaults wrong");
      static_cast<juce::Button*>(page.control("synthOscBMode0"))->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(20);page.updateModes();
      require(page.control("synthOscBTable")->isVisible() && !page.control("synthOscBWarp")->isVisible() && page.control("synthOscBShapes")->isVisible(),"Classic shapes do not show the shape strip and the table choice");
@@ -773,9 +863,40 @@ void processorInsertsAndPage() {
      auto* macro=dynamic_cast<juce::Slider*>(page.control("synthMacro2"));require(macro!=nullptr && macro->getTextFromValue(35.0)=="MACRO 2   35 %" && macro->getHeight()>=16,"A macro bar is unnamed or too small");
      static_cast<juce::Button*>(page.control("synthModTabLFO"))->triggerClick();pumpNow();require(page.control("synthLfo2Sync")->isVisible(),"LFO does not come back");
      int count=0;const int total=p->getParameters().size();
-     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthSequencerParameterVersion){require(with->getParameterIndex()>=total-synthSequencerParameterCount,"A sequencer parameter is not in the last bank");++count;}
+     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthSequencerParameterVersion){require(with->getParameterIndex()>=total-synthSequencerParameterCount-synthEffectsParameterCount && with->getParameterIndex()<total-synthEffectsParameterCount,"A sequencer parameter is not in its bank");++count;}
      require(count==synthSequencerParameterCount && synthSequencerParameterCount==48,"Sequencer bank size wrong");
      auto put=[&](const juce::String& pid,float v){auto* q=p->parameters().getParameter(pid);q->setValueNotifyingHost(q->convertTo0to1(v));};for(int k=0;k<synthSeqMaxSteps;++k)put(synthSeqStepID(k),0);}
+    // Effect rack (docs/SYNTH_EFFECTS.md): FX swaps the lower row for five effect panels; twenty-two parameters at version hint 41, appended last.
+    {const auto shown=[&](const juce::String& id){auto* c=page.control(id);if(c==nullptr)return false;for(;c!=nullptr && c!=&page;c=c->getParentComponent())if(!c->isVisible())return false;return true;};
+     const auto value=[&](const char* id){return p->parameters().getRawParameterValue(id)->load();};
+     const auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+     const auto ids=SynthEffects::parameterIDs();const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
+     require(!page.effectsShown() && shown("synthAmpAttack") && shown("synthSubOn") && shown("synthModAdd"),"The page does not open on the envelopes and matrix");
+     for(const auto& id:ids)require(page.control(id)!=nullptr && !shown(id),("An effect control is missing or shown outside the rack: "+id).toStdString());
+     auto* view=dynamic_cast<juce::Button*>(page.control("synthFxView"));require(view!=nullptr && view->getWidth()>=30 && page.getLocalBounds().contains(view->getBounds()),"No FX button in the top bar");
+     view->triggerClick();pumpNow();
+     require(page.effectsShown() && !shown("synthAmpAttack") && !shown("synthModEnvDecay") && !shown("synthSubOn") && !shown("synthNoiseLevel") && !shown("synthModAdd") && !shown("synthModTabLFO") && !shown("synthLfo1Rate") && !shown("synthSeqGraph") && !shown("synthMacro1"),
+             "FX leaves envelope, LFO, matrix or sub / noise controls on screen");
+     require(shown("synthLevel") && shown("synthCutoff") && shown("synthOutput") && shown("synthOscALevel"),"FX hides the oscillators, filters or master");
+     std::vector<std::pair<juce::String,juce::Rectangle<int>>> areas;const auto lower=page.getLocalBounds().withTrimmedTop(page.getHeight()/2);int smallest=1000;
+     for(const auto& id:ids){auto* c=page.control(id);require(shown(id),("An effect control is not shown in the rack: "+id).toStdString());
+         const auto area=page.getLocalArea(c->getParentComponent(),c->getBounds());require(lower.contains(area) && area.getWidth()>=36 && area.getHeight()>=16,("An effect control is outside the lower row or too small: "+id).toStdString());
+         for(const auto& [other,taken]:areas)require(!taken.intersects(area),("Effect controls overlap: "+id+" and "+other).toStdString());
+         if(dynamic_cast<juce::Slider*>(c)!=nullptr)smallest=std::min(smallest,std::min(area.getWidth(),area.getHeight()));
+         areas.push_back({id,area});}
+     require(!areas.back().second.intersects(page.getLocalArea(page.control("synthLevel")->getParentComponent(),page.control("synthLevel")->getBounds())),"The rack covers the master controls");
+     std::cout<<"MEASURE effect rack on the page ("<<page.getWidth()<<" x "<<page.getHeight()<<"): "<<ids.size()<<" controls in the lower row, none overlapping; smallest knob "<<smallest<<" px\n";
+     static_cast<juce::Button*>(page.control("synthFxDelayOn"))->triggerClick();pumpNow();require(value("synthFxDelayOn")>.5f,"The DELAY switch does not switch the delay");put("synthFxDelayOn",0);
+     auto* time=page.control("synthFxDelayTime")->getParentComponent();
+     put("synthFxDelaySync",0);page.updateModes();require(time->isEnabled(),"TIME is not usable in Free");
+     put("synthFxDelaySync",4);page.updateModes();require(!time->isEnabled(),"TIME is not dimmed while the delay follows the tempo");
+     view->triggerClick();pumpNow();
+     require(!page.effectsShown() && shown("synthAmpAttack") && shown("synthSubOn") && shown("synthModAdd") && shown("synthLfo1Rate") && !shown("synthSeqGraph") && !shown("synthFxChorusOn") && !shown("synthFxEqHigh"),"FX off does not bring the envelopes, LFOs and matrix back");
+     int count=0;const int total=p->getParameters().size();
+     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthEffectsParameterVersion){
+        require(with->getParameterIndex()==total-synthEffectsParameterCount+count && with->paramID==ids[count] && parameter->isAutomatable(),"An effect parameter is not in the last bank, in order");++count;}
+     require(count==synthEffectsParameterCount && synthEffectsParameterCount==22,"Effect bank size wrong");
+     for(const char* id:{"synthFxChorusOn","synthFxPhaserOn","synthFxDelayOn","synthFxReverbOn","synthFxEqOn"}){auto* q=p->parameters().getParameter(id);require(q->getDefaultValue()<.5f,"An effect is on by default");}}
     // Optional evidence: SYNTH_PAGE_SNAPSHOT=<directory> writes the page, with a sample in osc B.
     if(const char* dir=std::getenv("SYNTH_PAGE_SNAPSHOT")){
         const auto wav=juce::File::createTempFile(".wav");
@@ -791,6 +912,11 @@ void processorInsertsAndPage() {
         {auto put=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};put(synthModBID(1,"Amount"),-40);put(synthModBID(2,"Amount"),70);
          static const int pattern[]{100,0,-60,0,80,40,0,-100,60,0,0,30,-30,90,0,-50};for(int k=0;k<synthSeqMaxSteps;++k)put(synthSeqStepID(k),float(pattern[k]));put("synthSeqSteps",12);put("synthSeqSmooth",20);put("synthMacro1",65);}
         if(const char* tab=std::getenv("SYNTH_PAGE_TAB"))page.showModTab(std::atoi(tab));else page.showModTab(1);
+        if(std::getenv("SYNTH_PAGE_FX")){
+            auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+            for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthFxChorusOn",1},{"synthFxDelayOn",1},{"synthFxDelaySync",5},{"synthFxDelayFeedback",45},{"synthFxDelayPingPong",1},{"synthFxReverbOn",1},{"synthFxReverbDecay",3.5f},
+                    {"synthFxEqOn",1},{"synthFxEqLow",3},{"synthFxEqHigh",-2}})put(id,v);
+            page.showEffects(true);}
         page.refreshModulation();
         page.updateModes();page.resized();
         for(const float scale:{1.f,1.5f}){
@@ -803,7 +929,7 @@ void processorInsertsAndPage() {
     // Filters and distortion (docs/SYNTH_FILTERS.md): thirteen parameters at version hint 39, appended last.
     {int count=0;const int total=p->getParameters().size();
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthFiltersParameterVersion){
-        require(with->getParameterIndex()>=total-synthFiltersParameterCount-synthSequencerParameterCount && with->getParameterIndex()<total-synthSequencerParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
+        require(with->getParameterIndex()>=total-synthFiltersParameterCount-synthSequencerParameterCount-synthEffectsParameterCount && with->getParameterIndex()<total-synthSequencerParameterCount-synthEffectsParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
      const auto initial=[&](const char* id){auto* q=p->parameters().getParameter(id);return q->convertFrom0to1(q->getDefaultValue());};
      require(count==synthFiltersParameterCount && initial("synthFilter2On")==0 && initial("synthDistOn")==0 && initial("synthFilterRouting")==0 && initial("synthDistMix")==100,"Filter 2 / distortion bank size or defaults wrong");
      const std::vector<const char*> ids{"synthFilterOn","synthFilterType","synthCutoff","synthResonance","synthDrive","synthKeyTrack","synthFilterEnv","synthFilter2On","synthFilter2Type","synthFilter2Cutoff",
@@ -831,7 +957,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();effects();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

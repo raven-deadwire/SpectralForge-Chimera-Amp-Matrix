@@ -607,6 +607,31 @@ public:
         addAndMakeVisible(scope);
         for(const auto& [id,text]:std::initializer_list<std::pair<const char*,const char*>>{{"synthLevel","LEVEL"},{"synthGlide","GLIDE"},{"synthWidth","WIDTH"},{"synthFM","FM B>A"},{"synthSensitivity","THRESH"}})
             masterKnobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));
+        // Effect rack (docs/SYNTH_EFFECTS.md): FX in the top bar shows it in place of the envelopes, LFOs, matrix and sub / noise.
+        fxButton.setButtonText("FX");fxButton.setComponentID("synthFxView");fxButton.setClickingTogglesState(true);
+        fxButton.setTooltip("Show the effect rack (chorus, phaser, delay, reverb, EQ) in place of the envelopes, LFOs and matrix. The effects run whichever view is shown.");
+        fxButton.setColour(juce::TextButton::buttonOnColourId,accentColour);fxButton.setColour(juce::TextButton::textColourOnId,juce::Colour(0xff111414));
+        fxButton.onClick=[this]{showEffects(fxButton.getToggleState());};addAndMakeVisible(fxButton);
+        {struct Spec{const char* on;const char* name;std::vector<std::pair<const char*,const char*>> knobs;};
+         const std::array<Spec,synthEffectCount> specs{{
+            {"synthFxChorusOn","CHORUS",{{"synthFxChorusRate","RATE"},{"synthFxChorusDepth","DEPTH"},{"synthFxChorusMix","MIX"}}},
+            {"synthFxPhaserOn","PHASER",{{"synthFxPhaserRate","RATE"},{"synthFxPhaserDepth","DEPTH"},{"synthFxPhaserFeedback","FEEDBACK"},{"synthFxPhaserMix","MIX"}}},
+            {"synthFxDelayOn","DELAY",{{"synthFxDelayTime","TIME"},{"synthFxDelayFeedback","FEEDBACK"},{"synthFxDelayMix","MIX"}}},
+            {"synthFxReverbOn","REVERB",{{"synthFxReverbDecay","DECAY"},{"synthFxReverbDamp","DAMP"},{"synthFxReverbMix","MIX"}}},
+            {"synthFxEqOn","EQ",{{"synthFxEqLow","LOW 200 Hz"},{"synthFxEqHigh","HIGH 4 kHz"}}}}};
+         for(int e=0;e<synthEffectCount;++e){auto& panel=fxPanels[size_t(e)];
+            panel.on=add(std::make_unique<Toggle>(state,specs[size_t(e)].on,specs[size_t(e)].name));
+            for(const auto& [id,text]:specs[size_t(e)].knobs)panel.knobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));}
+         fxDelaySync=add(std::make_unique<Choice>(state,"synthFxDelaySync",synthFxDelaySyncNames(),"Delay time: Free uses TIME; the others follow the host tempo (120 BPM without one). D is dotted, T a triplet. At most 2 s."));
+         fxDelayPingPong=add(std::make_unique<Toggle>(state,"synthFxDelayPingPong","PING-PONG"));
+         static_cast<juce::TextButton*>(fxDelayPingPong)->setTooltip("On: the repeats alternate between left and right. Off: each side repeats on its own.");}
+        voiceView={&ampEnvelope,&modEnvelope,&modSourceTitle,&modTargetTitle,&modAmountTitle,&matrixView,&modHint,&seqGraph,seqSteps,seqRate,seqSmooth,seqRetrigger,
+                   subOn,subOctave,subShape,subLevel,noiseOn,noiseColor,noiseLevel};
+        for(auto& knobs:envKnobs)for(auto* k:knobs)voiceView.push_back(k);
+        for(auto& b:modTabs)voiceView.push_back(&b);
+        for(int l=0;l<2;++l)for(juce::Component* c:{lfoShape[size_t(l)],lfoSync[size_t(l)],static_cast<juce::Component*>(lfoRate[size_t(l)]),static_cast<juce::Component*>(&lfoGraphs[size_t(l)])})voiceView.push_back(c);
+        for(auto* m:macros)voiceView.push_back(m);
+        showEffects(false);
         updateModes();
         startTimerHz(20);
     }
@@ -629,7 +654,10 @@ public:
         shownType=juce::jlimit(0,2,juce::roundToInt(state.getRawParameterValue("synthType")->load()));
         art::synthStrip(g,{0.f,0.f,float(getWidth()),26.f},shownType,false);
         g.setColour(juce::Colours::black.withAlpha(.35f));g.fillRect(0,0,getWidth(),26);
-        for(const auto& [area,title]:panels()){
+        std::vector<std::pair<juce::Rectangle<int>,const char*>> drawn;
+        {const auto all=panels();for(size_t i=0;i<all.size();++i)if(!(fxView && i>=4 && i<=8))drawn.push_back(all[i]);}
+        if(fxView)for(const auto& area:effectPanels())drawn.push_back({area,""});
+        for(const auto& [area,title]:drawn){
             g.setColour(panelColour);g.fillRoundedRectangle(area.toFloat(),5);g.setColour(edgeColour);g.drawRoundedRectangle(area.toFloat().reduced(.5f),5,1);
             g.setColour(mutedColour);g.setFont(juce::FontOptions(10.f,juce::Font::bold));g.drawText(title,area.reduced(8,4).removeFromTop(14),juce::Justification::centredRight);
         }
@@ -646,11 +674,12 @@ public:
     void resized() override {
         auto top=getLocalBounds().removeFromTop(26);
         on->setBounds(top.removeFromLeft(80).reduced(0,1));top.removeFromLeft(6);
-        type->setBounds(top.removeFromLeft(318).reduced(0,1));top.removeFromLeft(6);
+        type->setBounds(top.removeFromLeft(298).reduced(0,1));top.removeFromLeft(6);
         character->setBounds(top.removeFromLeft(140).reduced(0,2));top.removeFromLeft(6);
         source->setBounds(top.removeFromLeft(118).reduced(0,1));top.removeFromLeft(6);
         insert->setBounds(top.removeFromLeft(118).reduced(0,1));top.removeFromLeft(6);
-        patch.setBounds(top.removeFromLeft(126).reduced(0,1));top.removeFromLeft(6);
+        patch.setBounds(top.removeFromLeft(102).reduced(0,1));top.removeFromLeft(6);
+        fxButton.setBounds(top.removeFromLeft(38).reduced(0,1));top.removeFromLeft(6);
         for(size_t i=0;i<header.size();++i){auto* k=header[i];k->setCompact();k->setBounds(top.removeFromLeft(std::min(100,top.getWidth()/int(header.size()-i))).reduced(0,1));k->setIncDec(i==0?" VOICES":" OCT");top.removeFromLeft(4);}
         const auto p=panels();
         for(int o=0;o<synthOscCount;++o){
@@ -695,6 +724,13 @@ public:
              lfoShape[size_t(l)]->setBounds(head.removeFromLeft(head.getWidth()/2-2));head.removeFromLeft(4);lfoSync[size_t(l)]->setBounds(head);
              lfoRate[size_t(l)]->setBounds(half.removeFromRight(48));lfoGraphs[size_t(l)].setBounds(half.reduced(0,3));}}
         layoutMatrix();
+        {const auto areas=effectPanels();
+         for(int e=0;e<synthEffectCount;++e){auto r=areas[size_t(e)].reduced(8,6);auto& panel=fxPanels[size_t(e)];
+            auto head=r.removeFromTop(20);panel.on->setBounds(head.removeFromLeft(74));r.removeFromTop(6);
+            if(e==synthFxDelay){auto row=r.removeFromTop(20);fxDelayPingPong->setBounds(row.removeFromRight(78));row.removeFromRight(4);fxDelaySync->setBounds(row);r.removeFromTop(6);}
+            const int count=int(panel.knobs.size()),perRow=count==4?2:count,rows=(count+perRow-1)/perRow,rowHeight=juce::jmin(76,r.getHeight()/rows);
+            r=r.withSizeKeepingCentre(r.getWidth(),rowHeight*rows);
+            for(int k=0;k<count;++k){if(k%perRow==0)head=r.removeFromTop(rowHeight);panel.knobs[size_t(k)]->setBounds(head.removeFromLeft(head.getWidth()/(perRow-k%perRow)));}}}
         {auto r=p[8].first.reduced(8,6);r.removeFromTop(16);auto sub=r.removeFromTop(r.getHeight()/2);
          auto head=sub.removeFromTop(18);subOn->setBounds(head.removeFromLeft(50));sub.removeFromTop(3);
          auto menus=sub.removeFromLeft(sub.getWidth()*3/5);subOctave->setBounds(menus.removeFromTop(20));menus.removeFromTop(3);subShape->setBounds(menus.removeFromTop(20));
@@ -773,6 +809,16 @@ static const std::array<std::pair<const char*,int>,8> direct{{{"synthFM",targetF
         for(auto* m:macros)m->setVisible(modTab==2);
     }
     StepGraph& stepGraph() noexcept {return seqGraph;}
+    // The effect rack, or the envelopes, LFOs, matrix and sub / noise, in the lower row (a view of the page, not a parameter).
+    void showEffects(bool show) {
+        fxView=show;fxButton.setToggleState(show,juce::dontSendNotification);
+        for(auto* c:voiceView)c->setVisible(!show);
+        for(auto& panel:fxPanels){panel.on->setVisible(show);for(auto* k:panel.knobs)k->setVisible(show);}
+        fxDelaySync->setVisible(show);fxDelayPingPong->setVisible(show);
+        if(!show){showModTab(modTab);layoutMatrix();}
+        updateModes();repaint();
+    }
+    bool effectsShown() const noexcept {return fxView;}
     void mouseDown(const juce::MouseEvent& e) override {
         if(!e.mods.isPopupMenu() || e.eventComponent==nullptr || e.eventComponent==this)return;
         const int target=modTargetFor(e.eventComponent->getComponentID());if(target<=0)return;
@@ -802,6 +848,8 @@ static const std::array<std::pair<const char*,int>,8> direct{{{"synthFM",targetF
         }
         const bool parallel=state.getRawParameterValue("synthFilterRouting")->load()>.5f;
         filterBalance->setVisible(parallel);
+        // The delay's TIME is used in Free only.
+        if(fxDelaySync!=nullptr){const bool free=state.getRawParameterValue("synthFxDelaySync")->load()<.5f;auto* time=fxPanels[synthFxDelay].knobs[0];time->setEnabled(free);time->setAlpha(free?1.f:.35f);}
         static const char* tips[]{"Dvergr Analog: slow pitch drift per oscillator (about 5 cents RMS at 100 %) and soft saturation into the filter",
                                   "Seidr Dynamic: the playing level (guitar level or velocity) moves the filter over 3 octaves, brightens the waves and sets the level over 12 dB",
                                   "Mimir Impact: each attack strikes an FM index (60 ms) and a noise click (4 ms)"};
@@ -819,6 +867,13 @@ private:
         return {{{col(0,a0,top,rowA),"OSC A"},{col(a0,a0,top,rowA),"OSC B"},{col(2*a0,a0,top,rowA),"OSC C"},{col(3*a0,a3+gap,top,rowA),"FILTERS / DIST"},
                  {col(0,b0,y2,h2),"ENV 1  AMP"},{col(b0,b1,y2,h2),"ENV 2  MOD"},{col(b0+b1,b2,y2,h2),""},{col(b0+b1+b2,b3,y2,h2),"MOD MATRIX"},
                  {col(b0+b1+b2+b3,b4,y2,h2),"SUB / NOISE"},{col(b0+b1+b2+b3+b4,b5+gap,y2,h2),"SCOPE / MASTER"}}};
+    }
+    // Five effect panels across the envelopes, LFOs, matrix and sub / noise.
+    std::array<juce::Rectangle<int>,synthEffectCount> effectPanels() const {
+        const auto p=panels();const int gap=6,x=p[4].first.getX(),right=p[8].first.getRight(),y=p[4].first.getY(),h=p[4].first.getHeight(),w=(right-x+gap)/synthEffectCount;
+        std::array<juce::Rectangle<int>,synthEffectCount> areas;
+        for(int e=0;e<synthEffectCount;++e)areas[size_t(e)]={x+e*w,y,(e==synthEffectCount-1?right-(x+e*w):w-gap),h};
+        return areas;
     }
     template<class C> C* add(std::unique_ptr<C> c){auto* raw=c.get();addAndMakeVisible(*raw);children.push_back(raw);owned.push_back(std::move(c));return raw;}
     void chooseSample(int osc){
@@ -844,7 +899,7 @@ private:
         auto r=panels()[7].first.reduced(8,6);r.removeFromTop(16);
         const int shown=modRowsShown(),h=17;const bool add=shown<modRowCount;
         auto titles=r.removeFromTop(11);
-        modHint.setVisible(r.getHeight()>=60);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
+        modHint.setVisible(!fxView && r.getHeight()>=60);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
         const int content=shown*h+(add?20:0);const bool scroll=content>r.getHeight();const int width=r.getWidth()-(scroll?10:0);
         const auto columns=[](juce::Rectangle<int> row){std::array<juce::Rectangle<int>,4> c;c[3]=row.removeFromRight(16);row.removeFromRight(2);
             c[0]=row.removeFromLeft(row.getWidth()*35/100);row.removeFromLeft(3);c[1]=row.removeFromLeft(row.getWidth()*60/100);row.removeFromLeft(3);c[2]=row;return c;};
@@ -888,5 +943,7 @@ private:
     juce::Component matrixHolder;juce::Viewport matrixView;   // after the rows it shows; the page's `owned` controls outlive both
     std::array<juce::TextButton,3> modTabs;int modTab{};StepGraph seqGraph;Knob* seqSteps{};juce::Component* seqRate{};juce::Slider* seqSmooth{};juce::Component* seqRetrigger{};std::array<juce::Slider*,synthMacroCount> macros{};
     Scope scope;std::vector<Knob*> masterKnobs;
+    struct FxPanel {juce::Component* on{};std::vector<Knob*> knobs;};
+    juce::TextButton fxButton;bool fxView{};std::array<FxPanel,synthEffectCount> fxPanels;juce::Component* fxDelaySync{};juce::Component* fxDelayPingPong{};std::vector<juce::Component*> voiceView;
 };
 } // namespace spectralforge::synthUI
