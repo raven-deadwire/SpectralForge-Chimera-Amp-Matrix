@@ -345,7 +345,8 @@ void rigPassEngineRepeatedRuns() {
     using P=Controller::Phase;
     constexpr int model=2;
     const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
-    const auto knobs=[=](float gainUnused,float presence,float treble,float bassMiddle) {
+    // Both rigs: PRESENCE at the given fraction; treble, bassMiddle>=0: those knobs too.
+    const auto knobs=[=](float,float presence,float treble,float bassMiddle) {
         return [=](ChimeraProcessor& p) {
             for(int rig=0;rig<2;++rig) {
                 const int channel=p.selectedAmpChannel(rig),context=spectralforge::ampNativeContext(1,rig);
@@ -362,12 +363,43 @@ void rigPassEngineRepeatedRuns() {
         Controller::Options options{1,false,k.style,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
         options.sync=options.cabIR=options.polarity=false;options.dualPower=true;
         juce::ValueTree session;
-        for(int run=0;run<8;++run) {
+        constexpr int runs=6;
+        int settledAt=0,direction=0;std::string measured;
+        std::array<float,2> presence{},share{};
+        for(int run=0;run<runs;++run) {
             const auto first=knobs(k.gain,k.presence,k.treble,k.bassMiddle);
+            // The next run starts on the session the last one left: every parameter is carried over.
             const auto r=runRigPassEngine(1,0,{0,1},options,{k.gain,k.gain},[&](ChimeraProcessor& p){if(session.isValid())p.parameters().replaceState(session.createCopy());else first(p);},false,
                                           [&](ChimeraProcessor& p){session=p.parameters().copyState();});
-            for(int rig=0;rig<2;++rig){const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
-                std::cout<<"PROBE "<<k.name<<" run "<<run+1<<" rig "<<rig+1<<": PRESENCE "<<db(r.presenceBefore[size_t(rig)])<<" > "<<db(r.presenceAfter[size_t(rig)])<<" share "<<db(r.highShareBeforeDb[size_t(rig)])<<" > "<<db(r.highShareAfterDb[size_t(rig)])<<" ["<<(step?step->result.toStdString():"none")<<"]"<<std::endl;}
+            const std::string name=std::string(k.name)+", run "+std::to_string(run+1);
+            check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},name+": the run on the real engine did not finish");
+            bool changed=false;
+            for(int rig=0;rig<2;++rig) {
+                const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+                check(step && !step->result.contains("no playing heard"),name+": the presence step did not hear the rig: "+(step?step->result.toStdString():std::string("no step")));
+                const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)];
+                // The session was carried over: this run starts where the last one ended.
+                if(run>0)check(std::abs(r.presenceBefore[size_t(rig)]-presence[size_t(rig)])<1e-6f && std::abs(r.highShareBeforeDb[size_t(rig)]-share[size_t(rig)])<.05f,
+                               name+": the run did not start on the session the last run left (PRESENCE "+db(presence[size_t(rig)])+" > "+db(r.presenceBefore[size_t(rig)])+", above 3 kHz "+db(share[size_t(rig)])+" > "+db(r.highShareBeforeDb[size_t(rig)])+" dB)");
+                // No run takes back what an earlier one did.
+                if(std::abs(knob)>1e-6f) {
+                    const int sign=knob>0?1:-1;
+                    check(direction==0 || direction==sign,name+": PRESENCE was moved back ("+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+"): "+step->result.toStdString());
+                    direction=sign;
+                }
+                if(!step->changed)check(std::abs(knob)<1e-6f && std::abs(r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)])<.05f,name+": a kept rig moved: "+step->result.toStdString());
+                changed=changed || step->changed;
+                presence[size_t(rig)]=r.presenceAfter[size_t(rig)];share[size_t(rig)]=r.highShareAfterDb[size_t(rig)];
+            }
+            // Once a run keeps both rigs, every later run keeps them too.
+            check(settledAt==0 || !changed,name+": a rig was set again after run "+std::to_string(settledAt)+" had kept both");
+            if(!changed && settledAt==0)settledAt=run+1;
+            if(settledAt==0 || settledAt==run+1)measured+=std::string(run?", ":"")+"run "+std::to_string(run+1)+" PRESENCE "+db(presence[0])+"/"+db(presence[1])+(changed?"":" (kept)");
         }
+        check(settledAt>0 && settledAt<runs,std::string(k.name)+": the rigs were still being set after "+std::to_string(runs-1)+" runs: "+measured);
+        // The rigs have the same head, knobs and cabinet: they end on the same PRESENCE, whichever run set each.
+        check(std::abs(presence[0]-presence[1])<1e-6f,std::string(k.name)+": two identical rigs ended on different PRESENCE: "+measured);
+        std::cout<<"MEASURE auto set rig pass engine repeated runs, "<<k.name<<" (PRESENCE rig 1/rig 2): "<<measured<<"; above 3 kHz "<<db(share[0])<<"/"<<db(share[1])<<" dB\n";
     }
+    std::cout<<"PASS auto set rig pass engine repeated runs: six runs on one session through processBlock; PRESENCE never moved back, both rigs kept from some run on and by every run after, identical rigs ending alike\n";
 }
