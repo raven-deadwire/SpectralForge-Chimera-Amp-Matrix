@@ -17,7 +17,7 @@ inline void addSlot(juce::AudioProcessorValueTreeState::ParameterLayout& layout,
 }
 } // namespace signal_order_detail
 // The released bank (version 29): orderTone1-6 and orderPost1-7. The POST
-// slots hold a block 0-13 since the second slots (docs/POST_SECOND_SLOTS.md);
+// slots hold a block 0-27 since slots 3 and 4 (docs/POST_FOUR_SLOTS.md);
 // stored values 0-6 keep their meaning. Not automatable.
 inline void appendSignalOrderParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
     for (int slot = 0; slot < toneModuleCount; ++slot) signal_order_detail::addSlot(layout, OrderRegion::tone, slot, signalOrderParameterVersion);
@@ -28,9 +28,16 @@ inline constexpr int signalOrderParameterCount = toneModuleCount + postModuleCou
 // bank. Their defaults (blocks 7-13) put the second slots after the released
 // order, so a project without them loads the released order unchanged.
 inline void appendPostSecondSlotOrderParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    for (int slot = postModuleCount; slot < postBlockCount; ++slot) signal_order_detail::addSlot(layout, OrderRegion::post, slot, postSecondSlotParameterVersion);
+    for (int slot = postModuleCount; slot < postSecondSlotBlockCount; ++slot) signal_order_detail::addSlot(layout, OrderRegion::post, slot, postSecondSlotParameterVersion);
 }
-inline constexpr int postSecondSlotOrderParameterCount = postBlockCount - postModuleCount;
+inline constexpr int postSecondSlotOrderParameterCount = postSecondSlotBlockCount - postModuleCount;
+// POST positions 15-28 (orderPost15-28), version 37, part of the slot 3 / 4
+// bank (docs/POST_FOUR_SLOTS.md). Defaults: blocks 14-27, after everything
+// released, so older projects keep their order.
+inline void appendPostExtraSlotOrderParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    for (int slot = postSecondSlotBlockCount; slot < postBlockCount; ++slot) signal_order_detail::addSlot(layout, OrderRegion::post, slot, postExtraSlotParameterVersion);
+}
+inline constexpr int postExtraSlotOrderParameterCount = postBlockCount - postSecondSlotBlockCount;
 
 // Reads the slot parameters. A slot set mid-edit can leave a duplicate for a
 // moment: an invalid region keeps `fallback` rather than jumping elsewhere.

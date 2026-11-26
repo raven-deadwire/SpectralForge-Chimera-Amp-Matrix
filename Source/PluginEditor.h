@@ -18,6 +18,7 @@
 #include "EasyModeView.h"
 #include "EffectModelSync.h"
 #include "CreativePanel.h"
+#include "CreativePage.h"
 #include "PostRackDrag.h"
 #include "PostSlotRow.h"
 #include "SynthPage.h"
@@ -207,6 +208,7 @@ private:
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
     std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip;
     std::unique_ptr<spectralforge::synthUI::SynthPage> synthPage;   // page 4
+    std::unique_ptr<spectralforge::creativeUI::CreativePage> creativePage;   // page 5
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};
@@ -220,9 +222,13 @@ private:
     void layoutRack();
     // POST second slots (docs/POST_SECOND_SLOTS.md): each row and the CREATIVE
     // strip show slot 1 or slot 2 of their section (presentation only).
-    std::array<std::unique_ptr<PostNativePanel>,3> postPanels2;
-    std::array<std::unique_ptr<spectralforge::postSlotUI::EffectSlotRow>,3> effectRows2;   // rows 3-5
-    std::unique_ptr<spectralforge::creativeUI::CreativeStrip> creativeStrip2;
+    // Slots 3 and 4 (docs/POST_FOUR_SLOTS.md) are two more sets: index 0-2 is slot 2-4.
+    static constexpr int extraSlots=spectralforge::postSlotCount-1;
+    std::array<std::array<std::unique_ptr<PostNativePanel>,3>,extraSlots> postPanelsExtra;
+    std::array<std::array<std::unique_ptr<spectralforge::postSlotUI::EffectSlotRow>,3>,extraSlots> effectRowsExtra;   // rows 3-5
+    std::array<std::unique_ptr<spectralforge::creativeUI::CreativeStrip>,extraSlots> creativeStripsExtra;
+    juce::TextButton postAdd{"+ ADD"};
+    void showPostAddMenu();
     std::array<std::unique_ptr<spectralforge::postSlotUI::SlotSelector>,spectralforge::postModuleCount> slotSelectors;
     std::array<int,spectralforge::postModuleCount> shownSlot{};
     // Rack row (0-5) to POST section, and whether a row shows its second slot.

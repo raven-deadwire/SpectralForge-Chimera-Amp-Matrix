@@ -13,12 +13,12 @@ public:
     // `slotIndex` 1: the section's second POST slot (docs/POST_SECOND_SLOTS.md),
     // the same panel on its "slot2_" parameters.
     PostNativePanel(ChimeraProcessor& owner,int sectionIndex,bool expanded=false,int slotIndex=0):processor(owner),section(sectionIndex),slot(slotIndex),detailed(expanded) {
-        setComponentID("postNativePanel"+juce::String(section)+(slot?"_2":""));
+        setComponentID("postNativePanel"+juce::String(section)+spectralforge::postSlotSuffix(slot));
         for(auto* label:{&title,&reference,&meterLabel,&sourceStatus}) {addAndMakeVisible(*label);label->setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));}
         sourceStatus.setComponentID("postCompressorStatus");sourceStatus.setFont(juce::FontOptions(10.5f));sourceStatus.setVisible(detailed && section==0 && slot==0);
         title.setFont(juce::FontOptions(detailed?11.f:15.f,juce::Font::bold));reference.setFont(juce::FontOptions(10.5f));meterLabel.setFont(juce::FontOptions(detailed?11.f:9.f));
         reference.setComponentID("postNativeReference"+juce::String(section)+suffix());reference.setMinimumHorizontalScale(1.f);
-        title.setText(juce::String(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER")+(slot?" 2":""),juce::dontSendNotification);
+        title.setText(juce::String(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER")+spectralforge::postSlotNumber(slot),juce::dontSendNotification);
         addAndMakeVisible(model);addAndMakeVisible(bypass);addAndMakeVisible(viewport);addAndMakeVisible(expand);
         expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section)+suffix());expand.setTooltip(section==0?"Open all compressor controls with its live input/output spectrum":"Open all processor controls");expand.setVisible(!detailed);
         expand.onClick=[this]{openDetails();};
@@ -157,8 +157,8 @@ public:
     }
     void resized() override {
         if(!detailed) {
-            // The title leaves x 170-212 to the editor's slot 1 / 2 switch.
-            title.setBounds(28,2,140,19);model.setBounds(28,23,182,24);reference.setBounds(28,47,182,15);
+            // The title leaves x 146-212 to the editor's slot 1-4 switch.
+            title.setBounds(28,2,116,19);model.setBounds(28,23,182,24);reference.setBounds(28,47,182,15);
             bypass.setBounds(221,13,43,25);expand.setBounds(221,42,43,19);meterLabel.setBounds(300,20,108,24);
             viewport.setBounds(438,1,getWidth()-448,62);viewport.setScrollBarsShown(false,false);
             const auto front=frontControls();const int cell=viewport.getWidth()/juce::jmax(1,(int)front.size());
@@ -186,7 +186,7 @@ private:
     uint64_t refreshCount{},meterCount{};
     ChimeraProcessor& processor;int section{},slot{},currentModel{-1};bool detailed{};
     juce::String pid(const juce::String& id) const {return spectralforge::postSlotID(slot,id);}
-    juce::String suffix() const {return slot?"_2":"";}StableAmpComboBox model;juce::TextButton bypass,expand;
+    juce::String suffix() const {return spectralforge::postSlotSuffix(slot);}StableAmpComboBox model;juce::TextButton bypass,expand;
     juce::Component::SafePointer<juce::DialogWindow> dialog;
     std::unique_ptr<spectralforge::DynamicsSpectrumPanel> spectrum;
     juce::Label title,reference,meterLabel,sourceStatus;juce::Viewport viewport;juce::Component content;

@@ -6,6 +6,7 @@
 #include <array>
 #include <atomic>
 #include <cmath>
+#include <limits>
 #include <vector>
 #include "PostInsert.h"
 #include "PostSlots.h"
@@ -23,10 +24,10 @@ inline constexpr int creativeParameterCount = 8;
 struct CreativeModel { const char* name; const char* reference; const char* character; std::array<const char*, 3> controls; juce::uint32 colour; };
 // Reference fields are internal design provenance and are never shown.
 inline constexpr std::array<CreativeModel, creativeModelCount> creativeModels{{
-    {"Gate Slicer", "Rhythmic slicer", "Tempo gate / depth and duty", {"RATE", "DEPTH", "DUTY"}, 0xff8a3f4f},
+    {"Gate Slicer", "Rhythmic slicer", "Step-pattern gate / depth and duty", {"RATE", "DEPTH", "DUTY"}, 0xff8a3f4f},
     {"Step Harmonizer", "Arpeggiating harmonizer", "Pitch steps through an interval pattern", {"RATE", "PATTERN", "GLIDE"}, 0xff4f5f9a},
     {"Time Bend", "Time-warp varispeed", "Swept pitch bend / tape-stop ramp", {"RATE", "BEND", "SHAPE"}, 0xff7a6a3a},
-    {"Zap Sweep", "Laser filter sweep", "Onset-triggered resonant down-sweep", {"SWEEP", "TRIGGER", "RESONANCE"}, 0xff3a8a7a},
+    {"Laser Zap", "Laser pitch zap", "Onset-triggered pitch dive / rise or filter sweep", {"SWEEP", "TRIGGER", "RANGE"}, 0xff3a8a7a},
     {"Freq Shift", "Frequency shifter", "Single-sideband shift / feedback and spread", {"SHIFT", "FEEDBACK", "SPREAD"}, 0xff6a3a8a},
     {"Freeze Hold", "Dynamic freeze", "Onset-captured sustain / decaying hold", {"HOLD", "TRIGGER", "GRAIN"}, 0xff3a6a9a},
     {"Glitch Stutter", "Glitch repeater", "Beat repeats / reversed slices", {"RATE", "CHANCE", "REVERSE"}, 0xff9a5a2a},
@@ -56,10 +57,63 @@ inline void appendCreativeParameters(juce::AudioProcessorValueTreeState::Paramet
         juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float value, int) { return juce::String(value, 1) + " dB"; })));
 }
 
+// CREATIVE page (docs/CREATIVE_PAGE.md), appended at version hint 36: where
+// the slot runs, the slicer's step pattern and the Laser's pitch modes. Every
+// default except the Laser mode is the released behaviour; a state saved
+// without these parameters restores the released filter sweep as well.
+inline constexpr int creativePageParameterVersion = 36;
+inline constexpr int creativeSlicerSteps = 16;
+inline constexpr int creativePageParameterCount = 6 + creativeSlicerSteps;
+// Both slots: the last bank of the parameter list.
+inline constexpr int creativePageTotalParameterCount = 2 * creativePageParameterCount;
+enum CreativeInsert { creativeAtAmpInput, creativeBeforeTone, creativeInPostRack, creativeAfterPost, creativeInsertCount };
+inline juce::StringArray creativeInsertNames() { return {"Amp input", "Before tone / dynamics", "POST rack", "After POST"}; }
+enum CreativeLaserMode { laserPitchDive, laserPitchRise, laserFilterSweep };
+inline juce::StringArray creativeLaserModeNames() { return {"Pitch dive", "Pitch rise", "Filter sweep"}; }
+inline juce::StringArray creativeStereoNames() { return {"Off", "Alternate"}; }
+struct CreativePattern { const char* name; std::array<float, creativeSlicerSteps> levels; };
+// Step levels of the built-in slicer patterns. "Straight" is the released
+// gate; "Custom" (the last choice) reads the 16 step parameters instead.
+inline constexpr std::array<CreativePattern, 12> creativePatterns{{
+    {"Straight", {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}},
+    {"Offbeat", {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}},
+    {"Gallop", {1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1}},
+    {"Reverse gallop", {1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1}},
+    {"Three-three-two", {1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0}},
+    {"Clave", {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0}},
+    {"Dotted", {1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1}},
+    {"Accent four", {1, .35f, .35f, .35f, 1, .35f, .35f, .35f, 1, .35f, .35f, .35f, 1, .35f, .35f, .35f}},
+    {"Ramp up", {.25f, .5f, .75f, 1, .25f, .5f, .75f, 1, .25f, .5f, .75f, 1, .25f, .5f, .75f, 1}},
+    {"Ramp down", {1, .75f, .5f, .25f, 1, .75f, .5f, .25f, 1, .75f, .5f, .25f, 1, .75f, .5f, .25f}},
+    {"Syncopated", {1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0}},
+    {"Burst", {1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0}}}};
+inline constexpr int creativeCustomPattern = int(creativePatterns.size());
+inline juce::StringArray creativePatternNames() { juce::StringArray names; for (const auto& p : creativePatterns) names.add(p.name); names.add("Custom"); return names; }
+inline juce::String creativeStepKey(int step) { return "creativeStep" + juce::String(step + 1); }
+
+inline void appendCreativePageParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int slot = 0, int v = creativePageParameterVersion) {
+    const auto id = [slot](const juce::String& x) { return postSlotID(slot, x.toRawUTF8()); };
+    const auto name = [slot](const juce::String& x) { return postSlotName(slot, x.toRawUTF8()); };
+    const auto percentText = juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float value, int) { return juce::String(juce::roundToInt(value)) + " %"; });
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{id("creativeInsert"), v}, name("Creative placement"), creativeInsertNames(), int(creativeInPostRack)));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{id("creativePattern"), v}, name("Creative slicer pattern"), creativePatternNames(), 0));
+    layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{id("creativeLength"), v}, name("Creative slicer steps"), 2, creativeSlicerSteps, creativeSlicerSteps));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id("creativeAttack"), v}, name("Creative slicer attack"), juce::NormalisableRange<float>{0.f, 100.f, .01f}, 0.f, percentText));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{id("creativeStereo"), v}, name("Creative slicer stereo"), creativeStereoNames(), 0));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{id("creativeLaserMode"), v}, name("Creative laser mode"), creativeLaserModeNames(), int(laserPitchDive)));
+    for (int step = 0; step < creativeSlicerSteps; ++step)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id(creativeStepKey(step)), v}, name("Creative slicer step " + juce::String(step + 1)), juce::NormalisableRange<float>{0.f, 100.f, .01f}, 100.f, percentText));
+}
+
 struct CreativeSettings {
     bool on{false};
     int model{0}, sync{3};
     float a{.5f}, b{.5f}, c{.5f}, mix{.5f}, outputDb{0.f};
+    // CREATIVE page; the defaults are what a slot without those parameters does.
+    int insert{creativeInPostRack}, length{creativeSlicerSteps}, laserMode{laserFilterSweep};
+    bool alternate{false};
+    float attack{0.f};
+    std::array<float, creativeSlicerSteps> steps{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 };
 
 namespace creative_detail {
@@ -104,7 +158,7 @@ struct PitchShifter {
     struct Head { double delay{}, age{}; };
     double window{2400};int search{576}, compare{192};
     std::array<Head, 2> heads{};
-    void prepare(double rate) { window = rate * .05;search = int(rate * .012);compare = int(rate * .004);reset(); }
+    void prepare(double rate, double windowSeconds = .05) { window = rate * windowSeconds;search = int(rate * .012);compare = int(rate * .004);reset(); }
     void reset() noexcept { heads[0] = {double(2 + compare), 0.0};heads[1] = {double(2 + compare), window * .5}; }
     std::array<float, 2> process(const History& h, double ratio) noexcept {
         for (int i = 0; i < 2; ++i) {
@@ -178,10 +232,12 @@ public:
         frozen.prepare(int(rate * .5));
         slice.prepare(int(rate * 2.1));
         shifter.prepare(rate);
+        laser.prepare(rate, .025);   // short windows: a +24 st start reads 75 ms back, not 150
         reset();
     }
     void reset() noexcept {
-        history.clear();frozen.clear();slice.clear();shifter.reset();
+        history.clear();frozen.clear();slice.clear();shifter.reset();laser.reset();
+        gates = {1.0, 1.0};patternStep = 0;laserBlend = 0;
         for (auto& h : hilbert) h = {};
         for (auto& f : svf) f = {};
         shiftPhase = {};feedback = {};phase = 0;gate = 1;captureDelay = 0;stepIndex = 0;ratio = 1;glideRatio = 1;envelope = 0;armed = true;sweep = 1.e9;
@@ -191,10 +247,20 @@ public:
         grainClock = 0;random = {};
     }
     // Processes `samples` frames of `input` (stereo) into `wet`.
-    void process(int model, const CreativeSettings& s, double tempo, const float* const* input, std::array<std::vector<float>, 2>& wet, int samples) noexcept {
+    // `ppq`: the host's quarter-note position at the first frame while it
+    // plays, else NaN. A synced slicer takes its step from it, so a pattern
+    // starts where the song position says and not where playback began.
+    void process(int model, const CreativeSettings& s, double tempo, const float* const* input, std::array<std::vector<float>, 2>& wet, int samples, double ppq = std::numeric_limits<double>::quiet_NaN()) noexcept {
         using namespace creative_detail;
         const double beats = creativeSyncBeats[size_t(std::clamp(s.sync, 0, int(creativeSyncBeats.size()) - 1))];
         const double bpm = std::isfinite(tempo) && tempo > 20.0 ? tempo : 120.0;
+        const int length = std::clamp(s.length, 1, creativeSlicerSteps);
+        if (model == 0 && beats > 0 && std::isfinite(ppq) && ppq >= 0.0) {
+            const double position = ppq / beats, whole = std::floor(position);
+            phase = position - whole;patternStep = int(std::fmod(whole, double(length)));
+        }
+        if (patternStep >= length) patternStep = 0;
+        const double rise = 1.0 - std::exp(-1.0 / ((.002 + .04 * s.attack) * rate)), fall = 1.0 - std::exp(-1.0 / (.002 * rate));
         // Step / cycle rate (Hz): tempo division when synced, else from A.
         const auto stepRate = [&](double lo, double hi) { return beats > 0 ? bpm / 60.0 / beats : expMap(lo, hi, s.a); };
         for (int n = 0; n < samples; ++n) {
@@ -202,12 +268,18 @@ public:
             history.push(l, r);
             std::array<float, 2> y{l, r};
             switch (model) {
-                case 0: { // Gate Slicer: A rate, B depth, C duty; 2 ms edges.
-                    phase += stepRate(1.0, 20.0) / rate;phase -= std::floor(phase);
+                case 0: { // Slicer: A step rate, B depth, C duty; each step opens to its pattern level.
+                    phase += stepRate(1.0, 20.0) / rate;
+                    if (phase >= 1.0) { phase -= std::floor(phase);if (++patternStep >= length) patternStep = 0; }
                     const double duty = .1 + .8 * s.c;
-                    const double target = phase < duty ? 1.0 : 1.0 - s.b;
-                    gate += (target - gate) * (1.0 - std::exp(-1.0 / (.002 * rate)));
-                    y = {float(l * gate), float(r * gate)};
+                    const double open = phase < duty ? double(s.steps[size_t(patternStep)]) : 0.0;
+                    // Alternate: even steps open the left channel, odd steps the right.
+                    for (int c = 0; c < 2; ++c) {
+                        const double heard = s.alternate && (patternStep & 1) != c ? 0.0 : open;
+                        const double target = 1.0 - s.b * (1.0 - heard);
+                        gates[size_t(c)] += (target - gates[size_t(c)]) * (target > gates[size_t(c)] ? rise : fall);
+                    }
+                    y = {float(l * gates[0]), float(r * gates[1])};
                     break;
                 }
                 case 1: { // Step Harmonizer: A step rate, B pattern, C glide.
@@ -228,13 +300,26 @@ public:
                     y = shifter.process(history, std::pow(2.0, bend / 12.0));
                     break;
                 }
-                case 3: { // Zap Sweep: onset restarts an 8 kHz -> 150 Hz resonant band-pass sweep.
+                case 3: { // Laser: an onset restarts a pitch sweep (C range) or the released band-pass sweep.
                     const double level = std::max(std::abs(l), std::abs(r));
                     envelope = level > envelope ? level : envelope * std::exp(-1.0 / (.05 * rate));
                     const double threshold = std::pow(10.0, (-60.0 + 48.0 * s.b) / 20.0);
                     if (armed && envelope > threshold) { armed = false;sweep = 0; }
                     if (!armed && envelope < threshold * .5) armed = true;
                     const double time = .02 + .58 * s.a;
+                    if (s.laserMode != laserFilterSweep) {
+                        // The note starts C x 24 semitones away (above: dive, below: rise) and
+                        // lands on its own pitch after the sweep time; from there the input
+                        // passes unshifted (10 ms blend).
+                        const double left = sweep < time ? 1.0 - sweep / time : 0.0;
+                        const double semitones = (s.laserMode == laserPitchRise ? -24.0 : 24.0) * s.c * left * left;
+                        sweep += 1.0 / rate;
+                        const auto shifted = laser.process(history, std::pow(2.0, semitones / 12.0));
+                        const double want = left > 0.0 ? 1.0 : 0.0;
+                        laserBlend += (want - laserBlend) * (want > laserBlend ? 1.0 : 1.0 - std::exp(-1.0 / (.01 * rate)));
+                        y = {float(laserBlend * shifted[0] + (1.0 - laserBlend) * l), float(laserBlend * shifted[1] + (1.0 - laserBlend) * r)};
+                        break;
+                    }
                     const double hz = sweep < time ? 8000.0 * std::pow(150.0 / 8000.0, sweep / time) : 150.0;
                     sweep += 1.0 / rate;
                     const double g = std::tan(pi * std::min(hz, rate * .45) / rate), q = 2.0 + 18.0 * s.c, k = 1.0 / q;
@@ -354,7 +439,10 @@ public:
 private:
     double rate{48000};
     creative_detail::History history, frozen, slice;
-    creative_detail::PitchShifter shifter;
+    creative_detail::PitchShifter shifter, laser;
+    std::array<double, 2> gates{1.0, 1.0};
+    double laserBlend{};
+    int patternStep{};
     std::array<creative_detail::Hilbert, 2> hilbert{};
     std::array<creative_detail::SVF, 2> svf{};
     std::array<double, 2> shiftPhase{}, feedback{}, tone{};
@@ -376,6 +464,10 @@ public:
         on = get("creativeOn");model = get("creativeModel");
         a = get("creativeA");b = get("creativeB");c = get("creativeC");
         mix = get("creativeMix");sync = get("creativeSync");output = get("creativeOutput");
+        // CREATIVE page parameters; a layout without them keeps the released behaviour.
+        insert = get("creativeInsert");pattern = get("creativePattern");length = get("creativeLength");attack = get("creativeAttack");
+        stereo = get("creativeStereo");laserMode = get("creativeLaserMode");
+        for (int i = 0; i < creativeSlicerSteps; ++i) steps[size_t(i)] = state.getRawParameterValue(postSlotID(slot, creativeStepKey(i).toRawUTF8()));
     }
     void prepare(const juce::dsp::ProcessSpec& spec) {
         rate = spec.sampleRate;
@@ -390,7 +482,7 @@ public:
         const auto s = read();
         level.setCurrentAndTargetValue(s.on ? s.mix : 0.f);fade.setCurrentAndTargetValue(1.f);
         gain.setCurrentAndTargetValue(s.on ? juce::Decibels::decibelsToGain(s.outputDb) : 1.f);
-        current = s.model;previous = -1;active = s.on;
+        current = s.model;previous = -1;active = s.on;place = s.insert;
     }
     CreativeSettings read() const noexcept {
         CreativeSettings s;
@@ -404,21 +496,41 @@ public:
         // which with fused multiply-add (Apple Silicon) leaves about -5e-7 dB
         // for the 0 dB default, and Mix 0 would no longer be exact.
         s.outputDb = std::round(juce::jlimit(-24.f, 12.f, value(output, 0.f)) * 100.f) * .01f;
+        s.insert = juce::jlimit(0, int(creativeInsertCount) - 1, juce::roundToInt(value(insert, float(creativeInPostRack))));
+        s.laserMode = juce::jlimit(0, int(laserFilterSweep), juce::roundToInt(value(laserMode, float(laserFilterSweep))));
+        s.attack = juce::jlimit(0.f, 1.f, value(attack, 0.f) * .01f);
+        s.alternate = value(stereo, 0.f) > .5f;
+        const int chosen = juce::jlimit(0, creativeCustomPattern, juce::roundToInt(value(pattern, 0.f)));
+        if (chosen < creativeCustomPattern) s.steps = creativePatterns[size_t(chosen)].levels;
+        else {
+            s.length = juce::jlimit(2, creativeSlicerSteps, juce::roundToInt(value(length, float(creativeSlicerSteps))));
+            for (int i = 0; i < creativeSlicerSteps; ++i) s.steps[size_t(i)] = juce::jlimit(0.f, 1.f, value(steps[size_t(i)], 100.f) * .01f);
+        }
         return s;
     }
-    void process(juce::AudioBuffer<float>& buffer, double tempo) noexcept override {
+    // The POST rack's call: the slot runs here only while placed in the rack.
+    void process(juce::AudioBuffer<float>& buffer, double tempo) noexcept override { processAt(creativeInPostRack, buffer, tempo); }
+    // The host's quarter-note position for the next block (NaN: not playing).
+    void setTransport(double ppq) noexcept { transport = ppq; }
+    int placement() const noexcept { return place; }
+    // Called at each of the four placements; only the one the slot is placed
+    // at processes. A placement change fades the effect out there (20 ms),
+    // moves, and fades in at the new point from clean voices.
+    void processAt(int point, juce::AudioBuffer<float>& buffer, double tempo) noexcept {
         const auto s = read();
         const int samples = buffer.getNumSamples(), channels = buffer.getNumChannels();
-        if (!s.on && !active) return;
+        if (!s.on && !active) { place = s.insert;return; }
+        if (point != place) return;
         if (samples > int(silence.size()) || channels < 1) return;
+        const bool moving = s.insert != place;
         if (s.on && !active) {   // switching on: start from clean voices
             for (auto& v : voices) v.reset();
             current = s.model;previous = -1;fade.setCurrentAndTargetValue(1.f);
             level.setCurrentAndTargetValue(0.f);gain.setCurrentAndTargetValue(1.f);
             active = true;
         }
-        level.setTargetValue(s.on ? s.mix : 0.f);
-        gain.setTargetValue(s.on ? juce::Decibels::decibelsToGain(s.outputDb) : 1.f);
+        level.setTargetValue(s.on && !moving ? s.mix : 0.f);
+        gain.setTargetValue(s.on && !moving ? juce::Decibels::decibelsToGain(s.outputDb) : 1.f);
         if (s.model != current && previous < 0) {   // a model change crossfades from the old voice
             previous = current;current = s.model;
             slot = 1 - slot;   // the old voice keeps running in the other slot
@@ -426,9 +538,9 @@ public:
             fade.setCurrentAndTargetValue(0.f);fade.setTargetValue(1.f);
         }
         const float* inputs[2] = {buffer.getReadPointer(0), buffer.getReadPointer(channels > 1 ? 1 : 0)};
-        voices[size_t(slot)].process(current, s, tempo, inputs, wet[0], samples);
+        voices[size_t(slot)].process(current, s, tempo, inputs, wet[0], samples, transport);
         const bool crossfading = previous >= 0;
-        if (crossfading) voices[size_t(1 - slot)].process(previous, s, tempo, inputs, wet[1], samples);
+        if (crossfading) voices[size_t(1 - slot)].process(previous, s, tempo, inputs, wet[1], samples, transport);
         for (int n = 0; n < samples; ++n) {
             const float m = level.getNextValue(), g = gain.getNextValue(), f = crossfading ? fade.getNextValue() : 1.f;
             for (int ch = 0; ch < std::min(channels, 2); ++ch) {
@@ -440,6 +552,8 @@ public:
         if (crossfading && !fade.isSmoothing()) previous = -1;
         // Off and faded out: the slot goes idle and later blocks are untouched.
         if (!s.on && !level.isSmoothing() && !gain.isSmoothing()) { active = false;for (auto& v : voices) v.reset(); }
+        // Faded out at the old placement: the next block runs at the new one.
+        else if (moving && !level.isSmoothing() && !gain.isSmoothing()) { place = s.insert;for (auto& v : voices) v.reset();previous = -1; }
     }
     bool isActive() const noexcept { return active; }
 private:
@@ -448,8 +562,12 @@ private:
     std::array<std::array<std::vector<float>, 2>, 2> wet;
     std::vector<float> silence;
     juce::SmoothedValue<float> level, fade, gain;
-    int current{}, previous{-1}, slot{};
+    int current{}, previous{-1}, slot{}, place{creativeInPostRack};
     bool active{};
+    double transport{std::numeric_limits<double>::quiet_NaN()};
+    std::atomic<float>* insert{};std::atomic<float>* pattern{};std::atomic<float>* length{};std::atomic<float>* attack{};
+    std::atomic<float>* stereo{};std::atomic<float>* laserMode{};
+    std::array<std::atomic<float>*, creativeSlicerSteps> steps{};
     std::atomic<float>* on{};std::atomic<float>* model{};std::atomic<float>* a{};std::atomic<float>* b{};std::atomic<float>* c{};
     std::atomic<float>* mix{};std::atomic<float>* sync{};std::atomic<float>* output{};
 };

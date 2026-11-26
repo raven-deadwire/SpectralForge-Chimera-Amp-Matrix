@@ -157,15 +157,15 @@ private:
 inline int rowY(int slot) noexcept { return 330 + juce::jlimit(0, rowCount - 1, slot) * 69; }
 inline juce::Rectangle<int> rowBounds(int slot) noexcept { return {20, rowY(slot), 1140, 64}; }
 inline const juce::Rectangle<int> creativeStripBounds{310, 302, 850, 24};
-// `shown`: the slot (0 or 1) each section's row or strip shows; the other
+// `shown`: the slot (0-3) each section's row or strip shows; the other
 // slot's block has no grip and takes no drop on this page.
 inline void layout(Overlay& overlay, const std::array<int, rowCount>& slots, const std::array<int, postModuleCount>& shown = {}) {
     overlay.setBounds(20, 298, 1140, 443);
     for (int row = 0; row < rowCount; ++row) {
         const int section = rowModules[size_t(row)];const auto box = rowBounds(slots[size_t(row)]);
-        for (int slot = 0; slot < 2; ++slot) overlay.setBlock(postBlock(section, slot), slot == shown[size_t(section)] ? box : juce::Rectangle<int>(), box.withWidth(26));
+        for (int slot = 0; slot < postSlotCount; ++slot) overlay.setBlock(postBlock(section, slot), slot == shown[size_t(section)] ? box : juce::Rectangle<int>(), box.withWidth(26));
     }
-    for (int slot = 0; slot < 2; ++slot)
+    for (int slot = 0; slot < postSlotCount; ++slot)
         overlay.setBlock(postBlock(postCreativeModule, slot), slot == shown[size_t(postCreativeModule)] ? creativeStripBounds.expanded(4, 3) : juce::Rectangle<int>(), creativeStripBounds.withWidth(14), {4, 7});
 }
 } // namespace spectralforge::postRack

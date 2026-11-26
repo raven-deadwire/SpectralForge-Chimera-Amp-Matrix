@@ -29,9 +29,8 @@ inline int postSecondSlotParameterCount() noexcept {
          + postNativeReleasedParameterCount() + postExpansionParameterCount() + creativeParameterCount;
 }
 
-inline void appendPostSecondSlotParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
-    constexpr int v = postSecondSlotParameterVersion;
-    appendPostSecondSlotOrderParameters(layout);
+// One slot's copy of every POST section parameter, under its prefix at `v`.
+inline void appendPostSlotCopy(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int slot, int v) {
     // Slot 1's host names for the fields registered by name (the rest use their ID).
     const auto legacyName = [](const juce::String& id) -> juce::String {
         static const std::array<std::pair<const char*, const char*>, 8> names{{{"delayon", "Post delay"}, {"delaytime", "Delay time"}, {"delayfeedback", "Delay feedback"}, {"delaymix", "Delay mix"},
@@ -41,20 +40,35 @@ inline void appendPostSecondSlotParameters(juce::AudioProcessorValueTreeState::P
     };
     for (const int index : postLegacyFXIndices) {
         const auto& spec = fxSpecs[size_t(index)];
-        const juce::ParameterID id{postSlotID(1, spec.id), v};const auto name = postSlotName(1, legacyName(spec.id));
+        const juce::ParameterID id{postSlotID(slot, spec.id), v};const auto name = postSlotName(slot, legacyName(spec.id));
         if (spec.toggle) layout.add(std::make_unique<juce::AudioParameterBool>(id, name, spec.initial > .5f));
         else layout.add(std::make_unique<juce::AudioParameterFloat>(id, name, juce::NormalisableRange<float>{spec.minimum, spec.maximum, spec.interval}, spec.initial));
     }
     for (const int family : postModelFamilies) {
         const auto& f = modelFamilies[size_t(family)];
-        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{postSlotID(1, f.parameter), v}, postSlotName(1, juce::String(f.category) + " model"), modelNames(family), 0));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{postSlotID(slot, f.parameter), v}, postSlotName(slot, juce::String(f.category) + " model"), modelNames(family), 0));
     }
     for (const int family : postExtendedFamilies)
-        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{postSlotID(1, effectExtensionID(family)), v},
-            postSlotName(1, juce::String(modelFamilies[size_t(family)].category) + " model extension"), 0, 15, 0, juce::AudioParameterIntAttributes().withAutomatable(false)));
-    addPostNativeParameters(layout, 1, v);
-    appendPostExpansionParameters(layout, 1, v);
-    appendCreativeParameters(layout, 1, v);
+        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{postSlotID(slot, effectExtensionID(family)), v},
+            postSlotName(slot, juce::String(modelFamilies[size_t(family)].category) + " model extension"), 0, 15, 0, juce::AudioParameterIntAttributes().withAutomatable(false)));
+    addPostNativeParameters(layout, slot, v);
+    appendPostExpansionParameters(layout, slot, v);
+    appendCreativeParameters(layout, slot, v);
+}
+inline void appendPostSecondSlotParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    appendPostSecondSlotOrderParameters(layout);
+    appendPostSlotCopy(layout, 1, postSecondSlotParameterVersion);
+}
+// Slots 3 and 4 (docs/POST_FOUR_SLOTS.md), version hint 37, appended after
+// the CREATIVE page bank: orderPost15-28, then for each slot the same copy as
+// slot 2 followed by its CREATIVE page parameters.
+inline int postExtraSlotParameterCount() noexcept {
+    return postExtraSlotOrderParameterCount + (postSlotCount - 2) * (postSecondSlotParameterCount() - postSecondSlotOrderParameterCount + creativePageParameterCount);
+}
+inline void appendPostExtraSlotParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    constexpr int v = postExtraSlotParameterVersion;
+    appendPostExtraSlotOrderParameters(layout);
+    for (int slot = 2; slot < postSlotCount; ++slot) { appendPostSlotCopy(layout, slot, v); appendCreativePageParameters(layout, slot, v); }
 }
 
 // The legacy POST fields and model choices of one slot, as the audio thread
