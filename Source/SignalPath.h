@@ -5,7 +5,7 @@
 #include "CabLayoutModel.h"
 
 namespace spectralforge::signalPath {
-enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics, synth };
+enum class Target { input, gate, transpose, tuner, pre, rigs, amp, cab, low, toneEQ, post, utilities, finalEQ, output, dynamics, synth, creative };
 // Node::section of the 1.9 CREATIVE slot (POST sections are 0-5).
 inline constexpr int creativeSection = 6;
 struct Node {
@@ -150,7 +150,10 @@ inline Snapshot read(ChimeraProcessor& p) {
         const auto second=[&](juce::String model,bool active){return std::pair<juce::String,juce::String>{postBlockName(block).toUpperCase(),active?model:juce::String("BYPASSED")};};
         if(module==postCreativeModule){
             const int creativeModel=juce::jlimit(0,creativeModelCount-1,int(v(pid("creativeModel"))));const bool active=on(pid("creativeOn"));
-            const juce::String detail=juce::String(rack?"Second CREATIVE slot. ":"CREATIVE slot. ")+"Off leaves the signal untouched."+where;
+            // A slot placed outside the rack (CREATIVE page) keeps its rack block; the detail says where it runs.
+            const int insert=juce::jlimit(0,int(creativeInsertCount)-1,int(v(pid("creativeInsert"))));
+            const juce::String runs=insert==creativeInPostRack?where:" Placed at "+creativeInsertNames()[insert]+" on the CREATIVE page: it runs there, not at this rack position.";
+            const juce::String detail=juce::String(rack?"Second CREATIVE slot. ":"CREATIVE slot. ")+"Off leaves the signal untouched."+runs;
             if(rack){const auto [label,status]=second(creativeModels[size_t(creativeModel)].name,active);add(moduleNodeID(OrderRegion::post,block),label,Target::post,x,y,active,status,-1,creativeSection,detail);s.nodes.back().slot=1;}
             else add("post.creative",creativeModels[size_t(creativeModel)].name,Target::post,x,y,active,{},-1,creativeSection,detail);
         } else {

@@ -4,13 +4,16 @@
 // editor wiring.
 #include <juce_dsp/juce_dsp.h>
 #include "PluginProcessor.h"
+#include "PluginEditor.h"
 #include "CreativeFX.h"
 #include "CreativePanel.h"
+#include "CreativePage.h"
 #include "SignalPath.h"
 #include <algorithm>
 #include <cmath>
 #include <complex>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <new>
@@ -138,7 +141,7 @@ void zapSweep() {
     const auto out=render(s,int(rate*1.6),x);
     const double early=centroid(out.l,int(rate*.02),int(rate*.05)),mid=centroid(out.l,int(rate*.14),int(rate*.17)),late=centroid(out.l,int(rate*.45),int(rate*.6));
     const double again=centroid(out.l,int(rate*1.22),int(rate*1.25));
-    std::cout<<"MEASURE Zap Sweep centroid: "<<early<<" Hz at 20-50 ms, "<<mid<<" Hz at 140-170 ms, "<<late<<" Hz after the sweep; "<<again<<" Hz after a new onset\n";
+    std::cout<<"MEASURE Laser Zap filter sweep centroid: "<<early<<" Hz at 20-50 ms, "<<mid<<" Hz at 140-170 ms, "<<late<<" Hz after the sweep; "<<again<<" Hz after a new onset\n";
     require(early>2500 && mid<early*.7 && late<700 && again>2500,"Zap Sweep does not sweep down from each onset");
 }
 
@@ -238,11 +241,238 @@ void processorAndEditor() {
     require(node!=nullptr && node->label=="Freq Shift" && node->active,"Signal path lacks the CREATIVE node");
     std::cout<<"PASS processor chain, strip and panel attached, labels per model, signal-path node\n";
 }
+
+// ---- CREATIVE page (docs/CREATIVE_PAGE.md): patterns, Laser pitch modes, placement ----
+struct PageHost final : juce::AudioProcessor {
+    juce::AudioProcessorValueTreeState state;
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendCreativeParameters(l);appendCreativePageParameters(l);return l;}
+    PageHost():state(*this,nullptr,"CREATIVE",layout()){}
+    void set(const juce::String& id,float v){auto* p=state.getParameter(id);require(p!=nullptr,("no parameter "+id).toStdString());p->setValueNotifyingHost(p->convertTo0to1(v));}
+    const juce::String getName() const override {return "creative page";}
+    void prepareToPlay(double,int) override {}void releaseResources() override {}
+    void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override {}
+    double getTailLengthSeconds() const override {return 0;}bool acceptsMidi() const override {return false;}bool producesMidi() const override {return false;}
+    juce::AudioProcessorEditor* createEditor() override {return nullptr;}bool hasEditor() const override {return false;}
+    int getNumPrograms() override {return 1;}int getCurrentProgram() override {return 0;}void setCurrentProgram(int) override {}
+    const juce::String getProgramName(int) override {return {};}void changeProgramName(int,const juce::String&) override {}
+    void getStateInformation(juce::MemoryBlock&) override {}void setStateInformation(const void*,int) override {}
+};
+// Renders through a slot bound to the page layout; `ppq` >= 0 reports a playing host from that position.
+template<class Input> Stereo renderPage(PageHost& h,int samples,Input input,double tempo=120,double ppq=-1) {
+    CreativeFX fx;fx.bind(h.state);fx.prepare({rate,(juce::uint32)block,2});
+    Stereo out{std::vector<float>((size_t)samples),std::vector<float>((size_t)samples)};juce::AudioBuffer<float> b(2,block);
+    for(int offset=0;offset<samples;offset+=block){
+        for(int n=0;n<block;++n){b.setSample(0,n,input(offset+n,0));b.setSample(1,n,input(offset+n,1));}
+        if(ppq>=0)fx.setTransport(ppq+double(offset)*tempo/60.0/rate);
+        countAllocations=true;fx.process(b,tempo);countAllocations=false;
+        for(int n=0;n<block && offset+n<samples;++n){out.l[size_t(offset+n)]=b.getSample(0,n);out.r[size_t(offset+n)]=b.getSample(1,n);}
+    }
+    return out;
+}
+// Peak of a 1 kHz sine over the middle half of step `index` (steps of `stepSamples` from `origin`).
+double stepPeak(const std::vector<float>& x,int origin,int stepSamples,int index){double p=0;for(int n=origin+index*stepSamples+stepSamples/4;n<origin+index*stepSamples+stepSamples*3/4;++n)p=std::max(p,double(std::abs(x[size_t(n)])));return p;}
+
+void slicerPatterns() {
+    // Straight with attack 0 is the released gate, sample for sample.
+    {CreativeVoice voice;voice.prepare(rate);CreativeSettings s;s.on=true;s.model=0;s.a=.37f;s.b=.8f;s.c=.3f;s.sync=0;
+     std::vector<float> l(48000),r(48000);for(int n=0;n<48000;++n){l[size_t(n)]=.4f*noise(n,0);r[size_t(n)]=.4f*noise(n,1);}
+     std::array<std::vector<float>,2> wet{std::vector<float>(48000),std::vector<float>(48000)};const float* in[2]{l.data(),r.data()};
+     voice.process(0,s,120,in,wet,48000);
+     double phase=0,gate=1;const double hz=1.0*std::pow(20.0/1.0,double(s.a));
+     for(int n=0;n<48000;++n){phase+=hz/rate;phase-=std::floor(phase);const double target=phase<.1+.8*s.c?1.0:1.0-s.b;gate+=(target-gate)*(1.0-std::exp(-1.0/(.002*rate)));
+         require(wet[0][size_t(n)]==float(l[size_t(n)]*gate) && wet[1][size_t(n)]==float(r[size_t(n)]*gate),"Straight pattern is not the released gate");}}
+    // 1/16 at 120 BPM: 6000-sample steps. Depth 100 %, duty 100 % (0.9 of the step).
+    const int step=6000;const auto tone=sine(1000,.5);
+    for(const int pattern:{1,2,5,8}){
+        PageHost h;h.set("creativeOn",1);h.set("creativeModel",0);h.set("creativeB",100);h.set("creativeC",100);h.set("creativeMix",100);h.set("creativeSync",4);h.set("creativePattern",float(pattern));
+        const auto out=renderPage(h,step*40,tone,120,0.0);
+        for(int k=16;k<32;++k){const double want=.5*creativePatterns[size_t(pattern)].levels[size_t(k%16)],got=stepPeak(out.l,0,step,k);
+            require(std::abs(got-want)<.01,std::string("Pattern ")+creativePatterns[size_t(pattern)].name+" step "+std::to_string(k%16+1)+" level "+std::to_string(got)+" != "+std::to_string(want));}
+    }
+    // Custom: 3 steps at 100 / 0 / 50 %; the fourth step is the first again.
+    {PageHost h;h.set("creativeOn",1);h.set("creativeModel",0);h.set("creativeB",100);h.set("creativeC",100);h.set("creativeMix",100);h.set("creativeSync",4);
+     h.set("creativePattern",float(creativeCustomPattern));h.set("creativeLength",3);h.set("creativeStep1",100);h.set("creativeStep2",0);h.set("creativeStep3",50);
+     const auto out=renderPage(h,step*20,tone,120,0.0);const std::array<double,3> want{.5,0,.25};
+     for(int k=6;k<18;++k)require(std::abs(stepPeak(out.l,0,step,k)-want[size_t(k%3)])<.01,"Custom pattern or its length is wrong");
+     // Alternate: even steps left, odd steps right.
+     h.set("creativeLength",2);h.set("creativeStep2",100);h.set("creativeStereo",1);const auto wide=renderPage(h,step*20,tone,120,0.0);
+     for(int k=6;k<18;++k){const double l=stepPeak(wide.l,0,step,k),r=stepPeak(wide.r,0,step,k);
+         require(k%2==0?(l>.49 && r<.01):(r>.49 && l<.01),"Alternate does not switch sides step by step");}}
+    // Host position: starting 2.5 steps into the bar plays step 3 (0-based 2) at once, half-way through.
+    {PageHost h;h.set("creativeOn",1);h.set("creativeModel",0);h.set("creativeB",100);h.set("creativeC",100);h.set("creativeMix",100);h.set("creativeSync",4);h.set("creativePattern",8);   // Ramp up
+     const auto out=renderPage(h,step*8,tone,120,2.5*.25);
+     // Step 3 (level 1.0) starts at -3000 samples; step 4 starts at 3000: .25, .5, .75, 1 follow.
+     const std::array<double,4> want{.125,.25,.375,.5};for(int k=1;k<5;++k)require(std::abs(stepPeak(out.l,3000,step,k)-want[size_t((k-1)%4)])<.01,"The slicer does not follow the host position");}
+    // Attack 100 %: the gate opens over ~42 ms instead of 2 ms.
+    {const auto riseTime=[&](float attack){PageHost h;h.set("creativeOn",1);h.set("creativeModel",0);h.set("creativeB",100);h.set("creativeC",50);h.set("creativeMix",100);h.set("creativeSync",2);h.set("creativePattern",0);h.set("creativeAttack",attack);
+         const auto out=renderPage(h,96000,tone,120,0.0);   // quarter notes: 24000-sample steps, opening at 48000
+         int t10=-1,t90=-1;for(int n=48000;n<60000;++n){double p=0;for(int k=0;k<48;++k)p=std::max(p,double(std::abs(out.l[size_t(n+k)])));if(t10<0 && p>=.05)t10=n;if(t90<0 && p>=.45){t90=n;break;}}
+         return (t90-t10)/rate*1000.0;};
+     const double fast=riseTime(0),slow=riseTime(100);
+     std::cout<<"MEASURE slicer attack 10-90 %: "<<fast<<" ms at 0 %, "<<slow<<" ms at 100 %\n";
+     require(fast<8 && slow>60 && slow<130,"Slicer attack does not set the opening time");}
+    std::cout<<"PASS slicer: Straight is the released gate sample for sample; built-in and custom patterns, length, alternate stereo, host position, attack\n";
+}
+
+void laserPitch() {
+    // A 440 Hz note starting at 0.2 s. Dive, range 50 % (12 st), sweep 50 % (310 ms).
+    const auto note=[](int n,int){return n<int(rate*.2)?0.f:float(.4*std::sin(2*pi*440*n/rate));};
+    const auto run=[&](int mode){PageHost h;h.set("creativeOn",1);h.set("creativeModel",3);h.set("creativeA",50);h.set("creativeB",50);h.set("creativeC",50);h.set("creativeMix",100);h.set("creativeLaserMode",float(mode));
+        return renderPage(h,int(rate*1.2),note);};
+    const auto dive=run(laserPitchDive),rise=run(laserPitchRise);const int t0=int(rate*.2);
+    // Expected at t after the onset: 440 x 2^(+-12 x (1 - t / 0.31)^2 / 12).
+    const auto expected=[](double t,double sign){const double left=1-t/.31;return 440*std::pow(2.0,sign*12*left*left/12);};
+    const double d1=frequency(dive.l,t0+int(rate*.05),t0+int(rate*.09)),d2=frequency(dive.l,t0+int(rate*.18),t0+int(rate*.22));
+    const double r1=frequency(rise.l,t0+int(rate*.05),t0+int(rate*.09)),r2=frequency(rise.l,t0+int(rate*.18),t0+int(rate*.22));
+    std::cout<<"MEASURE Laser dive: "<<d1<<" Hz at 50-90 ms ("<<expected(.07,1)<<" expected), "<<d2<<" Hz at 180-220 ms ("<<expected(.2,1)<<"); rise: "<<r1<<" Hz ("<<expected(.07,-1)<<"), "<<r2<<" Hz ("<<expected(.2,-1)<<")\n";
+    require(std::abs(d1/expected(.07,1)-1)<.08 && std::abs(d2/expected(.2,1)-1)<.05 && d1>d2 && d2>440,"Laser dive does not fall onto the note");
+    require(std::abs(r1/expected(.07,-1)-1)<.08 && std::abs(r2/expected(.2,-1)-1)<.05 && r1<r2 && r2<440,"Laser rise does not climb onto the note");
+    // After the sweep (and its 10 ms blend) the note passes untouched.
+    double late=0;for(int n=t0+int(rate*.45);n<int(rate*1.2);++n)late=std::max(late,double(std::abs(dive.l[size_t(n)]-note(n,0))));
+    std::cout<<"MEASURE Laser after the sweep: largest difference from the input "<<late<<"\n";
+    require(late<1e-4,"Laser does not return to the unshifted note");
+    // Range 0: nothing is shifted.
+    {PageHost h;h.set("creativeOn",1);h.set("creativeModel",3);h.set("creativeC",0);h.set("creativeMix",100);const auto flat=renderPage(h,int(rate*.6),note);
+     const double hz=frequency(flat.l,t0+int(rate*.05),t0+int(rate*.25));require(std::abs(hz-440)<1,"Laser range 0 still shifts");}
+    // The filter mode is the released sweep: the page layout's Filter sweep equals a slot without page parameters.
+    {const auto x=[](int n,int c){return .25f*noise(n,c);};Setup s;s.model=3;const auto released=render(s,24000,x);
+     PageHost h;h.set("creativeOn",1);h.set("creativeModel",3);h.set("creativeMix",100);h.set("creativeLaserMode",float(laserFilterSweep));const auto page=renderPage(h,24000,x);
+     for(int n=0;n<24000;++n)require(page.l[size_t(n)]==released.l[size_t(n)] && page.r[size_t(n)]==released.r[size_t(n)],"Filter sweep mode is not the released Zap Sweep");}
+    std::cout<<"PASS Laser: pitch dive and rise follow their law and land on the note; range 0 is unshifted; Filter sweep is the released model sample for sample\n";
+}
+
+void placement() {
+    PageHost h;h.set("creativeOn",1);h.set("creativeModel",7);h.set("creativeA",100);h.set("creativeMix",100);   // Bit Crush, 2 bits: audible anywhere
+    CreativeFX fx;fx.bind(h.state);fx.prepare({rate,(juce::uint32)block,2});juce::AudioBuffer<float> b(2,block);
+    const auto fill=[&](int k){for(int n=0;n<block;++n)for(int c=0;c<2;++c)b.setSample(c,n,float(.3*std::sin(2*pi*220*(k*block+n)/rate)));};
+    // Which of the four points changed the block, as a bit mask.
+    const auto pass=[&](int k){int mask=0;for(int point=0;point<creativeInsertCount;++point){fill(k);juce::AudioBuffer<float> copy(b);fx.processAt(point,b,120);
+        bool changed=false;for(int n=0;n<block;++n)changed|=b.getSample(0,n)!=copy.getSample(0,n);if(changed)mask|=1<<point;}return mask;};
+    for(int k=0;k<20;++k)require(pass(k)==1<<creativeInPostRack,"A slot placed in the POST rack ran elsewhere");
+    require(fx.placement()==creativeInPostRack,"Placement did not start in the POST rack");
+    h.set("creativeInsert",float(creativeAtAmpInput));
+    // The move: the effect fades out at the old point, then runs only at the new one.
+    int k=20,blocksToMove=0;for(;k<60 && fx.placement()!=creativeAtAmpInput;++k,++blocksToMove)require((pass(k)&~(1<<creativeInPostRack))==0,"The slot ran at two points during a move");
+    require(fx.placement()==creativeAtAmpInput && blocksToMove*block/rate<.06,"The slot did not move within 60 ms");
+    for(;k<80;++k)require(pass(k)==1<<creativeAtAmpInput,"After the move the slot does not run at the amp input only");
+    // No click: through a move the output never steps more than the effect itself does.
+    {PageHost g;g.set("creativeOn",1);g.set("creativeModel",0);g.set("creativeB",0);g.set("creativeMix",100);   // slicer at depth 0 passes the signal
+     CreativeFX one;one.bind(g.state);one.prepare({rate,(juce::uint32)block,2});double last=0,jump=0;
+     for(int q=0;q<80;++q){if(q==30)g.set("creativeInsert",float(creativeAfterPost));fill(q);for(int point=0;point<creativeInsertCount;++point)one.processAt(point,b,120);
+         for(int n=0;n<block;++n){const double v=b.getSample(0,n);if(q>0||n>0)jump=std::max(jump,std::abs(v-last));last=v;}}
+     std::cout<<"MEASURE placement move: largest sample-to-sample step "<<jump<<" (a 220 Hz sine at 0.3 steps 0.0086)\n";
+     require(jump<.012,"Moving the slot clicks");}
+    // Off: every point is sample-exact, and an idle slot follows the placement at once.
+    h.set("creativeOn",0);for(int q=0;q<40;++q)pass(100+q);
+    require(!fx.isActive() && pass(200)==0,"CREATIVE off is not exact at every placement");
+    h.set("creativeInsert",float(creativeBeforeTone));pass(201);require(fx.placement()==creativeBeforeTone,"An idle slot does not follow its placement");
+    std::cout<<"PASS placement: one point at a time, a move fades out and in without a click, off is exact everywhere\n";
+}
+
+void pageInProcessor() {
+    const auto make=[]{auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,block);p->prepareToPlay(rate,block);return p;};
+    const auto run=[&](int insert,bool on){auto p=make();
+        auto set=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);require(q!=nullptr,("missing "+id).toStdString());q->setValueNotifyingHost(q->convertTo0to1(v));};
+        if(on){set("creativeOn",1);set("creativeModel",7);set("creativeA",100);set("creativeB",0);set("creativeC",0);set("creativeMix",100);}
+        set("creativeInsert",float(insert));
+        juce::AudioBuffer<float> b(2,block);juce::MidiBuffer midi;std::vector<float> out;
+        for(int k=0;k<80;++k){for(int n=0;n<block;++n)for(int c=0;c<2;++c)b.setSample(c,n,float(.3*std::sin(2*pi*220*(k*block+n)/rate)));p->processBlock(b,midi);for(int n=0;n<block;++n)out.push_back(b.getSample(0,n));}
+        return out;};
+    const auto differ=[](const std::vector<float>& x,const std::vector<float>& y){double d=0;for(size_t n=0;n<x.size();++n)d=std::max(d,double(std::abs(x[n]-y[n])));return d;};
+    const auto plain=run(creativeInPostRack,false);std::array<std::vector<float>,creativeInsertCount> placed;
+    for(int i=0;i<creativeInsertCount;++i){placed[size_t(i)]=run(i,true);
+        require(differ(plain,run(i,false))==0,"Placement changes the sound of a slot that is off");
+        require(differ(plain,placed[size_t(i)])>1e-3,std::string("The slot is not heard at ")+creativeInsertNames()[i].toStdString());}
+    const double input=differ(placed[size_t(creativeAtAmpInput)],placed[size_t(creativeInPostRack)]);
+    std::cout<<"MEASURE processor: Bit Crush at the amp input differs from the POST rack by up to "<<input<<"\n";
+    require(input>1e-3,"Amp input placement sounds the same as the POST rack");
+    // Parameters: both slots, version hint 36; the Laser defaults to the pitch dive in a new instance...
+    auto p=make();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))
+        if(with->paramID.contains("creativeInsert")||with->paramID.contains("creativePattern")||with->paramID.contains("creativeLength")||with->paramID.contains("creativeAttack")||with->paramID.contains("creativeStereo")||with->paramID.contains("creativeLaserMode")||with->paramID.contains("creativeStep")){
+            ++count;require(with->getVersionHint()==creativePageParameterVersion,"CREATIVE page parameter has the wrong version hint");}
+    require(count==2*creativePageParameterCount,"CREATIVE page parameter count is "+std::to_string(count));
+    const auto raw=[&](const juce::String& id){return p->parameters().getRawParameterValue(id)->load();};
+    require(juce::roundToInt(raw("creativeLaserMode"))==laserPitchDive && juce::roundToInt(raw("creativeInsert"))==creativeInPostRack && juce::roundToInt(raw("creativePattern"))==0,"New-instance defaults are wrong");
+    // ...and a project saved before the page restores the released filter sweep, in both slots.
+    {juce::MemoryBlock saved;p->getStateInformation(saved);
+     auto xml=juce::AudioProcessor::getXmlFromBinary(saved.getData(),int(saved.getSize()));require(xml!=nullptr,"State is not XML");
+     auto tree=juce::ValueTree::fromXml(*xml);int removed=0;
+     for(int i=tree.getNumChildren();--i>=0;){const auto id=tree.getChild(i).getProperty("id").toString();
+         if(id.contains("creativeInsert")||id.contains("creativePattern")||id.contains("creativeLength")||id.contains("creativeAttack")||id.contains("creativeStereo")||id.contains("creativeLaserMode")||id.contains("creativeStep")){tree.removeChild(i,nullptr);++removed;}}
+     require(removed==2*creativePageParameterCount,"Saved state does not hold every CREATIVE page parameter ("+std::to_string(removed)+")");
+     juce::MemoryBlock old;if(auto oldXml=tree.createXml())juce::AudioProcessor::copyXmlToBinary(*oldXml,old);
+     auto q=make();q->setStateInformation(old.getData(),int(old.getSize()));
+     const auto value=[&](const juce::String& id){return juce::roundToInt(q->parameters().getRawParameterValue(id)->load());};
+     require(value("creativeLaserMode")==laserFilterSweep && value(postSlotID(1,"creativeLaserMode"))==laserFilterSweep,"An older project does not keep the Laser's filter sweep");
+     require(value("creativeInsert")==creativeInPostRack && value("creativePattern")==0 && value("creativeStereo")==0,"An older project does not restore the released CREATIVE behaviour");
+     // A project saved now keeps what it chose.
+     auto set=[&](const juce::String& id,float v){auto* r=p->parameters().getParameter(id);r->setValueNotifyingHost(r->convertTo0to1(v));};
+     set("creativeLaserMode",float(laserPitchRise));set("creativeInsert",float(creativeAtAmpInput));set("creativePattern",float(creativeCustomPattern));set("creativeStep5",25);set(postSlotID(1,"creativeInsert"),float(creativeAfterPost));
+     juce::MemoryBlock now;p->getStateInformation(now);auto r=make();r->setStateInformation(now.getData(),int(now.getSize()));
+     const auto got=[&](const juce::String& id){return r->parameters().getRawParameterValue(id)->load();};
+     require(juce::roundToInt(got("creativeLaserMode"))==laserPitchRise && juce::roundToInt(got("creativeInsert"))==creativeAtAmpInput && juce::roundToInt(got("creativePattern"))==creativeCustomPattern
+         && std::abs(got("creativeStep5")-25)<.01 && juce::roundToInt(got(postSlotID(1,"creativeInsert")))==creativeAfterPost,"CREATIVE page settings do not survive save and reopen");}
+    // The page: tiles select the model, names follow it, the grid edits the Custom pattern.
+    {auto q=make();spectralforge::creativeUI::CreativePage page(*q);page.setSize(1140,438);
+     const auto value=[&](const juce::String& id){return q->parameters().getRawParameterValue(id)->load();};
+     auto* tile=dynamic_cast<juce::Button*>(page.control("creativeTile3"));require(tile!=nullptr,"Laser tile missing");tile->onClick();
+     require(juce::roundToInt(value("creativeModel"))==3 && page.view(0).controlName(2)=="RANGE","The Laser tile does not select the model or name its controls");
+     auto* q3=q->parameters().getParameter("creativeLaserMode");q3->setValueNotifyingHost(q3->convertTo0to1(float(laserFilterSweep)));
+     require(page.view(0).controlName(2)=="RESONANCE","Filter sweep mode does not name control C RESONANCE");
+     dynamic_cast<juce::Button*>(page.control("creativeTile0"))->onClick();
+     auto* pattern=q->parameters().getParameter("creativePattern");pattern->setValueNotifyingHost(pattern->convertTo0to1(2));   // Gallop
+     auto& grid=page.view(0).stepGrid();require(grid.isVisible() && grid.getWidth()>300,"The step grid is not shown for the slicer");
+     const auto cell=grid.cell(1).toNearestInt();   // Gallop step 2 is closed: drag it half open
+     const auto event=[&](juce::Point<int> at){return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(),at.toFloat(),{},juce::MouseInputSource::defaultPressure,0,0,0,0,&grid,&grid,juce::Time::getCurrentTime(),at.toFloat(),juce::Time::getCurrentTime(),1,false);};
+     const juce::Point<int> at{cell.getCentreX(),grid.getHeight()/2};grid.mouseDown(event(at));grid.mouseUp(event(at));
+     require(juce::roundToInt(value("creativePattern"))==creativeCustomPattern,"Editing a built-in pattern does not switch to Custom");
+     require(std::abs(value("creativeStep1")-100)<.01 && std::abs(value("creativeStep2")-50)<3 && std::abs(value("creativeStep3")-100)<.01 && std::abs(value("creativeStep4")-100)<.01,"Custom did not start from the pattern that was showing");
+     // Slot 2 has its own controls; showing it changes no parameter.
+     juce::MemoryBlock before,after;q->getStateInformation(before);page.showSlot(1);q->getStateInformation(after);
+     require(before==after && page.shownSlot()==1 && page.control(postSlotID(1,"creativeOn"))!=nullptr && page.view(1).isVisible() && !page.view(0).isVisible(),"Slot 2 view is wrong or changed the sound");}
+    std::cout<<"PASS processor: four placements heard, off exact, "<<count<<" page parameters at hint 36, older projects keep the filter sweep, save / reopen, page tiles, names and step grid\n";
+}
+
+// The real editor: the stage strip's CREATIVE button and a POST strip's ALL open the page.
+// CHIMERA_CREATIVE_SNAPSHOTS=<dir> also writes the page as PNG files (2x).
+void pageInEditor() {
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,block);p->prepareToPlay(rate,block);
+    auto set=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+    std::unique_ptr<juce::AudioProcessorEditor> editor(p->createEditor());require(editor!=nullptr,"No editor");
+    if(auto* full=dynamic_cast<ChimeraEditor*>(editor.get()))full->setEasyMode(false,false);   // the full editor, whatever this machine remembers
+    editor->setVisible(true);editor->addToDesktop(0);
+    const auto pump=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(250);};pump();
+    const std::function<juce::Component*(juce::Component&,const juce::String&)> find=[&](juce::Component& root,const juce::String& id)->juce::Component*{
+        if(root.getComponentID()==id)return &root;for(auto* c:root.getChildren())if(auto* hit=find(*c,id))return hit;return nullptr;};
+    auto* page=find(*editor,"creativePage");require(page!=nullptr && !page->isVisible(),"CREATIVE page missing or shown at start");
+    auto* stage=dynamic_cast<juce::Button*>(find(*editor,"path.creative"));require(stage!=nullptr && stage->isShowing(),"The stage strip has no CREATIVE button");
+    juce::MemoryBlock before,after;p->getStateInformation(before);
+    stage->onClick();pump();p->getStateInformation(after);
+    require(page->isShowing() && before==after,"The CREATIVE stage button does not open the page, or opening it changed the sound");
+    require(find(*editor,"synthPage")!=nullptr && !find(*editor,"synthPage")->isVisible(),"SYNTH page shows together with CREATIVE");
+    // Back to POST, then ALL on the second slot's strip: the page opens on slot 2.
+    auto* post=dynamic_cast<juce::Button*>(find(*editor,"path.post"));require(post!=nullptr,"POST stage button missing");post->onClick();pump();
+    require(!page->isVisible(),"CREATIVE page stays over the POST page");
+    auto* all=dynamic_cast<juce::Button*>(find(*editor,"creativeStrip.all"));require(all!=nullptr && all->isShowing(),"POST strip ALL missing");
+    all->onClick();pump();
+    auto* creative=dynamic_cast<spectralforge::creativeUI::CreativePage*>(page);
+    require(page->isShowing() && creative!=nullptr && creative->shownSlot()==0 && stage->getToggleState(),"ALL does not open the CREATIVE page on its slot");
+    if(const auto directory=juce::SystemStats::getEnvironmentVariable("CHIMERA_CREATIVE_SNAPSHOTS",{});directory.isNotEmpty()){
+        const auto save=[&](const juce::String& name){pump();const auto image=editor->createComponentSnapshot(editor->getLocalBounds(),true,2.f);
+            juce::File file=juce::File(directory).getChildFile(name);file.getParentDirectory().createDirectory();file.deleteFile();juce::FileOutputStream out(file);juce::PNGImageFormat png;require(out.openedOk() && png.writeImageToStream(image,out),"Snapshot not written");};
+        set("creativeOn",1);set("creativeModel",0);set("creativePattern",2);set("creativeB",100);set("creativeSync",4);creative->view(0).refresh();save("creative-slicer.png");
+        set("creativeModel",3);set("creativeInsert",float(creativeAtAmpInput));creative->view(0).refresh();save("creative-laser.png");
+        set("creativeModel",6);creative->view(0).refresh();save("creative-glitch.png");
+    }
+    editor->removeFromDesktop();editor.reset();
+    std::cout<<"PASS editor: CREATIVE stage button and POST strip ALL open the page; opening changes no parameter\n";
+}
 }
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {offAndMix();gateSlicer();stepHarmonizer();timeBend();zapSweep();freqShift();freezeHold();glitchStutter();bitCrush();grainCloud();contract();processorAndEditor();}
+    try {offAndMix();gateSlicer();stepHarmonizer();timeBend();zapSweep();freqShift();freezeHold();glitchStutter();bitCrush();grainCloud();contract();processorAndEditor();slicerPatterns();laserPitch();placement();pageInProcessor();pageInEditor();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

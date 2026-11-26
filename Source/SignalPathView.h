@@ -204,6 +204,14 @@ public:
             bool postActive=false;for(const auto& n:current.nodes)if(n.target==Target::post)postActive|=n.active;
             visible.push_back({"post","POST",postActive?"ACTIVE":"BYPASSED","Open the POST effects rack.",Target::post,-1,-1,postActive});
             add("final.eq");
+            {   // CREATIVE: its own page for both slots, wherever each is placed.
+                const auto& state=processor.parameters();juce::String status;bool active=false;
+                for(int slot=0;slot<2;++slot)if(const auto* on=state.getRawParameterValue(spectralforge::postSlotID(slot,"creativeOn")))if(on->load()>.5f){
+                    const int model=juce::jlimit(0,spectralforge::creativeModelCount-1,int(state.getRawParameterValue(spectralforge::postSlotID(slot,"creativeModel"))->load()));
+                    status<<(active?" + ":"")<<juce::String(spectralforge::creativeModels[size_t(model)].name).toUpperCase();active=true;
+                }
+                visible.push_back({"creative","CREATIVE",active?status:"BYPASSED","Open the CREATIVE page: slicer patterns, laser, glitch and the other creative effects, and where each slot runs.",Target::creative,-1,-1,active});
+            }
             if(const auto* n=current.find("synth"))visible.push_back({"synth","SYNTH",n->status,"Open the SYNTH page: oscillators, filter, envelopes, LFOs and modulation.",Target::synth,-1,-1,n->active});
         }else visible=current.nodes;
         std::vector<std::unique_ptr<juce::TextButton>> nextButtons;
