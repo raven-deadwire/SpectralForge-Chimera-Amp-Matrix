@@ -408,10 +408,14 @@ void rigPassEngineRepeatedRuns() {
     }
     std::cout<<"PASS auto set rig pass engine repeated runs: six runs on one session through processBlock; PRESENCE never moved back, both rigs kept from some run on and by every run after, identical rigs ending alike\n";
 }
-// Phase 50 probe
+// Phase 50: the rig and lane passes on the real engine at other sample rates and block sizes
+// (docs/AUTO_SET_PHASE50.md). Phases 44 to 49 ran at 48 kHz with blocks of 256 only.
+// Run by its own test, ChimeraAutoSetRigPassRatesTests (--rig-pass-rates), not by the whole binary.
 void rigPassEngineRates() {
-    using P=Controller::Phase;constexpr int model=2,rhythm=0;
+    using P=Controller::Phase;
+    constexpr int model=2,rhythm=0;
     const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    const auto pct=[](float v){return std::to_string(juce::roundToInt(v*100))+"%";};
     Controller::Options base{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
     base.sync=base.cabIR=base.polarity=false;
     struct Session {double rate;int block;};
@@ -420,12 +424,25 @@ void rigPassEngineRates() {
         {"Dual Blend",1,0,{0,1},{P::dualAmp1,P::dualAmp2},{P::dualTrim1,P::dualTrim2},&Controller::Options::dualAmp,&Controller::Options::dualTrim,0.f},
         {"Dual Crossover",1,1,{0,1},{P::crossGain1,P::crossGain2},{P::crossTrim1,P::crossTrim2},&Controller::Options::crossGain,&Controller::Options::crossTrim,0.f},
         {"Matrix",2,0,{1,2},{P::matrixGain2,P::matrixGain3},{P::matrixTrim2,P::matrixTrim3},&Controller::Options::matrixGain,&Controller::Options::matrixTrim,.2f}}};
-    for(const Session& at:{Session{48000.,256},Session{44100.,256},Session{96000.,256},Session{48000.,64},Session{48000.,1024}}) {
+    for(const Session& at:{Session{44100.,256},Session{96000.,256},Session{48000.,64},Session{48000.,1024}}) {
+        std::ostringstream label;label<<at.rate<<" Hz, blocks of "<<at.block;
+        const std::string where=label.str();
         for(const auto& k:layouts) {
+            const std::string name=where+", "+k.name;
+            // GAIN, as phase 44: started far below the rock drive, it rises and the drive comes closer to the target.
             auto gain=base;gain.*(k.gain)=true;
             const auto g=runRigPassEngine(k.mode,k.dualType,k.lanes,gain,{.05f,.05f},{},false,{},at.rate,at.block);
-            for(int i=0;i<2;++i){const auto* step=stepOf(g.status,k.gainRows[size_t(i)]);
-                std::cout<<"PROBE "<<at.rate<<"/"<<at.block<<" "<<k.name<<" gain "<<i<<": "<<g.gainBefore[size_t(i)]<<" > "<<g.gainAfter[size_t(i)]<<" drive "<<g.analysis[size_t(i)].compressionBefore<<" > "<<g.analysis[size_t(i)].compressionAfter<<" ["<<(step?step->result.toStdString():"none")<<"]"<<std::endl;}
+            check(g.status.phase==P::done && g.status.passes==std::vector<P>{k.gainRows[0],k.gainRows[1]},name+": the GAIN passes did not run on the real engine");
+            std::string measured;
+            for(int index=0;index<2;++index) {
+                const auto* step=stepOf(g.status,k.gainRows[size_t(index)]);const auto& a=g.analysis[size_t(index)];
+                check(step!=nullptr && g.analysed[size_t(index)],name+": a GAIN pass left no row or analysis");
+                check(a.playingDetected,name+": the playing was not heard through the engine: "+step->result.toStdString());
+                check(step->changed && g.gainAfter[size_t(index)]>g.gainBefore[size_t(index)],name+": a low GAIN was not raised: "+step->result.toStdString());
+                check(std::abs(a.compressionAfter-a.compressionTarget)<std::abs(a.compressionBefore-a.compressionTarget),name+": the drive did not come closer to the target: "+step->result.toStdString());
+                measured+=std::string(index?" | ":"")+"GAIN "+db(g.gainBefore[size_t(index)])+" > "+db(g.gainAfter[size_t(index)])+", drive "+pct(a.compressionBefore)+" > "+pct(a.compressionAfter)+" (target "+pct(a.compressionTarget)+")";
+            }
+            // The input trim, as phase 46: RHYTHM with GAIN low. The trim rises, OUTPUT LEVEL falls, and the lane stays about as loud.
             auto trim=base;trim.*(k.trim)=true;
             const auto heads=[=](ChimeraProcessor& p) {
                 for(const int lane:k.lanes) {
@@ -435,13 +452,37 @@ void rigPassEngineRates() {
                 }
             };
             const auto t=runRigPassEngine(k.mode,k.dualType,k.lanes,trim,{0.f,0.f},heads,false,{},at.rate,at.block);
-            for(int i=0;i<2;++i){const auto* step=stepOf(t.status,k.trimRows[size_t(i)]);
-                std::cout<<"PROBE "<<at.rate<<"/"<<at.block<<" "<<k.name<<" trim "<<i<<": trim "<<db(t.trimAfter[size_t(i)])<<" out "<<db(t.outputAfter[size_t(i)]-t.outputBefore[size_t(i)])<<" level "<<db(t.levelBeforeDb[size_t(i)])<<" > "<<db(t.levelAfterDb[size_t(i)])<<" ["<<(step?step->result.toStdString():"none")<<"]"<<std::endl;}
+            check(t.status.phase==P::done,name+": the trim run on the real engine did not finish");
+            for(int index=0;index<2;++index) {
+                const auto* step=stepOf(t.status,k.trimRows[size_t(index)]);
+                check(step && step->changed && t.trimAfter[size_t(index)]>0 && t.outputAfter[size_t(index)]<t.outputBefore[size_t(index)],
+                      name+": the trim was not raised with the level lowered: "+(step?step->result.toStdString():std::string("no step")));
+                const float moved=t.levelAfterDb[size_t(index)]-t.levelBeforeDb[size_t(index)];
+                check(std::abs(moved)<2.f,name+": the lane's level moved by "+db(moved)+" dB after the trim: "+step->result.toStdString());
+                measured+=" | trim +"+db(t.trimAfter[size_t(index)])+" dB, OUTPUT LEVEL "+db(t.outputAfter[size_t(index)]-t.outputBefore[size_t(index)])+" dB, lane level "+db(t.levelBeforeDb[size_t(index)])+" > "+db(t.levelAfterDb[size_t(index)])+" dB";
+            }
+            std::cout<<"MEASURE auto set rig pass rates, "<<name<<": "<<measured<<'\n';
         }
+        // PRESENCE, as phase 47: both Dual Blend rigs with PRESENCE at its top. Each move is checked against the rig's measured top end.
         auto power=base;power.dualPower=true;
-        const auto r=runRigPassEngine(1,0,{0,1},power,{.3f,.3f},[=](ChimeraProcessor& p){for(int rig=0;rig<2;++rig){const int channel=p.selectedAmpChannel(rig);
-            p.parameters().getParameter(spectralforge::ampNativeControlID(spectralforge::ampNativeContext(1,rig),model,powerControl(model,channel,powerPresence),channel))->setValueNotifyingHost(1.f);}},false,{},at.rate,at.block);
-        for(int i=0;i<2;++i){const auto* step=stepOf(r.status,i==0?P::dualPower1:P::dualPower2);
-            std::cout<<"PROBE "<<at.rate<<"/"<<at.block<<" presence "<<i<<": "<<db(r.presenceBefore[size_t(i)])<<" > "<<db(r.presenceAfter[size_t(i)])<<" share "<<db(r.highShareBeforeDb[size_t(i)])<<" > "<<db(r.highShareAfterDb[size_t(i)])<<" ["<<(step?step->result.toStdString():"none")<<"]"<<std::endl;}
+        const auto r=runRigPassEngine(1,0,{0,1},power,{.3f,.3f},[=](ChimeraProcessor& p) {
+            for(int rig=0;rig<2;++rig) {
+                const int channel=p.selectedAmpChannel(rig);
+                p.parameters().getParameter(spectralforge::ampNativeControlID(spectralforge::ampNativeContext(1,rig),model,powerControl(model,channel,powerPresence),channel))->setValueNotifyingHost(1.f);
+            }
+        },false,{},at.rate,at.block);
+        check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},where+": the presence passes did not run on the real engine");
+        std::string measured;
+        for(int rig=0;rig<2;++rig) {
+            const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+            check(step && !step->result.contains("no playing heard"),where+": the presence step did not hear the rig: "+(step?step->result.toStdString():std::string("no step")));
+            const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)],share=r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)];
+            check(step->changed,where+": a rig far over the target was kept: "+step->result.toStdString());
+            check(knob<1e-6f,where+": PRESENCE at its top was raised: "+step->result.toStdString());
+            if(knob<-1e-6f)check(share<-.05f,where+": PRESENCE was lowered but the rig's top end did not fall ("+db(share)+" dB): "+step->result.toStdString());
+            measured+=std::string(rig?" | ":"")+"PRESENCE "+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+", above 3 kHz "+db(r.highShareBeforeDb[size_t(rig)])+" > "+db(r.highShareAfterDb[size_t(rig)])+" dB";
+        }
+        std::cout<<"MEASURE auto set rig pass rates, "<<where<<", presence: "<<measured<<'\n';
     }
+    std::cout<<"PASS auto set rig pass rates: GAIN, input trim and presence of the rig and lane passes through processBlock at 44.1 and 96 kHz and with blocks of 64 and 1024\n";
 }

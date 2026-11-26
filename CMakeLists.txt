@@ -763,6 +763,10 @@ target_link_libraries(ChimeraAutoSetBusOrderDSPTests PRIVATE juce::juce_dsp juce
 add_test(NAME ChimeraAutoSetBusOrderDSPTests COMMAND ChimeraAutoSetBusOrderDSPTests)
 set_tests_properties(ChimeraAutoSetBusOrderDSPTests PROPERTIES TIMEOUT 900)
 add_test(NAME ChimeraAutoSetParameterSafetyTests COMMAND ChimeraAutoSetTests --level-parameters)
+# Phase 50: the rig and lane passes on the real engine at other sample rates and block sizes. Its own test, so the
+# whole binary's run does not grow by it.
+add_test(NAME ChimeraAutoSetRigPassRatesTests COMMAND ChimeraAutoSetTests --rig-pass-rates)
+set_tests_properties(ChimeraAutoSetRigPassRatesTests PROPERTIES TIMEOUT 1500)
 # Instrument detection (guitar / bass / vocal / keys / percussion) on a synthetic corpus.
 juce_add_console_app(ChimeraAutoSetInstrumentTests PRODUCT_NAME "Chimera Auto Set Instrument Detection Tests")
 target_sources(ChimeraAutoSetInstrumentTests PRIVATE Tests/AutoSetInstrumentTests.cpp)
