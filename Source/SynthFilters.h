@@ -36,7 +36,7 @@ inline double synthDistort(int type, double gain, double steps, double x) noexce
         case 0: return std::tanh(gain * x);
         case 1: return std::clamp(gain * x, -1.0, 1.0);
         case 2: { double v = gain * x * .25 + .25;v -= std::floor(v);return 1.0 - 4.0 * std::abs(v - .5); }   // triangle fold
-        case 3: { const double t = std::tanh(gain * x);return (t + .3 * t * t) / 1.3; }                       // even harmonics
+        case 3: { const double b = std::tanh(.2 * gain);return (std::tanh(gain * (x + .2)) - b) / (1.0 + b); }   // biased: even harmonics at any drive (the engine removes its DC)
         case 4: return std::sin(1.5707963267948966 * gain * x);
         default: return std::round(x * steps) / steps;
     }

@@ -527,6 +527,7 @@ public:
         // Analog drift: white noise through a one-pole low-pass at 1.5 Hz,
         // scaled to unit RMS (uniform noise has variance 1/3).
         driftCoefficient = 1.0 - std::exp(-6.283185307179586 * 1.5 / rate);
+        dcCoefficient = 1.0 - std::exp(-6.283185307179586 * 10.0 / rate);
         driftScale = 1.0 / std::sqrt(driftCoefficient / (2.0 - driftCoefficient) / 3.0);
         reset();
     }
@@ -735,6 +736,7 @@ private:
         double noiseLow{};
         std::array<std::array<std::array<double, 2>, 2>, 2> svf2{};   // filter 2
         int combWrite{};
+        std::array<double, 2> distDc{};
     };
     struct Pending { bool on{};int note{};float velocity{}; };
     struct Pointers {
@@ -772,7 +774,7 @@ private:
         v.targetHz = target;if (!glide) v.hz = target;
         v.note = note;v.fromGuitar = note < 0;v.noteValue = note >= 0 ? (note - 60) / 24.0 : (12.0 * std::log2(std::max(hz, 1.0) / 261.63)) / 24.0;
         v.velocity = velocity;v.gate = true;v.age = ++clock;
-        if (!v.active) { v.svf = {};v.svf2 = {};v.combWrite = 0;if (!combs.empty()) std::fill_n(comb(v, 0), size_t(2 * combLength), 0.f);for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
+        if (!v.active) { v.svf = {};v.svf2 = {};v.distDc = {};v.combWrite = 0;if (!combs.empty()) std::fill_n(comb(v, 0), size_t(2 * combLength), 0.f);for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
         if (!legato || !v.active) { v.amp.gateOn();v.env2.gateOn();v.struck = 0;restartSamples(v); }
         v.active = true;
     }
@@ -892,7 +894,12 @@ private:
         if (s.filter2Type >= synthFilterCombPlus) return combs.empty() ? x : combSample(v, channel, x, cutoff, resonance, s.filter2Type == synthFilterCombMinus);
         return svfSample(v.svf2[size_t(channel)], x, s.filter2Type, cutoff, resonance);
     }
-    static double distort(const Settings& s, double x) noexcept { return x + s.distMix * (synthDistort(s.distType, s.distGain, s.distSteps, x) - x); }
+    // The shaper and its mix. Tube is biased, so its DC is taken out (a 10 Hz high-pass per voice).
+    double distort(Voice& v, int channel, const Settings& s, double x) const noexcept {
+        double y = synthDistort(s.distType, s.distGain, s.distSteps, x);
+        if (s.distType == 3) { auto& dc = v.distDc[size_t(channel)];dc += dcCoefficient * (y - dc);y -= dc; }
+        return x + s.distMix * (y - x);
+    }
     double filterSample(std::array<std::array<double, 2>, 2>& st, double x, const Settings& s, double cutoff, double resonance) const noexcept {
         if (s.drive > 0.f) { const double g = 1.0 + 9.0 * s.drive;x = std::tanh(g * x) / std::tanh(g); }
         return svfSample(st, x, s.filterType, cutoff, resonance);
@@ -1049,17 +1056,17 @@ private:
             const double gain1 = synthParallelGain(s.balance, false), gain2 = synthParallelGain(s.balance, true);
             for (int c = 0; c < 2; ++c) {
                 double x = sum[size_t(c)];
-                if (s.distOn && s.distPlace == synthDistBeforeFilters) x = distort(s, x);
+                if (s.distOn && s.distPlace == synthDistBeforeFilters) x = distort(v, c, s, x);
                 if (parallel) {
                     double a = filterSample(v.svf[size_t(c)], x, s, cutoff1, resonance1);
-                    if (s.distOn && s.distPlace == synthDistAfterFilter1) a = distort(s, a);
+                    if (s.distOn && s.distPlace == synthDistAfterFilter1) a = distort(v, c, s, a);
                     x = gain1 * a + gain2 * filter2Sample(v, c, x, s, cutoff2, s.resonance2);
                 } else {
                     if (s.filterOn) x = filterSample(v.svf[size_t(c)], x, s, cutoff1, resonance1);
-                    if (s.distOn && s.distPlace == synthDistAfterFilter1) x = distort(s, x);
+                    if (s.distOn && s.distPlace == synthDistAfterFilter1) x = distort(v, c, s, x);
                     if (s.filter2On) x = filter2Sample(v, c, x, s, cutoff2, s.resonance2);
                 }
-                if (s.distOn && s.distPlace == synthDistAfterFilters) x = distort(s, x);
+                if (s.distOn && s.distPlace == synthDistAfterFilters) x = distort(v, c, s, x);
                 sum[size_t(c)] = x;
             }
             if (s.filter2On && s.filter2Type >= synthFilterCombPlus) v.combWrite = v.combWrite + 1 < combLength ? v.combWrite + 1 : 0;
@@ -1071,7 +1078,7 @@ private:
         int k = 0;for (int i = 0; i < midiCount; ++i) if (midiNotes[size_t(i)] != note) midiNotes[size_t(k++)] = midiNotes[size_t(i)];
         midiCount = k;
     }
-    double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0};
+    double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0}, dcCoefficient{1.3e-3};
     std::vector<float> combs;int combLength{4};   // (voices + guitar) x channel x combLength
     PitchTracker tracker;
     std::array<Voice, synthMaxVoices> voices{};Voice guitar{};

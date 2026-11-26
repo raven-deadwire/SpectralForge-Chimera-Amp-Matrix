@@ -49,7 +49,7 @@ and a **distortion**, then the amp envelope. All three run in every voice.
 | Soft clip | tanh: rounds the peaks |
 | Hard clip | cuts the peaks flat |
 | Wavefold | folds the peaks back (triangle fold) |
-| Tube | soft clip with even harmonics |
+| Tube | a biased soft clip: even and odd harmonics at any drive |
 | Sine fold | a sine shaper: folds smoothly |
 | Bit crush | fewer bits: 16 at 0 % down to 3 at 100 % |
 
@@ -72,7 +72,9 @@ The FILTER panel is now FILTERS / DIST.
   right is cutoff, up / down is resonance. A comb draws its teeth.
 - One row per filter: its switch and type on the left, its knobs beside.
 - Bottom line: the distortion's switch, type, position, DRIVE and MIX bars.
-- The curve is lower than before (the page is the same size).
+- The curve is lower than before (64 px high at the page's normal size; it was
+  about 114), and the filter knobs are smaller than the oscillators' knobs.
+  The page is the same size.
 
 ## Modulation
 
@@ -103,7 +105,8 @@ Seidr Dynamic opens both filters with the playing level.
   crush make harmonics above half the sample rate that fold back; this is
   audible on high notes at high drive. It was not measured. The plugin's
   OVERSAMPLING setting does not cover the synth.
-- Tube adds a small DC offset that follows the note's level.
+- Tube is biased, which makes DC. A 10 Hz high-pass in each voice removes it
+  (measured: 5e-11 left).
 - A comb reads its delay with linear interpolation, which dulls the top of
   high-tuned combs slightly.
 - Memory: comb delay lines for 20 Hz, per voice and channel (about 0.2 MB at
@@ -120,4 +123,31 @@ Seidr Dynamic opens both filters with the playing level.
 
 ## Measurements
 
-MEASUREMENTS_PLACEHOLDER
+From `ChimeraSynthTests` on Linux (x86-64), 48 kHz, this branch.
+
+- Filter 2 and the distortion off, with all their other settings changed:
+  largest sample difference 0 against the released voice.
+- Filter 2, each of the eight types, against the curve the page draws
+  (55 Hz saw, resonance 30 %, harmonics from 110 Hz to 4 kHz): largest error
+  below 0.001 dB. The comb was tested tuned to 480 Hz, a delay of exactly 100
+  samples; other tunings read between samples and were not compared.
+- Serial against the product of both curves: 8e-7 dB. Parallel: balance 0 is
+  filter 1 alone and 100 is filter 2 alone (difference 0); 50 is their sum
+  (6e-8).
+- Comb + on noise, resonance 90 %: the peak at 262 Hz is 26.6 dB over the dip
+  a fifth above. With KEY 100 % and A3 played, 220 Hz is 21.3 dB over 330 Hz.
+- Distortion on a sine at A3, drive 70 %, harmonics 2 / 3 relative to the
+  fundamental: Soft clip none / -9.7 dB, Hard clip none / -9.6 dB, Wavefold
+  none / +13.8 dB, Tube -12.1 / -12.2 dB, Sine fold none / +8.4 dB, Bit crush
+  none / -66.2 dB (-37.7 dB at drive 100 %).
+- Hard clip at drive 0 % and any type at mix 0 %: difference 0 against off.
+- Per voice: A3 + E4 through the hard clipper, the 2 f1 - f2 product is
+  -98 dB re f1.
+- Position: harmonic 9 with a 400 Hz low-pass after the clipper -71.5 dB,
+  before it -20.7 dB.
+- Page at 1140 x 438: every filter-panel control is on the page, at least
+  30 x 16 px, none overlap; dragging filter 2's handle moves only filter 2,
+  as one gesture per parameter.
+
+Screenshot: `docs/evidence/synth-filters-20261126/synth-page-filters.png`.
+

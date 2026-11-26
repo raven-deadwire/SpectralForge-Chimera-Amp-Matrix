@@ -243,6 +243,7 @@ void filtersAndDistortion() {
      for(int type=0;type<synthDistTypeCount;++type){const auto wet=sine({{"synthDistOn",1},{"synthDistType",float(type)},{"synthDistDrive",70}});
         line+=" "+synthDistTypeNames()[type].toStdString()+" h2 "+juce::String(harmonicDb(wet,220,2),1).toStdString()+" h3 "+juce::String(harmonicDb(wet,220,3),1).toStdString()+";";
         require(std::max(harmonicDb(wet,220,2),harmonicDb(wet,220,3))>-40 || type==5,std::string("A distortion type adds no harmonics: ")+synthDistTypeNames()[type].toStdString());}
+     const auto mean=[](const std::vector<float>& x){double m=0;for(int n=24000;n<48000;++n)m+=x[size_t(n)];return m/24000;};
      const auto tube=sine({{"synthDistOn",1},{"synthDistType",3},{"synthDistDrive",70}}),crush=sine({{"synthDistOn",1},{"synthDistType",5},{"synthDistDrive",100}});
      // Per voice: a fifth through the hard clipper has no 2 f1 - f2 product (110.4 Hz), which a clipper after the mix would add.
      const double f1=hz(57),f2=hz(64);const auto chord=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthVoices",4}},{57,64});
@@ -251,10 +252,10 @@ void filtersAndDistortion() {
      const auto before=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthDistPlace",0},{"synthFilterOn",1},{"synthFilterType",1},{"synthCutoff",400},{"synthResonance",0}});
      const auto after=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthDistPlace",2},{"synthFilterOn",1},{"synthFilterType",1},{"synthCutoff",400},{"synthResonance",0}});
      std::cout<<"MEASURE distortion on a sine at A3, drive 70 %, harmonics 2 / 3 (dB re 1):"<<line<<"\n";
-     std::cout<<"MEASURE distortion: hard clip at drive 0 % differs from off by "<<d1<<", mix 0 % by "<<d2<<"; Tube harmonic 2 "<<harmonicDb(tube,220,2)<<" dB; Bit crush at 100 % harmonic 3 "<<harmonicDb(crush,220,3)
+     std::cout<<"MEASURE distortion: hard clip at drive 0 % differs from off by "<<d1<<", mix 0 % by "<<d2<<"; Tube harmonic 2 "<<harmonicDb(tube,220,2)<<" dB, DC "<<mean(tube)<<"; Bit crush at 100 % harmonic 3 "<<harmonicDb(crush,220,3)
               <<" dB; A3 + E4 hard clipped, 2 f1 - f2 "<<intermod<<" dB re f1; harmonic 9 before / after a 400 Hz low-pass "<<harmonicDb(before,220,9)<<" / "<<harmonicDb(after,220,9)<<" dB\n";
      require(d1==0 && d2==0,"Distortion at unity or mix 0 is not clean");
-     require(harmonicDb(tube,220,2)>-30 && harmonicDb(crush,220,3)>-40,"Tube adds no even harmonic, or Bit crush does nothing");
+     require(harmonicDb(tube,220,2)>-20 && std::abs(mean(tube))<1e-3 && harmonicDb(crush,220,3)>-40,"Tube adds no even harmonic or leaves DC, or Bit crush does nothing");
      require(intermod<-60,"The distortion is not per voice");
      require(harmonicDb(after,220,9)>harmonicDb(before,220,9)+30,"The distortion position does not change the order");}
     std::cout<<"PASS filter 2 (eight types), serial / parallel routing, comb key tracking, per-voice distortion\n";
@@ -703,7 +704,8 @@ void processorInsertsAndPage() {
     {int count=0;const int total=p->getParameters().size();
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthFiltersParameterVersion){
         require(with->getParameterIndex()>=total-synthFiltersParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
-     require(count==synthFiltersParameterCount && raw("synthFilter2On")==0 && raw("synthDistOn")==0 && raw("synthFilterRouting")==0,"Filter 2 / distortion bank size or defaults wrong");
+     const auto initial=[&](const char* id){auto* q=p->parameters().getParameter(id);return q->convertFrom0to1(q->getDefaultValue());};
+     require(count==synthFiltersParameterCount && initial("synthFilter2On")==0 && initial("synthDistOn")==0 && initial("synthFilterRouting")==0 && initial("synthDistMix")==100,"Filter 2 / distortion bank size or defaults wrong");
      const std::vector<const char*> ids{"synthFilterOn","synthFilterType","synthCutoff","synthResonance","synthDrive","synthKeyTrack","synthFilterEnv","synthFilter2On","synthFilter2Type","synthFilter2Cutoff",
          "synthFilter2Resonance","synthFilter2KeyTrack","synthFilter2Env","synthFilterRouting","synthFilterBalance","synthDistOn","synthDistType","synthDistPlace","synthDistDrive","synthDistMix"};
      const auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
