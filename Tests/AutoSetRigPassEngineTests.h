@@ -298,3 +298,42 @@ void rigPassEnginePowerAndLocks() {
     }
     std::cout<<"PASS auto set rig pass engine presence and locks: phase 34 through processBlock with the rig's measured top end following each PRESENCE move; the Dual rig levels lock keeps rig 2 and the Matrix levels lock both lanes, levels unmoved\n";
 }
+// Phase 48: a PRESENCE that is raised, on the real engine (docs/AUTO_SET_PHASE48.md). Phase 47's settings only
+// produced a lowered or kept PRESENCE. A dark rig (GAIN low, TREBLE at its bottom, BASS and MIDDLE at their top,
+// PRESENCE at its bottom) plays under the bite target, so the step raises PRESENCE.
+void rigPassEnginePresenceRaised() {
+    using P=Controller::Phase;
+    constexpr int model=2;
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    // Both rigs dark, with PRESENCE at its bottom.
+    const auto dark=[=](ChimeraProcessor& p) {
+        for(int rig=0;rig<2;++rig) {
+            const int channel=p.selectedAmpChannel(rig),context=spectralforge::ampNativeContext(1,rig);
+            const auto set=[&](int control,float fraction){p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,control,channel))->setValueNotifyingHost(fraction);};
+            const auto roles=roleControls(model,channel,0);
+            set(powerControl(model,channel,powerPresence),0.f);set(roles[ampTreble],0.f);set(roles[ampBass],1.f);set(roles[ampMiddle],1.f);
+        }
+    };
+    std::string measured;
+    for(const auto style:{Style::metal,Style::rock}) {
+        Controller::Options options{1,false,style,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+        options.sync=options.cabIR=options.polarity=false;options.dualPower=true;
+        const auto r=runRigPassEngine(1,0,{0,1},options,{.1f,.1f},dark);
+        check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},"The presence passes of the dark rigs did not run on the real engine");
+        for(int rig=0;rig<2;++rig) {
+            const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+            const std::string row=step?step->result.toStdString():std::string("no step");
+            const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)],share=r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)];
+            const float excess=r.power[size_t(rig)].excessBeforeDb[powerPresence];
+            const std::string seen="PRESENCE "+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+", above 3 kHz "+db(r.highShareBeforeDb[size_t(rig)])+" > "+db(r.highShareAfterDb[size_t(rig)])+" dB, bite "+db(excess)+" dB from the target ["+row+"]";
+            check(step && step->changed && step->result.contains("PRESENCE"),"The dark rig's presence row does not show a PRESENCE move: "+seen);
+            check(excess<0,"The dark rig did not play under the bite target: "+seen);
+            check(knob>1e-6f,"PRESENCE of the dark rig was not raised on the real engine: "+seen);
+            // RESONANCE lowered alone raises the share by about 0.7 dB (phase 47): a raised PRESENCE must give more.
+            check(share>1.f,"PRESENCE was raised but the rig's top end did not rise by more than 1 dB: "+seen);
+            measured+=std::string(measured.empty()?"":" | ")+(style==Style::metal?"metal":"rock")+" rig "+std::to_string(rig+1)+": "+seen;
+        }
+    }
+    std::cout<<"MEASURE auto set rig pass engine presence raised: "<<measured<<'\n';
+    std::cout<<"PASS auto set rig pass engine presence raised: dark Dual Blend rigs under the bite target, PRESENCE raised through processBlock, the rig's measured top end rising with it\n";
+}
