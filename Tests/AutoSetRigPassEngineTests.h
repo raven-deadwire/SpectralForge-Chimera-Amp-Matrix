@@ -13,8 +13,10 @@ struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefor
                          std::array<float,2> highShareBeforeDb{},highShareAfterDb{},presenceBefore{},presenceAfter{};std::array<PowerResult,2> power{};};
 // lanes: the two lanes the passes listen to (Dual rigs 0 and 1, Matrix lanes 1 and 2).
 // lowNotes: pure 82 and 98 Hz notes, which do not reach a MID or HIGH band.
+// finished (phase 49): called with the processor after the run and its measurements, before it is released.
 RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,const Controller::Options& options,std::array<float,2> gainFraction,
-                                  const std::function<void(ChimeraProcessor&)>& prepare={},bool lowNotes=false) {
+                                  const std::function<void(ChimeraProcessor&)>& prepare={},bool lowNotes=false,
+                                  const std::function<void(ChimeraProcessor&)>& finished={}) {
     using P=Controller::Phase;
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
@@ -106,6 +108,7 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
         result.levelAfterDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);result.highShareAfterDb[size_t(index)]=highShareDb;
         result.presenceAfter[size_t(index)]=presenceOf(lanes[size_t(index)]);
     }
+    if(finished)finished(*p); // phase 49: the session as the run left it
     p->releaseResources();
     return result;
 }
@@ -336,4 +339,35 @@ void rigPassEnginePresenceRaised() {
     }
     std::cout<<"MEASURE auto set rig pass engine presence raised: "<<measured<<'\n';
     std::cout<<"PASS auto set rig pass engine presence raised: dark Dual Blend rigs under the bite target, PRESENCE raised through processBlock, the rig's measured top end rising with it\n";
+}
+// Phase 49: Auto Set run again and again on the same session, on the real engine (docs/AUTO_SET_PHASE49.md).
+void rigPassEngineRepeatedRuns() {
+    using P=Controller::Phase;
+    constexpr int model=2;
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    const auto knobs=[=](float gainUnused,float presence,float treble,float bassMiddle) {
+        return [=](ChimeraProcessor& p) {
+            for(int rig=0;rig<2;++rig) {
+                const int channel=p.selectedAmpChannel(rig),context=spectralforge::ampNativeContext(1,rig);
+                const auto set=[&](int control,float fraction){p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,control,channel))->setValueNotifyingHost(fraction);};
+                const auto roles=roleControls(model,channel,0);
+                set(powerControl(model,channel,powerPresence),presence);
+                if(treble>=0)set(roles[ampTreble],treble);
+                if(bassMiddle>=0){set(roles[ampBass],bassMiddle);set(roles[ampMiddle],bassMiddle);}
+            }
+        };
+    };
+    struct Case {const char* name;Style style;float gain,presence,treble,bassMiddle;};
+    for(const Case& k:{Case{"dark metal",Style::metal,.1f,0.f,0.f,1.f},Case{"dark rock",Style::rock,.1f,0.f,0.f,1.f},Case{"bright rock",Style::rock,.3f,1.f,-1.f,-1.f}}) {
+        Controller::Options options{1,false,k.style,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+        options.sync=options.cabIR=options.polarity=false;options.dualPower=true;
+        juce::ValueTree session;
+        for(int run=0;run<8;++run) {
+            const auto first=knobs(k.gain,k.presence,k.treble,k.bassMiddle);
+            const auto r=runRigPassEngine(1,0,{0,1},options,{k.gain,k.gain},[&](ChimeraProcessor& p){if(session.isValid())p.parameters().replaceState(session.createCopy());else first(p);},false,
+                                          [&](ChimeraProcessor& p){session=p.parameters().copyState();});
+            for(int rig=0;rig<2;++rig){const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+                std::cout<<"PROBE "<<k.name<<" run "<<run+1<<" rig "<<rig+1<<": PRESENCE "<<db(r.presenceBefore[size_t(rig)])<<" > "<<db(r.presenceAfter[size_t(rig)])<<" share "<<db(r.highShareBeforeDb[size_t(rig)])<<" > "<<db(r.highShareAfterDb[size_t(rig)])<<" ["<<(step?step->result.toStdString():"none")<<"]"<<std::endl;}
+        }
+    }
 }

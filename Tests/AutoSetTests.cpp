@@ -1882,6 +1882,7 @@ int main(int argc, char** argv) {
         if(argc==2 && std::string(argv[1])=="--matrix-channel"){controllerMatrixChannel();return 0;}
         if(argc==2 && std::string(argv[1])=="--matrix-trim"){controllerMatrixTrim();return 0;}
         if(argc==2 && std::string(argv[1])=="--lane-mute"){controllerLaneMute();return 0;}
+        if(argc==2 && std::string(argv[1])=="--rig-pass-repeat"){rigPassEngineRepeatedRuns();return 0;}
         if(argc==2 && std::string(argv[1])=="--rig-pass-engine"){rigPassEngineMute();rigPassEngine();rigPassEngineTrimAndChannel();rigPassEnginePowerAndLocks();rigPassEnginePresenceRaised();return 0;}
         if(argc==2 && std::string(argv[1])=="--integration"){controllerIntegration();return 0;}
         if(argc==2 && std::string(argv[1])=="--power-bass-controller"){controllerPowerBassRegression();return 0;}
