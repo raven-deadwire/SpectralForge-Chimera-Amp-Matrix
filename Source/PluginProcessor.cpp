@@ -953,6 +953,10 @@ spectralforge::appendCreativePageParameters(p,0);spectralforge::appendCreativePa
 spectralforge::appendPostExtraSlotParameters(p);
 // SYNTH wavetables: table, warp and warp amount per oscillator, version hint 38 (docs/SYNTH_WAVETABLE.md).
 spectralforge::appendSynthWavetableParameters(p,spectralforge::synthOscCount);
+// SYNTH filter 2, filter routing and distortion, version hint 39 (docs/SYNTH_FILTERS.md).
+spectralforge::appendSynthFiltersParameters(p);
+// SYNTH step sequencer, macros and eight more matrix rows, version hint 40 (docs/SYNTH_SEQUENCER.md).
+spectralforge::appendSynthSequencerParameters(p);
 return p;
 }
 

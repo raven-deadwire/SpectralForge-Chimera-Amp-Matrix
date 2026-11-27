@@ -55,6 +55,20 @@ public:
         } else {g.setColour(accentColour.withAlpha(.4f));g.fillRoundedRectangle(r.withRight(position),3);}
         g.setColour(edgeColour);g.drawRoundedRectangle(r.reduced(.5f),3,1);
     }
+    // Narrow menus (the matrix rows, the sequencer's step length): smaller text and less room kept for the arrow, so names are not cut.
+    juce::Font getComboBoxFont(juce::ComboBox& box) override {return box.getWidth()<90?juce::Font(juce::FontOptions(juce::jmin(11.5f,float(box.getHeight())*.8f))):juce::LookAndFeel_V4::getComboBoxFont(box);}
+    void drawComboBox(juce::Graphics& g,int width,int height,bool down,int bx,int by,int bw,int bh,juce::ComboBox& box) override {
+        if(width>=90){juce::LookAndFeel_V4::drawComboBox(g,width,height,down,bx,by,bw,bh,box);return;}
+        const auto r=juce::Rectangle<int>(0,0,width,height).toFloat();
+        g.setColour(box.findColour(juce::ComboBox::backgroundColourId));g.fillRoundedRectangle(r,3);
+        g.setColour(box.findColour(juce::ComboBox::outlineColourId));g.drawRoundedRectangle(r.reduced(.5f),3,1);
+        const float cx=float(width)-10,cy=float(height)*.5f;juce::Path arrow;arrow.startNewSubPath(cx-4,cy-2);arrow.lineTo(cx,cy+2);arrow.lineTo(cx+4,cy-2);
+        g.setColour(box.findColour(juce::ComboBox::arrowColourId).withAlpha(box.isEnabled()?.9f:.2f));g.strokePath(arrow,juce::PathStrokeType(1.5f));
+    }
+    void positionComboBoxText(juce::ComboBox& box,juce::Label& label) override {
+        if(box.getWidth()>=90){juce::LookAndFeel_V4::positionComboBoxText(box,label);return;}
+        label.setBounds(1,1,box.getWidth()-19,box.getHeight()-2);label.setFont(getComboBoxFont(box));label.setBorderSize({1,4,1,0});
+    }
     juce::Label* createSliderTextBox(juce::Slider& slider) override {
         auto* label=juce::LookAndFeel_V4::createSliderTextBox(slider);
         label->setColour(juce::Label::textColourId,inkColour);label->setColour(juce::Label::backgroundColourId,juce::Colours::transparentBlack);
@@ -288,40 +302,58 @@ private:
     juce::AudioProcessorValueTreeState& state;int osc;GraphParameter wave;
 };
 
-// Filter response on a log axis; drag horizontally for cutoff, vertically for resonance.
+// Both filters' responses on a log axis (filter 2 only while it is on). Drag
+// a handle: left / right for cutoff, up / down for resonance. A press takes
+// the nearer handle.
 class FilterCurve final : public juce::Component,public juce::SettableTooltipClient {
 public:
-    FilterCurve(juce::AudioProcessorValueTreeState& s,double sampleRate):state(s),cutoff(s,"synthCutoff"),resonance(s,"synthResonance"),rate(sampleRate) {
-        setComponentID("synthFilterCurve");setTitle("Filter response");setTooltip("Drag left / right for cutoff, up / down for resonance.");
+    FilterCurve(juce::AudioProcessorValueTreeState& s,double sampleRate):state(s),cutoff{GraphParameter(s,"synthCutoff"),GraphParameter(s,"synthFilter2Cutoff")},
+        resonance{GraphParameter(s,"synthResonance"),GraphParameter(s,"synthFilter2Resonance")},rate(sampleRate) {
+        setComponentID("synthFilterCurve");setTitle("Filter response");setTooltip("Drag a handle left / right for cutoff, up / down for resonance. Filter 2 is drawn while it is on.");
     }
     static float xForHz(float hz,float width){return width*float(std::log(hz/20.f)/std::log(1000.f));}
     static float hzForX(float x,float width){return 20.f*std::pow(1000.f,juce::jlimit(0.f,1.f,x/width));}
+    bool on(int f) const {return state.getRawParameterValue(f==0?"synthFilterOn":"synthFilter2On")->load()>.5f;}
+    juce::Point<float> handle(int f) const {
+        const auto r=getLocalBounds().toFloat();
+        return {xForHz(cutoff[size_t(f)].value(),r.getWidth()),r.getY()+r.getHeight()*(1.f-resonance[size_t(f)].value()*.01f)*.8f+6};
+    }
     void paint(juce::Graphics& g) override {
         const auto r=getLocalBounds().toFloat();g.setColour(juce::Colour(0xff0e1414));g.fillRoundedRectangle(r,4);
         g.setColour(edgeColour.withAlpha(.6f));for(const float hz:{100.f,1000.f,10000.f})g.drawVerticalLine(int(xForHz(hz,r.getWidth())),r.getY(),r.getBottom());
-        const int type=juce::roundToInt(state.getRawParameterValue("synthFilterType")->load());
-        const bool on=state.getRawParameterValue("synthFilterOn")->load()>.5f;
-        juce::Path path;
-        for(int x=0;x<=int(r.getWidth());x+=2){
-            const double db=juce::Decibels::gainToDecibels(synthFilterMagnitude(type,cutoff.value(),resonance.value()*.01,hzForX(float(x),r.getWidth()),rate),-60.0);
-            const float y=juce::jmap(float(juce::jlimit(-36.0,24.0,db)),-36.f,24.f,r.getBottom()-2,r.getY()+2);
-            if(x==0)path.startNewSubPath(float(x),y);else path.lineTo(float(x),y);
+        juce::String text;
+        for(int f=1;f>=0;--f){   // filter 1 on top
+            if(f==1 && !on(1))continue;
+            const int type=juce::roundToInt(state.getRawParameterValue(f==0?"synthFilterType":"synthFilter2Type")->load());
+            juce::Path path;
+            for(int x=0;x<=int(r.getWidth());x+=2){
+                const double hz=hzForX(float(x),r.getWidth()),c=cutoff[size_t(f)].value(),q=resonance[size_t(f)].value()*.01;
+                const double db=juce::Decibels::gainToDecibels(f==0?synthFilterMagnitude(type,c,q,hz,rate):synthFilter2Magnitude(type,c,q,hz,rate),-60.0);
+                const float y=juce::jmap(float(juce::jlimit(-36.0,24.0,db)),-36.f,24.f,r.getBottom()-2,r.getY()+2);
+                if(x==0)path.startNewSubPath(float(x),y);else path.lineTo(float(x),y);
+            }
+            const auto colour=f==0?accentColour:traceColour;
+            g.setColour(on(f)?colour:mutedColour.withAlpha(.4f));g.strokePath(path,juce::PathStrokeType(f==0?2.f:1.6f));
+            const auto h=handle(f);g.setColour(f==0?inkColour:traceColour);g.fillEllipse(h.x-4,h.y-4,8,8);
+            if(on(1)){g.setColour(juce::Colour(0xff0e1414));g.setFont(juce::FontOptions(7.f,juce::Font::bold));g.drawText(juce::String(f+1),juce::Rectangle<float>(h.x-4,h.y-4,8,8),juce::Justification::centred);}
+            text=juce::String(juce::roundToInt(cutoff[size_t(f)].value()))+" Hz / "+juce::String(juce::roundToInt(resonance[size_t(f)].value()))+" %"+(text.isEmpty()?juce::String():"    2: "+text);
         }
-        g.setColour(on?accentColour:mutedColour.withAlpha(.4f));g.strokePath(path,juce::PathStrokeType(2.f));
-        const float handle=xForHz(cutoff.value(),r.getWidth());g.setColour(inkColour);g.fillEllipse(handle-4,r.getY()+r.getHeight()*(1.f-resonance.value()*.01f)*.8f+2,8,8);
-        g.setColour(mutedColour);g.setFont(juce::FontOptions(9.f));g.drawText(juce::String(juce::roundToInt(cutoff.value()))+" Hz / "+juce::String(juce::roundToInt(resonance.value()))+" %",getLocalBounds().reduced(6,2),juce::Justification::topRight);
+        g.setColour(mutedColour);g.setFont(juce::FontOptions(9.f));g.drawText(text,getLocalBounds().reduced(6,2),juce::Justification::topRight);
     }
-    void mouseDown(const juce::MouseEvent& e) override {cutoff.begin();resonance.begin();apply(e);}
+    void mouseDown(const juce::MouseEvent& e) override {
+        active=on(1) && e.position.getDistanceFrom(handle(1))<e.position.getDistanceFrom(handle(0))?1:0;
+        cutoff[size_t(active)].begin();resonance[size_t(active)].begin();apply(e);
+    }
     void mouseDrag(const juce::MouseEvent& e) override {apply(e);}
-    void mouseUp(const juce::MouseEvent&) override {cutoff.end();resonance.end();}
+    void mouseUp(const juce::MouseEvent&) override {cutoff[size_t(active)].end();resonance[size_t(active)].end();}
     void refresh(){repaint();}
 private:
     void apply(const juce::MouseEvent& e){
-        cutoff.set(hzForX(float(e.x),float(getWidth())));
-        resonance.set(100.f*juce::jlimit(0.f,1.f,1.f-(float(e.y)-2.f)/(float(getHeight())*.8f)));
+        cutoff[size_t(active)].set(hzForX(float(e.x),float(getWidth())));
+        resonance[size_t(active)].set(100.f*juce::jlimit(0.f,1.f,1.f-(float(e.y)-2.f)/(float(getHeight())*.8f)));
         repaint();
     }
-    juce::AudioProcessorValueTreeState& state;GraphParameter cutoff,resonance;double rate;
+    juce::AudioProcessorValueTreeState& state;std::array<GraphParameter,2> cutoff,resonance;double rate;int active{};
 };
 
 // ADSR graph with three handles: attack peak (time), decay / sustain point
@@ -383,6 +415,49 @@ private:
     juce::AudioProcessorValueTreeState& state;ChimeraProcessor& processor;int lfo;
 };
 
+// The step sequencer's sixteen steps as bars around a centre line. Drag
+// across them to draw values (one host gesture per step touched);
+// double-click a step for 0. Steps past the length are dimmed.
+class StepGraph final : public juce::Component,public juce::SettableTooltipClient {
+public:
+    StepGraph(juce::AudioProcessorValueTreeState& s,ChimeraProcessor& p):state(s),processor(p) {
+        setComponentID("synthSeqGraph");setTitle("Step sequencer");setTooltip("Drag across the steps to draw them: up is positive, down is negative. Double-click a step for 0.");
+        for(int k=0;k<synthSeqMaxSteps;++k)steps[size_t(k)]=s.getParameter(synthSeqStepID(k));
+    }
+    int length() const {return juce::jlimit(1,synthSeqMaxSteps,juce::roundToInt(state.getRawParameterValue("synthSeqSteps")->load()));}
+    float value(int k) const {return state.getRawParameterValue(synthSeqStepID(k))->load();}
+    juce::Rectangle<float> column(int k) const {const float w=float(getWidth())/float(synthSeqMaxSteps);return {w*float(k),0.f,w,float(getHeight())};}
+    void paint(juce::Graphics& g) override {
+        const auto r=getLocalBounds().toFloat();g.setColour(juce::Colour(0xff0e1414));g.fillRoundedRectangle(r,4);
+        const int n=length(),now=processor.synthEngine().sounding()?processor.synthEngine().sequencerStep():-1;const float mid=r.getCentreY(),half=r.getHeight()*.5f-2;
+        for(int k=0;k<synthSeqMaxSteps;++k){
+            const auto c=column(k).reduced(1,0);const float v=value(k)*.01f,y=mid-half*v;
+            if(k==now){g.setColour(inkColour.withAlpha(.10f));g.fillRect(c);}
+            g.setColour((k<n?(v<0?traceColour:accentColour):mutedColour).withAlpha(k<n?.85f:.25f));
+            g.fillRect(juce::Rectangle<float>::leftTopRightBottom(c.getX(),juce::jmin(mid,y),c.getRight(),juce::jmax(mid,y)).expanded(0,.75f));
+        }
+        g.setColour(edgeColour);g.drawHorizontalLine(int(mid),r.getX(),r.getRight());
+    }
+    void mouseDown(const juce::MouseEvent& e) override {last=-1;apply(e);}
+    void mouseDrag(const juce::MouseEvent& e) override {apply(e);}
+    void mouseUp(const juce::MouseEvent&) override {last=-1;for(int k=0;k<synthSeqMaxSteps;++k)if(touched[size_t(k)]){steps[size_t(k)]->endChangeGesture();touched[size_t(k)]=false;}}
+    void mouseDoubleClick(const juce::MouseEvent& e) override {const int k=stepAt(e);auto* q=steps[size_t(k)];q->beginChangeGesture();q->setValueNotifyingHost(q->convertTo0to1(0.f));q->endChangeGesture();repaint();}
+private:
+    int stepAt(const juce::MouseEvent& e) const {return juce::jlimit(0,synthSeqMaxSteps-1,int(float(e.x)*float(synthSeqMaxSteps)/float(juce::jmax(1,getWidth()))));}
+    // Writes the step under the pointer and, on a fast drag, the steps it passed over (a straight line between the two points).
+    void apply(const juce::MouseEvent& e){
+        const int k=stepAt(e);const float v=juce::jlimit(-100.f,100.f,std::round(100.f*(1.f-2.f*float(e.y)/float(juce::jmax(1,getHeight())))));
+        const int from=last<0?k:last;const float fromValue=last<0?v:lastValue;
+        for(int step=juce::jmin(from,k);step<=juce::jmax(from,k);++step){
+            if(step==from && last>=0 && from!=k)continue;   // written by the previous event
+            auto* q=steps[size_t(step)];if(!touched[size_t(step)]){q->beginChangeGesture();touched[size_t(step)]=true;}
+            q->setValueNotifyingHost(q->convertTo0to1(std::round(from==k?v:fromValue+(v-fromValue)*float(step-from)/float(k-from))));
+        }
+        last=k;lastValue=v;repaint();
+    }
+    juce::AudioProcessorValueTreeState& state;ChimeraProcessor& processor;std::array<juce::RangedAudioParameter*,synthSeqMaxSteps> steps{};std::array<bool,synthSeqMaxSteps> touched{};int last{-1};float lastValue{};
+};
+
 // Tracking readout, level and the synth's output waveform.
 class Scope final : public juce::Component {
 public:
@@ -408,7 +483,7 @@ private:
 class SynthPage final : public juce::Component,private juce::Timer {
 public:
     explicit SynthPage(ChimeraProcessor& owner):processor(owner),state(owner.parameters()),filter(state,owner.getSampleRate()>0?owner.getSampleRate():48000.0),
-        ampEnvelope(state,"synthAmp"),modEnvelope(state,"synthModEnv"),lfoGraphs{LfoGraph(state,owner,0),LfoGraph(state,owner,1)},scope(owner) {
+        ampEnvelope(state,"synthAmp"),modEnvelope(state,"synthModEnv"),lfoGraphs{LfoGraph(state,owner,0),LfoGraph(state,owner,1)},seqGraph(state,owner),scope(owner) {
         setComponentID("synthPage");setTitle("Synth");setLookAndFeel(&look);
         // Header: on, engine type and character, routing, patch, voices
         on=add(std::make_unique<Toggle>(state,"synthOn","SYNTH ON"));
@@ -452,9 +527,26 @@ public:
         noiseColor=static_cast<Knob*>(add(std::make_unique<Knob>(state,"synthNoiseColor","COLOUR")));
         noiseLevel=static_cast<Knob*>(add(std::make_unique<Knob>(state,"synthNoiseLevel","LEVEL")));
         // Filter
-        filterOn=add(std::make_unique<Toggle>(state,"synthFilterOn","FILTER"));
-        filterType=add(std::make_unique<Choice>(state,"synthFilterType",synthFilterTypeNames(),"Filter type"));
+        filterOn=add(std::make_unique<Toggle>(state,"synthFilterOn","FILTER 1"));
+        filterType=add(std::make_unique<Choice>(state,"synthFilterType",synthFilterTypeNames(),"Filter 1 type"));
         addAndMakeVisible(filter);
+        // Filter 2, routing and distortion (docs/SYNTH_FILTERS.md).
+        filter2On=add(std::make_unique<Toggle>(state,"synthFilter2On","FILTER 2"));
+        filter2Type=add(std::make_unique<Choice>(state,"synthFilter2Type",synthFilter2TypeNames(),"Filter 2 type. Comb + and Comb - ring at the cutoff's pitch; KEY at 100 % makes them follow the note."));
+        for(const auto& [id,text]:std::initializer_list<std::pair<const char*,const char*>>{{"synthFilter2Cutoff","CUTOFF"},{"synthFilter2Resonance","RES"},{"synthFilter2KeyTrack","KEY"},{"synthFilter2Env","ENV 2"}})
+            filter2Knobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));
+        filterRouting=add(std::make_unique<Choice>(state,"synthFilterRouting",synthFilterRoutingNames(),"How the two filters are connected: one after the other, or side by side and mixed"));
+        {auto bar=std::make_unique<Bar>(state,"synthFilterBalance","Parallel balance: filter 1 alone on the left, both in the centre, filter 2 alone on the right");
+         bar->textFromValueFunction=[](double v){const int i=juce::roundToInt(v);return i==50?juce::String("1 = 2"):i<50?"1  "+juce::String(100-i)+" %":"2  "+juce::String(i)+" %";};bar->updateText();
+         filterBalance=static_cast<juce::Slider*>(add(std::move(bar)));}
+        distOn=add(std::make_unique<Toggle>(state,"synthDistOn","DIST"));
+        distType=add(std::make_unique<Choice>(state,"synthDistType",synthDistTypeNames(),"Distortion type. It runs in every voice, so chords stay clear."));
+        distPlace=add(std::make_unique<Choice>(state,"synthDistPlace",synthDistPlaceNames(),"Where the distortion sits. In Parallel, After filter 1 distorts filter 1's branch only."));
+        for(const auto& [id,text,tip,slot]:std::initializer_list<std::tuple<const char*,const char*,const char*,juce::Slider**>>{
+                {"synthDistDrive","DRIVE","Distortion drive: 0 to +36 dB into the shaper (Bit crush: 16 bits down to 3)",&distDrive},{"synthDistMix","MIX","Distortion mix: clean to distorted",&distMix}}){
+            auto bar=std::make_unique<Bar>(state,id,tip);const juce::String name(text);
+            bar->textFromValueFunction=[name](double v){return name+" "+juce::String(juce::roundToInt(v))+" %";};bar->updateText();
+            *slot=static_cast<juce::Slider*>(add(std::move(bar)));}
         for(const auto& [id,text]:std::initializer_list<std::pair<const char*,const char*>>{{"synthCutoff","CUTOFF"},{"synthResonance","RES"},{"synthDrive","DRIVE"},{"synthKeyTrack","KEY"},{"synthFilterEnv","ENV 2"}})
             filterKnobs.push_back(static_cast<Knob*>(add(std::make_unique<Knob>(state,id,text))));
         // Envelopes
@@ -472,23 +564,42 @@ public:
         // moves TARGET by AMOUNT. Only the rows in use are shown; + adds one.
         for(auto [label,text]:{std::pair<juce::Label*,const char*>{&modSourceTitle,"SOURCE"},{&modTargetTitle,"MOVES  TARGET"},{&modAmountTitle,"AMOUNT"}}){
             label->setText(text,juce::dontSendNotification);label->setFont(juce::FontOptions(9.f,juce::Font::bold));label->setColour(juce::Label::textColourId,mutedColour);label->setBorderSize({});addAndMakeVisible(*label);}
-        for(int m=0;m<synthModSlots;++m){
-            auto& row=modRows[size_t(m)];const auto n=juce::String(m+1);
-            row.source=add(std::make_unique<Choice>(state,synthModID(m,"Source"),synthModSourceNames(),"Modulation "+n+": what moves the target (an envelope, an LFO, how hard you play ...)","Source ..."));
-            row.target=add(std::make_unique<Choice>(state,synthModID(m,"Target"),synthModTargetNames(),"Modulation "+n+": what is moved","Target ..."));
+        // Rows 1-8 are the released ones; rows 9-16 (docs/SYNTH_SEQUENCER.md) also know the sequencer, the macros and the newer targets.
+        for(int m=0;m<modRowCount;++m){
+            auto& row=modRows[size_t(m)];const auto n=juce::String(m+1);const bool wide=m>=synthModSlots;
+            row.source=add(std::make_unique<Choice>(state,modRowID(m,"Source"),wide?synthModSourceNamesB():synthModSourceNames(),"Modulation "+n+": what moves the target (an envelope, an LFO, how hard you play ...)","Source ..."));
+            row.target=add(std::make_unique<Choice>(state,modRowID(m,"Target"),wide?synthModTargetNamesB():synthModTargetNames(),"Modulation "+n+": what is moved","Target ..."));
             auto amount=std::make_unique<juce::Slider>();amount->setSliderStyle(juce::Slider::LinearBar);   // the bar shows its value as text
-            amount->setComponentID(synthModID(m,"Amount"));amount->setTooltip("Modulation "+n+" amount: right of the centre moves the target up, left moves it down. Double-click for 0.");
+            amount->setComponentID(modRowID(m,"Amount"));amount->setTooltip("Modulation "+n+" amount: right of the centre moves the target up, left moves it down. Double-click for 0.");
             amount->setColour(juce::Slider::textBoxTextColourId,inkColour);amount->setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);amount->setScrollWheelEnabled(false);
-            row.amountAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state,synthModID(m,"Amount"),*amount);
+            row.amountAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state,modRowID(m,"Amount"),*amount);
             // After the attachment, which installs the parameter's own text.
             amount->setDoubleClickReturnValue(true,0.0);amount->textFromValueFunction=[](double v){const int i=juce::roundToInt(v);return juce::String(i>0?"+":"")+juce::String(i)+" %";};amount->updateText();
             row.amount=static_cast<juce::Slider*>(add(std::move(amount)));
-            auto clear=std::make_unique<juce::TextButton>("x");clear->setComponentID(synthModID(m,"Clear"));clear->setTooltip("Remove modulation "+n);
+            auto clear=std::make_unique<juce::TextButton>("x");clear->setComponentID(modRowID(m,"Clear"));clear->setTooltip("Remove modulation "+n);
             clear->onClick=[this,m]{clearModulation(m);};row.clear=static_cast<juce::TextButton*>(add(std::move(clear)));
+            for(juce::Component* c:{row.source,row.target,static_cast<juce::Component*>(row.amount),static_cast<juce::Component*>(row.clear)})matrixHolder.addChildComponent(*c);   // the rows scroll
         }
         modAdd.setButtonText("+ ADD MODULATION");modAdd.setComponentID("synthModAdd");modAdd.setTooltip("Add a modulation row. You can also right-click a knob and choose what moves it.");
-        modAdd.onClick=[this]{modRowsRevealed=juce::jmin(synthModSlots,modRowsShown()+1);layoutMatrix();};addAndMakeVisible(modAdd);
+        modAdd.onClick=[this]{for(int m=0;m<modRowCount;++m)if(modRowShown(m))revealed[size_t(m)]=true;for(int k=0;k<modRowCount;++k)if(const int row=modRowByPreference(k);!modRowShown(row)){revealed[size_t(row)]=true;break;}layoutMatrix();};matrixHolder.addAndMakeVisible(modAdd);
+        matrixView.setViewedComponent(&matrixHolder,false);matrixView.setScrollBarsShown(true,false);matrixView.setScrollBarThickness(8);addAndMakeVisible(matrixView);
         modHint.setText("Right-click a knob to modulate it.",juce::dontSendNotification);modHint.setFont(juce::FontOptions(9.f));modHint.setColour(juce::Label::textColourId,mutedColour);modHint.setBorderSize({});addAndMakeVisible(modHint);
+        // Step sequencer and macros (docs/SYNTH_SEQUENCER.md): they share the LFO panel, one view at a time.
+        {static const char* names[]{"LFO","SEQ","MACRO"};static const char* tips[]{"LFO 1 and 2","Step sequencer: a pattern of up to sixteen values in time with the host tempo","Macros: four controls of your own; connect each to what it should move"};
+         for(int t=0;t<3;++t){auto& b=modTabs[size_t(t)];b.setButtonText(names[t]);b.setComponentID(juce::String("synthModTab")+names[t]);b.setTooltip(tips[t]);b.setClickingTogglesState(true);b.setRadioGroupId(7301);
+            b.setColour(juce::TextButton::buttonOnColourId,accentColour);b.setColour(juce::TextButton::textColourOnId,juce::Colour(0xff111414));
+            b.setConnectedEdges((t>0?juce::Button::ConnectedOnLeft:0)|(t<2?juce::Button::ConnectedOnRight:0));b.onClick=[this,t]{if(modTabs[size_t(t)].getToggleState())showModTab(t);};addAndMakeVisible(b);}}
+        addAndMakeVisible(seqGraph);
+        {auto steps=std::make_unique<Knob>(state,"synthSeqSteps","STEPS");seqSteps=steps.get();add(std::move(steps));}
+        seqRate=add(std::make_unique<Choice>(state,"synthSeqRate",synthSeqRateNames(),"Length of one step, in time with the host tempo (120 BPM without one)"));
+        {auto bar=std::make_unique<Bar>(state,"synthSeqSmooth","Smoothing: 0 % jumps from step to step, 100 % glides for the whole step");
+         bar->textFromValueFunction=[](double v){return "SMOOTH "+juce::String(juce::roundToInt(v))+" %";};bar->updateText();seqSmooth=static_cast<juce::Slider*>(add(std::move(bar)));}
+        seqRetrigger=add(std::make_unique<Toggle>(state,"synthSeqRetrigger","RETRIG"));
+        static_cast<juce::TextButton*>(seqRetrigger)->setTooltip("On: a note played while nothing is held starts the pattern at step 1. Off: the pattern keeps running.");
+        for(int k=0;k<synthMacroCount;++k){
+            auto bar=std::make_unique<Bar>(state,synthMacroID(k),"Macro "+juce::String(k+1)+": choose it as a SOURCE in the matrix, or right-click a knob. It can be automated.");
+            bar->textFromValueFunction=[k](double v){return "MACRO "+juce::String(k+1)+"   "+juce::String(juce::roundToInt(v))+" %";};bar->updateText();macros[size_t(k)]=static_cast<juce::Slider*>(add(std::move(bar)));}
+        modTabs[0].setToggleState(true,juce::dontSendNotification);showModTab(0);
         // Knobs the matrix can move: right-click opens "Modulate with".
         for(auto& k:owned)if(auto* knob=dynamic_cast<Knob*>(k.get()))if(modTargetFor(knob->slider.getComponentID())>0)knob->slider.addMouseListener(this,false);
         // Scope and master
@@ -558,13 +669,28 @@ public:
             for(int k=4;k<7;++k)panel.knobs[size_t(k)]->setBounds(row2.removeFromLeft(row2.getWidth()/(7-k)));
             panel.knobs[7]->setBounds(panel.knobs[6]->getBounds());   // START takes MORPH's place in Sample mode
         }
-        {auto r=p[3].first.reduced(8,6);auto head=r.removeFromTop(18);filterOn->setBounds(head.removeFromLeft(70));head.removeFromLeft(6);filterType->setBounds(head.removeFromLeft(120));
-         r.removeFromTop(4);filter.setBounds(r.removeFromTop(r.getHeight()-60));r.removeFromTop(4);
-         for(size_t k=0;k<filterKnobs.size();++k)filterKnobs[k]->setBounds(r.removeFromLeft(r.getWidth()/int(filterKnobs.size()-k)));}
+        {auto r=p[3].first.reduced(8,6);
+         // Routing on top, the curve, one row per filter (switch and type on the left, knobs beside), the distortion along the bottom.
+         auto head=r.removeFromTop(18);filterRouting->setBounds(head.removeFromLeft(124));head.removeFromLeft(6);filterBalance->setBounds(head.removeFromLeft(juce::jmin(110,head.getWidth()-96)));
+         auto dist=r.removeFromBottom(20);r.removeFromBottom(4);
+         distOn->setBounds(dist.removeFromLeft(42));dist.removeFromLeft(4);distType->setBounds(dist.removeFromLeft(86));dist.removeFromLeft(4);distPlace->setBounds(dist.removeFromLeft(104));dist.removeFromLeft(4);
+         distDrive->setBounds(dist.removeFromLeft(dist.getWidth()/2-2));dist.removeFromLeft(4);distMix->setBounds(dist);
+         const auto row=[](juce::Rectangle<int> area,juce::Component* on,juce::Component* type,const std::vector<Knob*>& knobs){
+             auto left=area.removeFromLeft(98);on->setBounds(left.removeFromTop(20).withTrimmedRight(26));left.removeFromTop(3);type->setBounds(left.removeFromTop(20));area.removeFromLeft(4);
+             const int w=area.getWidth()/5;for(auto* k:knobs)k->setBounds(area.removeFromLeft(w));};
+         auto second=r.removeFromBottom(42);r.removeFromBottom(3);auto first=r.removeFromBottom(42);r.removeFromBottom(3);
+         row(first,filterOn,filterType,filterKnobs);row(second,filter2On,filter2Type,filter2Knobs);
+         r.removeFromTop(4);filter.setBounds(r);}
         for(int e=0;e<2;++e){auto r=p[size_t(4+e)].first.reduced(8,6);r.removeFromTop(16);
             (e==0?ampEnvelope:modEnvelope).setBounds(r.removeFromTop(r.getHeight()-56));r.removeFromTop(4);
             for(size_t k=0;k<4;++k)envKnobs[size_t(e)][k]->setBounds(r.removeFromLeft(r.getWidth()/int(4-k)));}
-        {auto r=p[6].first.reduced(8,6);r.removeFromTop(14);
+        {auto r=p[6].first.reduced(8,6);
+         {auto tabs=r.removeFromTop(16);for(int t=0;t<3;++t)modTabs[size_t(t)].setBounds(tabs.removeFromLeft(tabs.getWidth()/(3-t)));}
+         r.removeFromTop(4);
+         {auto q=r;auto bottom=q.removeFromBottom(18);q.removeFromBottom(3);auto middle=q.removeFromBottom(20);q.removeFromBottom(3);auto upper=q.removeFromBottom(18);q.removeFromBottom(3);seqGraph.setBounds(q);
+          seqSteps->setCompact();seqSteps->setBounds(upper);seqSteps->setIncDec(" STEPS");
+          seqRetrigger->setBounds(middle.removeFromRight(48));middle.removeFromRight(4);seqRate->setBounds(middle);seqSmooth->setBounds(bottom);}
+         {auto q=r;const int h=juce::jmin(26,q.getHeight()/synthMacroCount);for(auto* m:macros)m->setBounds(q.removeFromTop(h).reduced(0,2));}
          for(int l=0;l<2;++l){auto half=r.removeFromTop(r.getHeight()/(2-l));auto head=half.removeFromTop(18);
              lfoShape[size_t(l)]->setBounds(head.removeFromLeft(head.getWidth()/2-2));head.removeFromLeft(4);lfoSync[size_t(l)]->setBounds(head);
              lfoRate[size_t(l)]->setBounds(half.removeFromRight(48));lfoGraphs[size_t(l)].setBounds(half.reduced(0,3));}}
@@ -585,7 +711,9 @@ public:
             if(auto* knob=dynamic_cast<Knob*>(k.get()))if(knob->slider.getComponentID()==id)return &knob->slider;
             if(auto* seg=dynamic_cast<Segmented*>(k.get()))for(int i=0;i<seg->count();++i)if(id==seg->getComponentID()+juce::String(i))return &seg->button(i);
         }
-        if(auto* direct=findChildWithID(id))return direct;   // members such as the matrix's + button
+        const std::function<juce::Component*(juce::Component&)> find=[&](juce::Component& parent)->juce::Component* {
+            for(auto* child:parent.getChildren()){if(child->getComponentID()==id)return child;if(auto* deeper=find(*child))return deeper;}return nullptr;};
+        if(auto* direct=find(*this))return direct;   // members such as the matrix's + button, inside its scrolling list
         return getComponentID()==id?this:nullptr;
     }
     FilterCurve& filterCurve() noexcept {return filter;}
@@ -598,46 +726,66 @@ public:
             if(id==synthOscID(o,"Level"))return targetLevelA+o;
             if(id==synthOscID(o,"Detune"))return targetDetune;
         }
-        static const std::array<std::pair<const char*,int>,6> direct{{{"synthFM",targetFM},{"synthCutoff",targetCutoff},{"synthResonance",targetResonance},{"synthSubLevel",targetSubLevel},{"synthNoiseLevel",targetNoiseLevel},{"synthLevel",targetAmp}}};
+static const std::array<std::pair<const char*,int>,8> direct{{{"synthFM",targetFM},{"synthCutoff",targetCutoff},{"synthResonance",targetResonance},{"synthSubLevel",targetSubLevel},{"synthNoiseLevel",targetNoiseLevel},{"synthLevel",targetAmp},
+            {"synthFilter2Cutoff",targetCutoff2},{"synthFilter2Resonance",targetResonance2}}};
         for(const auto& [name,target]:direct)if(id==name)return target;
         return 0;
     }
     // Rows on screen and the marks on modulated knobs follow the parameters (a patch or the host may change them).
-    void refreshModulation() {if(modRowsShown()!=shownModRows)layoutMatrix();updateModulatedKnobs();}
-    int modValue(int row,const char* field) const {return juce::roundToInt(state.getRawParameterValue(synthModID(row,field))->load());}
+    void refreshModulation() {if(modShownMask()!=shownModRows)layoutMatrix();updateModulatedKnobs();}
+    // Sixteen rows: 0-7 are the released parameters, 8-15 the second bank.
+    static constexpr int modRowCount=synthModSlots+synthModSlotsB;
+    static juce::String modRowID(int row,const char* field) {return row<synthModSlots?synthModID(row,field):synthModBID(row-synthModSlots,field);}
+    // New connections take the second bank first (it knows every source and target), then the released rows.
+    static int modRowByPreference(int k) {return k<synthModSlotsB?synthModSlots+k:k-synthModSlotsB;}
+    int modValue(int row,const char* field) const {return juce::roundToInt(state.getRawParameterValue(modRowID(row,field))->load());}
     bool modRowUsed(int row) const {return modValue(row,"Source")>0 || modValue(row,"Target")>0;}
-    // Rows on screen: every row up to the last one in use, and those added with + (at least one).
-    int modRowsShown() const {int last=0;for(int m=0;m<synthModSlots;++m)if(modRowUsed(m))last=m+1;return juce::jlimit(1,synthModSlots,juce::jmax(last,modRowsRevealed));}
+    // On screen: the rows in use and those added with +; with neither, one empty row.
+    bool modRowShown(int row) const {
+        if(modRowUsed(row) || revealed[size_t(row)])return true;
+        if(row!=synthModSlots)return false;
+        for(int m=0;m<modRowCount;++m)if(modRowUsed(m) || revealed[size_t(m)])return false;
+        return true;
+    }
+    int modRowsShown() const {int n=0;for(int m=0;m<modRowCount;++m)n+=modRowShown(m);return n;}
+    int modShownMask() const {int mask=0;for(int m=0;m<modRowCount;++m)mask|=modRowShown(m)?1<<m:0;return mask;}
     // Connects `source` to `target`: the row that already does, else the first free row. Returns the row or -1.
     int assignModulation(int source,int target) {
-        int row=-1;
-        for(int m=0;m<synthModSlots && row<0;++m)if(modValue(m,"Source")==source && modValue(m,"Target")==target)row=m;
-        for(int m=0;m<synthModSlots && row<0;++m)if(!modRowUsed(m))row=m;
+        int row=-1;const bool wide=source>=synthModSourceCount || target>=synthModTargetCount;   // only rows 9-16 can hold these
+        for(int m=0;m<modRowCount && row<0;++m)if(modValue(m,"Source")==source && modValue(m,"Target")==target)row=m;
+        for(int k=0;k<modRowCount && row<0;++k){const int m=modRowByPreference(k);if(!(wide && m<synthModSlots) && !modRowUsed(m))row=m;}
         if(row<0)return -1;
-        setParameter(synthModID(row,"Source"),float(source));setParameter(synthModID(row,"Target"),float(target));
-        if(modValue(row,"Amount")==0)setParameter(synthModID(row,"Amount"),50.f);
-        modRowsRevealed=juce::jmax(modRowsRevealed,row+1);layoutMatrix();updateModulatedKnobs();
+        setParameter(modRowID(row,"Source"),float(source));setParameter(modRowID(row,"Target"),float(target));
+        if(modValue(row,"Amount")==0)setParameter(modRowID(row,"Amount"),50.f);
+        revealed[size_t(row)]=true;layoutMatrix();updateModulatedKnobs();
         return row;
     }
     void clearModulation(int row) {
-        const bool last=row+1==modRowsShown();   // removing the last row on screen takes the row away
-        for(const char* field:{"Source","Target","Amount"})setParameter(synthModID(row,field),0.f);
-        if(last)modRowsRevealed=juce::jlimit(1,synthModSlots,row);
+        for(const char* field:{"Source","Target","Amount"})setParameter(modRowID(row,field),0.f);
+        revealed[size_t(row)]=false;
         layoutMatrix();updateModulatedKnobs();
     }
+    // LFO, SEQ or MACRO in the modulation-source panel.
+    void showModTab(int tab) {
+        modTab=juce::jlimit(0,2,tab);modTabs[size_t(modTab)].setToggleState(true,juce::dontSendNotification);
+        for(int l=0;l<2;++l)for(juce::Component* c:{lfoShape[size_t(l)],lfoSync[size_t(l)],static_cast<juce::Component*>(lfoRate[size_t(l)]),static_cast<juce::Component*>(&lfoGraphs[size_t(l)])})c->setVisible(modTab==0);
+        for(juce::Component* c:{static_cast<juce::Component*>(&seqGraph),static_cast<juce::Component*>(seqSteps),seqRate,static_cast<juce::Component*>(seqSmooth),seqRetrigger})c->setVisible(modTab==1);
+        for(auto* m:macros)m->setVisible(modTab==2);
+    }
+    StepGraph& stepGraph() noexcept {return seqGraph;}
     void mouseDown(const juce::MouseEvent& e) override {
         if(!e.mods.isPopupMenu() || e.eventComponent==nullptr || e.eventComponent==this)return;
         const int target=modTargetFor(e.eventComponent->getComponentID());if(target<=0)return;
-        juce::PopupMenu menu;const auto sources=synthModSourceNames();const auto name=synthModTargetNames()[target];
+        juce::PopupMenu menu;const auto sources=synthModSourceNamesB();const auto name=synthModTargetNamesB()[target];
         menu.addSectionHeader("MODULATE "+name.toUpperCase()+" WITH");
         bool any=false;
-        for(int source=1;source<sources.size();++source){bool on=false;for(int m=0;m<synthModSlots;++m)on|=modValue(m,"Source")==source && modValue(m,"Target")==target;any|=on;menu.addItem(source,sources[source],true,on);}
+        for(int source=1;source<sources.size();++source){bool on=false;for(int m=0;m<modRowCount;++m)on|=modValue(m,"Source")==source && modValue(m,"Target")==target;any|=on;menu.addItem(source,sources[source],true,on);}
         menu.addSeparator();menu.addItem(100,"Remove every modulation of "+name,any);
         juce::Component::SafePointer<SynthPage> safe(this);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(e.eventComponent),[safe,target](int result){
             if(!safe || result<=0)return;
-            if(result==100){for(int m=0;m<synthModSlots;++m)if(safe->modValue(m,"Target")==target)safe->clearModulation(m);return;}
-            if(safe->assignModulation(result,target)<0)juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Modulation matrix full","All eight modulation rows are in use. Remove one first.");
+            if(result==100){for(int m=0;m<modRowCount;++m)if(safe->modValue(m,"Target")==target)safe->clearModulation(m);return;}
+            if(safe->assignModulation(result,target)<0)juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Modulation matrix full","Every modulation row that can hold this connection is in use. Remove one first.");
         });
     }
     WaveDisplay& waveDisplay(int osc) noexcept {return *oscPanels[size_t(juce::jlimit(0,synthOscCount-1,osc))].display;}
@@ -652,6 +800,8 @@ public:
             p.table->setVisible(!sample);p.warp->setVisible(table);p.warpAmount->setVisible(table);
             for(juce::Component* c:{static_cast<juce::Component*>(p.load),static_cast<juce::Component*>(p.clear),p.loop,static_cast<juce::Component*>(p.root),static_cast<juce::Component*>(p.knobs[7])})c->setVisible(sample);
         }
+        const bool parallel=state.getRawParameterValue("synthFilterRouting")->load()>.5f;
+        filterBalance->setVisible(parallel);
         static const char* tips[]{"Dvergr Analog: slow pitch drift per oscillator (about 5 cents RMS at 100 %) and soft saturation into the filter",
                                   "Seidr Dynamic: the playing level (guitar level or velocity) moves the filter over 3 octaves, brightens the waves and sets the level over 12 dB",
                                   "Mimir Impact: each attack strikes an FM index (60 ms) and a noise click (4 ms)"};
@@ -666,8 +816,8 @@ private:
         const auto col=[&](int x,int width,int y,int height){return juce::Rectangle<int>(x,y,width-gap,height);};
         const int a0=w*22/100,a3=w-3*a0;
         const int b0=w*14/100,b1=w*14/100,b2=w*13/100,b3=w*21/100,b4=w*14/100,b5=w-b0-b1-b2-b3-b4;
-        return {{{col(0,a0,top,rowA),"OSC A"},{col(a0,a0,top,rowA),"OSC B"},{col(2*a0,a0,top,rowA),"OSC C"},{col(3*a0,a3+gap,top,rowA),"FILTER"},
-                 {col(0,b0,y2,h2),"ENV 1  AMP"},{col(b0,b1,y2,h2),"ENV 2  MOD"},{col(b0+b1,b2,y2,h2),"LFO 1 / 2"},{col(b0+b1+b2,b3,y2,h2),"MOD MATRIX"},
+        return {{{col(0,a0,top,rowA),"OSC A"},{col(a0,a0,top,rowA),"OSC B"},{col(2*a0,a0,top,rowA),"OSC C"},{col(3*a0,a3+gap,top,rowA),"FILTERS / DIST"},
+                 {col(0,b0,y2,h2),"ENV 1  AMP"},{col(b0,b1,y2,h2),"ENV 2  MOD"},{col(b0+b1,b2,y2,h2),""},{col(b0+b1+b2,b3,y2,h2),"MOD MATRIX"},
                  {col(b0+b1+b2+b3,b4,y2,h2),"SUB / NOISE"},{col(b0+b1+b2+b3+b4,b5+gap,y2,h2),"SCOPE / MASTER"}}};
     }
     template<class C> C* add(std::unique_ptr<C> c){auto* raw=c.get();addAndMakeVisible(*raw);children.push_back(raw);owned.push_back(std::move(c));return raw;}
@@ -682,35 +832,38 @@ private:
         updateModes();
         refreshModulation();
         for(auto& p:oscPanels){p.display->repaint();p.shapes->repaint();}
-        filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();scope.repaint();
+        filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();if(seqGraph.isVisible())seqGraph.repaint();scope.repaint();
         repaint(oscPanels[0].shapes->getBounds().getUnion(oscPanels[2].shapes->getBounds()));
     }
     struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};juce::Component* table{};juce::Component* warp{};juce::Component* warpAmount{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
     void setParameter(const juce::String& id,float value) {
         if(auto* q=state.getParameter(id)){q->beginChangeGesture();q->setValueNotifyingHost(q->convertTo0to1(value));q->endChangeGesture();}
     }
-    // Lays out the rows in use, the + button under them, and hides the rest.
+    // Lays out the rows on screen in a scrolling list, the + button under them, and hides the rest.
     void layoutMatrix() {
         auto r=panels()[7].first.reduced(8,6);r.removeFromTop(16);
+        const int shown=modRowsShown(),h=17;const bool add=shown<modRowCount;
+        auto titles=r.removeFromTop(11);
+        modHint.setVisible(r.getHeight()>=60);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
+        const int content=shown*h+(add?20:0);const bool scroll=content>r.getHeight();const int width=r.getWidth()-(scroll?10:0);
         const auto columns=[](juce::Rectangle<int> row){std::array<juce::Rectangle<int>,4> c;c[3]=row.removeFromRight(16);row.removeFromRight(2);
-            c[0]=row.removeFromLeft(row.getWidth()*37/100);row.removeFromLeft(3);c[1]=row.removeFromLeft(row.getWidth()*55/100);row.removeFromLeft(3);c[2]=row;return c;};
-        {const auto c=columns(r.removeFromTop(11));modSourceTitle.setBounds(c[0]);modTargetTitle.setBounds(c[1]);modAmountTitle.setBounds(c[2]);}
-        const int shown=modRowsShown(),h=juce::jmin(20,r.getHeight()/(synthModSlots+1));
-        for(int m=0;m<synthModSlots;++m){
-            auto& mr=modRows[size_t(m)];const bool visible=m<shown;
+            c[0]=row.removeFromLeft(row.getWidth()*35/100);row.removeFromLeft(3);c[1]=row.removeFromLeft(row.getWidth()*60/100);row.removeFromLeft(3);c[2]=row;return c;};
+        {const auto c=columns(titles.withWidth(width));modSourceTitle.setBounds(c[0]);modTargetTitle.setBounds(c[1]);modAmountTitle.setBounds(c[2]);}
+        matrixView.setBounds(r);matrixHolder.setSize(width,juce::jmax(content,1));
+        int y=0;
+        for(int m=0;m<modRowCount;++m){
+            auto& mr=modRows[size_t(m)];const bool visible=modRowShown(m);
             for(juce::Component* c:{mr.source,mr.target,static_cast<juce::Component*>(mr.amount),static_cast<juce::Component*>(mr.clear)})c->setVisible(visible);
             if(!visible)continue;
-            const auto c=columns(r.removeFromTop(h).reduced(0,1));mr.source->setBounds(c[0]);mr.target->setBounds(c[1]);mr.amount->setBounds(c[2]);mr.clear->setBounds(c[3]);
+            const auto c=columns(juce::Rectangle<int>(0,y,width,h).reduced(0,1));mr.source->setBounds(c[0]);mr.target->setBounds(c[1]);mr.amount->setBounds(c[2]);mr.clear->setBounds(c[3]);y+=h;
         }
-        modAdd.setVisible(shown<synthModSlots);
-        if(shown<synthModSlots){r.removeFromTop(2);modAdd.setBounds(r.removeFromTop(juce::jmin(18,r.getHeight())).removeFromLeft(juce::jmin(130,r.getWidth())));}
-        modHint.setVisible(r.getHeight()>=12);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
-        shownModRows=shown;
+        modAdd.setVisible(add);if(add)modAdd.setBounds(0,y+2,juce::jmin(130,width),16);
+        shownModRows=modShownMask();
     }
     // Marks every knob the matrix moves (the look draws the arc).
     void updateModulatedKnobs() {
-        std::array<double,synthModTargetCount> sum{};
-        for(int m=0;m<synthModSlots;++m){const int target=modValue(m,"Target");if(modValue(m,"Source")>0 && target>0 && target<synthModTargetCount)sum[size_t(target)]+=state.getRawParameterValue(synthModID(m,"Amount"))->load()*.01;}
+        std::array<double,synthModTargetCountB> sum{};
+        for(int m=0;m<modRowCount;++m){const int target=modValue(m,"Target");if(modValue(m,"Source")>0 && target>0 && target<synthModTargetCountB)sum[size_t(target)]+=state.getRawParameterValue(modRowID(m,"Amount"))->load()*.01;}
         for(auto& k:owned)if(auto* knob=dynamic_cast<Knob*>(k.get())){const int target=modTargetFor(knob->slider.getComponentID());if(target<=0)continue;
             const double mod=juce::jlimit(-1.0,1.0,sum[size_t(target)]);
             if(std::abs(double(knob->slider.getProperties().getWithDefault("mod",0.0))-mod)>1e-6){knob->slider.getProperties().set("mod",mod);knob->slider.repaint();}}
@@ -727,9 +880,13 @@ private:
     juce::Component* subOn{};juce::Component* subOctave{};juce::Component* subShape{};Knob* subLevel{};
     juce::Component* noiseOn{};Knob* noiseColor{};Knob* noiseLevel{};
     juce::Component* filterOn{};juce::Component* filterType{};FilterCurve filter;std::vector<Knob*> filterKnobs;
+    juce::Component* filter2On{};juce::Component* filter2Type{};std::vector<Knob*> filter2Knobs;juce::Component* filterRouting{};juce::Slider* filterBalance{};
+    juce::Component* distOn{};juce::Component* distType{};juce::Component* distPlace{};juce::Slider* distDrive{};juce::Slider* distMix{};
     EnvelopeGraph ampEnvelope,modEnvelope;std::array<std::vector<Knob*>,2> envKnobs;
     std::array<juce::Component*,2> lfoShape{},lfoSync{};std::array<Knob*,2> lfoRate{};std::array<LfoGraph,2> lfoGraphs;
-    std::array<ModRow,synthModSlots> modRows;juce::Label modSourceTitle,modTargetTitle,modAmountTitle,modHint;juce::TextButton modAdd;int modRowsRevealed{1},shownModRows{-1};
+    std::array<ModRow,modRowCount> modRows;juce::Label modSourceTitle,modTargetTitle,modAmountTitle,modHint;juce::TextButton modAdd;std::array<bool,modRowCount> revealed{};int shownModRows{-1};
+    juce::Component matrixHolder;juce::Viewport matrixView;   // after the rows it shows; the page's `owned` controls outlive both
+    std::array<juce::TextButton,3> modTabs;int modTab{};StepGraph seqGraph;Knob* seqSteps{};juce::Component* seqRate{};juce::Slider* seqSmooth{};juce::Component* seqRetrigger{};std::array<juce::Slider*,synthMacroCount> macros{};
     Scope scope;std::vector<Knob*> masterKnobs;
 };
 } // namespace spectralforge::synthUI

@@ -38,7 +38,7 @@ void require(bool ok,const std::string& message){if(!ok)throw std::runtime_error
 double db(double v){return 20*std::log10(std::max(v,1.e-30));}
 struct Host final : juce::AudioProcessor {
     juce::AudioProcessorValueTreeState state;
-    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);return l;}
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);appendSynthFiltersParameters(l);appendSynthSequencerParameters(l);return l;}
     Host():state(*this,nullptr,"SYNTH",layout()){}
     void set(const char* id,float v){auto* p=state.getParameter(id);require(p!=nullptr,std::string("no parameter ")+id);p->setValueNotifyingHost(p->convertTo0to1(v));}
     const juce::String getName() const override {return "synth";}
@@ -189,6 +189,135 @@ void filterResponse() {
     std::cout<<"MEASURE filter vs analytic response, cutoff 1 kHz / resonance 30 %, largest error at harmonics 110 Hz-4 kHz:"<<line<<"\n";
     require(worst<.2,"Filter response differs from the curve the page draws");
     std::cout<<"PASS six filter types match the analytic response shown on the page\n";
+}
+
+void filtersAndDistortion() {
+    // docs/SYNTH_FILTERS.md. Off (the defaults), whatever else is set: the released voice, sample for sample.
+    {Host a;a.set("synthOn",1);a.set("synthSource",2);a.set("synthDrive",40);a.set("synthFilterEnv",50);
+     Host b;b.set("synthOn",1);b.set("synthSource",2);b.set("synthDrive",40);b.set("synthFilterEnv",50);
+     for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthFilter2Type",6},{"synthFilter2Cutoff",900},{"synthFilter2Resonance",80},{"synthFilter2KeyTrack",100},{"synthFilter2Env",-60},
+         {"synthFilterRouting",1},{"synthFilterBalance",10},{"synthDistType",2},{"synthDistPlace",2},{"synthDistDrive",100},{"synthDistMix",40}})b.set(id,v);
+     const auto x=render(a,48000,silence(),hold({45,57})).l,y=render(b,48000,silence(),hold({45,57})).l;
+     double diff=0;for(size_t n=0;n<x.size();++n)diff=std::max(diff,double(std::abs(x[n]-y[n])));
+     std::cout<<"MEASURE filter 2 and distortion off, their settings changed: largest sample difference "<<diff<<"\n";
+     require(diff==0,"The voice changed with filter 2 and the distortion off");}
+    // Filter 2 alone: each type against the curve the page draws (a 55 Hz saw at 96 kHz worth of samples).
+    Host plain;clean(plain,2);const auto dry=render(plain,96000,silence(),hold({33})).l;
+    const auto relative=[&](const std::vector<float>& wet,double f){return db(magnitude(wet,24000,96000,f)/magnitude(dry,24000,96000,f));};
+    const auto with=[&](std::initializer_list<std::pair<const char*,float>> values){Host h;clean(h,2);for(const auto& [id,v]:values)h.set(id,v);return render(h,96000,silence(),hold({33})).l;};
+    {double worst=0;std::string line;
+     for(int type=0;type<synthFilter2TypeCount;++type){
+        const float cutoff=type>=synthFilterCombPlus?480.f:1000.f;   // 480 Hz: a comb of exactly 100 samples
+        const auto wet=with({{"synthFilter2On",1},{"synthFilter2Type",float(type)},{"synthFilter2Cutoff",cutoff},{"synthFilter2Resonance",30}});double typeWorst=0;
+        for(int k:{2,5,9,18,36,72}){const double f=55.0*k,expected=db(synthFilter2Magnitude(type,cutoff,.3,f,rate));if(expected>-40)typeWorst=std::max(typeWorst,std::abs(relative(wet,f)-expected));}
+        worst=std::max(worst,typeWorst);line+=" "+synthFilter2TypeNames()[type].toStdString()+" "+juce::String(typeWorst,3).toStdString()+" dB;";}
+     std::cout<<"MEASURE filter 2 vs analytic response, resonance 30 %, largest error at harmonics 110 Hz-4 kHz:"<<line<<"\n";
+     require(worst<.3,"Filter 2 differs from the curve the page draws");}
+    // Serial: the two responses multiply. Parallel: the balance ends are one filter alone.
+    {const auto serial=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthResonance",30},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilter2Resonance",30}});
+     double worst=0;for(int k:{2,5,9,18,36,72}){const double f=55.0*k;worst=std::max(worst,std::abs(relative(serial,f)-db(synthFilterMagnitude(0,2000,.3,f,rate))-db(synthFilter2Magnitude(2,300,.3,f,rate))));}
+     const auto one=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000}}),two=with({{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300}});
+     const auto left=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilterRouting",1},{"synthFilterBalance",0}});
+     const auto right=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilterRouting",1},{"synthFilterBalance",100}});
+     const auto centre=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilterRouting",1}});
+     double d1=0,d2=0,d3=0;for(size_t n=0;n<one.size();++n){d1=std::max(d1,double(std::abs(left[n]-one[n])));d2=std::max(d2,double(std::abs(right[n]-two[n])));d3=std::max(d3,double(std::abs(centre[n]-(one[n]+two[n]))));}
+     std::cout<<"MEASURE routing: serial vs the product of both curves "<<worst<<" dB; parallel balance 0 vs filter 1 alone "<<d1<<", 100 vs filter 2 alone "<<d2<<", 50 vs their sum "<<d3<<"\n";
+     require(worst<.3 && d1<1e-6 && d2<1e-6 && d3<1e-5,"Filter routing wrong");}
+    // Comb with KEY 100 %: tuned at C4, it follows the note (A3: peaks at 220 Hz and its multiples).
+    {const auto comb=[&](float key){Host h;clean(h,2);h.set("synthNoiseOn",1);h.set("synthNoiseLevel",100);h.set("synthNoiseColor",100);h.set("synthOscAOn",0);
+        h.set("synthFilter2On",1);h.set("synthFilter2Type",6);h.set("synthFilter2Cutoff",262);h.set("synthFilter2Resonance",90);h.set("synthFilter2KeyTrack",key);return render(h,96000,silence(),hold({57})).l;};
+     const auto fixed=comb(0),tracked=comb(100);
+     const auto band=[&](const std::vector<float>& x,double f){double e=0;for(double d=-6;d<=6;d+=1.5)e+=std::pow(magnitude(x,24000,96000,f+d),2);return 10*std::log10(e);};
+     const double trackedPeak=band(tracked,220)-band(tracked,330),fixedPeak=band(fixed,262)-band(fixed,393);
+     std::cout<<"MEASURE comb on noise, resonance 90 %: tuned 262 Hz, peak over the dip a fifth above "<<fixedPeak<<" dB; with KEY 100 % at A3, 220 Hz over 330 Hz "<<trackedPeak<<" dB\n";
+     require(fixedPeak>15 && trackedPeak>15,"The comb does not ring at its cutoff, or does not follow the key");}
+    // Distortion. Every shape stays inside +-1 (Bit crush: inside the input's peak plus half a step).
+    {double bound=0;for(int type=0;type<synthDistTypeCount;++type)for(const double drive:{0.0,.3,1.0})for(double x=-4;x<=4;x+=.001){
+        const double y=synthDistort(type,synthDistGain(drive),synthDistSteps(drive),x);require(std::isfinite(y),"Distortion output not finite");
+        bound=std::max(bound,type==5?std::abs(y)-std::abs(x)-.5/synthDistSteps(drive):std::abs(y)-1.0);}
+     require(bound<1e-9,"A distortion shape leaves its bound");}
+    {const auto sine=[&](std::initializer_list<std::pair<const char*,float>> values,std::initializer_list<int> notes={57}){Host h;clean(h,0);for(const auto& [id,v]:values)h.set(id,v);return render(h,48000,silence(),hold(notes)).l;};
+     const auto off=sine({}),unity=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",0}}),dry=sine({{"synthDistOn",1},{"synthDistType",2},{"synthDistDrive",100},{"synthDistMix",0}});
+     double d1=0,d2=0;for(size_t n=0;n<off.size();++n){d1=std::max(d1,double(std::abs(off[n]-unity[n])));d2=std::max(d2,double(std::abs(off[n]-dry[n])));}
+     std::string line;
+     for(int type=0;type<synthDistTypeCount;++type){const auto wet=sine({{"synthDistOn",1},{"synthDistType",float(type)},{"synthDistDrive",70}});
+        line+=" "+synthDistTypeNames()[type].toStdString()+" h2 "+juce::String(harmonicDb(wet,220,2),1).toStdString()+" h3 "+juce::String(harmonicDb(wet,220,3),1).toStdString()+";";
+        require(std::max(harmonicDb(wet,220,2),harmonicDb(wet,220,3))>-40 || type==5,std::string("A distortion type adds no harmonics: ")+synthDistTypeNames()[type].toStdString());}
+     const auto mean=[](const std::vector<float>& x){double m=0;for(int n=24000;n<48000;++n)m+=x[size_t(n)];return m/24000;};
+     const auto tube=sine({{"synthDistOn",1},{"synthDistType",3},{"synthDistDrive",70}}),crush=sine({{"synthDistOn",1},{"synthDistType",5},{"synthDistDrive",100}});
+     // Per voice: a fifth through the hard clipper has no 2 f1 - f2 product (110.4 Hz), which a clipper after the mix would add.
+     const double f1=hz(57),f2=hz(64);const auto chord=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthVoices",4}},{57,64});
+     const double intermod=db(magnitude(chord,12000,48000,2*f1-f2)/magnitude(chord,12000,48000,f1));
+     // Position: before a low-pass the filter removes the new harmonics; after it they stay.
+     const auto before=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthDistPlace",0},{"synthFilterOn",1},{"synthFilterType",1},{"synthCutoff",400},{"synthResonance",0}});
+     const auto after=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthDistPlace",2},{"synthFilterOn",1},{"synthFilterType",1},{"synthCutoff",400},{"synthResonance",0}});
+     std::cout<<"MEASURE distortion on a sine at A3, drive 70 %, harmonics 2 / 3 (dB re 1):"<<line<<"\n";
+     std::cout<<"MEASURE distortion: hard clip at drive 0 % differs from off by "<<d1<<", mix 0 % by "<<d2<<"; Tube harmonic 2 "<<harmonicDb(tube,220,2)<<" dB, DC "<<mean(tube)<<"; Bit crush at 100 % harmonic 3 "<<harmonicDb(crush,220,3)
+              <<" dB; A3 + E4 hard clipped, 2 f1 - f2 "<<intermod<<" dB re f1; harmonic 9 before / after a 400 Hz low-pass "<<harmonicDb(before,220,9)<<" / "<<harmonicDb(after,220,9)<<" dB\n";
+     require(d1==0 && d2==0,"Distortion at unity or mix 0 is not clean");
+     require(harmonicDb(tube,220,2)>-20 && std::abs(mean(tube))<1e-3 && harmonicDb(crush,220,3)>-40,"Tube adds no even harmonic or leaves DC, or Bit crush does nothing");
+     require(intermod<-60,"The distortion is not per voice");
+     require(harmonicDb(after,220,9)>harmonicDb(before,220,9)+30,"The distortion position does not change the order");}
+    std::cout<<"PASS filter 2 (eight types), serial / parallel routing, comb key tracking, per-voice distortion\n";
+}
+
+void sequencerAndMacros() {
+    // docs/SYNTH_SEQUENCER.md. Steps and macros set but connected to nothing: the voice does not change.
+    const auto largest=[](const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,double(std::abs(a[n]-b[n])));return d;};
+    {Host a;clean(a,2);Host b;clean(b,2);for(int k=0;k<synthSeqMaxSteps;++k)b.set(synthSeqStepID(k).toRawUTF8(),float(k%2?-80:60));
+     for(int k=0;k<synthMacroCount;++k)b.set(synthMacroID(k).toRawUTF8(),70);b.set("synthSeqSmooth",50);b.set("synthSeqSteps",5);b.set("synthSeqRate",2);
+     const double d=largest(render(a,48000,silence(),hold({57})).l,render(b,48000,silence(),hold({57})).l);
+     std::cout<<"MEASURE sequencer and macros set, no row connected: largest sample difference "<<d<<"\n";require(d==0,"An unconnected sequencer or macro changed the voice");}
+    // Step seq -> Amp at 100 %: step 1 is 0 (full level), step 2 is -100 % (silence). 1/16 at 120 BPM is 6000 samples a step.
+    const auto gate=[&](std::initializer_list<std::pair<const char*,float>> values,double tempo=120,int noteBlock=0){
+        Host h;clean(h,0);h.set("synthModB1Source",float(modSeq));h.set("synthModB1Target",float(targetAmp));h.set("synthModB1Amount",100);h.set("synthSeqStep2",-100);h.set("synthSeqSteps",2);
+        for(const auto& [id,v]:values)h.set(id,v);
+        return render(h,48000,silence(),[noteBlock](int k,juce::MidiBuffer& m){if(k==noteBlock)m.addEvent(juce::MidiMessage::noteOn(1,69,1.f),0);},nullptr,tempo).l;};
+    {const auto x=gate({});const double on1=rms(x,1000,5000),off=rms(x,7000,11000),on2=rms(x,13000,17000);
+     const auto slow=gate({},60);const double slowOn=rms(slow,7000,11000),slowOff=rms(slow,13000,23000);
+     const auto three=gate({{"synthSeqSteps",3},{"synthSeqStep3",-100}});const double t1=rms(three,13000,17000),t2=rms(three,19000,23000);
+     const auto fast=gate({{"synthSeqRate",5}});const double f1=rms(fast,3500,5500),f2=rms(fast,6500,8500);
+     std::cout<<"MEASURE step seq to Amp (steps 0 / -100 %), 1/16 at 120 BPM: step 1 "<<db(on1)<<" dBFS, step 2 "<<db(off)<<", step 1 again "<<db(on2)<<"; at 60 BPM 7000-11000 "<<db(slowOn)<<", 13000-23000 "<<db(slowOff)
+              <<"; three steps (0 / -100 / -100): step 3 "<<db(t1)<<", step 1 "<<db(t2)<<"; 1/32: step 2 "<<db(f1)<<", step 1 "<<db(f2)<<"\n";
+     require(on1>.05 && off<1e-6 && std::abs(on2/on1-1)<.01,"The sequencer does not step at 1/16 of the tempo");
+     require(slowOn>.05 && slowOff<1e-6,"The sequencer does not follow the tempo");
+     require(t1<1e-6 && t2>.05 && f1<1e-6 && f2>.05,"The step count or the step length is wrong");}
+    // SMOOTH: at 100 % the level glides instead of jumping. RETRIG off: a late note joins the running pattern.
+    {const auto smooth=gate({{"synthSeqSmooth",100}});const double early=rms(smooth,6100,6600),late=rms(smooth,11000,11900),full=rms(smooth,1000,5000);
+     const auto retrig=gate({},120,30),running=gate({{"synthSeqRetrigger",0}},120,30);   // the note starts 7680 samples in, inside step 2
+     const double r=rms(retrig,8200,11200),free=rms(running,8200,11200),freeLater=rms(running,12500,17500);
+     std::cout<<"MEASURE smooth 100 %: just after the step change "<<db(early/full)<<" dB re step 1, at the end of step 2 "<<db(late/full)<<" dB; a note 160 ms in: RETRIG on "<<db(r)<<" dBFS, off "<<db(free)<<" then "<<db(freeLater)<<"\n";
+     require(early/full>.5 && late/full<.1 && late>1e-5,"SMOOTH does not glide between steps");
+     require(r>.05 && free<1e-6 && freeLater>.05,"RETRIG does not decide whether a new phrase restarts the pattern");}
+    // Macros and the newer targets: a macro at 100 % with an amount equals the control set there by hand.
+    {const auto run=[&](std::initializer_list<std::pair<const char*,float>> values){Host h;clean(h,2);for(const auto& [id,v]:values)h.set(id,v);return render(h,48000,silence(),hold({45})).l;};
+     const auto row=[](int target,float amount){return std::vector<std::pair<const char*,float>>{{"synthMacro1",100},{"synthModB2Source",float(modMacro1)},{"synthModB2Target",float(target)},{"synthModB2Amount",amount}};};
+     const auto both=[&](std::initializer_list<std::pair<const char*,float>> base,std::initializer_list<std::pair<const char*,float>> moved,int target,float amount,std::initializer_list<std::pair<const char*,float>> manual){
+        Host a;clean(a,2);for(const auto& [id,v]:base)a.set(id,v);for(const auto& [id,v]:moved)a.set(id,v);for(const auto& [id,v]:row(target,amount))a.set(id,v);
+        Host b;clean(b,2);for(const auto& [id,v]:base)b.set(id,v);for(const auto& [id,v]:manual)b.set(id,v);
+        return largest(render(a,48000,silence(),hold({45})).l,render(b,48000,silence(),hold({45})).l);};
+     const double cutoff2=both({{"synthFilter2On",1},{"synthFilter2Type",1}},{{"synthFilter2Cutoff",300}},targetCutoff2,50,{{"synthFilter2Cutoff",2400}});   // 6 octaves x 50 % = 3 octaves
+     const double res2=both({{"synthFilter2On",1},{"synthFilter2Type",1},{"synthFilter2Cutoff",800}},{{"synthFilter2Resonance",10}},targetResonance2,60,{{"synthFilter2Resonance",70}});
+     const double drive=both({{"synthDistOn",1},{"synthDistType",2}},{{"synthDistDrive",10}},targetDistDrive,70,{{"synthDistDrive",80}});
+     const double mix=both({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",80}},{{"synthDistMix",0}},targetDistMix,100,{{"synthDistMix",100}});
+     const double warp=both({{"synthOscATable",1},{"synthOscAWarp",float(synthWarpSync)}},{{"synthOscAWarpAmount",0}},targetWarpA,100,{{"synthOscAWarpAmount",100}});
+     const double balance=both({{"synthFilterOn",1},{"synthFilter2On",1},{"synthFilterRouting",1}},{{"synthFilterBalance",50}},targetFilterBalance,50,{{"synthFilterBalance",100}});
+     (void)run;
+     std::cout<<"MEASURE Macro 1 at 100 % against the control set by hand, largest sample difference: Cutoff 2 "<<cutoff2<<", Resonance 2 "<<res2<<", Dist drive "<<drive<<", Dist mix "<<mix<<", Warp A "<<warp<<", Filter balance "<<balance<<"\n";
+     require(cutoff2<1e-4 && res2<1e-4 && drive<1e-4 && mix<1e-6 && warp<1e-6 && balance<1e-6,"A macro does not move a newer target by its amount");
+     // A released source on a second-bank row is the same as on a released row.
+     Host a;clean(a,2);a.set("synthFilterOn",1);a.set("synthCutoff",300);a.set("synthMod3Source",float(modEnv2));a.set("synthMod3Target",float(targetCutoff));a.set("synthMod3Amount",80);
+     Host b;clean(b,2);b.set("synthFilterOn",1);b.set("synthCutoff",300);b.set("synthModB5Source",float(modEnv2));b.set("synthModB5Target",float(targetCutoff));b.set("synthModB5Amount",80);
+     const double same=largest(render(a,48000,silence(),hold({45})).l,render(b,48000,silence(),hold({45})).l);
+     std::cout<<"MEASURE Env 2 -> Cutoff on row 3 against row 13: largest sample difference "<<same<<"\n";require(same==0,"The two row banks differ");}
+    // A macro moved while a note sounds is smoothed: no step larger than the wave's own.
+    {Host h;clean(h,0);h.set("synthModB1Source",float(modMacro1));h.set("synthModB1Target",float(targetAmp));h.set("synthModB1Amount",-100);
+     SynthLayer s;s.bind(h.state);s.prepare(rate,block);std::vector<float> out;juce::AudioBuffer<float> in(2,block),o(2,block);in.clear();
+     for(int k=0;k<40;++k){juce::MidiBuffer m;if(k==0)m.addEvent(juce::MidiMessage::noteOn(1,57,1.f),0);if(k==20)h.set("synthMacro1",100);o.clear();s.handleMidi(m);s.analyse(in);s.render(block,120);s.addAt(SynthInsert::beforePost,o);for(int n=0;n<block;++n)out.push_back(o.getSample(0,n));}
+     double jump=0;for(size_t n=1;n<out.size();++n)jump=std::max(jump,double(std::abs(out[n]-out[n-1])));
+     std::cout<<"MEASURE Macro 1 -> Amp -100 %, macro jumped from 0 to 100 % in a note: largest sample step "<<jump<<", level after "<<db(rms(out,9000,10000))<<" dBFS\n";
+     require(jump<.03 && rms(out,9000,10000)<1e-4,"A macro change clicks or does not arrive");}
+    std::cout<<"PASS step sequencer (tempo, length, smooth, retrigger), macros, second matrix bank and its targets\n";
 }
 
 std::vector<double> envelope(const std::vector<float>& x,int frame){std::vector<double> e;for(size_t n=0;n+size_t(frame)<=x.size();n+=size_t(frame))e.push_back(rms(x,int(n),int(n)+frame)*std::sqrt(2.0));return e;}
@@ -578,7 +707,7 @@ void processorInsertsAndPage() {
     // Wavetable controls (docs/SYNTH_WAVETABLE.md): nine parameters at version hint 38, appended last.
     {int count=0;const int total=p->getParameters().size();
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthWavetableParameterVersion){
-        require(with->getParameterIndex()>=total-synthOscCount*synthWavetableParametersPerOsc && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
+        require(with->getParameterIndex()>=total-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount) && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
      require(count==synthOscCount*synthWavetableParametersPerOsc && raw("synthOscATable")==0 && raw("synthOscAWarp")==0 && raw("synthOscAWarpAmount")==0,"Wavetable bank size or defaults wrong");
      static_cast<juce::Button*>(page.control("synthOscBMode0"))->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(20);page.updateModes();
      require(page.control("synthOscBTable")->isVisible() && !page.control("synthOscBWarp")->isVisible() && page.control("synthOscBShapes")->isVisible(),"Classic shapes do not show the shape strip and the table choice");
@@ -588,26 +717,65 @@ void processorInsertsAndPage() {
      require(std::abs(raw("synthOscBWave")-2.f)<.08f,"Dragging across a wavetable does not set its position");
      static_cast<juce::ComboBox*>(page.control("synthOscBTable"))->setSelectedId(1,juce::sendNotificationSync);page.updateModes();}
     // Modulation matrix: only rows in use, + adds one, a knob's menu connects a source, x removes it.
-    {const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
+    // Sixteen rows: 0-7 are the released parameters, 8-15 the second bank, which new connections take first.
+    {using Page=spectralforge::synthUI::SynthPage;const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
+     const auto id=[](int row,const char* field){return Page::modRowID(row,field);};const auto value=[&](int row,const char* field){return raw(id(row,field).toRawUTF8());};
      page.applyPatch(0);pumpNow();
-     for(int m=0;m<synthModSlots;++m)page.clearModulation(m);
-     const auto shown=[&]{int n=0;for(int m=0;m<synthModSlots;++m)n+=page.control(synthModID(m,"Source"))->isVisible();return n;};
-     require(shown()==1 && page.control("synthModAdd")->isVisible(),"An empty matrix does not show one row and the + button");
+     for(int m=0;m<Page::modRowCount;++m)page.clearModulation(m);
+     const auto shown=[&]{int n=0;for(int m=0;m<Page::modRowCount;++m)n+=page.control(id(m,"Source"))->isVisible();return n;};
+     require(Page::modRowCount==16 && id(0,"Source")=="synthMod1Source" && id(8,"Source")=="synthModB1Source","Matrix row IDs wrong");
+     require(shown()==1 && page.control(id(8,"Source"))->isVisible() && page.control("synthModAdd")->isVisible(),"An empty matrix does not show one row and the + button");
      static_cast<juce::Button*>(page.control("synthModAdd"))->triggerClick();pumpNow();
      require(shown()==2,"+ does not add a row");
-     require(spectralforge::synthUI::SynthPage::modTargetFor("synthCutoff")==targetCutoff && spectralforge::synthUI::SynthPage::modTargetFor("synthOscBFine")==targetPitchB
-             && spectralforge::synthUI::SynthPage::modTargetFor("synthOscCWave")==targetWaveC && spectralforge::synthUI::SynthPage::modTargetFor("synthGlide")==0,"Knob to matrix target mapping wrong");
+     require(Page::modTargetFor("synthCutoff")==targetCutoff && Page::modTargetFor("synthOscBFine")==targetPitchB && Page::modTargetFor("synthOscCWave")==targetWaveC && Page::modTargetFor("synthGlide")==0
+             && Page::modTargetFor("synthFilter2Cutoff")==targetCutoff2 && Page::modTargetFor("synthFilter2Resonance")==targetResonance2,"Knob to matrix target mapping wrong");
      writes.gestures=0;
      const int row=page.assignModulation(2,targetCutoff);   // LFO 1 -> Cutoff
-     require(row==0 && juce::roundToInt(raw(synthModID(0,"Source").toRawUTF8()))==2 && juce::roundToInt(raw(synthModID(0,"Target").toRawUTF8()))==targetCutoff && raw(synthModID(0,"Amount").toRawUTF8())==50 && writes.gestures==6,
+     require(row==8 && juce::roundToInt(value(8,"Source"))==2 && juce::roundToInt(value(8,"Target"))==targetCutoff && value(8,"Amount")==50 && writes.gestures==6,
              "Connecting a source to a knob does not fill the first free row in one gesture per parameter");
-     require(page.assignModulation(2,targetCutoff)==0 && page.assignModulation(1,targetCutoff)==1,"A repeated connection made a second row, or a new one reused the row");
+     require(page.assignModulation(2,targetCutoff)==8 && page.assignModulation(1,targetCutoff)==9,"A repeated connection made a second row, or a new one reused the row");
      auto* cutoff=dynamic_cast<juce::Slider*>(page.control("synthCutoff"));auto* glide=dynamic_cast<juce::Slider*>(page.control("synthGlide"));
      require(cutoff!=nullptr && std::abs(double(cutoff->getProperties().getWithDefault("mod",0.0))-1.0)<1e-6 && (glide==nullptr || double(glide->getProperties().getWithDefault("mod",0.0))==0),"A modulated knob is not marked");
-     static_cast<juce::Button*>(page.control(synthModID(1,"Clear")))->triggerClick();static_cast<juce::Button*>(page.control(synthModID(0,"Clear")))->triggerClick();pumpNow();
-     require(juce::roundToInt(raw(synthModID(0,"Source").toRawUTF8()))==0 && raw(synthModID(0,"Amount").toRawUTF8())==0 && shown()==1,"x does not clear a row");
-     auto* amount=dynamic_cast<juce::Slider*>(page.control(synthModID(0,"Amount")));
-     require(amount!=nullptr && amount->getSliderStyle()==juce::Slider::LinearBar && amount->getTextFromValue(-35.0)=="-35 %" && amount->getTextFromValue(20.0)=="+20 %","The amount is not a signed bar");}
+     static_cast<juce::Button*>(page.control(id(9,"Clear")))->triggerClick();static_cast<juce::Button*>(page.control(id(8,"Clear")))->triggerClick();pumpNow();
+     require(juce::roundToInt(value(8,"Source"))==0 && value(8,"Amount")==0 && shown()==1,"x does not clear a row");
+     auto* amount=dynamic_cast<juce::Slider*>(page.control(id(8,"Amount")));
+     require(amount!=nullptr && amount->getSliderStyle()==juce::Slider::LinearBar && amount->getTextFromValue(-35.0)=="-35 %" && amount->getTextFromValue(20.0)=="+20 %","The amount is not a signed bar");
+     // A released row in use (an older project, a factory patch) is on screen too.
+     {auto put=[&](const juce::String& pid,float v){auto* q=p->parameters().getParameter(pid);q->setValueNotifyingHost(q->convertTo0to1(v));};
+      put(id(0,"Source"),float(modLfo1));put(id(0,"Target"),float(targetPitchA));page.refreshModulation();
+      require(page.control(id(0,"Source"))->isVisible() && shown()==1,"A released matrix row in use is not shown");
+      // The sequencer, the macros and the newer targets live in rows 9-16 only: eight of them, then the matrix is full for those.
+      for(int k=0;k<synthModSlotsB;++k)require(page.assignModulation(modSeq+k%5,targetCutoff2+k)>=synthModSlots,"A sequencer / macro connection went to a released row");
+      require(page.assignModulation(modMacro4,targetPitchA)==-1,"A ninth sequencer / macro connection found a row");
+      require(page.assignModulation(modLfo2,targetAmp)==1,"With rows 9-16 full a released connection does not use a released row");
+      // Sixteen rows do not fit: the list scrolls, and every row on screen sits inside it.
+      for(int m=2;m<synthModSlots;++m)page.assignModulation(modLfo2,targetPitchA+m);page.refreshModulation();
+      auto* list=page.control(id(15,"Source"))->getParentComponent();auto* view=dynamic_cast<juce::Viewport*>(list->getParentComponent()->getParentComponent());
+      require(shown()==16 && !page.control("synthModAdd")->isVisible() && view!=nullptr && list->getHeight()>view->getHeight() && view->getHeight()>=60,"Sixteen matrix rows do not scroll");
+      for(int m=0;m<Page::modRowCount;++m)require(list->getLocalBounds().contains(page.control(id(m,"Source"))->getBounds()) && list->getLocalBounds().contains(page.control(id(m,"Clear"))->getBounds()),"A matrix row leaves its list");
+      std::cout<<"MEASURE matrix: sixteen rows, list "<<list->getWidth()<<" x "<<list->getHeight()<<" px in a view "<<view->getWidth()<<" x "<<view->getHeight()<<" px\n";
+      for(int m=0;m<Page::modRowCount;++m)page.clearModulation(m);require(shown()==1,"Clearing every row does not leave one empty row");}}
+    // Sequencer and macros share the LFO panel: LFO / SEQ / MACRO.
+    {const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
+     for(const auto* cid:{"synthModTabLFO","synthModTabSEQ","synthModTabMACRO","synthSeqGraph","synthSeqSteps","synthSeqRate","synthSeqSmooth","synthSeqRetrigger","synthMacro1","synthMacro4"})require(page.control(cid)!=nullptr,std::string("SYNTH page control missing: ")+cid);
+     require(page.control("synthLfo1Shape")->isVisible() && !page.control("synthSeqGraph")->isVisible() && !page.control("synthMacro1")->isVisible(),"The LFO view is not the first one");
+     static_cast<juce::Button*>(page.control("synthModTabSEQ"))->triggerClick();pumpNow();
+     require(!page.control("synthLfo1Shape")->isVisible() && page.control("synthSeqGraph")->isVisible() && page.control("synthSeqRate")->isVisible() && !page.control("synthMacro1")->isVisible(),"SEQ does not show the sequencer");
+     auto& steps=page.stepGraph();const auto c3=steps.column(3).getCentre(),c6=steps.column(6).getCentre();
+     require(steps.getWidth()>=100 && steps.getHeight()>=40,"The step graph is too small");
+     writes.gestures=0;writes.changes.clear();drag(steps,{c3.x,float(steps.getHeight())*.25f},{c6.x,float(steps.getHeight())*.75f});
+     std::cout<<"MEASURE step graph "<<steps.getWidth()<<" x "<<steps.getHeight()<<" px; drag from step 4 (upper quarter) to step 7 (lower quarter): steps 4-7 "<<raw("synthSeqStep4")<<" / "<<raw("synthSeqStep5")<<" / "<<raw("synthSeqStep6")<<" / "<<raw("synthSeqStep7")<<" %, gestures "<<writes.gestures<<"\n";
+     require(std::abs(raw("synthSeqStep4")-50)<=4 && std::abs(raw("synthSeqStep7")+50)<=4 && std::abs(raw("synthSeqStep5")-17)<=4 && std::abs(raw("synthSeqStep6")+17)<=4 && writes.gestures==8 && writes.changes.size()==4,"Drawing steps is not one gesture per step, misplaced, or skips the steps passed over");
+     {const auto source=juce::Desktop::getInstance().getMainMouseSource();const auto now=juce::Time::getCurrentTime();
+      steps.mouseDoubleClick(juce::MouseEvent(source,c3,juce::ModifierKeys(),1,0,0,0,0,&steps,&steps,now,c3,now,2,false));require(raw("synthSeqStep4")==0,"Double-click does not reset a step");}
+     static_cast<juce::Button*>(page.control("synthModTabMACRO"))->triggerClick();pumpNow();
+     require(page.control("synthMacro1")->isVisible() && page.control("synthMacro4")->isVisible() && !page.control("synthSeqGraph")->isVisible(),"MACRO does not show the macros");
+     auto* macro=dynamic_cast<juce::Slider*>(page.control("synthMacro2"));require(macro!=nullptr && macro->getTextFromValue(35.0)=="MACRO 2   35 %" && macro->getHeight()>=16,"A macro bar is unnamed or too small");
+     static_cast<juce::Button*>(page.control("synthModTabLFO"))->triggerClick();pumpNow();require(page.control("synthLfo2Sync")->isVisible(),"LFO does not come back");
+     int count=0;const int total=p->getParameters().size();
+     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthSequencerParameterVersion){require(with->getParameterIndex()>=total-synthSequencerParameterCount,"A sequencer parameter is not in the last bank");++count;}
+     require(count==synthSequencerParameterCount && synthSequencerParameterCount==48,"Sequencer bank size wrong");
+     auto put=[&](const juce::String& pid,float v){auto* q=p->parameters().getParameter(pid);q->setValueNotifyingHost(q->convertTo0to1(v));};for(int k=0;k<synthSeqMaxSteps;++k)put(synthSeqStepID(k),0);}
     // Optional evidence: SYNTH_PAGE_SNAPSHOT=<directory> writes the page, with a sample in osc B.
     if(const char* dir=std::getenv("SYNTH_PAGE_SNAPSHOT")){
         const auto wav=juce::File::createTempFile(".wav");
@@ -616,9 +784,13 @@ void processorInsertsAndPage() {
         require(p->loadSynthSample(1,wav).wasOk(),"Snapshot sample did not load");wav.deleteFile();
         {auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
          put("synthOscATable",9);put("synthOscAWave",1.6f);put("synthOscAWarp",float(synthWarpBendUp));put("synthOscAWarpAmount",35);
-         put("synthOscCOn",1);put("synthOscCTable",3);put("synthOscCWave",2.4f);}
-        page.assignModulation(2,targetWaveA);page.assignModulation(1,targetCutoff);page.assignModulation(4,targetLevelC);
-        {auto put=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};put(synthModID(1,"Amount"),-40);put(synthModID(2,"Amount"),70);}
+         put("synthOscCOn",1);put("synthOscCTable",3);put("synthOscCWave",2.4f);
+         put("synthFilter2On",1);put("synthFilter2Type",6);put("synthFilter2Cutoff",440);put("synthFilter2Resonance",60);put("synthFilterRouting",1);put("synthFilterBalance",35);
+         put("synthDistOn",1);put("synthDistType",2);put("synthDistPlace",1);put("synthDistDrive",45);put("synthDistMix",80);}
+        page.assignModulation(2,targetWaveA);page.assignModulation(1,targetCutoff);page.assignModulation(modSeq,targetCutoff2);page.assignModulation(modMacro1,targetDistDrive);
+        {auto put=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};put(synthModBID(1,"Amount"),-40);put(synthModBID(2,"Amount"),70);
+         static const int pattern[]{100,0,-60,0,80,40,0,-100,60,0,0,30,-30,90,0,-50};for(int k=0;k<synthSeqMaxSteps;++k)put(synthSeqStepID(k),float(pattern[k]));put("synthSeqSteps",12);put("synthSeqSmooth",20);put("synthMacro1",65);}
+        if(const char* tab=std::getenv("SYNTH_PAGE_TAB"))page.showModTab(std::atoi(tab));else page.showModTab(1);
         page.refreshModulation();
         page.updateModes();page.resized();
         for(const float scale:{1.f,1.5f}){
@@ -628,6 +800,29 @@ void processorInsertsAndPage() {
             auto stream=out.createOutputStream();require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the SYNTH page snapshot");
         }
     }
+    // Filters and distortion (docs/SYNTH_FILTERS.md): thirteen parameters at version hint 39, appended last.
+    {int count=0;const int total=p->getParameters().size();
+     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthFiltersParameterVersion){
+        require(with->getParameterIndex()>=total-synthFiltersParameterCount-synthSequencerParameterCount && with->getParameterIndex()<total-synthSequencerParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
+     const auto initial=[&](const char* id){auto* q=p->parameters().getParameter(id);return q->convertFrom0to1(q->getDefaultValue());};
+     require(count==synthFiltersParameterCount && initial("synthFilter2On")==0 && initial("synthDistOn")==0 && initial("synthFilterRouting")==0 && initial("synthDistMix")==100,"Filter 2 / distortion bank size or defaults wrong");
+     const std::vector<const char*> ids{"synthFilterOn","synthFilterType","synthCutoff","synthResonance","synthDrive","synthKeyTrack","synthFilterEnv","synthFilter2On","synthFilter2Type","synthFilter2Cutoff",
+         "synthFilter2Resonance","synthFilter2KeyTrack","synthFilter2Env","synthFilterRouting","synthFilterBalance","synthDistOn","synthDistType","synthDistPlace","synthDistDrive","synthDistMix"};
+     const auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+     put("synthFilterRouting",0);page.updateModes();require(page.control("synthFilterBalance")!=nullptr && !page.control("synthFilterBalance")->isVisible(),"The parallel balance shows in Serial");
+     put("synthFilterRouting",1);page.updateModes();require(page.control("synthFilterBalance")->isVisible(),"The parallel balance is hidden in Parallel");
+     const auto area=[&](juce::Component* c){auto* top=c;while(top->getParentComponent()!=&page)top=top->getParentComponent();return top->getBounds();};   // a knob's slider sits in its Knob
+     std::vector<juce::Rectangle<int>> boxes{curve.getBounds()};
+     for(const auto* id:ids){auto* c=page.control(id);require(c!=nullptr && c->isVisible(),std::string("SYNTH page control missing: ")+id);boxes.push_back(area(c));}
+     for(size_t i=0;i<boxes.size();++i){require(page.getLocalBounds().contains(boxes[i]) && boxes[i].getWidth()>=30 && boxes[i].getHeight()>=16,"A filter-panel control is off the page or too small");
+        for(size_t j=i+1;j<boxes.size();++j)require(!boxes[i].intersects(boxes[j]),std::string("Filter-panel controls overlap: ")+(i?ids[i-1]:"curve")+" / "+ids[j-1]);}
+     require(curve.getHeight()>=56,"The filter curve is too small");
+     // The curve: with filter 2 on, a press near its handle moves filter 2 and leaves filter 1.
+     put("synthFilter2On",1);put("synthCutoff",6000);put("synthResonance",20);put("synthFilter2Cutoff",200);put("synthFilter2Resonance",20);
+     const auto h2=curve.handle(1);writes.gestures=0;writes.changes.clear();drag(curve,h2,{h2.x+40,h2.y});
+     std::cout<<"MEASURE filter panel: curve "<<curve.getWidth()<<" x "<<curve.getHeight()<<" px; dragging filter 2's handle: cutoff 2 "<<raw("synthFilter2Cutoff")<<" Hz, cutoff 1 "<<raw("synthCutoff")<<" Hz, gestures "<<writes.gestures<<"\n";
+     require(raw("synthFilter2Cutoff")>250 && std::abs(raw("synthCutoff")-6000)<1 && writes.gestures==4 && writes.changes.count(index("synthCutoff"))==0,"Dragging filter 2's handle is wrong");
+     put("synthFilter2On",0);put("synthFilterRouting",0);put("synthFilter2Cutoff",200);put("synthFilter2Resonance",20);page.updateModes();}
     std::cout<<"MEASURE page: square tile -> wave "<<squareValue<<", display drag to the saw tile -> "<<morphed<<"\n";
     p->removeListener(&writes);
     std::cout<<"PASS inserts in the processor and the path, SYNTH page controls, graph drags as host gestures, patches\n";
@@ -636,7 +831,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
