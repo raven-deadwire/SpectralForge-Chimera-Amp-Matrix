@@ -8,7 +8,9 @@
 // One whole run with the played DI going through processBlock: the engine feeds the taps itself.
 // levelBeforeDb, levelAfterDb (phase 46): each lane's level on the rig tap, measured on the same notes before and after the run.
 struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefore{},gainAfter{};std::array<AmpResult,2> analysis{};std::array<bool,2> analysed{};
-                         std::array<float,2> levelBeforeDb{},levelAfterDb{},trimAfter{},outputBefore{},outputAfter{};std::array<int,2> channelBefore{},channelAfter{};};
+                         std::array<float,2> levelBeforeDb{},levelAfterDb{},trimAfter{},outputBefore{},outputAfter{};std::array<int,2> channelBefore{},channelAfter{};
+                         // Phase 47: the share of each lane's rig-tap energy above 3 kHz, in dB, and its PRESENCE knob, before and after the run.
+                         std::array<float,2> highShareBeforeDb{},highShareAfterDb{},presenceBefore{},presenceAfter{};std::array<PowerResult,2> power{};};
 // lanes: the two lanes the passes listen to (Dual rigs 0 and 1, Matrix lanes 1 and 2).
 // lowNotes: pure 82 and 98 Hz notes, which do not reach a MID or HIGH band.
 RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,const Controller::Options& options,std::array<float,2> gainFraction,
@@ -52,13 +54,24 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
     };
     play(400,false); // let the routing settle before the run starts, as a session that has been playing
     // Phase 46: a lane's level as the rig tap hears it, on two seconds of the notes from their start.
+    float highShareDb=0; // set by laneLevelDb: the lane's energy above 3 kHz (two cascaded one-pole high-passes) over its whole energy
     const auto laneLevelDb=[&](int lane) {
         p->setAutoSetRigLane(lane);offset=0;play(60,false);
         p->autoSetCapture().listen({Tap::amp,Tap::cab});offset=0;play(375,false);
         std::vector<float> amp,rig;p->autoSetCapture().drainAmpSamples(amp);p->autoSetCapture().drainSamples(rig);
         p->autoSetCapture().listen(std::nullopt);p->setAutoSetRigLane(-1);
-        double energy=0;for(const float v:rig)energy+=double(v)*v;
+        double energy=0,high=0;
+        const double k=std::exp(-2*juce::MathConstants<double>::pi*3000./48000.);double x1=0,y1=0,x2=0,y2=0;
+        for(const float v:rig) {
+            energy+=double(v)*v;
+            y1=k*(y1+v-x1);x1=v;y2=k*(y2+y1-x2);x2=y1;high+=y2*y2;
+        }
+        highShareDb=float(10*std::log10((high+1e-20)/(energy+1e-20)));
         return rig.empty()?-200.f:float(10*std::log10(energy/double(rig.size())+1e-20));
+    };
+    const auto presenceOf=[&](int lane) {
+        const int channel=p->selectedAmpChannel(lane),control=powerControl(model,channel,powerPresence);
+        return control<0?-1.f:get(*p,spectralforge::ampNativeControlID(spectralforge::ampNativeContext(mode,lane),model,control,channel));
     };
     const auto read=[&](std::array<float,2>& output,std::array<int,2>& channel) {
         for(int index=0;index<2;++index) {
@@ -66,7 +79,10 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
             channel[size_t(index)]=p->selectedAmpChannel(lanes[size_t(index)]);
         }
     };
-    for(int index=0;index<2;++index)result.levelBeforeDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);
+    for(int index=0;index<2;++index) {
+        result.levelBeforeDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);result.highShareBeforeDb[size_t(index)]=highShareDb;
+        result.presenceBefore[size_t(index)]=presenceOf(lanes[size_t(index)]);
+    }
     read(result.outputBefore,result.channelBefore);
     offset=0;play(200,false);
     c.start();
@@ -77,7 +93,7 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
         // The analysis of a pass, read when the controller leaves it.
         if(c.current().phase!=phase || !c.busy()) {
             const int lane=Controller::dualAmpLane(phase);
-            for(int index=0;index<2;++index)if(lane==lanes[size_t(index)] && phase!=last){result.analysis[size_t(index)]=c.lastAmpAnalysis();result.analysed[size_t(index)]=true;}
+            for(int index=0;index<2;++index)if(lane==lanes[size_t(index)] && phase!=last){result.analysis[size_t(index)]=c.lastAmpAnalysis();result.power[size_t(index)]=c.lastPowerAnalysis();result.analysed[size_t(index)]=true;}
             last=phase;
         }
     }
@@ -87,7 +103,8 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
     read(result.outputAfter,result.channelAfter);
     for(int index=0;index<2;++index) {
         result.trimAfter[size_t(index)]=get(*p,spectralforge::ampNativeInputTrimID(spectralforge::ampNativeContext(mode,lanes[size_t(index)])));
-        result.levelAfterDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);
+        result.levelAfterDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);result.highShareAfterDb[size_t(index)]=highShareDb;
+        result.presenceAfter[size_t(index)]=presenceOf(lanes[size_t(index)]);
     }
     p->releaseResources();
     return result;
@@ -210,4 +227,74 @@ void rigPassEngineTrimAndChannel() {
         }
     }
     std::cout<<"PASS auto set rig pass engine trim and channel: Dual Blend, Dual Crossover and Matrix through processBlock: trim raised, OUTPUT LEVEL lowered, each lane's measured level within 2 dB; clean LEAD > RHYTHM\n";
+}
+// Phase 47: phase 34 (PRESENCE and RESONANCE of both Dual Blend rigs) on the real engine, and the two level locks
+// with the trim steps. A PRESENCE move is checked against the rig's measured top end: lowered, the share of the
+// rig's energy above 3 kHz must fall; raised, it must rise; kept, it must stay.
+void rigPassEnginePowerAndLocks() {
+    using P=Controller::Phase;
+    constexpr int model=2,rhythm=0;
+    Controller::Options base{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+    base.sync=base.cabIR=base.polarity=false;
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    // PRESENCE of both rigs at the given fraction of its range.
+    const auto presenceAt=[=](float fraction) {
+        return [=](ChimeraProcessor& p) {
+            for(int rig=0;rig<2;++rig) {
+                const int channel=p.selectedAmpChannel(rig);
+                p.parameters().getParameter(spectralforge::ampNativeControlID(spectralforge::ampNativeContext(1,rig),model,powerControl(model,channel,powerPresence),channel))->setValueNotifyingHost(fraction);
+            }
+        };
+    };
+    auto power=base;power.dualPower=true;
+    int moved=0;std::string measured;
+    for(const float fraction:{1.f,0.f}) {
+        const auto r=runRigPassEngine(1,0,{0,1},power,{.3f,.3f},presenceAt(fraction));
+        check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},"The presence passes did not run on the real engine");
+        for(int rig=0;rig<2;++rig) {
+            const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+            check(step && !step->result.contains("no playing heard"),std::string("The presence step did not hear the rig through the engine: ")+(step?step->result.toStdString():std::string("no step")));
+            const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)],share=r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)];
+            check(step->changed==(std::abs(knob)>1e-6f) || step->result.contains("RESONANCE"),"The presence row and the PRESENCE knob disagree: "+step->result.toStdString());
+            if(knob<-1e-6f)check(share<-.05f,"PRESENCE was lowered but the rig's top end did not fall ("+db(share)+" dB): "+step->result.toStdString());
+            else if(knob>1e-6f)check(share>.05f,"PRESENCE was raised but the rig's top end did not rise ("+db(share)+" dB): "+step->result.toStdString());
+            else if(!step->changed)check(std::abs(share)<.3f,"Nothing was set but the rig's top end moved by "+db(share)+" dB");
+            moved+=std::abs(knob)>1e-6f;
+            measured+=std::string(measured.empty()?"":" | ")+"PRESENCE "+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+", above 3 kHz "+db(r.highShareBeforeDb[size_t(rig)])+" > "+db(r.highShareAfterDb[size_t(rig)])+" dB ["+step->result.toStdString()+"], bite excess "+db(r.power[size_t(rig)].excessBeforeDb[powerPresence])+" dB";
+        }
+    }
+    check(moved>0,"PRESENCE at neither end of its range was moved on the real engine: "+measured);
+    std::cout<<"MEASURE auto set rig pass engine presence (PRESENCE at maximum, then at minimum; rig 1, rig 2): "<<measured<<'\n';
+    // The level locks on the real engine. Both heads on RHYTHM with GAIN low, as phase 46's trim runs.
+    const auto heads=[=](int mode,std::array<int,2> lanes,float gain) {
+        return [=](ChimeraProcessor& p) {
+            for(const int lane:lanes) {
+                const int context=spectralforge::ampNativeContext(mode,lane);
+                auto* q=p.parameters().getParameter(spectralforge::ampNativeChannelID(context,model));q->setValueNotifyingHost(q->convertTo0to1(float(rhythm)));
+                p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,roleControls(model,rhythm,0)[ampGain],rhythm))->setValueNotifyingHost(gain);
+            }
+        };
+    };
+    // What a lock check saw, for its failure message: the row, the trim, OUTPUT LEVEL and the measured level before > after.
+    const auto lockRow=[](const RigPassEngineRun& r,P row,int index) {
+        const auto* step=stepOf(r.status,row);std::ostringstream o;o<<std::setprecision(9);
+        o<<"["<<(step?step->result.toStdString():std::string("no step"))<<"], trim "<<r.trimAfter[size_t(index)]<<" dB, OUTPUT LEVEL "<<r.outputBefore[size_t(index)]<<" > "<<r.outputAfter[size_t(index)]
+         <<" dB, level "<<r.levelBeforeDb[size_t(index)]<<" > "<<r.levelAfterDb[size_t(index)]<<" dB";
+        return o.str();
+    };
+    // Dual rig levels lock: rig 2's trim and level kept, its level unmoved; rig 1 trimmed with its level held.
+    auto rigs=base;rigs.dualTrim=true;rigs.locks|=Controller::lockRigs;
+    const auto a=runRigPassEngine(1,0,{0,1},rigs,{0.f,0.f},heads(1,{0,1},0.f));
+    check(stepOf(a.status,P::dualTrim2) && stepOf(a.status,P::dualTrim2)->result.contains("the Dual rig levels lock keeps") && std::abs(a.trimAfter[1])<1e-4f && a.outputAfter[1]==a.outputBefore[1]
+          && std::abs(a.levelAfterDb[1]-a.levelBeforeDb[1])<.3f,"The Dual rig levels lock did not keep rig 2 on the real engine: "+lockRow(a,P::dualTrim2,1)+" | rig 1: "+lockRow(a,P::dualTrim1,0));
+    check(stepOf(a.status,P::dualTrim1) && stepOf(a.status,P::dualTrim1)->changed && a.trimAfter[0]>0 && std::abs(a.levelAfterDb[0]-a.levelBeforeDb[0])<2.f,"With the Dual rig levels lock rig 1 was not trimmed with its level held");
+    // Matrix levels lock: both lanes kept, their levels unmoved.
+    auto lanes=base;lanes.matrixTrim=true;lanes.locks|=Controller::lockMatrix;
+    const auto m=runRigPassEngine(2,0,{1,2},lanes,{.2f,.2f},heads(2,{1,2},.2f));
+    for(int index=0;index<2;++index) {
+        const auto* step=stepOf(m.status,index==0?P::matrixTrim2:P::matrixTrim3);
+        check(step && step->result.contains("the Matrix levels lock keeps") && std::abs(m.trimAfter[size_t(index)])<1e-4f && m.outputAfter[size_t(index)]==m.outputBefore[size_t(index)]
+              && std::abs(m.levelAfterDb[size_t(index)]-m.levelBeforeDb[size_t(index)])<.3f,"The Matrix levels lock did not keep a lane on the real engine: "+lockRow(m,index==0?P::matrixTrim2:P::matrixTrim3,index));
+    }
+    std::cout<<"PASS auto set rig pass engine presence and locks: phase 34 through processBlock with the rig's measured top end following each PRESENCE move; the Dual rig levels lock keeps rig 2 and the Matrix levels lock both lanes, levels unmoved\n";
 }
