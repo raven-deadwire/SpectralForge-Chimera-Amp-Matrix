@@ -23,6 +23,7 @@ inline constexpr int synthTableFrames = 16, synthTableOrder = 11, synthTableSize
 // Harmonics kept at a level: 1024 at level 0, then half an octave fewer per level, down to 1.
 inline int synthTableHarmonics(int level) noexcept { return std::max(1, int(std::floor(1024.0 * std::pow(2.0, -.5 * level) + 1.0e-9))); }
 inline constexpr int synthWavetableParametersPerOsc = 3;
+inline constexpr int synthTableImportParameterVersion = 42, synthTableImportParameterCount = 3;   // one switch per oscillator
 
 struct SynthTableInfo { const char* name; const char* character; };
 // Index 0 is "no table": the oscillator plays the classic morphing shapes.
@@ -70,6 +71,79 @@ inline double synthWarpSlope(int warp, double amount) noexcept {
     }
 }
 
+// Reads a table stored as `frames` frames of synthTableLevels levels of
+// synthTableSize samples, starting at `base`. `position` 0-1 across the
+// frames, `phase` 0-1, `dt` the phase step per sample (frequency / rate)
+// times the warp slope. Neighbouring frames and levels are blended.
+inline double synthTableRead(const float* base, int frames, double position, double phase, double dt) noexcept {
+    const double p = std::clamp(position, 0.0, 1.0) * (frames - 1);
+    const int f0 = std::max(0, std::min(frames - 2, int(p))), f1 = std::min(frames - 1, f0 + 1);const double ft = p - f0;
+    // Level L keeps 1024 / 2^(L/2) harmonics. x is the level whose top
+    // harmonic sits at half the sample rate; L = ceil(x) is the first
+    // safe level. Reading between L and L + 1 keeps the tone continuous
+    // while the pitch moves.
+    const double x = 2.0 * std::log2(std::max(1.0e-9, 2048.0 * dt));
+    const int level = std::clamp(int(std::ceil(x)), 0, synthTableLevels - 1), next = std::min(synthTableLevels - 1, level + 1);
+    const double lt = x <= 0.0 ? 0.0 : std::clamp(x - (level - 1), 0.0, 1.0);
+    const double at = phase * synthTableSize;const int i0 = int(at) & (synthTableSize - 1), i1 = (i0 + 1) & (synthTableSize - 1);const double it = at - std::floor(at);
+    const auto sample = [&](int f, int l) { const float* d = base + (size_t(f) * synthTableLevels + size_t(l)) * synthTableSize; return double(d[i0]) + it * (double(d[i1]) - double(d[i0])); };
+    const auto atLevel = [&](int l) { const double a = sample(f0, l); return a + ft * (sample(f1, l) - a); };
+    const double a = atLevel(level);
+    return lt > 0.0 && next != level ? a + lt * (atLevel(next) - a) : a;
+}
+
+// An imported wavetable (docs/SYNTH_WAVETABLE_IMPORT.md): up to
+// synthUserTableMaxFrames single-cycle frames, stored like a built-in table.
+// Built from `cycles` (frames x synthTableSize samples, one cycle each), which
+// is what the project keeps. Immutable once built; the engine reads it, the
+// message thread swaps it.
+inline constexpr int synthUserTableMaxFrames = 64;
+struct SynthUserTable {
+    juce::String name;
+    int frames{};
+    int sourceFrames{}, sourceFrameSize{};   // what the file held (for the page)
+    std::vector<float> cycles;               // frames x synthTableSize, as imported
+    std::vector<float> data;                 // frames x synthTableLevels x synthTableSize, band-limited and normalised
+    double read(double position, double phase, double dt) const noexcept { return synthTableRead(data.data(), frames, position, phase, dt); }
+    const float* frame(int index, int level) const noexcept { return data.data() + (size_t(index) * synthTableLevels + size_t(level)) * synthTableSize; }
+
+    // Null when `source` is not frames x synthTableSize finite samples, or is silent.
+    static std::unique_ptr<SynthUserTable> build(std::vector<float> source, int frameCount, const juce::String& tableName) {
+        if (frameCount < 1 || frameCount > synthUserTableMaxFrames || source.size() != size_t(frameCount) * synthTableSize) return nullptr;
+        for (const float x : source) if (!std::isfinite(x)) return nullptr;
+        auto table = std::make_unique<SynthUserTable>();
+        table->name = tableName;table->frames = frameCount;table->sourceFrames = frameCount;table->sourceFrameSize = synthTableSize;
+        table->data.assign(size_t(frameCount) * synthTableLevels * synthTableSize, 0.f);
+        juce::dsp::FFT fft(synthTableOrder);
+        std::vector<float> spectrum(size_t(2 * synthTableSize)), work(size_t(2 * synthTableSize));
+        float peak = 0;
+        for (int index = 0; index < frameCount; ++index) {
+            std::fill(spectrum.begin(), spectrum.end(), 0.f);
+            std::copy_n(source.data() + size_t(index) * synthTableSize, synthTableSize, spectrum.data());
+            fft.performRealOnlyForwardTransform(spectrum.data());
+            spectrum[0] = spectrum[1] = 0.f;   // no DC
+            for (int level = 0; level < synthTableLevels; ++level) {
+                const int harmonics = std::min(synthTableSize / 2 - 1, synthTableHarmonics(level));
+                std::fill(work.begin(), work.end(), 0.f);
+                for (int h = 1; h <= harmonics; ++h) {
+                    work[size_t(2 * h)] = spectrum[size_t(2 * h)];work[size_t(2 * h + 1)] = spectrum[size_t(2 * h + 1)];
+                    const int mirror = synthTableSize - h;   // the conjugate half
+                    work[size_t(2 * mirror)] = spectrum[size_t(2 * h)];work[size_t(2 * mirror + 1)] = -spectrum[size_t(2 * h + 1)];
+                }
+                fft.performRealOnlyInverseTransform(work.data());
+                if (level == 0) for (int n = 0; n < synthTableSize; ++n) peak = std::max(peak, std::abs(work[size_t(n)]));
+                std::copy_n(work.data(), synthTableSize, table->data.data() + (size_t(index) * synthTableLevels + size_t(level)) * synthTableSize);
+            }
+        }
+        if (!(peak > 1.0e-6f)) return nullptr;
+        // One gain for the whole table: the loudest frame peaks at 1 and the others keep their level against it.
+        const float gain = 1.f / peak;
+        for (float& x : table->data) x *= gain;
+        table->cycles = std::move(source);
+        return table;
+    }
+};
+
 class SynthWavetables {
 public:
     // The shared set, built on first use (call it off the audio thread first).
@@ -83,20 +157,7 @@ public:
     // sample (frequency / rate) times the warp slope.
     double read(int table, double position, double phase, double dt) const noexcept {
         if (table <= 0 || table >= synthTableCount) return 0.0;
-        const double p = std::clamp(position, 0.0, 1.0) * (synthTableFrames - 1);
-        const int f0 = std::min(synthTableFrames - 2, int(p));const double ft = p - f0;
-        // Level L keeps 1024 / 2^(L/2) harmonics. x is the level whose top
-        // harmonic sits at half the sample rate; L = ceil(x) is the first
-        // safe level. Reading between L and L + 1 keeps the tone continuous
-        // while the pitch moves.
-        const double x = 2.0 * std::log2(std::max(1.0e-9, 2048.0 * dt));
-        const int level = std::clamp(int(std::ceil(x)), 0, synthTableLevels - 1), next = std::min(synthTableLevels - 1, level + 1);
-        const double lt = x <= 0.0 ? 0.0 : std::clamp(x - (level - 1), 0.0, 1.0);
-        const double at = phase * synthTableSize;const int i0 = int(at) & (synthTableSize - 1), i1 = (i0 + 1) & (synthTableSize - 1);const double it = at - std::floor(at);
-        const auto sample = [&](int f, int l) { const float* d = frame(table, f, l); return double(d[i0]) + it * (double(d[i1]) - double(d[i0])); };
-        const auto atLevel = [&](int l) { const double a = sample(f0, l); return a + ft * (sample(f0 + 1, l) - a); };
-        const double a = atLevel(level);
-        return lt > 0.0 && next != level ? a + lt * (atLevel(next) - a) : a;
+        return synthTableRead(frame(table, 0, 0), synthTableFrames, position, phase, dt);
     }
     // The raw cycle of a frame for drawing (full bandwidth).
     void draw(int table, double position, std::vector<float>& out, int points) const {
@@ -186,5 +247,13 @@ inline void appendSynthWavetableParameters(juce::AudioProcessorValueTreeState::P
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{synthWavetableID(osc, "WarpAmount"), v}, n + "warp amount", juce::NormalisableRange<float>{0.f, 100.f, 1.f}, 0.f,
             juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float value, int) { return juce::String(juce::roundToInt(value)) + " %"; })));
     }
+}
+// Appended at version hint 42, after the effect rack: per oscillator, whether
+// it plays the table imported into it (docs/SYNTH_WAVETABLE_IMPORT.md). Off
+// is the oscillator as it was.
+inline void appendSynthTableImportParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int oscillators) {
+    for (int osc = 0; osc < oscillators; ++osc)
+        layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{synthWavetableID(osc, "Imported"), synthTableImportParameterVersion},
+            juce::String("Synth osc ") + "ABC"[osc] + " imported wavetable", false));
 }
 } // namespace spectralforge

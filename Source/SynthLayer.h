@@ -476,7 +476,8 @@ public:
         bool on{}; int type{}, source{}, insert{2}, octave{}, voices{4};
         float character{.5f}, levelDb{-6.f}, glideMs{}, sensitivityDb{-40.f}, width{.5f}, fm{};
         struct Osc { bool on{}; int mode{}; float wave{2.f}; int octave{}, semi{}; float fine{}; int unison{1}; float detune{.2f}, level{.8f}, start{}; bool loop{true}; int root{60};
-                     int table{}, warp{}; float warpAmount{}; };   // docs/SYNTH_WAVETABLE.md; 0 / 0 / 0 is the released oscillator
+                     int table{}, warp{}; float warpAmount{};   // docs/SYNTH_WAVETABLE.md; 0 / 0 / 0 is the released oscillator
+                     bool imported{}; };                         // plays the imported table, when the oscillator has one
         std::array<Osc, synthOscCount> osc{};
         bool subOn{}; int subOctave{}, subShape{}; float subLevel{.5f};
         bool noiseOn{}; float noiseColor{.7f}, noiseLevel{.2f};
@@ -504,7 +505,7 @@ public:
             q.on = get(synthOscID(o, "On"));q.mode = get(synthOscID(o, "Mode"));q.wave = get(synthOscID(o, "Wave"));q.octave = get(synthOscID(o, "Octave"));
             q.semi = get(synthOscID(o, "Semi"));q.fine = get(synthOscID(o, "Fine"));q.unison = get(synthOscID(o, "Unison"));q.detune = get(synthOscID(o, "Detune"));
             q.level = get(synthOscID(o, "Level"));q.start = get(synthOscID(o, "Start"));q.loop = get(synthOscID(o, "Loop"));q.root = get(synthOscID(o, "Root"));
-            q.table = get(synthWavetableID(o, "Table"));q.warp = get(synthWavetableID(o, "Warp"));q.warpAmount = get(synthWavetableID(o, "WarpAmount"));
+            q.table = get(synthWavetableID(o, "Table"));q.warp = get(synthWavetableID(o, "Warp"));q.warpAmount = get(synthWavetableID(o, "WarpAmount"));q.imported = get(synthWavetableID(o, "Imported"));
         }
         p.subOn = get("synthSubOn");p.subOctave = get("synthSubOctave");p.subShape = get("synthSubShape");p.subLevel = get("synthSubLevel");
         p.noiseOn = get("synthNoiseOn");p.noiseColor = get("synthNoiseColor");p.noiseLevel = get("synthNoiseLevel");
@@ -571,7 +572,7 @@ public:
             r.on = f(q.on, o == 0 ? 1.f : 0.f) > .5f;r.mode = i(q.mode, 0, 0, 1);r.wave = juce::jlimit(0.f, 4.f, f(q.wave, 2.f));r.octave = i(q.octave, 0, -3, 3);r.semi = i(q.semi, 0, -12, 12);
             r.fine = juce::jlimit(-100.f, 100.f, f(q.fine, 0.f));r.unison = i(q.unison, 1, 1, synthMaxUnison);r.detune = pc(q.detune, 20.f);
             r.level = pc(q.level, o == 0 ? 80.f : o == 1 ? 60.f : 50.f);r.start = pc(q.start, 0.f);r.loop = f(q.loop, 1.f) > .5f;r.root = i(q.root, 60, 0, 127);
-            r.table = i(q.table, 0, 0, synthTableCount - 1);r.warp = i(q.warp, 0, 0, synthWarpCount - 1);r.warpAmount = pc(q.warpAmount, 0.f);
+            r.table = i(q.table, 0, 0, synthTableCount - 1);r.warp = i(q.warp, 0, 0, synthWarpCount - 1);r.warpAmount = pc(q.warpAmount, 0.f);r.imported = f(q.imported, 0.f) > .5f;
         }
         s.subOn = f(p.subOn, 0.f) > .5f;s.subOctave = i(p.subOctave, 0, 0, 1);s.subShape = i(p.subShape, 0, 0, 1);s.subLevel = pc(p.subLevel, 50.f);
         s.noiseOn = f(p.noiseOn, 0.f) > .5f;s.noiseColor = pc(p.noiseColor, 70.f);s.noiseLevel = pc(p.noiseLevel, 20.f);
@@ -623,6 +624,17 @@ public:
         const juce::SpinLock::ScopedLockType reference(referenceLock);
         return samples[size_t(juce::jlimit(0, synthOscCount - 1, osc))];
     }
+    // Imported wavetables are swapped like samples, under the same locks.
+    std::shared_ptr<const SynthUserTable> swapTable(int osc, std::shared_ptr<const SynthUserTable> next) {
+        const juce::SpinLock::ScopedLockType audio(sampleLock);
+        const juce::SpinLock::ScopedLockType reference(referenceLock);
+        std::swap(userTables[size_t(juce::jlimit(0, synthOscCount - 1, osc))], next);
+        return next;
+    }
+    std::shared_ptr<const SynthUserTable> sharedTable(int osc) const {
+        const juce::SpinLock::ScopedLockType reference(referenceLock);
+        return userTables[size_t(juce::jlimit(0, synthOscCount - 1, osc))];
+    }
     // The oscillator's sample, or null; valid until the next swap (tests).
     const SynthSample* sample(int osc) const noexcept { return sharedSample(osc).get(); }
     // Host MIDI for this block, applied at the block start.
@@ -650,7 +662,8 @@ public:
         if (!s.on && !active && !anyGain) { pendingCount = 0;return; }
         active = true;
         const juce::SpinLock::ScopedTryLockType lock(sampleLock);
-        for (int o = 0; o < synthOscCount; ++o) playing[size_t(o)] = lock.isLocked() ? samples_(o) : nullptr;
+        for (int o = 0; o < synthOscCount; ++o) { playing[size_t(o)] = lock.isLocked() ? samples_(o) : nullptr;playingTables[size_t(o)] = lock.isLocked() ? userTables[size_t(o)].get() : nullptr; }
+        tablesReadable = lock.isLocked();
         applyNotes(s);
         trackGuitar(s, samples);
         for (auto& ch : rendered) std::fill(ch.begin(), ch.begin() + samples, 0.f);
@@ -777,7 +790,7 @@ private:
         std::atomic<float>* glide{};std::atomic<float>* sensitivity{};std::atomic<float>* voices{};std::atomic<float>* width{};std::atomic<float>* fm{};
         struct Osc { std::atomic<float>* on{};std::atomic<float>* mode{};std::atomic<float>* wave{};std::atomic<float>* octave{};std::atomic<float>* semi{};std::atomic<float>* fine{};
                      std::atomic<float>* unison{};std::atomic<float>* detune{};std::atomic<float>* level{};std::atomic<float>* start{};std::atomic<float>* loop{};std::atomic<float>* root{};
-                     std::atomic<float>* table{};std::atomic<float>* warp{};std::atomic<float>* warpAmount{}; };
+                     std::atomic<float>* table{};std::atomic<float>* warp{};std::atomic<float>* warpAmount{};std::atomic<float>* imported{}; };
         std::array<Osc, synthOscCount> osc{};
         std::atomic<float>* subOn{};std::atomic<float>* subOctave{};std::atomic<float>* subShape{};std::atomic<float>* subLevel{};
         std::atomic<float>* noiseOn{};std::atomic<float>* noiseColor{};std::atomic<float>* noiseLevel{};
@@ -1023,6 +1036,9 @@ private:
             const double level = std::clamp(double(q.level) + m[size_t(targetLevelA + o)], 0.0, 1.0);
             const bool needed = q.on && (level > 0 || (o == 1 && (s.fm > 0 || m[targetFM] != 0 || impact)));
             if (!needed || (q.mode == 1 && sample == nullptr)) continue;
+            // The imported table, when this oscillator plays one. A block that meets a swap in progress plays it silent.
+            const SynthUserTable* user = q.mode == 0 && q.imported ? playingTables[size_t(o)] : nullptr;
+            if (q.mode == 0 && q.imported && !tablesReadable) continue;
             double cents = 0;
             if (analog && character > 0) {   // Dvergr Analog: slow pitch drift, about 5 cents RMS at 100 %
                 v.drift[size_t(o)] += driftCoefficient * (random() - v.drift[size_t(o)]);
@@ -1076,7 +1092,8 @@ private:
                     double readPhase = ph;
                     if (fmIndex > 0) { readPhase += fmIndex * modulator / 6.283185307179586;readPhase -= std::floor(readPhase); }
                     // A wavetable reads its frames at the wave position, through the warp; Classic is the released oscillator.
-                    const double y = (q.table > 0 ? tables->read(q.table, wave * .25, synthWarpPhase(q.warp, warpAmount, readPhase), dt * synthWarpSlope(q.warp, warpAmount))
+                    const double y = (user != nullptr ? user->read(wave * .25, synthWarpPhase(q.warp, warpAmount, readPhase), dt * synthWarpSlope(q.warp, warpAmount))
+                                    : q.table > 0 ? tables->read(q.table, wave * .25, synthWarpPhase(q.warp, warpAmount, readPhase), dt * synthWarpSlope(q.warp, warpAmount))
                                                   : morph(wave, readPhase, dt)) / std::sqrt(double(n));
                     ph += hz / rate;ph -= std::floor(ph);
                     mono += y;
@@ -1167,6 +1184,8 @@ private:
     mutable juce::SpinLock referenceLock;    // copying a reference (never the audio thread)
     std::array<std::shared_ptr<const SynthSample>, synthOscCount> samples;
     std::array<const SynthSample*, synthOscCount> playing{};   // valid during render() only
+    std::array<std::shared_ptr<const SynthUserTable>, synthOscCount> userTables;
+    std::array<const SynthUserTable*, synthOscCount> playingTables{};bool tablesReadable{};   // valid during render() only
 };
 
 } // namespace spectralforge

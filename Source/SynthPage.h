@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "SynthLayer.h"
 #include "SynthSampleIO.h"
+#include "SynthWavetableIO.h"
 #include "SynthPresets.h"
 #include "RasterArtwork.h"
 
@@ -141,6 +142,49 @@ public:
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> attachment;
 };
+// An oscillator's table menu (docs/SYNTH_WAVETABLE_IMPORT.md): the built-in
+// tables, then the imported table and the import commands. Choosing a
+// built-in table or the imported one is a host gesture; the commands are not
+// selections, so the menu returns to what the oscillator plays.
+class TableMenu final : public juce::ComboBox {
+public:
+    enum {importedId=100,importId=101,removeId=110};   // importId + a synthTableIO::FrameSize
+    std::function<void(int)> onImport;   // called with the frame size choice
+    TableMenu(juce::AudioProcessorValueTreeState& s,ChimeraProcessor& owner,int oscillator,const juce::String& tip)
+        :state(s),processor(owner),osc(oscillator),table(s,synthWavetableID(oscillator,"Table")),imported(s,synthWavetableID(oscillator,"Imported")) {
+        setComponentID(synthWavetableID(osc,"Table"));setTooltip(tip);setName(tip);
+        onChange=[this]{chosen(getSelectedId());};
+        sync();
+    }
+    // True when the oscillator plays its imported table.
+    bool playsImported() const {return state.getRawParameterValue(synthWavetableID(osc,"Imported"))->load()>.5f && processor.synthEngine().sharedTable(osc)!=nullptr;}
+    // Shows what the oscillator plays; rebuilds the items when the imported table changed.
+    void sync(){
+        const auto user=processor.synthEngine().sharedTable(osc);
+        if(!built || user.get()!=listed){
+            built=true;listed=user.get();clear(juce::dontSendNotification);addItemList(synthTableNames(),1);addSeparator();
+            if(user!=nullptr)addItem(user->name+" (imported)",importedId);
+            addItem("Import wavetable...",importId);
+            juce::PopupMenu sizes;const auto names=synthTableIO::frameSizeNames();
+            for(int k=1;k<names.size();++k)sizes.addItem(importId+k,names[k]);
+            getRootMenu()->addSubMenu("Import with frame size",sizes);
+            if(user!=nullptr)addItem("Remove imported table",removeId);
+        }
+        const int now=playsImported()?int(importedId):1+juce::jlimit(0,synthTableCount-1,juce::roundToInt(state.getRawParameterValue(synthWavetableID(osc,"Table"))->load()));
+        if(getSelectedId()!=now)setSelectedId(now,juce::dontSendNotification);
+    }
+    void chosen(int id){
+        const auto set=[](GraphParameter& p,float v){if(std::abs(p.value()-v)>.001f){p.begin();p.set(v);p.end();}};
+        if(id>=1 && id<=synthTableCount){set(imported,0);set(table,float(id-1));}
+        else if(id==importedId)set(imported,1);
+        else if(id>=importId && id<importId+synthTableIO::frameSizeCount){sync();if(onImport)onImport(id-importId);return;}
+        else if(id==removeId)processor.clearSynthTable(osc);
+        sync();
+    }
+private:
+    juce::AudioProcessorValueTreeState& state;ChimeraProcessor& processor;int osc;GraphParameter table,imported;
+    const SynthUserTable* listed{};bool built{};   // `listed` is compared, never read
+};
 // A horizontal bar on a 0-100 % parameter (the look's LinearBar).
 class Bar final : public juce::Slider {
 public:
@@ -203,6 +247,9 @@ public:
     bool sampleMode() const {return state.getRawParameterValue(synthOscID(osc,"Mode"))->load()>.5f;}
     // The oscillator's wavetable (docs/SYNTH_WAVETABLE.md); 0 is the classic shapes.
     int table() const {return juce::jlimit(0,synthTableCount-1,juce::roundToInt(state.getRawParameterValue(synthWavetableID(osc,"Table"))->load()));}
+    // The imported table, when the oscillator plays it (kept alive while it is drawn).
+    std::shared_ptr<const SynthUserTable> userTable() const {return state.getRawParameterValue(synthWavetableID(osc,"Imported"))->load()>.5f?processor.synthEngine().sharedTable(osc):nullptr;}
+    bool usesTable() const {return table()>0 || userTable()!=nullptr;}
     float position() const {return state.getRawParameterValue(synthOscID(osc,"Wave"))->load();}
     // Wave position for a horizontal position: each shape sits above its tile
     // on the strip below (tile centres at 10 %, 30 % ... 90 % of the width).
@@ -214,7 +261,8 @@ public:
         const auto trace=on?traceColour:mutedColour.withAlpha(.4f);
         g.setColour(edgeColour);g.drawHorizontalLine(int(r.getCentreY()),r.getX()+4,r.getRight()-4);
         g.setFont(juce::FontOptions(9.f));
-        if(!sampleMode() && table()>0){
+        const auto user=sampleMode()?nullptr:userTable();
+        if(!sampleMode() && (table()>0 || user!=nullptr)){
             // A wavetable: six of its frames stacked back to front, and the
             // frame at the wave position, through the warp, in front of them.
             const auto& tables=SynthWavetables::get();const int t=table();const float at=position()*.25f;
@@ -223,11 +271,11 @@ public:
             const float depthX=r.getWidth()*.14f,depthY=r.getHeight()*.44f,w=r.getWidth()-10-depthX,h=r.getHeight()*.17f,baseY=r.getBottom()-5-h;
             const auto curve=[&](float where,bool warped){juce::Path path;
                 for(int i=0;i<=96;++i){double phase=double(i)/96.0;if(phase>=1.0)phase=.999999;if(warped)phase=synthWarpPhase(warp,amount,phase);
-                    const float x=r.getX()+5+depthX*where+w*float(i)/96.f,y=baseY-depthY*where-h*float(tables.read(t,where,phase,1.0/4096.0));if(i==0)path.startNewSubPath(x,y);else path.lineTo(x,y);}
+                    const float x=r.getX()+5+depthX*where+w*float(i)/96.f,y=baseY-depthY*where-h*float(user!=nullptr?user->read(where,phase,1.0/4096.0):tables.read(t,where,phase,1.0/4096.0));if(i==0)path.startNewSubPath(x,y);else path.lineTo(x,y);}
                 return path;};
             for(int k=5;k>=0;--k){g.setColour(mutedColour.withAlpha(on?.34f:.18f));g.strokePath(curve(float(k)/5.f,false),juce::PathStrokeType(1.f));}
             g.setColour(trace);g.strokePath(curve(at,true),juce::PathStrokeType(1.9f));
-            g.setColour(mutedColour);g.drawText(juce::String(synthTables[size_t(t)].name).toUpperCase()+"  "+juce::String(juce::roundToInt(at*100.f))+" %",getLocalBounds().reduced(6,2),juce::Justification::topRight);
+            g.setColour(mutedColour);g.drawText((user!=nullptr?user->name.substring(0,14)+"  "+juce::String(user->frames)+" FR":juce::String(synthTables[size_t(t)].name)).toUpperCase()+"  "+juce::String(juce::roundToInt(at*100.f))+" %",getLocalBounds().reduced(6,2),juce::Justification::topRight);
             return;
         }
         if(!sampleMode()){
@@ -252,12 +300,12 @@ public:
     void mouseDown(const juce::MouseEvent& e) override {active().begin();mouseDrag(e);}
     void mouseDrag(const juce::MouseEvent& e) override {
         if(sampleMode())start.set(100.f*juce::jlimit(0.f,1.f,(e.position.x-4)/float(getWidth()-8)));
-        else if(table()>0)wave.set(4.f*juce::jlimit(0.f,1.f,(e.position.x-5)/float(juce::jmax(1,getWidth()-10))));   // a wavetable: left to right is first to last frame
+        else if(usesTable())wave.set(4.f*juce::jlimit(0.f,1.f,(e.position.x-5)/float(juce::jmax(1,getWidth()-10))));   // a wavetable: left to right is first to last frame
         else wave.set(waveForX(e.position.x,float(getWidth())));
         repaint();
     }
     void mouseUp(const juce::MouseEvent&) override {wave.end();start.end();}
-    void mouseDoubleClick(const juce::MouseEvent&) override {if(!sampleMode() && table()==0){wave.begin();wave.set(float(juce::roundToInt(position())));wave.end();repaint();}}
+    void mouseDoubleClick(const juce::MouseEvent&) override {if(!sampleMode() && !usesTable()){wave.begin();wave.set(float(juce::roundToInt(position())));wave.end();repaint();}}
     void mouseWheelMove(const juce::MouseEvent&,const juce::MouseWheelDetails& d) override {
         if(sampleMode()||d.deltaY==0)return;
         wave.begin();wave.set(juce::jlimit(0.f,4.f,position()+(d.deltaY>0?.05f:-.05f)));wave.end();repaint();
@@ -536,7 +584,8 @@ public:
             p.display=static_cast<WaveDisplay*>(add(std::make_unique<WaveDisplay>(state,owner,o)));
             p.shapes=static_cast<WaveShapes*>(add(std::make_unique<WaveShapes>(state,o)));
             // Wavetable (docs/SYNTH_WAVETABLE.md): the table, and its warp under the display.
-            p.table=add(std::make_unique<Choice>(state,synthWavetableID(o,"Table"),synthTableNames(),juce::String("Oscillator ")+"ABC"[o]+" wavetable. Classic is the five-shape oscillator; a table plays sixteen frames that POSITION moves through."));
+            {auto menu=std::make_unique<TableMenu>(state,owner,o,juce::String("Oscillator ")+"ABC"[o]+" wavetable. Classic is the five-shape oscillator; a table plays its frames as POSITION moves through them. Import wavetable reads a wavetable file (WAV, AIFF, FLAC, OGG) into this oscillator.");
+             menu->onImport=[this,o](int frameSize){chooseTable(o,frameSize);};p.table=static_cast<TableMenu*>(add(std::move(menu)));}
             p.warp=add(std::make_unique<Choice>(state,synthWavetableID(o,"Warp"),synthWarpNames(),"Warp: reshapes how the table is read. Bend pushes the wave to one side, Squeeze narrows its first half, Sync restarts it faster, Mirror folds it, Quantize steps it."));
             p.warpAmount=add(std::make_unique<Bar>(state,synthWavetableID(o,"WarpAmount"),"Warp amount"));
             auto load=std::make_unique<juce::TextButton>("LOAD");load->setComponentID(synthOscID(o,"Load"));load->setTooltip("Load an audio file (WAV, AIFF, FLAC, OGG; up to 20 s) into this oscillator");
@@ -917,13 +966,19 @@ static const std::array<std::pair<const char*,int>,8> direct{{{"synthFM",targetF
         });
     }
     WaveDisplay& waveDisplay(int osc) noexcept {return *oscPanels[size_t(juce::jlimit(0,synthOscCount-1,osc))].display;}
+    // Imports a wavetable file into an oscillator and shows it (docs/SYNTH_WAVETABLE_IMPORT.md).
+    juce::Result importTable(int osc,const juce::File& file,int frameSize=0,juce::String* note=nullptr){
+        const auto result=processor.loadSynthTable(juce::jlimit(0,synthOscCount-1,osc),file,frameSize,note);
+        updateModes();repaint();return result;
+    }
     WaveShapes& waveShapes(int osc) noexcept {return *oscPanels[size_t(juce::jlimit(0,synthOscCount-1,osc))].shapes;}
     // Shows each oscillator's Wave or Sample controls, and the character
     // tooltip of the selected type. Called on layout, patch loads and by the timer.
     void updateModes() {
         for(int o=0;o<synthOscCount;++o){
             auto& p=oscPanels[size_t(o)];const bool sample=state.getRawParameterValue(synthOscID(o,"Mode"))->load()>.5f;
-            const bool table=!sample && state.getRawParameterValue(synthWavetableID(o,"Table"))->load()>.5f;
+            p.table->sync();
+            const bool table=!sample && (state.getRawParameterValue(synthWavetableID(o,"Table"))->load()>.5f || p.table->playsImported());
             p.shapes->setVisible(!sample && !table);p.knobs[6]->setVisible(!sample);p.knobs[6]->setLabel(table?"POSITION":"MORPH");
             p.table->setVisible(!sample);p.warp->setVisible(table);p.warpAmount->setVisible(table);
             for(juce::Component* c:{static_cast<juce::Component*>(p.load),static_cast<juce::Component*>(p.clear),p.loop,static_cast<juce::Component*>(p.root),static_cast<juce::Component*>(p.knobs[7])})c->setVisible(sample);
@@ -1053,6 +1108,14 @@ private:
         chooser->launchAsync(juce::FileBrowserComponent::openMode|juce::FileBrowserComponent::canSelectFiles,[this,osc](const juce::FileChooser& c){
             if(c.getResult().existsAsFile())oscPanels[size_t(osc)].display->load(c.getResult());});
     }
+    void chooseTable(int osc,int frameSize){
+        chooser=std::make_unique<juce::FileChooser>("Import a wavetable into oscillator "+juce::String::charToString("ABC"[osc]),juce::File(),synthSample::formats().getWildcardForAllFormats());
+        chooser->launchAsync(juce::FileBrowserComponent::openMode|juce::FileBrowserComponent::canSelectFiles,[this,osc,frameSize](const juce::FileChooser& c){
+            if(!c.getResult().existsAsFile())return;
+            juce::String note;const auto result=importTable(osc,c.getResult(),frameSize,&note);
+            if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Wavetable not imported",result.getErrorMessage());
+            else if(note.isNotEmpty())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Wavetable imported",note);});
+    }
     void timerCallback() override {
         if(!isShowing())return;
         if(const int t=juce::jlimit(0,2,juce::roundToInt(state.getRawParameterValue("synthType")->load()));t!=shownType){shownType=t;repaint(0,0,getWidth(),28);}
@@ -1063,7 +1126,7 @@ private:
         filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();if(seqGraph.isVisible())seqGraph.repaint();scope.repaint();
         repaint(oscPanels[0].shapes->getBounds().getUnion(oscPanels[2].shapes->getBounds()));
     }
-    struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};juce::Component* table{};juce::Component* warp{};juce::Component* warpAmount{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
+    struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};TableMenu* table{};juce::Component* warp{};juce::Component* warpAmount{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
     void setParameter(const juce::String& id,float value) {
         if(auto* q=state.getParameter(id)){q->beginChangeGesture();q->setValueNotifyingHost(q->convertTo0to1(value));q->endChangeGesture();}
     }

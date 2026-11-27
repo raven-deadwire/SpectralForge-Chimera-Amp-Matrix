@@ -8,6 +8,7 @@
 #include "SynthLayer.h"
 #include "SynthPage.h"
 #include "SynthSampleIO.h"
+#include "SynthWavetableIO.h"
 #include "SignalPath.h"
 #include <algorithm>
 #include <cmath>
@@ -38,7 +39,7 @@ void require(bool ok,const std::string& message){if(!ok)throw std::runtime_error
 double db(double v){return 20*std::log10(std::max(v,1.e-30));}
 struct Host final : juce::AudioProcessor {
     juce::AudioProcessorValueTreeState state;
-    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);appendSynthFiltersParameters(l);appendSynthSequencerParameters(l);appendSynthEffectsParameters(l);return l;}
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);appendSynthFiltersParameters(l);appendSynthSequencerParameters(l);appendSynthEffectsParameters(l);appendSynthTableImportParameters(l,synthOscCount);return l;}
     Host():state(*this,nullptr,"SYNTH",layout()){}
     void set(const char* id,float v){auto* p=state.getParameter(id);require(p!=nullptr,std::string("no parameter ")+id);p->setValueNotifyingHost(p->convertTo0to1(v));}
     const juce::String getName() const override {return "synth";}
@@ -732,6 +733,119 @@ void wavetables() {
     std::cout<<"PASS wavetables: classic unchanged, frames normalised, position, band limit, warp\n";
 }
 
+// Wavetable import (docs/SYNTH_WAVETABLE_IMPORT.md): cutting a file into
+// frames, playing the table, its band limit, refusals and the project state.
+void wavetableImport() {
+    namespace io=synthTableIO;
+    const auto writeWav=[](const juce::File& file,const std::vector<float>& x,int bits=32){
+        juce::AudioBuffer<float> b(1,int(x.size()));for(size_t n=0;n<x.size();++n)b.setSample(0,int(n),x[n]);
+        juce::WavAudioFormat wav;auto stream=file.createOutputStream();require(stream!=nullptr,"Cannot write the test WAV");
+        std::unique_ptr<juce::AudioFormatWriter> w(wav.createWriterFor(stream.get(),48000,1,bits,{},0));require(w!=nullptr,"No WAV writer");stream.release();w->writeFromAudioSampleBuffer(b,0,b.getNumSamples());};
+    // `frames` frames of `size` samples: frame k is harmonic k + 1 at half scale.
+    const auto ladder=[](int frames,int size){std::vector<float> x(size_t(frames)*size_t(size));for(int k=0;k<frames;++k)for(int n=0;n<size;++n)x[size_t(k)*size_t(size)+size_t(n)]=float(.5*std::sin(2*pi*(k+1)*n/size));return x;};
+    const auto play=[](std::shared_ptr<const SynthUserTable> table,float wave,int note,bool imported=true,int warp=0,float amount=0){
+        Host h;clean(h,wave);h.set("synthOscAImported",imported?1.f:0.f);h.set("synthOscAWarp",float(warp));h.set("synthOscAWarpAmount",amount);
+        SynthLayer s;s.swapTable(0,std::move(table));return render(h,48000,silence(),hold({note}),&s).l;};
+    // Frames and position: four frames holding harmonics 1 to 4.
+    std::unique_ptr<SynthUserTable> built;juce::String note;
+    require(io::make(ladder(4,2048),2048,"Ladder",built,&note).wasOk() && built && built->frames==4 && built->sourceFrames==4 && built->sourceFrameSize==2048 && note.isEmpty(),"A four-frame table was not built");
+    {float peak=0;double mean=0;for(int n=0;n<synthTableSize;++n){peak=std::max(peak,std::abs(built->frame(0,0)[n]));mean+=built->frame(0,0)[n];}
+     require(std::abs(peak-1.f)<1e-3f && std::abs(mean/synthTableSize)<1e-4,"An imported table is not normalised or has DC");}
+    const std::shared_ptr<const SynthUserTable> four(std::move(built));
+    const auto first=play(four,0,57),last=play(four,4,57),between=play(four,2,57);
+    const double h1First=db(magnitude(first,12000,48000,220)),h4First=db(magnitude(first,12000,48000,880)/magnitude(first,12000,48000,220)),h1Last=db(magnitude(last,12000,48000,220)/magnitude(last,12000,48000,880));
+    const double mid2=db(magnitude(between,12000,48000,440)),mid3=db(magnitude(between,12000,48000,660)),mid1=db(magnitude(between,12000,48000,220));
+    std::cout<<"MEASURE imported table, A3: first frame 220 Hz "<<h1First<<" dBFS, 880 Hz "<<h4First<<" dB re it; last frame 220 Hz "<<h1Last<<" dB re 880 Hz; position 50 %: 440 Hz "<<mid2<<", 660 Hz "<<mid3<<", 220 Hz "<<mid1<<" dBFS\n";
+    require(h4First<-80 && h1Last<-80,"The first or last imported frame is not played alone at the ends of POSITION");
+    require(std::abs(mid2-mid3)<.2 && mid1<mid2-80,"POSITION does not blend neighbouring imported frames");
+    // The switch off, or on without a table: the oscillator as it was.
+    {Host a;clean(a,2.5f);a.set("synthOscATable",3);const auto plain=render(a,24000,silence(),hold({57})).l;
+     Host b;clean(b,2.5f);b.set("synthOscATable",3);b.set("synthOscAImported",1);const auto none=render(b,24000,silence(),hold({57})).l;
+     Host c;clean(c,2.5f);c.set("synthOscATable",3);SynthLayer s;s.swapTable(0,four);const auto off=render(c,24000,silence(),hold({57}),&s).l;
+     double d1=0,d2=0;for(size_t n=0;n<plain.size();++n){d1=std::max(d1,double(std::abs(plain[n]-none[n])));d2=std::max(d2,double(std::abs(plain[n]-off[n])));}
+     std::cout<<"MEASURE imported switch on without a table: largest difference "<<d1<<"; table present, switch off: "<<d2<<"\n";
+     require(d1==0 && d2==0,"The import switch changes an oscillator that has no table, or a table plays with the switch off");}
+    // Band limit: a full saw in one 2048-sample frame, at C8.
+    {std::vector<float> saw(2048);for(int n=0;n<2048;++n)saw[size_t(n)]=float(1.0-2.0*(n+.5)/2048);
+     std::unique_ptr<SynthUserTable> t;require(io::make(saw,2048,"Saw",t).wasOk() && t->frames==1,"A one-frame table was not built");
+     const std::shared_ptr<const SynthUserTable> one(std::move(t));const double f=hz(108);const auto high=play(one,2,108),low=play(one,0,57);
+     const double fold6=db(magnitude(high,12000,48000,rate-6*f)/magnitude(high,12000,48000,f)),fold7=db(magnitude(high,12000,48000,rate-7*f)/magnitude(high,12000,48000,f));
+     std::cout<<"MEASURE imported saw: at C8 harmonic 4 "<<harmonicDb(high,f,4)<<" dB (-12.0), folded harmonic 6 "<<fold6<<" dB, 7 "<<fold7<<" dB; at A3 harmonic 2 "<<harmonicDb(low,220,2)<<" (-6.0), 60 "<<harmonicDb(low,220,60)<<" dB (-35.6)\n";
+     require(fold6<-70 && fold7<-70 && std::abs(harmonicDb(high,f,4)+12.04)<.5,"An imported table aliases or is dull at C8");
+     require(std::abs(harmonicDb(low,220,2)+6.02)<.3 && std::abs(harmonicDb(low,220,60)-db(1.0/60))<.5,"An imported saw is not a saw at A3");
+     // The warp applies to an imported table: Sync at 100 % on a one-harmonic frame.
+     const auto sync=play(four,0,57,true,synthWarpSync,100);require(harmonicDb(sync,220,8)>20,"The warp does not apply to an imported table");}
+    // Other frame sizes keep the harmonics: 256 (a power of two) and 600 (not).
+    {double worst256=0,worst600=0;std::vector<float> out(2048);
+     std::vector<float> a(256);for(int n=0;n<256;++n)a[size_t(n)]=float(.6*std::sin(2*pi*n/256)+.3*std::cos(2*pi*5*n/256));
+     io::resampleCycle(a.data(),256,out.data());for(int n=0;n<2048;++n)worst256=std::max(worst256,std::abs(double(out[size_t(n)])-(.6*std::sin(2*pi*n/2048)+.3*std::cos(2*pi*5*n/2048))));
+     std::vector<float> b(600);for(int n=0;n<600;++n)b[size_t(n)]=float(.6*std::sin(2*pi*n/600)+.3*std::cos(2*pi*7*n/600));
+     io::resampleCycle(b.data(),600,out.data());for(int n=0;n<2048;++n)worst600=std::max(worst600,std::abs(double(out[size_t(n)])-(.6*std::sin(2*pi*n/2048)+.3*std::cos(2*pi*7*n/2048))));
+     std::cout<<"MEASURE a cycle of 256 samples as 2048: largest error "<<worst256<<"; of 600 samples: "<<worst600<<"\n";
+     require(worst256<1e-5 && worst600<1e-5,"A cycle of another length does not keep its harmonics");}
+    // Files. Auto: a multiple of 2048 is cut at 2048; a remainder is left out and said; a short file is one cycle.
+    const auto dir=juce::File::createTempFile("synthTables");dir.deleteRecursively();require(dir.createDirectory().wasOk(),"No test folder");
+    const auto load=[&](const juce::String& name,int size,std::unique_ptr<SynthUserTable>& t,juce::String& said){return io::load(dir.getChildFile(name),size,t,&said);};
+    std::unique_ptr<SynthUserTable> t;juce::String said;
+    writeWav(dir.getChildFile("eight.wav"),ladder(8,2048));
+    require(load("eight.wav",io::frameAuto,t,said).wasOk() && t->frames==8 && t->sourceFrameSize==2048 && said.isEmpty() && t->name=="eight","A file of eight 2048-sample frames was not read as eight frames");
+    {auto x=ladder(3,2048);x.resize(x.size()+10000,.1f);writeWav(dir.getChildFile("ragged.wav"),x);}
+    require(load("ragged.wav",io::frameAuto,t,said).wasOk() && t->frames==7 && said.contains("1808 samples"),"A remainder after the last whole frame was not left out and reported: "+said.toStdString());
+    writeWav(dir.getChildFile("cycle.wav"),ladder(1,600));
+    require(load("cycle.wav",io::frameAuto,t,said).wasOk() && t->frames==1 && t->sourceFrameSize==600 && said.isEmpty(),"A short file was not read as one cycle");
+    // A chosen frame size.
+    writeWav(dir.getChildFile("small.wav"),ladder(16,256));
+    require(load("small.wav",io::frame256,t,said).wasOk() && t->frames==16 && t->sourceFrameSize==256,"Frame size 256 was not used");
+    require(load("small.wav",io::frameOneCycle,t,said).wasOk() && t->frames==1 && t->sourceFrameSize==4096,"One cycle did not take the whole file");
+    require(load("small.wav",io::frameAuto,t,said).wasOk() && t->frames==2 && t->sourceFrameSize==2048,"Auto did not cut a 4096-sample file at 2048");
+    // More frames than a table holds: 64 evenly spaced, the first and last kept; beyond 256 the file is not read.
+    writeWav(dir.getChildFile("hundred.wav"),ladder(100,2048),16);
+    require(load("hundred.wav",io::frameAuto,t,said).wasOk() && t->frames==64 && t->sourceFrames==100 && said.contains("64 of 100"),"A file with 100 frames was not reduced to 64: "+said.toStdString());
+    {const std::shared_ptr<const SynthUserTable> big(std::move(t));const auto end=play(big,4,45);   // A2: the last frame is harmonic 100, 11 kHz
+     require(db(magnitude(end,12000,48000,11000)/magnitude(end,12000,48000,110))>60,"The last of 100 frames is not the table's last frame");}
+    {const double begun=juce::Time::getMillisecondCounterHiRes();writeWav(dir.getChildFile("long.wav"),ladder(300,2048),16);const double written=juce::Time::getMillisecondCounterHiRes();
+     require(load("long.wav",io::frameAuto,t,said).wasOk() && t->frames==64 && t->sourceFrames==256 && said.contains("first 256"),"A file beyond 256 frames was not cut there: "+said.toStdString());
+     std::cout<<"MEASURE importing 256 frames of 2048 samples (64 kept): "<<juce::Time::getMillisecondCounterHiRes()-written<<" ms (one run, this machine; writing the file took "<<written-begun<<" ms)\n";}
+    // A Serum-style `clm ` chunk names the frame size: 16-bit, four frames of 1024.
+    {const auto x=ladder(4,1024);juce::MemoryOutputStream o;const char clm[]="<!>1024 00000000 wavetable (test)";const int clmSize=int(sizeof(clm)-1);const int dataSize=int(x.size())*2;
+     o.write("RIFF",4);o.writeInt(4+8+16+8+clmSize+(clmSize&1)+8+dataSize);o.write("WAVE",4);o.write("fmt ",4);o.writeInt(16);o.writeShort(1);o.writeShort(1);o.writeInt(48000);o.writeInt(96000);o.writeShort(2);o.writeShort(16);
+     o.write("clm ",4);o.writeInt(clmSize);o.write(clm,size_t(clmSize));if(clmSize&1)o.writeByte(0);
+     o.write("data",4);o.writeInt(dataSize);for(float v:x)o.writeShort(short(juce::roundToInt(v*32767.f)));
+     require(dir.getChildFile("clm.wav").replaceWithData(o.getData(),o.getDataSize()),"Cannot write the clm test file");
+     require(io::clmFrameSize(dir.getChildFile("clm.wav"))==1024 && io::clmFrameSize(dir.getChildFile("eight.wav"))==0,"The clm chunk's frame size was not read");
+     require(load("clm.wav",io::frameAuto,t,said).wasOk() && t->frames==4 && t->sourceFrameSize==1024,"The clm chunk's frame size was not used");}
+    // Refused, each with a message.
+    {std::unique_ptr<SynthUserTable> none;
+     writeWav(dir.getChildFile("silent.wav"),std::vector<float>(4096,0.f));writeWav(dir.getChildFile("tiny.wav"),std::vector<float>(10,.5f));writeWav(dir.getChildFile("toolong.wav"),std::vector<float>(20000,.5f));
+     dir.getChildFile("text.wav").replaceWithText("not audio");
+     const auto refused=[&](const juce::String& name,int size){juce::String ignored;const auto r=io::load(dir.getChildFile(name),size,none,&ignored);return r.failed() && r.getErrorMessage().isNotEmpty() && none==nullptr;};
+     require(refused("silent.wav",io::frameAuto) && refused("tiny.wav",io::frameAuto) && refused("toolong.wav",io::frameOneCycle) && refused("text.wav",io::frameAuto) && refused("missing.wav",io::frameAuto) && refused("cycle.wav",io::frame1024),
+             "A silent, too short, too long, non-audio or missing file was not refused");
+     std::vector<float> bad(2048,.1f);bad[7]=std::numeric_limits<float>::quiet_NaN();require(io::make(bad,2048,"bad",none).failed() && io::make(bad,8,"bad",none).failed() && none==nullptr,"A value that is not a number or a frame size out of range was not refused");}
+    // Through the processor: the oscillator switches to its table; the project keeps it exactly.
+    {auto p=std::make_unique<ChimeraProcessor>();const auto raw=[](ChimeraProcessor& q,const char* id){return q.parameters().getRawParameterValue(id)->load();};
+     {auto* mode=p->parameters().getParameter("synthOscBMode");mode->setValueNotifyingHost(1.f);}
+     juce::String cut;require(p->loadSynthTable(1,dir.getChildFile("hundred.wav"),io::frameAuto,&cut).wasOk() && cut.contains("64 of 100"),"The processor did not import a table");
+     require(raw(*p,"synthOscBOn")>.5f && raw(*p,"synthOscBMode")<.5f && raw(*p,"synthOscBImported")>.5f && raw(*p,"synthOscAImported")<.5f,"Importing did not switch osc B to Wave mode and its table");
+     require(p->loadSynthTable(1,dir.getChildFile("silent.wav")).failed() && p->synthEngine().sharedTable(1)!=nullptr && p->synthEngine().sharedTable(1)->name=="hundred","A refused file replaced the table");
+     juce::MemoryBlock saved;p->getStateInformation(saved);
+     auto q=std::make_unique<ChimeraProcessor>();q->setStateInformation(saved.getData(),int(saved.getSize()));
+     const auto a=p->synthEngine().sharedTable(1),b=q->synthEngine().sharedTable(1);
+     require(a && b && b->frames==64 && b->sourceFrames==100 && b->sourceFrameSize==2048 && b->name=="hundred" && a->data.size()==b->data.size() && raw(*q,"synthOscBImported")>.5f,"The imported table was not restored");
+     double worst=0;for(size_t n=0;n<a->data.size();++n)worst=std::max(worst,double(std::abs(a->data[n]-b->data[n])));
+     auto fresh=std::make_unique<ChimeraProcessor>();juce::MemoryBlock none;fresh->getStateInformation(none);
+     std::cout<<"MEASURE table state: "<<(saved.getSize()-none.getSize())/1024<<" KiB more with one 64-frame table, largest difference after save and restore "<<worst<<"\n";
+     q->setStateInformation(none.getData(),int(none.getSize()));
+     require(worst==0 && q->synthEngine().sharedTable(1)==nullptr && raw(*q,"synthOscBImported")<.5f,"The table round trip is inexact, or a table survived a project without one");
+     // A damaged entry is ignored; the rest of the project loads.
+     {juce::ValueTree tree("SYNTH_TABLES");juce::ValueTree item("TABLE");item.setProperty("osc",0,nullptr);item.setProperty("frames",2,nullptr);item.setProperty("cycles",juce::MemoryBlock(1000),nullptr);tree.appendChild(item,nullptr);
+      juce::ValueTree wrong("TABLE");wrong.setProperty("osc",7,nullptr);wrong.setProperty("frames",1,nullptr);wrong.setProperty("cycles",juce::MemoryBlock(size_t(synthTableSize)*4),nullptr);tree.appendChild(wrong,nullptr);
+      const auto restored=io::restore(tree);require(!restored[0] && !restored[1] && !restored[2],"A damaged table entry was restored");}
+     p->clearSynthTable(1);require(p->synthEngine().sharedTable(1)==nullptr && raw(*p,"synthOscBImported")<.5f,"Remove did not clear the table and its switch");}
+    dir.deleteRecursively();
+    std::cout<<"PASS wavetable import: frames, position, band limit, frame sizes, clm chunk, refusals, project state\n";
+}
+
 // Preset files (docs/SYNTH_PRESETS.md): names, the round trip, refusals, the list.
 void presetFiles() {
     namespace sp=spectralforge::synthPresets;
@@ -854,7 +968,7 @@ void processorInsertsAndPage() {
     writes.changes.clear();page.applyPatch(3);
     require(juce::roundToInt(raw("synthType"))==synthImpact && raw("synthOscBMode")<.5f && writes.changes.count(index("synthOscBRoot"))==0,"Mimir Impact patch: type, mode or kept root wrong");
     // Wavetable controls (docs/SYNTH_WAVETABLE.md): nine parameters at version hint 38, appended last.
-    {int count=0;const int total=p->getParameters().size();
+    {int count=0;const int total=p->getParameters().size()-synthOscCount;   // the import switches (hint 42) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthWavetableParameterVersion){
         require(with->getParameterIndex()>=total-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+synthEffectsParameterCount) && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
      require(count==synthOscCount*synthWavetableParametersPerOsc && raw("synthOscATable")==0 && raw("synthOscAWarp")==0 && raw("synthOscAWarpAmount")==0,"Wavetable bank size or defaults wrong");
@@ -865,6 +979,23 @@ void processorInsertsAndPage() {
      auto& tableDisplay=page.waveDisplay(1);drag(tableDisplay,{20,20},{float(tableDisplay.getWidth())*.5f,20});
      require(std::abs(raw("synthOscBWave")-2.f)<.08f,"Dragging across a wavetable does not set its position");
      static_cast<juce::ComboBox*>(page.control("synthOscBTable"))->setSelectedId(1,juce::sendNotificationSync);page.updateModes();}
+    // Wavetable import on the page (docs/SYNTH_WAVETABLE_IMPORT.md): the menu lists the imported table and plays it.
+    {auto* menu=static_cast<juce::ComboBox*>(page.control("synthOscBTable"));using Menu=spectralforge::synthUI::TableMenu;
+     require(menu->indexOfItemId(Menu::importedId)<0 && menu->indexOfItemId(Menu::importId)>=0 && menu->indexOfItemId(Menu::removeId)<0,"The table menu offers an imported table before one exists, or no import");
+     const auto wav=juce::File::createTempFile(".wav");
+     {juce::AudioBuffer<float> b(1,4*2048);for(int k=0;k<4;++k)for(int n=0;n<2048;++n)b.setSample(0,k*2048+n,float(.5*std::sin(2*pi*(k+1)*n/2048)));
+      juce::WavAudioFormat format;auto stream=wav.createOutputStream();std::unique_ptr<juce::AudioFormatWriter> w(format.createWriterFor(stream.get(),48000,1,24,{},0));stream.release();w->writeFromAudioSampleBuffer(b,0,b.getNumSamples());}
+     juce::String said;require(page.importTable(1,wav,0,&said).wasOk() && said.isEmpty(),"The page did not import a table");
+     require(menu->getSelectedId()==Menu::importedId && menu->getText()==wav.getFileNameWithoutExtension()+" (imported)" && menu->indexOfItemId(Menu::removeId)>=0,"The menu does not show the imported table");
+     require(raw("synthOscBImported")>.5f && page.control("synthOscBWarp")->isVisible() && !page.control("synthOscBShapes")->isVisible(),"An imported table does not show the warp in place of the shape strip");
+     menu->setSelectedId(2,juce::sendNotificationSync);page.updateModes();
+     require(raw("synthOscBImported")<.5f && juce::roundToInt(raw("synthOscBTable"))==1 && menu->getSelectedId()==2 && menu->indexOfItemId(Menu::importedId)>=0,"Choosing a built-in table does not leave the imported one, or forgets it");
+     menu->setSelectedId(Menu::importedId,juce::sendNotificationSync);page.updateModes();
+     require(raw("synthOscBImported")>.5f && juce::roundToInt(raw("synthOscBTable"))==1 && menu->getSelectedId()==Menu::importedId,"Choosing the imported table again does not play it");
+     require(page.importTable(1,juce::File::getSpecialLocation(juce::File::tempDirectory).getChildFile("no-such-table.wav")).failed() && menu->getSelectedId()==Menu::importedId,"A refused import changed the oscillator");
+     menu->setSelectedId(Menu::removeId,juce::sendNotificationSync);page.updateModes();
+     require(p->synthEngine().sharedTable(1)==nullptr && raw("synthOscBImported")<.5f && menu->getSelectedId()==2 && menu->indexOfItemId(Menu::importedId)<0,"Remove did not clear the imported table from the oscillator and the menu");
+     menu->setSelectedId(1,juce::sendNotificationSync);page.updateModes();wav.deleteFile();}
     // Modulation matrix: only rows in use, + adds one, a knob's menu connects a source, x removes it.
     // Sixteen rows: 0-7 are the released parameters, 8-15 the second bank, which new connections take first.
     {using Page=spectralforge::synthUI::SynthPage;const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
@@ -921,7 +1052,7 @@ void processorInsertsAndPage() {
      require(page.control("synthMacro1")->isVisible() && page.control("synthMacro4")->isVisible() && !page.control("synthSeqGraph")->isVisible(),"MACRO does not show the macros");
      auto* macro=dynamic_cast<juce::Slider*>(page.control("synthMacro2"));require(macro!=nullptr && macro->getTextFromValue(35.0)=="MACRO 2   35 %" && macro->getHeight()>=16,"A macro bar is unnamed or too small");
      static_cast<juce::Button*>(page.control("synthModTabLFO"))->triggerClick();pumpNow();require(page.control("synthLfo2Sync")->isVisible(),"LFO does not come back");
-     int count=0;const int total=p->getParameters().size();
+     int count=0;const int total=p->getParameters().size()-synthOscCount;   // the import switches (hint 42) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthSequencerParameterVersion){require(with->getParameterIndex()>=total-synthSequencerParameterCount-synthEffectsParameterCount && with->getParameterIndex()<total-synthEffectsParameterCount,"A sequencer parameter is not in its bank");++count;}
      require(count==synthSequencerParameterCount && synthSequencerParameterCount==48,"Sequencer bank size wrong");
      auto put=[&](const juce::String& pid,float v){auto* q=p->parameters().getParameter(pid);q->setValueNotifyingHost(q->convertTo0to1(v));};for(int k=0;k<synthSeqMaxSteps;++k)put(synthSeqStepID(k),0);}
@@ -951,7 +1082,7 @@ void processorInsertsAndPage() {
      put("synthFxDelaySync",4);page.updateModes();require(!time->isEnabled(),"TIME is not dimmed while the delay follows the tempo");
      view->triggerClick();pumpNow();
      require(!page.effectsShown() && shown("synthAmpAttack") && shown("synthSubOn") && shown("synthModAdd") && shown("synthLfo1Rate") && !shown("synthSeqGraph") && !shown("synthFxChorusOn") && !shown("synthFxEqHigh"),"FX off does not bring the envelopes, LFOs and matrix back");
-     int count=0;const int total=p->getParameters().size();
+     int count=0;const int total=p->getParameters().size()-synthOscCount;   // the import switches (hint 42) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthEffectsParameterVersion){
         require(with->getParameterIndex()==total-synthEffectsParameterCount+count && with->paramID==ids[count] && parameter->isAutomatable(),"An effect parameter is not in the last bank, in order");++count;}
      require(count==synthEffectsParameterCount && synthEffectsParameterCount==22,"Effect bank size wrong");
@@ -1085,6 +1216,12 @@ void processorInsertsAndPage() {
             for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthFxChorusOn",1},{"synthFxDelayOn",1},{"synthFxDelaySync",5},{"synthFxDelayFeedback",45},{"synthFxDelayPingPong",1},{"synthFxReverbOn",1},{"synthFxReverbDecay",3.5f},
                     {"synthFxEqOn",1},{"synthFxEqLow",3},{"synthFxEqHigh",-2}})put(id,v);
             page.showEffects(true);}
+        if(std::getenv("SYNTH_PAGE_IMPORT")){   // an imported table in osc A: 32 frames from a sine to a folded sine
+            const auto table=juce::File::createTempFile(".wav");
+            {juce::AudioBuffer<float> b(1,32*2048);for(int k=0;k<32;++k)for(int n=0;n<2048;++n)b.setSample(0,k*2048+n,float(std::sin((1.0+k*.35)*std::sin(2*pi*n/2048)*pi*.5)));
+             juce::WavAudioFormat format;auto stream=table.createOutputStream();std::unique_ptr<juce::AudioFormatWriter> w(format.createWriterFor(stream.get(),48000,1,24,{},0));stream.release();w->writeFromAudioSampleBuffer(b,0,b.getNumSamples());}
+            const auto named=table.getSiblingFile("Fold Sweep.wav");table.moveFileTo(named);
+            require(page.importTable(0,named).wasOk(),"Snapshot table not imported");named.deleteFile();}
         juce::File presetDir;
         if(std::getenv("SYNTH_PAGE_PRESETS")){
             presetDir=juce::File::createTempFile("synthSnapshotPresets");presetDir.deleteRecursively();
@@ -1104,7 +1241,7 @@ void processorInsertsAndPage() {
         if(presetDir!=juce::File()){page.setPresetDirectory(juce::File::createTempFile("none"));presetDir.deleteRecursively();}
     }
     // Filters and distortion (docs/SYNTH_FILTERS.md): thirteen parameters at version hint 39, appended last.
-    {int count=0;const int total=p->getParameters().size();
+    {int count=0;const int total=p->getParameters().size()-synthOscCount;   // the import switches (hint 42) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthFiltersParameterVersion){
         require(with->getParameterIndex()>=total-synthFiltersParameterCount-synthSequencerParameterCount-synthEffectsParameterCount && with->getParameterIndex()<total-synthSequencerParameterCount-synthEffectsParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
      const auto initial=[&](const char* id){auto* q=p->parameters().getParameter(id);return q->convertFrom0to1(q->getDefaultValue());};
@@ -1134,7 +1271,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();effects();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();presetFiles();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();wavetableImport();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();effects();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();presetFiles();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
