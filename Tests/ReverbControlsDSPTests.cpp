@@ -58,19 +58,25 @@ void preDelay() {
         for(size_t n=0;n+shift<base.left.size();++n){worst=std::max(worst,double(std::abs(late.left[n+shift]-base.left[n])));reference=std::max(reference,double(std::abs(base.left[n])));}
         double early=0;for(size_t n=0;n<shift;++n)early=std::max(early,double(std::abs(late.left[n])));
         require(reference>1e-4,std::string(modelNames[model])+": the click made no reverb");
-        // Rooms and hall use a JUCE reverb whose own smoothing starts with the first block, so those two are compared to 1%.
-        require(worst<reference*.01,std::string(modelNames[model])+": with 100 ms of pre-delay the reverb is not the same reverb 100 ms later (difference "+num(worst/reference*100,3)+"% of its peak)");
         require(early<reference*1e-4,std::string(modelNames[model])+": reverb was heard before the pre-delay had passed");
-        measured+=std::string(model?", ":"")+modelNames[model]+" "+num(worst/reference*100,4)+"%";
+        // Room, spring and Gated Room do not move in time: the late reverb is the same samples. Hall, Hall Prime and
+        // Void Space are slowly modulated, so theirs is compared by its level in 50 ms steps.
+        const bool still=model==0 || model==2 || model==5;
+        double envelope=0;
+        for(double t=0;t+.05<=1.2;t+=.05){const double a=base.power(t,t+.05),b=late.power(t+.1,t+.15);if(a>reference*reference*1e-6)envelope=std::max(envelope,std::abs(db(b)-db(a)));}
+        if(still)require(worst<reference*1e-3,std::string(modelNames[model])+": with 100 ms of pre-delay the reverb is not the same reverb 100 ms later (difference "+num(worst/reference*100,3)+"% of its peak)");
+        require(envelope<1.5,std::string(modelNames[model])+": with 100 ms of pre-delay the reverb's level 100 ms later differs by "+num(envelope)+" dB");
+        measured+=std::string(model?", ":"")+modelNames[model]+" "+(still?num(worst/reference*100,4)+"%":num(envelope)+" dB");
     }
-    std::cout<<"MEASURE reverb controls pre-delay (100 ms: largest difference from the same reverb 4800 samples later, of its peak): "<<measured<<'\n';
-    std::cout<<"PASS reverb controls pre-delay: every model plays the same reverb later by the pre-delay, silent until then\n";
+    std::cout<<"MEASURE reverb controls pre-delay (100 ms; against the same reverb 4800 samples later: sample difference of its peak, or level difference for the modulated models): "<<measured<<'\n';
+    std::cout<<"PASS reverb controls pre-delay: every model plays its reverb later by the pre-delay, silent until then\n";
 }
 // LOW CUT takes the lows out of the reverb and leaves the rest; TONE tilts it around 1.5 kHz.
 void lowCutAndTone() {
     std::string measured;
     for(int model=0;model<modelCount;++model) {
-        const auto level=[&](double hz,ReverbControls k){const auto x=sine(3,hz);return db(render(model,x,x,fixed(k)).power(2,3));};
+        // The tone in bursts of 0.2 s every half second, so the Gated Room opens on each.
+        const auto level=[&](double hz,ReverbControls k){auto x=sine(3,hz);for(size_t n=0;n<x.size();++n)if(n%size_t(rate*.5)>=size_t(rate*.2))x[n]=0;return db(render(model,x,x,fixed(k)).power(1,3));};
         ReverbControls cut;cut.lowCutHz=500;ReverbControls bright;bright.tone=1;ReverbControls dark;dark.tone=-1;
         const double low=level(60,cut)-level(60,{}),high=level(4000,cut)-level(4000,{});
         require(low<-20,std::string(modelNames[model])+": LOW CUT at 500 Hz took only "+num(low)+" dB off 60 Hz in the reverb");
@@ -86,7 +92,8 @@ void lowCutAndTone() {
 // WIDTH scales the difference between the two wet channels: 0 is mono, 2 doubles it.
 void width() {
     std::string measured;
-    const auto left=noise(3,3,7),right=noise(3,3,8);
+    // Bursts of 0.2 s every half second, different in each channel: the Gated Room opens on each.
+    auto left=noise(3,3,7),right=noise(3,3,8);for(size_t n=0;n<left.size();++n)if(n%size_t(rate*.5)>=size_t(rate*.2))left[n]=right[n]=0;
     for(int model=0;model<modelCount;++model) {
         const auto measure=[&](float w){ReverbControls k;k.width=w;const auto wet=render(model,left,right,fixed(k));double mid=0,side=0;
             for(size_t n=size_t(rate);n<wet.left.size();++n){const double m=.5*(wet.left[n]+wet.right[n]),s=.5*(wet.left[n]-wet.right[n]);mid+=m*m;side+=s*s;}

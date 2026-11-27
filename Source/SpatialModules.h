@@ -174,8 +174,8 @@ class SpaceModule {
     // pre-delay, faded out while frozen. At the default controls feed is the input itself and the wet sum
     // is not touched, so the render is the one from before the controls existed.
     juce::AudioBuffer<float> feed;std::array<std::vector<float>,2> preLine;size_t preWrite{};bool preUsed{},shapeUsed{};
-    juce::SmoothedValue<float> preSamples,hold,toneLow,toneHigh,widthGain;
-    std::array<std::array<float,2>,2> cutState{};std::array<float,2> toneState{};
+    juce::SmoothedValue<float> preSamples,hold,toneAmount,widthGain;
+    std::array<std::array<float,2>,2> cutState{},toneState{};
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
     void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
@@ -185,19 +185,19 @@ public:
     // ramp; otherwise a re-prepared instance renders differently from a new one.
     void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].setParameters({});rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);
         feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
-        for(auto* v:{&preSamples,&hold,&toneLow,&toneHigh,&widthGain})v->reset(rate,.05);
-        preSamples.setCurrentAndTargetValue(0);hold.setCurrentAndTargetValue(0);toneLow.setCurrentAndTargetValue(1);toneHigh.setCurrentAndTargetValue(1);widthGain.setCurrentAndTargetValue(1);
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->reset(rate,.05);
+        preSamples.setCurrentAndTargetValue(0);hold.setCurrentAndTargetValue(0);toneAmount.setCurrentAndTargetValue(0);widthGain.setCurrentAndTargetValue(1);
         for(auto& channel:networks){channel[0].prepare(rate,.06);channel[1].prepare(rate,.12);channel[2].prepare(rate,.04);}predelay.setMaximumDelayInSamples(int(rate*.05));predelay.prepare(s);
         morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
     void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();
-        for(auto* v:{&preSamples,&hold,&toneLow,&toneHigh,&widthGain})v->setCurrentAndTargetValue(v->getTargetValue());}
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->setCurrentAndTargetValue(v->getTargetValue());}
     void process(juce::AudioBuffer<float>& b,bool on,int model,float size,float damping,float amount,const ReverbControls& k={}) {
         morph.select(model);mix.setTargetValue(on ? amount : 0);
         // Freeze holds only while the reverb is on.
         const bool freeze=k.freeze && on;
         preSamples.setTargetValue(float(rate)*.001f*juce::jlimit(0.f,reverbPreDelayMaxMs,k.preDelayMs));hold.setTargetValue(freeze?1.f:0.f);
         const float tone=juce::jlimit(-1.f,1.f,k.tone),cutHz=juce::jlimit(reverbLowCutMinHz,reverbLowCutMaxHz,k.lowCutHz);
-        toneLow.setTargetValue(juce::Decibels::decibelsToGain(-6.f*tone));toneHigh.setTargetValue(juce::Decibels::decibelsToGain(6.f*tone));
+        toneAmount.setTargetValue(tone);
         widthGain.setTargetValue(juce::jlimit(0.f,reverbWidthMax,k.width));
         feed.makeCopyOf(b,true);
         const bool held=hold.isSmoothing() || hold.getTargetValue()>0.f;
@@ -219,10 +219,15 @@ public:
             }
         } else if(preUsed) clearPre();   // back at no pre-delay: an old line must not be heard when it is raised again
         // The wet sum is shaped only away from the defaults (low cut off, tone flat, width as made).
-        const bool shaped=cutHz>reverbLowCutMinHz || toneLow.isSmoothing() || toneLow.getTargetValue()!=1.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
+        const bool shaped=cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
         if(!shaped && shapeUsed)clearShape();
         if(shaped)shapeUsed=true;
-        const float cutPole=spatial_detail::onePole(cutHz,rate),tonePole=spatial_detail::onePole(1500.,rate);
+        // TONE: a high shelf at 1.5 kHz of up to 12 dB either way with half of it taken back overall, so the
+        // reverb tilts by up to 6 dB each way. Set once a block from the gliding amount.
+        const float toneNow=shaped?toneAmount.skip(b.getNumSamples()):0.f;
+        const auto shelf=juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(rate,1500.f,.5f,juce::Decibels::decibelsToGain(12.f*toneNow));
+        const float toneTrim=juce::Decibels::decibelsToGain(-6.f*toneNow)/shelf[3],b0=shelf[0]*toneTrim,b1=shelf[1]*toneTrim,b2=shelf[2]*toneTrim,a1=shelf[4]/shelf[3],a2=shelf[5]/shelf[3];
+        const float cutPole=spatial_detail::onePole(cutHz,rate);
         const bool cutting=cutHz>reverbLowCutMinHz;
         for(size_t i=0;i<2;++i){juce::Reverb::Parameters p;p.roomSize=i==0 ? .25f+.45f*size : .6f+.36f*size;p.damping=damping;p.wetLevel=1;p.dryLevel=0;p.width=i==0 ? .7f : 1;p.freezeMode=freeze?1.f:0.f;rooms[i].setParameters(p);wet[i].makeCopyOf(feed,true);if(!on)wet[i].clear();}
         for(int n=0;n<b.getNumSamples();++n){phase+=.17/rate;phase-=std::floor(phase);for(int c=0;c<b.getNumChannels();++c){const float x=wet[1].getSample(c,n),delay=float(rate)*(.022f+.014f*size+.001f*std::sin(float(juce::MathConstants<double>::twoPi*(phase+c*.3))));wet[1].setSample(c,n,hallPre.popSample(c,delay));hallPre.pushSample(c,x);}}
@@ -239,12 +244,12 @@ public:
         const float gateThreshold=juce::Decibels::decibelsToGain(-40.f),gatePole=float(1-std::exp(-1./(rate*.03)));
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();
             std::array<float,2> wetSum{};
-            const float toneLowNow=shaped?toneLow.getNextValue():1.f,toneHighNow=shaped?toneHigh.getNextValue():1.f,widthNow=shaped?widthGain.getNextValue():1.f;
+            const float widthNow=shaped?widthGain.getNextValue():1.f;
             const bool extended=weights[3]>0.f||weights[4]>0.f||weights[5]>0.f;
             if(extended!=extendedActive){if(!extended)clearExtended();extendedActive=extended;}
             float gate=1.f;
             if(extended) {
-                float level=0;for(int c=0;c<b.getNumChannels();++c){const float x=std::abs(b.getSample(c,n));auto& g=gateLevel[(size_t)c];g=x>g?x:g+gatePole*(x-g);level=juce::jmax(level,g);}
+                float level=0;for(int c=0;c<b.getNumChannels();++c){const float x=std::abs(feed.getSample(c,n));auto& g=gateLevel[(size_t)c];g=x>g?x:g+gatePole*(x-g);level=juce::jmax(level,g);}
                 if(level<gateThreshold*.5f)gateArmed=true;
                 if(gateArmed && level>gateThreshold){gateArmed=false;gateTimer=0;}
                 if(gateTimer<(1<<30))++gateTimer;
@@ -263,10 +268,10 @@ public:
                 sum+=weights[3]*hall+weights[4]*space+weights[5]*room;
             }
             if(!shaped){b.setSample(c,n,b.getSample(c,n)*(1-m)+sum*m);continue;}
-            // LOW CUT: two one-pole high-passes. TONE: the wet split at 1.5 kHz, up to 6 dB each way.
+            // LOW CUT: two one-pole high-passes. TONE: the shelf above (transposed direct form II).
             if(cutting)for(auto& z:cutState[(size_t)c]){z+=cutPole*(sum-z);sum-=z;}
-            auto& low=toneState[(size_t)c];low+=tonePole*(sum-low);
-            wetSum[(size_t)c]=low*toneLowNow+(sum-low)*toneHighNow;
+            auto& z=toneState[(size_t)c];const float shelved=b0*sum+z[0];z[0]=b1*sum-a1*shelved+z[1];z[1]=b2*sum-a2*shelved;
+            wetSum[(size_t)c]=shelved;
             }
             if(shaped) {
                 // WIDTH scales the difference of the two wet channels.
