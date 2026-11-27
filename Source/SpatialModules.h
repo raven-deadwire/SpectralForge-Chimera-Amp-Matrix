@@ -176,9 +176,9 @@ class SpaceModule {
     juce::AudioBuffer<float> feed;std::array<std::vector<float>,2> preLine;size_t preWrite{};bool preUsed{},shapeUsed{};
     juce::SmoothedValue<float> preSamples,hold,toneAmount,widthGain;
     std::array<std::array<float,2>,2> cutState{},toneState{};
-    double shapePhase{};float shapeLevel{1.f};bool shapeRunning{};
+    double shapePhase{};float shapeLevel{1.f},shapeValue{1.f};bool shapeRunning{};
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
-    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;}
+    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
 public:
     // juce::Reverb snaps its parameter smoothers to the last target on prepare.
@@ -225,17 +225,21 @@ public:
         // The tempo shape: its level is followed over 3 ms, so the Gate and the end of Reverse do not click.
         const int shape=k.shape>reverbShapeOff && k.shape<reverbShapeCount?k.shape:reverbShapeOff;
         const float shapeDepth=juce::jlimit(0.f,1.f,k.shapeDepth),shapePole=spatial_detail::onePole(1./(juce::MathConstants<double>::twoPi*.003),rate);
-        const double shapeStep=juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
-        if(shape!=reverbShapeOff && std::isfinite(k.ppq) && k.ppq>=0.)shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays
+        // In seconds the pass runs freely at its own length; in bars it follows the tempo and the host's position.
+        const double shapeStep=k.shapeInSeconds?1./(double(juce::jlimit(reverbShapeMinSeconds,reverbShapeMaxSeconds,k.shapeSeconds))*rate):juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
+        const float shapeCurve=juce::jlimit(-1.f,1.f,k.shapeCurve),shapeMorph=shape!=reverbShapeOff?juce::jlimit(-1.f,1.f,k.shapeMorph):0.f;
+        if(shape!=reverbShapeOff && !k.shapeInSeconds && std::isfinite(k.ppq) && k.ppq>=0.)shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays
         shapeRunning=on && shape!=reverbShapeOff;
         const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
-        if(!shaping){shapeLevel=1.f;shapePhase=0;}
+        if(!shaping){shapeLevel=1.f;shapeValue=1.f;shapePhase=0;}
         const bool shaped=shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
         if(!shaped && shapeUsed)clearShape();
         if(shaped)shapeUsed=true;
         // TONE: a high shelf at 1.5 kHz of up to 12 dB either way with half of it taken back overall, so the
         // reverb tilts by up to 6 dB each way. Set once a block from the gliding amount.
-        const float toneNow=shaped?toneAmount.skip(b.getNumSamples()):0.f;
+        // MORPH: the tone follows the shape, darker where the shape is low and brighter where it is high
+        // (the other way round below 0), by up to the whole range of TONE. Set once a block, as TONE is.
+        const float toneNow=juce::jlimit(-1.f,1.f,(shaped?toneAmount.skip(b.getNumSamples()):0.f)+shapeMorph*(2.f*shapeValue-1.f));
         const auto shelf=juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(rate,1500.f,.5f,juce::Decibels::decibelsToGain(12.f*toneNow));
         const float toneTrim=juce::Decibels::decibelsToGain(-6.f*toneNow)/shelf[3],b0=shelf[0]*toneTrim,b1=shelf[1]*toneTrim,b2=shelf[2]*toneTrim,a1=shelf[4]/shelf[3],a2=shelf[5]/shelf[3];
         const float cutPole=spatial_detail::onePole(cutHz,rate);
@@ -263,7 +267,7 @@ public:
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();
             std::array<float,2> wetSum{};
             const float widthNow=shaped?widthGain.getNextValue():1.f;
-            if(shaping){const float target=1.f-shapeDepth*(1.f-reverbShapeLevel(shape,shapePhase));shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
+            if(shaping){shapeValue=reverbShapeCurved(reverbShapeLevel(shape,shapePhase),shapeCurve);const float target=1.f-shapeDepth*(1.f-shapeValue);shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
             const bool extended=weights[3]>0.f||weights[4]>0.f||weights[5]>0.f;
             if(extended!=extendedActive){if(!extended)clearExtended();extendedActive=extended;}
             float gate=1.f;

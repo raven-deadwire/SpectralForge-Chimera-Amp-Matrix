@@ -62,20 +62,40 @@ inline void appendPostReverbDecayParameters(juce::AudioProcessorValueTreeState::
             juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float v, int) { return reverbDecayText(v); })
                 .withValueFromStringFunction([](const juce::String& t) { return t.trim().equalsIgnoreCase("SIZE") ? 0.f : t.getFloatValue(); })));
 }
+// More of the tempo shape (docs/POST_REVERB_SHAPE_MORE.md): bars or seconds, the length in seconds, the curve and
+// the tone morph for every slot, appended at version hint 46. At the defaults the shape is what it was.
+inline constexpr int postReverbShapeMoreParameterVersion = 46, postReverbShapeMorePerSlot = 4;
+inline constexpr int postReverbShapeMoreParameterCount = postReverbShapeMorePerSlot * postSlotCount;
+inline constexpr std::array<const char*, postReverbShapeMorePerSlot> reverbShapeMoreIDs{{"reverbshapeunit", "reverbshapeseconds", "reverbshapecurve", "reverbshapemorph"}};
+inline constexpr std::array<const char*, postReverbShapeMorePerSlot> reverbShapeMoreNames{{"Reverb shape unit", "Reverb shape seconds", "Reverb shape curve", "Reverb shape morph"}};
+inline juce::StringArray reverbShapeUnitChoices() { return {"Bars", "Seconds"}; }
+inline juce::String reverbShapeMoreID(int slot, int control) { return postSlotID(slot, reverbShapeMoreIDs[size_t(control)]); }
+inline void appendPostReverbShapeMoreParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    constexpr int v = postReverbShapeMoreParameterVersion;
+    juce::NormalisableRange<float> seconds{reverbShapeMinSeconds, reverbShapeMaxSeconds};seconds.setSkewForCentre(1.f);
+    for (int slot = 0; slot < postSlotCount; ++slot) {
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbShapeMoreID(slot, 0), v}, postSlotName(slot, reverbShapeMoreNames[0]), reverbShapeUnitChoices(), 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbShapeMoreID(slot, 1), v}, postSlotName(slot, reverbShapeMoreNames[1]), seconds, 1.f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbShapeMoreID(slot, 2), v}, postSlotName(slot, reverbShapeMoreNames[2]), juce::NormalisableRange<float>{-1.f, 1.f}, 0.f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbShapeMoreID(slot, 3), v}, postSlotName(slot, reverbShapeMoreNames[3]), juce::NormalisableRange<float>{-1.f, 1.f}, 0.f));
+    }
+}
 // Every reverb bank appended after the shape's. The parameter-count checks of the tests count from the end
 // through this, so a later reverb bank is added here and nowhere else.
-inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount;
+inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount + postReverbShapeMoreParameterCount;
 // The reverb banks appended to every slot after the slots' own banks.
-inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion; }
+inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion || version == postReverbShapeMoreParameterVersion; }
 
 struct PostReverbControlParameters {
     std::array<std::atomic<float>*, postReverbControlsPerSlot> values{};
     std::array<std::atomic<float>*, postReverbShapePerSlot> shape{};
     std::atomic<float>* decay{};
+    std::array<std::atomic<float>*, postReverbShapeMorePerSlot> more{};
     void bind(juce::AudioProcessorValueTreeState& state, int slot) {
         for (int i = 0; i < postReverbControlsPerSlot; ++i) values[size_t(i)] = state.getRawParameterValue(reverbControlID(slot, i));
         for (int i = 0; i < postReverbShapePerSlot; ++i) shape[size_t(i)] = state.getRawParameterValue(reverbShapeID(slot, i));
         decay = state.getRawParameterValue(reverbDecayID(slot));
+        for (int i = 0; i < postReverbShapeMorePerSlot; ++i) more[size_t(i)] = state.getRawParameterValue(reverbShapeMoreID(slot, i));
     }
     // tempo and ppq are the session's, set by the caller.
     ReverbControls read() const noexcept {
@@ -83,6 +103,7 @@ struct PostReverbControlParameters {
         k.preDelayMs = values[0]->load();k.lowCutHz = values[1]->load();k.tone = values[2]->load();k.width = values[3]->load();k.freeze = values[4]->load() > .5f;
         k.shape = juce::roundToInt(shape[0]->load());k.shapeDepth = shape[1]->load();k.shapeLength = juce::roundToInt(shape[2]->load());
         k.decaySeconds = decay->load();
+        k.shapeInSeconds = more[0]->load() > .5f;k.shapeSeconds = more[1]->load();k.shapeCurve = more[2]->load();k.shapeMorph = more[3]->load();
         return k;
     }
 };

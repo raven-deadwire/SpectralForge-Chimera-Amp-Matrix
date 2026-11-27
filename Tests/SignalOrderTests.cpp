@@ -870,8 +870,8 @@ void reverbShape() {
 void reverbDecay() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbDecayParameterVersion) {
-        require(with->getParameterIndex()==total-postReverbDecayParameterCount+count && with->paramID==reverbDecayID(count) && parameter->isAutomatable() && with->getName(64)==postSlotName(count,"Reverb decay"),"A reverb decay parameter is not in the last bank, slot 1 first, under its name");++count;}
-    require(count==postReverbDecayParameterCount && count==4 && postReverbAfterShapeParameterCount==postReverbDecayParameterCount,"The reverb decay bank is not one parameter for each of four slots");
+        require(with->getParameterIndex()==total-postReverbAfterShapeParameterCount+count && with->paramID==reverbDecayID(count) && parameter->isAutomatable() && with->getName(64)==postSlotName(count,"Reverb decay"),"A reverb decay parameter is not first after the reverb shape, slot 1 first, under its name");++count;}
+    require(count==postReverbDecayParameterCount && count==4,"The reverb decay bank is not one parameter for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbDecayID(slot))==0,"A reverb decay does not start with SIZE setting it");
     {auto* q=p->parameters().getParameter("reverbdecay");require(q->getText(q->convertTo0to1(0),32)=="SIZE" && q->getText(q->convertTo0to1(2.5f),32)=="2.50 s" && std::abs(q->convertFrom0to1(q->getValueForText("SIZE")))<1e-6f && std::abs(q->convertFrom0to1(q->getValueForText("3.5 s"))-3.5f)<1e-3f,"The reverb decay does not read as SIZE or as seconds");}
     // Through the processor: a burst of tone, then silence. A long DECAY leaves more a second later than SIZE alone; a short one less.
@@ -894,7 +894,7 @@ void reverbDecay() {
     loaded->setStateInformation(old.getData(),int(old.getSize()));
     for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbDecayID(slot))==0,"A project saved before the reverb decay did not load with SIZE setting it");
     std::cout<<"MEASURE reverb decay through the processor (a second after the note): SIZE alone "<<level(plain)<<" dB, 12 s "<<level(longer)<<" dB, 0.3 s "<<level(shorter)<<" dB\n";
-    std::cout<<"PASS reverb decay: 4 parameters at version 45, last; it lengthens and shortens the reverb through the processor; each slot its own; saved, loaded, and SIZE in an older project\n";
+    std::cout<<"PASS reverb decay: 4 parameters at version 45, after the shape; it lengthens and shortens the reverb through the processor; each slot its own; saved, loaded, and SIZE in an older project\n";
 }
 int main() {
     juce::ScopedJuceInitialiser_GUI init;

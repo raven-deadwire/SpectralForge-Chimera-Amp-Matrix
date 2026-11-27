@@ -22,9 +22,22 @@ struct ReverbControls {
     int shapeLength{2};      // index into reverbShapeBeats
     double tempo{120.};      // beats per minute
     double ppq{std::numeric_limits<double>::quiet_NaN()};   // the host's quarter-note position at the block's first frame while it plays, else NaN
+    // More of the tempo shape (docs/POST_REVERB_SHAPE_MORE.md).
+    bool shapeInSeconds{false};  // the pass is shapeSeconds long and runs freely, whatever the tempo
+    float shapeSeconds{1.f};     // reverbShapeMinSeconds .. reverbShapeMaxSeconds
+    float shapeCurve{0.f};       // -1 soft .. 0 as drawn .. +1 hard
+    float shapeMorph{0.f};       // -1 .. +1: the reverb's tone follows the shape; 0 = not at all
     float decaySeconds{0.f}; // below reverbDecayMinSeconds: SIZE sets the decay; from there up: the time to fall 60 dB
 };
 enum ReverbShape {reverbShapeOff=0,reverbShapeSwell,reverbShapeReverse,reverbShapeGate,reverbShapeWave,reverbShapePump,reverbShapeCount};
+inline constexpr float reverbShapeMinSeconds = .1f, reverbShapeMaxSeconds = 10.f;
+// CURVE bends a shape's level around its middle: hard (above 0) makes it nearer a switch, soft (below 0)
+// keeps it nearer the middle for longer. 0 and 1 stay where they are; at 0 the level is returned untouched.
+inline float reverbShapeCurved(float level,float curve) noexcept {
+    if(curve==0.f || level<=0.f || level>=1.f)return level;
+    const double k=curve>0.f?1.+4.*double(curve):1./(1.-4.*double(curve)),up=std::pow(double(level),k),down=std::pow(1.-double(level),k);
+    return float(up/(up+down));
+}
 inline constexpr int reverbShapeLengthCount=4;
 inline constexpr double reverbShapeBeats[reverbShapeLengthCount]{1.,2.,4.,8.};   // quarter notes: 1/4, 1/2, one bar and two bars of 4/4
 // The level a shape asks for at `phase` (0 to 1) through its length, 0 to 1.

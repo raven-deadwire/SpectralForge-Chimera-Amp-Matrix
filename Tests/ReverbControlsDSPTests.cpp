@@ -223,6 +223,49 @@ void shapeOnTheReverb() {
     std::cout<<"PASS reverb shape on the reverb: each shape gives its level through the bar in every model; depth scales it, length sets its period, the host's position locks it, and Off returns the plain reverb\n";
 }
 }
+// More of the tempo shape (docs/POST_REVERB_SHAPE_MORE.md): seconds instead of bars, the curve, the tone morph.
+void shapeMore() {
+    // CURVE: nothing at 0, the ends kept, rising with the level; hard pushes away from the middle, soft towards it.
+    for(float v=0;v<=1.f;v+=.001f)require(reverbShapeCurved(v,0.f)==v,"CURVE at 0 changes a level");
+    for(const float curve:{-1.f,-.4f,.4f,1.f}) {
+        require(reverbShapeCurved(0.f,curve)==0.f && reverbShapeCurved(1.f,curve)==1.f && std::abs(reverbShapeCurved(.5f,curve)-.5f)<1e-6f,"CURVE moves the ends or the middle of a shape");
+        for(float v=.001f;v<=1.f;v+=.001f)require(reverbShapeCurved(v,curve)>=reverbShapeCurved(v-.001f,curve),"CURVE makes a rising level fall");
+        require(curve>0?reverbShapeCurved(.25f,curve)<.25f && reverbShapeCurved(.75f,curve)>.75f:reverbShapeCurved(.25f,curve)>.25f && reverbShapeCurved(.75f,curve)<.75f,"CURVE bends the wrong way");
+    }
+    const auto steady=noise(9,9,21);std::string measured;
+    for(int model=0;model<5;++model) {
+        const auto plain=render(model,steady,steady,fixed({}));
+        const auto against=[&](const Wet& w,double from,double to){return db(w.power(from,to))-db(plain.power(from,to));};
+        // SECONDS: a Gate one second long, whatever the tempo and the host's position. The half second render() runs first is half a pass.
+        ReverbControls k;k.shape=reverbShapeGate;k.shapeInSeconds=true;k.shapeSeconds=1.f;
+        const auto slow=render(model,steady,steady,[k](double){auto c=k;c.tempo=60;return c;}),fast=render(model,steady,steady,[k](double t){auto c=k;c.tempo=180;c.ppq=t*3;return c;});
+        require(slow.left==fast.left && slow.right==fast.right,std::string(modelNames[model])+": a shape in seconds follows the tempo or the host's position");
+        require(std::abs(against(slow,5.6,5.9))<1 && against(slow,5.1,5.4)<-40 && std::abs(against(slow,6.6,6.9))<1 && against(slow,6.1,6.4)<-40,std::string(modelNames[model])+": a Gate one second long does not open and close each second");
+        // CURVE on the reverb: a hard Swell is lower than the Swell early in the bar and no lower late in it; a soft one the other way.
+        ReverbControls swell;swell.shape=reverbShapeSwell;auto hard=swell;hard.shapeCurve=1;auto soft=swell;soft.shapeCurve=-1;
+        const auto drawn=render(model,steady,steady,fixed(swell)),harder=render(model,steady,steady,fixed(hard)),softer=render(model,steady,steady,fixed(soft));
+        const double early=db(harder.power(5.8,6.0))-db(drawn.power(5.8,6.0)),earlySoft=db(softer.power(5.8,6.0))-db(drawn.power(5.8,6.0)),late=db(harder.power(7.0,7.2))-db(drawn.power(7.0,7.2));
+        require(early<-6 && earlySoft>3 && late>-.5,std::string(modelNames[model])+": CURVE does not bend the Swell (hard "+num(early,1)+" dB and soft "+num(earlySoft,1)+" dB early in the bar, hard "+num(late,1)+" dB late)");
+        measured+=std::string(model?" | ":"")+modelNames[model]+": hard "+num(early,1)+" dB, soft +"+num(earlySoft,1)+" dB early";
+    }
+    std::cout<<"MEASURE reverb shape curve (Swell, 120 BPM, one bar, against the Swell as drawn): "<<measured<<'\n';
+    // MORPH: with a Gate at no depth the level stays and only the tone follows: bright in the open half, dark in the closed one.
+    measured.clear();
+    for(int model=0;model<5;++model) {
+        const auto high=sine(9,8000),low=sine(9,150);
+        ReverbControls k;k.shape=reverbShapeGate;k.shapeDepth=0;k.shapeMorph=1;auto other=k;other.shapeMorph=-1;
+        const auto step=[&](const std::vector<float>& x,const ReverbControls& c){const auto w=render(model,x,x,fixed(c));return db(w.power(5.8,6.3))-db(w.power(6.8,7.3));};
+        const double top=step(high,k),bottom=step(low,k),topOther=step(high,other);
+        require(top>8 && bottom<-8 && topOther<-8,std::string(modelNames[model])+": MORPH does not move the tone with the shape (open half against closed: 8 kHz "+num(top,1)+" dB, 150 Hz "+num(bottom,1)+" dB, 8 kHz the other way "+num(topOther,1)+" dB)");
+        measured+=std::string(model?" | ":"")+modelNames[model]+": 8 kHz "+num(top,1)+" dB, 150 Hz "+num(bottom,1)+" dB";
+        // With the shape Off, MORPH, CURVE and the seconds are not there.
+        ReverbControls off;off.shapeMorph=1;off.shapeCurve=1;off.shapeInSeconds=true;off.shapeSeconds=.3f;
+        const auto burst=noise(3,.05,22);const auto plain=render(model,burst,burst,fixed({})),same=render(model,burst,burst,fixed(off));
+        require(plain.left==same.left && plain.right==same.right,std::string(modelNames[model])+": with the shape Off its other controls changed the reverb");
+    }
+    std::cout<<"MEASURE reverb shape morph (Gate at no depth; open half against closed half): "<<measured<<'\n';
+    std::cout<<"PASS more of the reverb shape: a length in seconds ignores the tempo and the host; CURVE bends the level and keeps its ends; MORPH moves the tone with the shape; none of them is there with the shape Off\n";
+}
 // DECAY (docs/POST_REVERB_DECAY.md): the time the reverb takes to fall 60 dB, whatever SIZE is.
 // Measured below 300 Hz, where DAMPING does not shorten the tail, from the backward-integrated decay after a
 // 50 ms burst of noise, fitted from -5 to -25 dB.
@@ -277,6 +320,7 @@ int main(int argc,char** argv) {
         if(only.empty() || only=="--defaults")backToDefaults();
         if(only.empty() || only=="--shape"){shapeLevels();shapeOnTheReverb();}
         if(only.empty() || only=="--decay")decay();
+        if(only.empty() || only=="--shape-more")shapeMore();
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
