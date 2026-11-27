@@ -252,12 +252,14 @@ void shapeMore() {
     // MORPH: with a Gate at no depth the level stays and only the tone follows: bright in the open half, dark in the closed one.
     measured.clear();
     for(int model=0;model<5;++model) {
-        const auto high=sine(9,8000),low=sine(9,150);
+        // Noise in, and the reverb's level above 4 kHz and below 300 Hz: a steady tone would beat in the models that are modulated.
         ReverbControls k;k.shape=reverbShapeGate;k.shapeDepth=0;k.shapeMorph=1;auto other=k;other.shapeMorph=-1;
-        const auto step=[&](const std::vector<float>& x,const ReverbControls& c){const auto w=render(model,x,x,fixed(c));return db(w.power(5.8,6.3))-db(w.power(6.8,7.3));};
-        const double top=step(high,k),bottom=step(low,k),topOther=step(high,other);
-        require(top>8 && bottom<-8 && topOther<-8,std::string(modelNames[model])+": MORPH does not move the tone with the shape (open half against closed: 8 kHz "+num(top,1)+" dB, 150 Hz "+num(bottom,1)+" dB, 8 kHz the other way "+num(topOther,1)+" dB)");
-        measured+=std::string(model?" | ":"")+modelNames[model]+": 8 kHz "+num(top,1)+" dB, 150 Hz "+num(bottom,1)+" dB";
+        const auto band=[](const Wet& w,bool top,double from,double to){const double pole=1-std::exp(-2*pi*(top?4000.:300.)/rate);double z=0,e=0;
+            for(size_t n=size_t((from-.2)*rate);n<size_t(to*rate);++n){z+=pole*(w.left[n]-z);const double v=top?w.left[n]-z:z;if(n>=size_t(from*rate))e+=v*v;}return db(e);};
+        const auto step=[&](bool top,const ReverbControls& c){const auto w=render(model,steady,steady,fixed(c));return band(w,top,5.8,6.3)-band(w,top,6.8,7.3);};
+        const double top=step(true,k),bottom=step(false,k),topOther=step(true,other);
+        require(top>4 && bottom<-4 && topOther<-4,std::string(modelNames[model])+": MORPH does not move the tone with the shape (open half against closed: above 4 kHz "+num(top,1)+" dB, below 300 Hz "+num(bottom,1)+" dB, above 4 kHz the other way "+num(topOther,1)+" dB)");
+        measured+=std::string(model?" | ":"")+modelNames[model]+": above 4 kHz "+num(top,1)+" dB, below 300 Hz "+num(bottom,1)+" dB";
         // With the shape Off, MORPH, CURVE and the seconds are not there.
         ReverbControls off;off.shapeMorph=1;off.shapeCurve=1;off.shapeInSeconds=true;off.shapeSeconds=.3f;
         const auto burst=noise(3,.05,22);const auto plain=render(model,burst,burst,fixed({})),same=render(model,burst,burst,fixed(off));
