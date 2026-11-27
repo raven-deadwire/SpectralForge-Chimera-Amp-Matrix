@@ -6,6 +6,8 @@
 // No JUCE types: SpatialModules.h is built by targets that link the DSP module only.
 namespace spectralforge {
 inline constexpr float reverbPreDelayMaxMs = 200.f, reverbLowCutMinHz = 20.f, reverbLowCutMaxHz = 500.f, reverbWidthMax = 2.f;
+// DECAY (docs/POST_REVERB_DECAY.md): below the minimum SIZE sets the decay, as it always did.
+inline constexpr float reverbDecayMinSeconds = .2f, reverbDecayMaxSeconds = 20.f;
 
 // What the audio thread reads for one slot's reverb.
 struct ReverbControls {
@@ -20,6 +22,7 @@ struct ReverbControls {
     int shapeLength{2};      // index into reverbShapeBeats
     double tempo{120.};      // beats per minute
     double ppq{std::numeric_limits<double>::quiet_NaN()};   // the host's quarter-note position at the block's first frame while it plays, else NaN
+    float decaySeconds{0.f}; // below reverbDecayMinSeconds: SIZE sets the decay; from there up: the time to fall 60 dB
 };
 enum ReverbShape {reverbShapeOff=0,reverbShapeSwell,reverbShapeReverse,reverbShapeGate,reverbShapeWave,reverbShapePump,reverbShapeCount};
 inline constexpr int reverbShapeLengthCount=4;

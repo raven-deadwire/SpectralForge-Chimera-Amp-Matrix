@@ -968,7 +968,7 @@ void processorInsertsAndPage() {
     writes.changes.clear();page.applyPatch(3);
     require(juce::roundToInt(raw("synthType"))==synthImpact && raw("synthOscBMode")<.5f && writes.changes.count(index("synthOscBRoot"))==0,"Mimir Impact patch: type, mode or kept root wrong");
     // Wavetable controls (docs/SYNTH_WAVETABLE.md): nine parameters at version hint 38, appended last.
-    {int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-postReverbShapeParameterCount;   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
+    {int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount);   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthWavetableParameterVersion){
         require(with->getParameterIndex()>=total-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+synthEffectsParameterCount) && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
      require(count==synthOscCount*synthWavetableParametersPerOsc && raw("synthOscATable")==0 && raw("synthOscAWarp")==0 && raw("synthOscAWarpAmount")==0,"Wavetable bank size or defaults wrong");
@@ -1052,7 +1052,7 @@ void processorInsertsAndPage() {
      require(page.control("synthMacro1")->isVisible() && page.control("synthMacro4")->isVisible() && !page.control("synthSeqGraph")->isVisible(),"MACRO does not show the macros");
      auto* macro=dynamic_cast<juce::Slider*>(page.control("synthMacro2"));require(macro!=nullptr && macro->getTextFromValue(35.0)=="MACRO 2   35 %" && macro->getHeight()>=16,"A macro bar is unnamed or too small");
      static_cast<juce::Button*>(page.control("synthModTabLFO"))->triggerClick();pumpNow();require(page.control("synthLfo2Sync")->isVisible(),"LFO does not come back");
-     int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-postReverbShapeParameterCount;   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
+     int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount);   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthSequencerParameterVersion){require(with->getParameterIndex()>=total-synthSequencerParameterCount-synthEffectsParameterCount && with->getParameterIndex()<total-synthEffectsParameterCount,"A sequencer parameter is not in its bank");++count;}
      require(count==synthSequencerParameterCount && synthSequencerParameterCount==48,"Sequencer bank size wrong");
      auto put=[&](const juce::String& pid,float v){auto* q=p->parameters().getParameter(pid);q->setValueNotifyingHost(q->convertTo0to1(v));};for(int k=0;k<synthSeqMaxSteps;++k)put(synthSeqStepID(k),0);}
@@ -1082,7 +1082,7 @@ void processorInsertsAndPage() {
      put("synthFxDelaySync",4);page.updateModes();require(!time->isEnabled(),"TIME is not dimmed while the delay follows the tempo");
      view->triggerClick();pumpNow();
      require(!page.effectsShown() && shown("synthAmpAttack") && shown("synthSubOn") && shown("synthModAdd") && shown("synthLfo1Rate") && !shown("synthSeqGraph") && !shown("synthFxChorusOn") && !shown("synthFxEqHigh"),"FX off does not bring the envelopes, LFOs and matrix back");
-     int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-postReverbShapeParameterCount;   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
+     int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount);   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthEffectsParameterVersion){
         require(with->getParameterIndex()==total-synthEffectsParameterCount+count && with->paramID==ids[count] && parameter->isAutomatable(),"An effect parameter is not in the last bank, in order");++count;}
      require(count==synthEffectsParameterCount && synthEffectsParameterCount==22,"Effect bank size wrong");
@@ -1241,7 +1241,7 @@ void processorInsertsAndPage() {
         if(presetDir!=juce::File()){page.setPresetDirectory(juce::File::createTempFile("none"));presetDir.deleteRecursively();}
     }
     // Filters and distortion (docs/SYNTH_FILTERS.md): thirteen parameters at version hint 39, appended last.
-    {int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-postReverbShapeParameterCount;   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
+    {int count=0;const int total=p->getParameters().size()-synthOscCount-postReverbControlsParameterCount-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount);   // the import switches (hint 42) and the POST reverb controls (hint 43) follow
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthFiltersParameterVersion){
         require(with->getParameterIndex()>=total-synthFiltersParameterCount-synthSequencerParameterCount-synthEffectsParameterCount && with->getParameterIndex()<total-synthSequencerParameterCount-synthEffectsParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
      const auto initial=[&](const char* id){auto* q=p->parameters().getParameter(id);return q->convertFrom0to1(q->getDefaultValue());};

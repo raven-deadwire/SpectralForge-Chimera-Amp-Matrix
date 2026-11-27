@@ -984,6 +984,7 @@ spectralforge::appendSynthTableImportParameters(p,spectralforge::synthOscCount);
 spectralforge::appendPostReverbControlParameters(p);
 // POST reverb tempo shape for every slot, version hint 44 (docs/POST_REVERB_SHAPE.md).
 spectralforge::appendPostReverbShapeParameters(p);
+spectralforge::appendPostReverbDecayParameters(p);
 return p;
 }
 

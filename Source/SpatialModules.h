@@ -237,17 +237,24 @@ public:
         const float toneTrim=juce::Decibels::decibelsToGain(-6.f*toneNow)/shelf[3],b0=shelf[0]*toneTrim,b1=shelf[1]*toneTrim,b2=shelf[2]*toneTrim,a1=shelf[4]/shelf[3],a2=shelf[5]/shelf[3];
         const float cutPole=spatial_detail::onePole(cutHz,rate);
         const bool cutting=cutHz>reverbLowCutMinHz;
-        for(size_t i=0;i<2;++i){juce::Reverb::Parameters p;p.roomSize=i==0 ? .25f+.45f*size : .6f+.36f*size;p.damping=damping;p.wetLevel=1;p.dryLevel=0;p.width=i==0 ? .7f : 1;p.freezeMode=freeze?1.f:0.f;rooms[i].setParameters(p);wet[i].makeCopyOf(feed,true);if(!on)wet[i].clear();}
+        // DECAY: from its minimum up it is the time to fall 60 dB and SIZE no longer sets the decay. A loop of
+        // `seconds` falls 60 dB in the decay time when its gain is loopGain(seconds).
+        const float decay=juce::jlimit(0.f,reverbDecayMaxSeconds,k.decaySeconds);const bool timed=decay>=reverbDecayMinSeconds;
+        const auto loopGain=[decay](double seconds){return float(std::pow(10.,-3.*seconds/double(decay)));};
+        // The two rooms: juce::Reverb's eight combs average 1378 samples at 44.1 kHz and recirculate by .7+.28*roomSize.
+        const float timedRoom=timed?(loopGain(1378./44100.)-.7f)/.28f:0.f;
+        for(size_t i=0;i<2;++i){juce::Reverb::Parameters p;p.roomSize=timed ? timedRoom : i==0 ? .25f+.45f*size : .6f+.36f*size;p.damping=damping;p.wetLevel=1;p.dryLevel=0;p.width=i==0 ? .7f : 1;p.freezeMode=freeze?1.f:0.f;rooms[i].setParameters(p);wet[i].makeCopyOf(feed,true);if(!on)wet[i].clear();}
         for(int n=0;n<b.getNumSamples();++n){phase+=.17/rate;phase-=std::floor(phase);for(int c=0;c<b.getNumChannels();++c){const float x=wet[1].getSample(c,n),delay=float(rate)*(.022f+.014f*size+.001f*std::sin(float(juce::MathConstants<double>::twoPi*(phase+c*.3))));wet[1].setSample(c,n,hallPre.popSample(c,delay));hallPre.pushSample(c,x);}}
         for(size_t i=0;i<2;++i){juce::dsp::AudioBlock<float> block(wet[i]);juce::dsp::ProcessContextReplacing<float> context(block);rooms[i].process(context);}
         const float lp=float(1-std::exp(-juce::MathConstants<double>::twoPi*(1800+5000*(1-damping))/rate));
         // Hall Prime 1.2-6 s, Void Space 6-60 s, Gated Room a 1 s network
         // gated 100-600 ms after each attack (SIZE); DAMPING closes the loops.
         // Frozen: the networks stop decaying and their loops are not damped; the spring's loop is closed.
-        const double hallT60=freeze?1e9:1.2+4.8*size,voidT60=freeze?1e9:6.+54.*size,roomT60=freeze?1e9:1.;
+        const double hallT60=freeze?1e9:timed?double(decay):1.2+4.8*size,voidT60=freeze?1e9:timed?double(decay):6.+54.*size,roomT60=freeze?1e9:timed?juce::jmax(1.,double(decay)):1.;
         const float loopPole=freeze?1.f:spatial_detail::onePole(2000.+10000.*(1.-damping),rate);
-        const float springPole=freeze?1.f:lp,springFeedback=freeze?.9995f:.35f+.5f*size;
-        const int holdTime=int(rate*(.1+.5*size)),close=int(rate*.015);
+        const float springPole=freeze?1.f:lp,springFeedback=freeze?.9995f:timed?juce::jmin(.995f,loopGain(.034+.039*double(size))):.35f+.5f*size;
+        // The Gated Room's gate stays open for the decay time (up to 5 s) when DECAY sets it.
+        const int holdTime=int(rate*(timed?juce::jlimit(.05,5.,double(decay)):.1+.5*size)),close=int(rate*.015);
         for(auto& channel:networks){channel[0].setScale(.8+.6*size);channel[1].setScale(1.6+1.6*size);channel[2].setScale(.5);}
         const float gateThreshold=juce::Decibels::decibelsToGain(-40.f),gatePole=float(1-std::exp(-1./(rate*.03)));
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();

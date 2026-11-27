@@ -414,14 +414,14 @@ void secondSlotsBank() {
         // The CREATIVE page's slot-2 copies came later, at their own version (docs/CREATIVE_PAGE.md).
         // Slots 3 and 4 came later still, all at version 37 (docs/POST_FOUR_SLOTS.md).
         // The reverb controls of every slot came together, at version 43 (docs/POST_REVERB_CONTROLS.md).
-        const bool reverbControl=r->getVersionHint()==postReverbControlsParameterVersion || r->getVersionHint()==postReverbShapeParameterVersion;   // and their tempo shape, at version 44
+        const bool reverbControl=isPostReverbAddedVersion(r->getVersionHint());   // with their tempo shape (44) and decay (45)
         const bool late=!r->getParameterID().startsWith("slot2_"),page=late || reverbControl || r->getVersionHint()==creativePageParameterVersion;
         require(r->getVersionHint()==(reverbControl?r->getVersionHint():late?postExtraSlotParameterVersion:page?creativePageParameterVersion:postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
                 && r->getNormalisableRange().start==original->getNormalisableRange().start && r->getNormalisableRange().end==original->getNormalisableRange().end,"Second-slot definition differs from slot 1: "+r->getParameterID().toStdString());
         if(!page)++copies;}
     require(copies+postSecondSlotOrderParameterCount==postSecondSlotParameterCount(),"Second-slot bank size");
     // Automation of released parameters still targets slot 1: same IDs, same indices.
-    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+(synthTableImportParameterCount+postReverbControlsParameterCount+postReverbShapeParameterCount))),"A released ID moved");
+    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+(synthTableImportParameterCount+postReverbControlsParameterCount+(postReverbShapeParameterCount+postReverbAfterShapeParameterCount)))),"A released ID moved");
     std::cout<<"MEASURE second-slot bank: "<<postSecondSlotParameterCount()<<" parameters at version "<<postSecondSlotParameterVersion<<" ("<<copies<<" slot2_ copies + "<<postSecondSlotOrderParameterCount<<" order slots), all off by default\n";
     std::cout<<"PASS second slots: appended bank, slot 1 definitions, off by default, released IDs unchanged\n";
 }
@@ -579,7 +579,7 @@ void extraSlotsBank() {
     auto p=make();int bank=0,order=0;std::array<int,postSlotCount> copies{};
     const int total=p->getParameters().size();
     for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getVersionHint()==postExtraSlotParameterVersion){
-        require(r->getParameterIndex()>=total-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+(synthTableImportParameterCount+postReverbControlsParameterCount+postReverbShapeParameterCount))),"A slot 3 / 4 parameter is not in the last bank");++bank;
+        require(r->getParameterIndex()>=total-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+(synthTableImportParameterCount+postReverbControlsParameterCount+(postReverbShapeParameterCount+postReverbAfterShapeParameterCount)))),"A slot 3 / 4 parameter is not in the last bank");++bank;
         if(r->getParameterID().startsWith("orderPost")){++order;continue;}
         const int slot=r->getParameterID().startsWith("slot3_")?2:r->getParameterID().startsWith("slot4_")?3:-1;require(slot>0,"Unexpected ID in the slot 3 / 4 bank: "+r->getParameterID().toStdString());
         ++copies[size_t(slot)];
@@ -588,7 +588,7 @@ void extraSlotsBank() {
         require(r->getDefaultValue()==twin->getDefaultValue() && r->isAutomatable()==twin->isAutomatable() && r->getNormalisableRange().start==twin->getNormalisableRange().start && r->getNormalisableRange().end==twin->getNormalisableRange().end
                 && r->getName(64).endsWith("(slot "+juce::String(slot+1)+")"),"Slot definition differs from slot 2: "+r->getParameterID().toStdString());}
     // Slot 2's reverb controls are not part of what slots 3 and 4 copied: theirs sit in the reverb controls bank (version 43).
-    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_") && r->getVersionHint()!=postReverbControlsParameterVersion && r->getVersionHint()!=postReverbShapeParameterVersion;
+    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_") && !isPostReverbAddedVersion(r->getVersionHint());
     require(bank==postExtraSlotParameterCount() && order==postExtraSlotOrderParameterCount && copies[2]==slot2 && copies[3]==slot2,"Slot 3 / 4 bank size");
     for(int block=postModuleCount;block<postBlockCount;++block)require(!p->postBlockOn(block) && !p->postBlockShown(block),"A slot 2-4 block starts on");
     for(int block=0;block<postModuleCount;++block)require(p->postBlockShown(block),"A slot 1 block is hidden");
@@ -769,7 +769,7 @@ void reverbControlsBank() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbControlsParameterVersion) {
         const int slot=count/postReverbControlsPerSlot,control=count%postReverbControlsPerSlot;const auto& spec=reverbControlSpecs[size_t(control)];
-        require(with->getParameterIndex()==total-postReverbControlsParameterCount-postReverbShapeParameterCount+count && with->paramID==reverbControlID(slot,control) && parameter->isAutomatable(),"A reverb control is not in the last bank, slot 1 first");
+        require(with->getParameterIndex()==total-postReverbControlsParameterCount-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount)+count && with->paramID==reverbControlID(slot,control) && parameter->isAutomatable(),"A reverb control is not in the last bank, slot 1 first");
         require(with->getName(64)==postSlotName(slot,spec.name),"A reverb control has the wrong host name: "+with->getName(64).toStdString());
         require(std::abs(get(*p,with->paramID)-spec.initial)<1e-6f,"A reverb control does not start at its default: "+with->paramID.toStdString());++count;}
     require(count==postReverbControlsParameterCount && count==20,"The reverb controls bank is not five parameters for each of four slots");
@@ -837,7 +837,7 @@ void reverbShape() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbShapeParameterVersion) {
         const int slot=count/postReverbShapePerSlot,control=count%postReverbShapePerSlot;
-        require(with->getParameterIndex()==total-postReverbShapeParameterCount+count && with->paramID==reverbShapeID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeNames[size_t(control)]),"A reverb shape parameter is not in the last bank, slot 1 first, under its name");++count;}
+        require(with->getParameterIndex()==total-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount)+count && with->paramID==reverbShapeID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeNames[size_t(control)]),"A reverb shape parameter is not in the last bank, slot 1 first, under its name");++count;}
     require(count==postReverbShapeParameterCount && count==12,"The reverb shape bank is not three parameters for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeID(slot,0))==0 && get(*p,reverbShapeID(slot,1))==1 && juce::roundToInt(get(*p,reverbShapeID(slot,2)))==reverbShapeDefaultLength,"A reverb shape does not start Off, at full depth and one bar");
     // Through the processor at 120 BPM, one bar: the Gate lets the reverb through for a second and closes it for a second.
@@ -866,12 +866,42 @@ void reverbShape() {
     std::cout<<"MEASURE reverb shape through the processor (Gate, 120 BPM, one bar; difference from the plain reverb): "<<open<<" dB in the open half, "<<closed<<" dB in the closed half\n";
     std::cout<<"PASS reverb shape: 12 parameters at version 44, last; the Gate opens and closes the reverb through the processor; each slot its own; saved, loaded, and Off in an older project\n";
 }
+// DECAY (docs/POST_REVERB_DECAY.md): four parameters at version 45, last; through the processor; saved and loaded.
+void reverbDecay() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbDecayParameterVersion) {
+        require(with->getParameterIndex()==total-postReverbDecayParameterCount+count && with->paramID==reverbDecayID(count) && parameter->isAutomatable() && with->getName(64)==postSlotName(count,"Reverb decay"),"A reverb decay parameter is not in the last bank, slot 1 first, under its name");++count;}
+    require(count==postReverbDecayParameterCount && count==4 && postReverbAfterShapeParameterCount==postReverbDecayParameterCount,"The reverb decay bank is not one parameter for each of four slots");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbDecayID(slot))==0,"A reverb decay does not start with SIZE setting it");
+    {auto* q=p->parameters().getParameter("reverbdecay");require(q->getText(q->convertTo0to1(0),32)=="SIZE" && q->getText(q->convertTo0to1(2.5f),32)=="2.50 s" && std::abs(q->convertFrom0to1(q->getValueForText("SIZE")))<1e-6f && std::abs(q->convertFrom0to1(q->getValueForText("3.5 s"))-3.5f)<1e-3f,"The reverb decay does not read as SIZE or as seconds");}
+    // Through the processor: a burst of tone, then silence. A long DECAY leaves more a second later than SIZE alone; a short one less.
+    const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
+        std::vector<float> in(size_t(rate*4),0.f);for(size_t n=size_t(rate);n<size_t(rate*1.5);++n)in[n]=float(.05*std::sin(2*pi*220*double(n)/rate));return renderInput(*q,in);};
+    const auto level=[](const std::vector<float>& x){double e=0;for(size_t n=size_t(rate*2.5);n<size_t(rate*3);++n)e+=double(x[n])*x[n];return db(std::sqrt(e/(rate*.5)));};
+    const auto plain=render({}),longer=render([](ChimeraProcessor& q){set(q,"reverbdecay",12);}),shorter=render([](ChimeraProcessor& q){set(q,"reverbdecay",.3f);});
+    require(level(longer)>level(plain)+6 && level(shorter)<level(plain)-6,"DECAY does not lengthen and shorten the reverb through the processor (a second after the note: SIZE alone "+std::to_string(level(plain))+" dB, 12 s "+std::to_string(level(longer))+" dB, 0.3 s "+std::to_string(level(shorter))+" dB)");
+    // Each slot has its own, and a switched-off slot's decay changes nothing.
+    const auto other=render([](ChimeraProcessor& q){set(q,"slot2_reverbdecay",5);set(q,"slot3_reverbdecay",.5f);set(q,"slot4_reverbdecay",20);});
+    require(other==plain,"A switched-off slot's reverb decay changed the sound");
+    // Saved and loaded; an older project loads with SIZE setting the decay.
+    auto source=make();for(int slot=0;slot<postSlotCount;++slot)set(*source,reverbDecayID(slot),1.5f+float(slot));
+    juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)require(std::abs(get(*loaded,reverbDecayID(slot))-get(*source,reverbDecayID(slot)))<1e-3f,"A reverb decay did not come back from a saved project");
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.contains("reverbdecay")){tree.removeChild(i,nullptr);++removed;}}
+    require(removed==postReverbDecayParameterCount,"The saved project does not hold every reverb decay");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbDecayID(slot))==0,"A project saved before the reverb decay did not load with SIZE setting it");
+    std::cout<<"MEASURE reverb decay through the processor (a second after the note): SIZE alone "<<level(plain)<<" dB, 12 s "<<level(longer)<<" dB, 0.3 s "<<level(shorter)<<" dB\n";
+    std::cout<<"PASS reverb decay: 4 parameters at version 45, last; it lengthens and shortens the reverb through the processor; each slot its own; saved, loaded, and SIZE in an older project\n";
+}
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
     try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();
         secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();
         extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();extraSlotsPage();
-        reverbControlsBank();reverbControlsAudio();reverbControlsState();reverbShape();}
+        reverbControlsBank();reverbControlsAudio();reverbControlsState();reverbShape();reverbDecay();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
