@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "SynthLayer.h"
 #include "SynthSampleIO.h"
+#include "SynthPresets.h"
 #include "RasterArtwork.h"
 
 // The SYNTH page (docs/SYNTH_PAGE.md): oscillators with live wave displays, a
@@ -480,7 +481,7 @@ private:
     ChimeraProcessor& processor;
 };
 
-class SynthPage final : public juce::Component,private juce::Timer {
+class SynthPage final : public juce::Component,private juce::Timer,private juce::ListBoxModel {
 public:
     explicit SynthPage(ChimeraProcessor& owner):processor(owner),state(owner.parameters()),filter(state,owner.getSampleRate()>0?owner.getSampleRate():48000.0),
         ampEnvelope(state,"synthAmp"),modEnvelope(state,"synthModEnv"),lfoGraphs{LfoGraph(state,owner,0),LfoGraph(state,owner,1)},seqGraph(state,owner),scope(owner) {
@@ -495,9 +496,37 @@ public:
          character=static_cast<juce::Slider*>(add(std::move(c)));}
         source=add(std::make_unique<Choice>(state,"synthSource",synthSourceNames(),"Played by the guitar, MIDI or both (a held MIDI note wins)"));
         insert=add(std::make_unique<Choice>(state,"synthInsert",synthInsertNames(),"Where the synth joins the guitar signal"));
-        patch.setComponentID("synthPatch");patch.setTooltip("Load a patch: every synth parameter is set, one host gesture each");
-        {int id=1;for(const auto& p:synthPatches())patch.addItem(p.name,id++);}
-        patch.setTextWhenNothingSelected("PATCH");patch.onChange=[this]{applyPatch(patch.getSelectedId()-1);};addAndMakeVisible(patch);
+        // Presets (docs/SYNTH_PRESETS.md): previous / name / next in the top bar; the name opens the browser in the lower row.
+        presetPrev.setComponentID("synthPresetPrev");presetPrev.setTitle("Previous preset");presetPrev.setTooltip("Load the previous preset in the browser's list");presetPrev.onClick=[this]{stepPreset(-1);};
+        presetNext.setComponentID("synthPresetNext");presetNext.setTitle("Next preset");presetNext.setTooltip("Load the next preset in the browser's list");presetNext.onClick=[this]{stepPreset(1);};
+        presetButton.setComponentID("synthPreset");presetButton.setClickingTogglesState(true);
+        presetButton.setColour(juce::TextButton::buttonOnColourId,accentColour);presetButton.setColour(juce::TextButton::textColourOnId,juce::Colour(0xff111414));
+        presetButton.onClick=[this]{showPresets(presetButton.getToggleState());};
+        for(juce::Button* b:{static_cast<juce::Button*>(&presetPrev),static_cast<juce::Button*>(&presetButton),static_cast<juce::Button*>(&presetNext)})addAndMakeVisible(*b);
+        presets=synthPresets::factory();
+        presetList.setComponentID("synthPresetList");presetList.setTitle("Presets");presetList.setModel(this);presetList.setRowHeight(17);
+        presetList.setColour(juce::ListBox::backgroundColourId,juce::Colour(0xff0e1414));presetList.setColour(juce::ListBox::outlineColourId,edgeColour);presetList.setOutlineThickness(1);presetList.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId,mutedColour);
+        presetBank.setComponentID("synthPresetBank");presetBank.setTitle("Preset bank");presetBank.addItemList({"ALL PRESETS","FACTORY","USER"},1);presetBank.setSelectedId(1,juce::dontSendNotification);
+        presetBank.setTooltip("Show every preset, the built-in ones, or the ones you saved");
+        presetType.setComponentID("synthPresetType");presetType.setTitle("Preset type");presetType.addItem("ALL TYPES",1);
+        {int id=2;for(const auto& name:synthPresets::categories())presetType.addItem(name.toUpperCase(),id++);}
+        presetType.setSelectedId(1,juce::dontSendNotification);presetType.setTooltip("Show one type of preset");
+        presetBank.onChange=presetType.onChange=[this]{filterPresets();};
+        const auto editor=[](juce::TextEditor& e,const char* id,const char* title,const char* empty){
+            e.setComponentID(id);e.setTitle(title);e.setTextToShowWhenEmpty(empty,mutedColour);e.setFont(juce::FontOptions(12.f));e.setInputRestrictions(synthPresets::maxNameLength);
+            e.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff0e1414));e.setColour(juce::TextEditor::textColourId,inkColour);e.setColour(juce::TextEditor::outlineColourId,edgeColour);e.setColour(juce::TextEditor::focusedOutlineColourId,accentColour);};
+        editor(presetSearch,"synthPresetSearch","Search presets","SEARCH");presetSearch.onTextChange=[this]{filterPresets();};
+        editor(presetNameEditor,"synthPresetName","Preset name","NAME");presetNameEditor.onTextChange=[this]{disarmPresetButtons();};presetNameEditor.onReturnKey=[this]{savePreset();};
+        presetSaveType.setComponentID("synthPresetSaveType");presetSaveType.setTitle("Type of the preset to save");presetSaveType.addItemList(synthPresets::categories(),1);
+        presetSaveType.setSelectedId(synthPresets::categories().size(),juce::dontSendNotification);presetSaveType.setTooltip("The type the preset is saved under");
+        presetSave.setButtonText("SAVE");presetSave.setComponentID("synthPresetSave");presetSave.setTooltip("Save the synth's settings as a preset on this computer. Routing, level, the on switch and loaded samples are not part of a preset.");presetSave.onClick=[this]{savePreset();};
+        presetDelete.setButtonText("DELETE");presetDelete.setComponentID("synthPresetDelete");presetDelete.setTooltip("Delete the loaded preset's file. Built-in presets cannot be deleted.");presetDelete.onClick=[this]{deletePreset();};
+        presetFolder.setButtonText("OPEN FOLDER");presetFolder.setComponentID("synthPresetFolder");presetFolder.setTooltip("Show the folder your presets are kept in. Copy preset files in or out of it to share them.");
+        presetFolder.onClick=[this]{if(presetDirectory.isDirectory()||presetDirectory.createDirectory())presetDirectory.revealToUser();else presetStatus.setText("The preset folder could not be created.",juce::dontSendNotification);};
+        for(auto* l:{&presetStatus,&presetCount}){l->setFont(juce::FontOptions(10.f));l->setColour(juce::Label::textColourId,mutedColour);l->setJustificationType(juce::Justification::topLeft);l->setMinimumHorizontalScale(1.f);}
+        presetStatus.setComponentID("synthPresetStatus");presetCount.setComponentID("synthPresetCount");
+        presetView_={&presetList,&presetBank,&presetType,&presetSearch,&presetNameEditor,&presetSaveType,&presetSave,&presetDelete,&presetFolder,&presetStatus,&presetCount};
+        for(auto* c:presetView_)addChildComponent(*c);
         for(const auto* id:{"synthVoices","synthOctave"}){auto s=std::make_unique<Knob>(state,id,juce::String(id)=="synthVoices"?"VOICES":"OCTAVE");header.push_back(s.get());add(std::move(s));}
         // Oscillators A, B and C
         for(int o=0;o<synthOscCount;++o){
@@ -631,22 +660,74 @@ public:
         for(auto& b:modTabs)voiceView.push_back(&b);
         for(int l=0;l<2;++l)for(juce::Component* c:{lfoShape[size_t(l)],lfoSync[size_t(l)],static_cast<juce::Component*>(lfoRate[size_t(l)]),static_cast<juce::Component*>(&lfoGraphs[size_t(l)])})voiceView.push_back(c);
         for(auto* m:macros)voiceView.push_back(m);
-        showEffects(false);
+        setLowerView(0);
+        syncCurrentPreset(true);
         updateModes();
         startTimerHz(20);
     }
     ~SynthPage() override {stopTimer();setLookAndFeel(nullptr);}
-    // Writes a patch: every synth parameter except those synthPatchKeeps() names, each as one gesture.
-    void applyPatch(int index) {
-        const auto patches=synthPatches();if(index<0||index>=int(patches.size()))return;
-        for(auto* raw:processor.getParameters()){
-            auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw);if(parameter==nullptr||!parameter->getParameterID().startsWith("synth")||synthPatchKeeps(parameter->getParameterID()))continue;
-            float value=parameter->convertFrom0to1(parameter->getDefaultValue());
-            for(const auto& [id,v]:patches[size_t(index)].values)if(id==parameter->getParameterID())value=v;
-            const float normal=parameter->convertTo0to1(value);if(std::abs(normal-parameter->getValue())<1e-6f)continue;
+    // Loads a factory patch by its index.
+    void applyPatch(int index) {if(index>=0&&index<int(synthPatches().size()))applyPreset(index);}
+    // Loads a preset from the list: every synth parameter except those
+    // synthPatchKeeps() names is set, each as one gesture; parameters the
+    // preset does not name return to their defaults.
+    void applyPreset(int index) {
+        if(index<0||index>=int(presets.size()))return;
+        const auto preset=presets[size_t(index)];
+        for(const auto& [parameter,normal]:presetNormals(preset)){
+            if(std::abs(normal-parameter->getValue())<1e-6f)continue;
             parameter->beginChangeGesture();parameter->setValueNotifyingHost(normal);parameter->endChangeGesture();
         }
+        setCurrentPreset(preset.name,preset.user);
         updateModes();repaint();
+    }
+    // The preset browser in the lower row (a view of the page, not a parameter).
+    void showPresets(bool show) {setLowerView(show?2:0);}
+    bool presetsShown() const noexcept {return lowerView==2;}
+    // Where user presets are read and saved (tests point this at a temporary folder).
+    void setPresetDirectory(const juce::File& directory) {presetDirectory=directory;listed=false;refreshPresets();}
+    juce::String currentPresetName() const {return currentPreset;}
+    bool currentPresetEdited() {syncCurrentPreset(false);return presetEdited;}
+    int presetsListed() const noexcept {return int(shownPresets.size());}
+    juce::String presetNameAt(int row) const {return row>=0&&row<int(shownPresets.size())?presets[size_t(shownPresets[size_t(row)])].name:juce::String();}
+    // Previous / next in the browser's list as it is filtered, wrapping round.
+    void stepPreset(int delta) {
+        if(!listed)refreshPresets();
+        const int count=int(shownPresets.size());if(count==0)return;
+        const int current=currentPresetIndex();int row=-1;for(int i=0;i<count;++i)if(shownPresets[size_t(i)]==current)row=i;
+        row=row<0?(delta>0?0:count-1):((row+delta)%count+count)%count;
+        applyPreset(shownPresets[size_t(row)]);
+    }
+    // Saves the current settings under the name in the browser. A second press is needed to replace a preset of that name.
+    void savePreset() {
+        if(!listed)refreshPresets();
+        const auto name=synthPresets::cleanName(presetNameEditor.getText());
+        if(name.isEmpty()){disarmPresetButtons();presetStatus.setText(presetNameEditor.getText().trim().isEmpty()?"Type a name for the preset.":"That name cannot be used as a file name.",juce::dontSendNotification);return;}
+        bool exists=false;for(const auto& p:presets)exists=exists||(p.user&&p.name.equalsIgnoreCase(name));
+        if(exists&&!confirmSave){disarmPresetButtons();confirmSave=true;presetSave.setButtonText("REPLACE?");presetStatus.setText("\""+name+"\" exists. Press REPLACE? to overwrite it.",juce::dontSendNotification);return;}
+        const auto result=synthPresets::write(presetDirectory,synthPresets::capture(processor,name,presetSaveType.getText()));
+        disarmPresetButtons();
+        if(result.failed()){presetStatus.setText(result.getErrorMessage(),juce::dontSendNotification);return;}
+        refreshPresets();setCurrentPreset(name,true);
+        presetStatus.setText("Saved \""+name+"\".",juce::dontSendNotification);
+    }
+    // Deletes the loaded user preset's file, on the second press. The sound stays as it is.
+    void deletePreset() {
+        if(!listed)refreshPresets();
+        const int index=currentPresetIndex();
+        if(index<0||!presets[size_t(index)].user){disarmPresetButtons();presetStatus.setText("Load one of your own presets to delete it.",juce::dontSendNotification);return;}
+        const auto preset=presets[size_t(index)];
+        if(!confirmDelete){disarmPresetButtons();confirmDelete=true;presetDelete.setButtonText("SURE?");presetStatus.setText("Press SURE? to delete \""+preset.name+"\".",juce::dontSendNotification);return;}
+        const auto result=synthPresets::remove(presetDirectory,preset);
+        disarmPresetButtons();
+        if(result.failed()){presetStatus.setText(result.getErrorMessage(),juce::dontSendNotification);return;}
+        setCurrentPreset({},false);refreshPresets();
+        presetStatus.setText("Deleted \""+preset.name+"\".",juce::dontSendNotification);
+    }
+    // Reads the folder again and shows the list as it is filtered.
+    void refreshPresets() {
+        presets=synthPresets::list(presetDirectory,&unreadablePresets);listed=true;
+        filterPresets();syncCurrentPreset(true);
     }
     void paint(juce::Graphics& g) override {
         // The engine's strip behind the top bar (Tools/generate_post_rack_faces.py),
@@ -655,8 +736,9 @@ public:
         art::synthStrip(g,{0.f,0.f,float(getWidth()),26.f},shownType,false);
         g.setColour(juce::Colours::black.withAlpha(.35f));g.fillRect(0,0,getWidth(),26);
         std::vector<std::pair<juce::Rectangle<int>,const char*>> drawn;
-        {const auto all=panels();for(size_t i=0;i<all.size();++i)if(!(fxView && i>=4 && i<=8))drawn.push_back(all[i]);}
-        if(fxView)for(const auto& area:effectPanels())drawn.push_back({area,""});
+        {const auto all=panels();for(size_t i=0;i<all.size();++i)if(!(lowerView!=0 && i>=4 && i<=8))drawn.push_back(all[i]);}
+        if(lowerView==1)for(const auto& area:effectPanels())drawn.push_back({area,""});
+        if(lowerView==2)drawn.push_back({presetPanel(),"PRESETS"});
         for(const auto& [area,title]:drawn){
             g.setColour(panelColour);g.fillRoundedRectangle(area.toFloat(),5);g.setColour(edgeColour);g.drawRoundedRectangle(area.toFloat().reduced(.5f),5,1);
             g.setColour(mutedColour);g.setFont(juce::FontOptions(10.f,juce::Font::bold));g.drawText(title,area.reduced(8,4).removeFromTop(14),juce::Justification::centredRight);
@@ -675,10 +757,11 @@ public:
         auto top=getLocalBounds().removeFromTop(26);
         on->setBounds(top.removeFromLeft(80).reduced(0,1));top.removeFromLeft(6);
         type->setBounds(top.removeFromLeft(298).reduced(0,1));top.removeFromLeft(6);
-        character->setBounds(top.removeFromLeft(140).reduced(0,2));top.removeFromLeft(6);
+        character->setBounds(top.removeFromLeft(124).reduced(0,2));top.removeFromLeft(6);
         source->setBounds(top.removeFromLeft(118).reduced(0,1));top.removeFromLeft(6);
         insert->setBounds(top.removeFromLeft(118).reduced(0,1));top.removeFromLeft(6);
-        patch.setBounds(top.removeFromLeft(102).reduced(0,1));top.removeFromLeft(6);
+        presetPrev.setBounds(top.removeFromLeft(16).reduced(2,6));top.removeFromLeft(2);presetButton.setBounds(top.removeFromLeft(104).reduced(0,1));top.removeFromLeft(2);
+        presetNext.setBounds(top.removeFromLeft(16).reduced(2,6));top.removeFromLeft(6);
         fxButton.setBounds(top.removeFromLeft(38).reduced(0,1));top.removeFromLeft(6);
         for(size_t i=0;i<header.size();++i){auto* k=header[i];k->setCompact();k->setBounds(top.removeFromLeft(std::min(100,top.getWidth()/int(header.size()-i))).reduced(0,1));k->setIncDec(i==0?" VOICES":" OCT");top.removeFromLeft(4);}
         const auto p=panels();
@@ -731,6 +814,12 @@ public:
             const int count=int(panel.knobs.size()),perRow=count==4?2:count,rows=(count+perRow-1)/perRow,rowHeight=juce::jmin(76,r.getHeight()/rows);
             r=r.withSizeKeepingCentre(r.getWidth(),rowHeight*rows);
             for(int k=0;k<count;++k){if(k%perRow==0)head=r.removeFromTop(rowHeight);panel.knobs[size_t(k)]->setBounds(head.removeFromLeft(head.getWidth()/(perRow-k%perRow)));}}}
+        {auto r=presetPanel().reduced(8,6);r.removeFromTop(16);
+         auto left=r.removeFromLeft(150);r.removeFromLeft(8);auto right=r.removeFromRight(200);r.removeFromRight(8);presetList.setBounds(r);
+         presetBank.setBounds(left.removeFromTop(20));left.removeFromTop(4);presetType.setBounds(left.removeFromTop(20));left.removeFromTop(4);presetSearch.setBounds(left.removeFromTop(20));left.removeFromTop(4);presetCount.setBounds(left);
+         presetNameEditor.setBounds(right.removeFromTop(20));right.removeFromTop(4);presetSaveType.setBounds(right.removeFromTop(20));right.removeFromTop(4);
+         {auto row=right.removeFromTop(20);presetSave.setBounds(row.removeFromLeft(row.getWidth()/2-2));row.removeFromLeft(4);presetDelete.setBounds(row);}
+         right.removeFromTop(4);presetFolder.setBounds(right.removeFromTop(18));right.removeFromTop(4);presetStatus.setBounds(right);}
         {auto r=p[8].first.reduced(8,6);r.removeFromTop(16);auto sub=r.removeFromTop(r.getHeight()/2);
          auto head=sub.removeFromTop(18);subOn->setBounds(head.removeFromLeft(50));sub.removeFromTop(3);
          auto menus=sub.removeFromLeft(sub.getWidth()*3/5);subOctave->setBounds(menus.removeFromTop(20));menus.removeFromTop(3);subShape->setBounds(menus.removeFromTop(20));
@@ -810,15 +899,8 @@ static const std::array<std::pair<const char*,int>,8> direct{{{"synthFM",targetF
     }
     StepGraph& stepGraph() noexcept {return seqGraph;}
     // The effect rack, or the envelopes, LFOs, matrix and sub / noise, in the lower row (a view of the page, not a parameter).
-    void showEffects(bool show) {
-        fxView=show;fxButton.setToggleState(show,juce::dontSendNotification);
-        for(auto* c:voiceView)c->setVisible(!show);
-        for(auto& panel:fxPanels){panel.on->setVisible(show);for(auto* k:panel.knobs)k->setVisible(show);}
-        fxDelaySync->setVisible(show);fxDelayPingPong->setVisible(show);
-        if(!show){showModTab(modTab);layoutMatrix();}
-        updateModes();repaint();
-    }
-    bool effectsShown() const noexcept {return fxView;}
+    void showEffects(bool show) {setLowerView(show?1:0);}
+    bool effectsShown() const noexcept {return lowerView==1;}
     void mouseDown(const juce::MouseEvent& e) override {
         if(!e.mods.isPopupMenu() || e.eventComponent==nullptr || e.eventComponent==this)return;
         const int target=modTargetFor(e.eventComponent->getComponentID());if(target<=0)return;
@@ -875,6 +957,96 @@ private:
         for(int e=0;e<synthEffectCount;++e)areas[size_t(e)]={x+e*w,y,(e==synthEffectCount-1?right-(x+e*w):w-gap),h};
         return areas;
     }
+    // The browser's panel: across the envelopes, LFOs, matrix and sub / noise.
+    juce::Rectangle<int> presetPanel() const {const auto p=panels();return p[4].first.getUnion(p[8].first);}
+    // 0: envelopes, LFOs, matrix, sub / noise. 1: the effect rack. 2: the preset browser.
+    void setLowerView(int view) {
+        lowerView=juce::jlimit(0,2,view);
+        fxButton.setToggleState(lowerView==1,juce::dontSendNotification);presetButton.setToggleState(lowerView==2,juce::dontSendNotification);
+        for(auto* c:voiceView)c->setVisible(lowerView==0);
+        for(auto& panel:fxPanels){panel.on->setVisible(lowerView==1);for(auto* k:panel.knobs)k->setVisible(lowerView==1);}
+        fxDelaySync->setVisible(lowerView==1);fxDelayPingPong->setVisible(lowerView==1);
+        for(auto* c:presetView_)c->setVisible(lowerView==2);
+        if(lowerView==0){showModTab(modTab);layoutMatrix();}
+        if(lowerView==2){disarmPresetButtons();presetStatus.setText({},juce::dontSendNotification);refreshPresets();}
+        updateModes();repaint();
+    }
+    // Every parameter a preset carries with the normalised value the preset gives it (its default when unnamed), as the parameter will hold it.
+    std::vector<std::pair<juce::RangedAudioParameter*,float>> presetNormals(const SynthPreset& preset) const {
+        std::vector<std::pair<juce::RangedAudioParameter*,float>> out;
+        for(auto* raw:processor.getParameters()){
+            auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw);if(parameter==nullptr||!synthPresets::carries(parameter->getParameterID()))continue;
+            float normal=parameter->getDefaultValue();
+            for(const auto& [id,v]:preset.values)if(id==parameter->getParameterID())normal=parameter->convertTo0to1(parameter->convertFrom0to1(parameter->convertTo0to1(v)));
+            out.push_back({parameter,normal});
+        }
+        return out;
+    }
+    int currentPresetIndex() const {
+        if(currentPreset.isNotEmpty())for(int i=0;i<int(presets.size());++i)if(presets[size_t(i)].user==currentUser && presets[size_t(i)].name==currentPreset)return i;
+        return -1;
+    }
+    // The loaded preset's name travels with the project (and each A/B slot) as a property of the state, not as a parameter.
+    void setCurrentPreset(const juce::String& name,bool user) {
+        if(name.isEmpty()){state.state.removeProperty("synthPreset",nullptr);state.state.removeProperty("synthPresetUser",nullptr);}
+        else {state.state.setProperty("synthPreset",name,nullptr);state.state.setProperty("synthPresetUser",user,nullptr);}
+        syncCurrentPreset(true);
+    }
+    // Follows the state's preset name (a project load or an A/B switch may change it) and works out whether the settings still match it.
+    void syncCurrentPreset(bool force) {
+        const auto name=state.state.getProperty("synthPreset").toString();const bool user=bool(state.state.getProperty("synthPresetUser",false));
+        if(force||name!=currentPreset||user!=currentUser){
+            currentPreset=name;currentUser=user;presetTargets.clear();
+            const int index=currentPresetIndex();
+            if(index>=0)presetTargets=presetNormals(presets[size_t(index)]);
+            else if(name.isNotEmpty()&&user&&!listed){SynthPreset preset;if(synthPresets::read(presetDirectory.getChildFile(name+synthPresets::extension),preset).wasOk())presetTargets=presetNormals(preset);}
+            if(index>=0&&presets[size_t(index)].user&&!presetNameEditor.hasKeyboardFocus(true)){
+                presetNameEditor.setText(name,false);presetSaveType.setSelectedId(1+juce::jmax(0,synthPresets::categories().indexOf(presets[size_t(index)].category)),juce::dontSendNotification);}
+            selectCurrentRow();presetShownText={};
+        }
+        bool edited=false;for(const auto& [parameter,normal]:presetTargets)edited=edited||std::abs(parameter->getValue()-normal)>1e-5f;
+        presetEdited=edited;
+        const auto text=currentPreset.isEmpty()?juce::String("PRESETS"):currentPreset+(edited?" *":"");
+        if(text!=presetShownText){presetShownText=text;presetButton.setButtonText(text);
+            presetButton.setTooltip(currentPreset.isEmpty()?juce::String("Open the preset browser"):"Loaded preset: "+currentPreset+(edited?" (changed since it was loaded)":"")+". Press to open the preset browser.");}
+    }
+    void selectCurrentRow() {
+        const int current=currentPresetIndex();int row=-1;for(int i=0;i<int(shownPresets.size());++i)if(shownPresets[size_t(i)]==current)row=i;
+        const juce::ScopedValueSetter<bool> guard(selecting,true);
+        if(row>=0)presetList.selectRow(row,true);else presetList.deselectAllRows();
+        presetList.repaint();
+    }
+    void filterPresets() {
+        const int bank=presetBank.getSelectedId(),kind=presetType.getSelectedId();const auto search=presetSearch.getText().trim();
+        shownPresets.clear();int user=0;
+        for(int i=0;i<int(presets.size());++i){
+            const auto& p=presets[size_t(i)];user+=p.user?1:0;
+            if((bank==2&&p.user)||(bank==3&&!p.user))continue;
+            if(kind>1&&p.category!=synthPresets::categories()[kind-2])continue;
+            if(search.isNotEmpty()&&!p.name.containsIgnoreCase(search))continue;
+            shownPresets.push_back(i);
+        }
+        {const juce::ScopedValueSetter<bool> guard(selecting,true);presetList.updateContent();}
+        selectCurrentRow();
+        presetCount.setText(juce::String(int(shownPresets.size()))+" of "+juce::String(int(presets.size()))+" shown\n"+juce::String(user)+" of your own"
+            +(user>=synthPresets::maxListed?" (the folder holds more than are listed)":"")+(unreadablePresets>0?"\n"+juce::String(unreadablePresets)+" unreadable file"+(unreadablePresets==1?"":"s")+" skipped":""),juce::dontSendNotification);
+    }
+    void disarmPresetButtons() {confirmSave=confirmDelete=false;presetSave.setButtonText("SAVE");presetDelete.setButtonText("DELETE");}
+    // The list: one row per preset shown; choosing a row loads it.
+    int getNumRows() override {return int(shownPresets.size());}
+    void paintListBoxItem(int row,juce::Graphics& g,int width,int height,bool selected) override {
+        if(row<0||row>=int(shownPresets.size()))return;
+        const auto& p=presets[size_t(shownPresets[size_t(row)])];
+        if(selected){g.setColour(accentColour.withAlpha(.3f));g.fillRect(0,0,width,height);}
+        g.setFont(juce::FontOptions(12.f));g.setColour(inkColour);g.drawText(p.name,6,0,width-170,height,juce::Justification::centredLeft);
+        g.setFont(juce::FontOptions(10.f));g.setColour(mutedColour);g.drawText(p.category.toUpperCase(),width-160,0,70,height,juce::Justification::centredLeft);
+        g.setColour(p.user?traceColour:mutedColour);g.drawText(p.user?"USER":"FACTORY",width-84,0,78,height,juce::Justification::centredLeft);
+    }
+    juce::String getNameForRow(int row) override {
+        if(row<0||row>=int(shownPresets.size()))return {};
+        const auto& p=presets[size_t(shownPresets[size_t(row)])];return p.name+", "+p.category+(p.user?", your own":", built in");
+    }
+    void selectedRowsChanged(int row) override {if(!selecting&&row>=0&&row<int(shownPresets.size())){disarmPresetButtons();applyPreset(shownPresets[size_t(row)]);}}
     template<class C> C* add(std::unique_ptr<C> c){auto* raw=c.get();addAndMakeVisible(*raw);children.push_back(raw);owned.push_back(std::move(c));return raw;}
     void chooseSample(int osc){
         chooser=std::make_unique<juce::FileChooser>("Load a sample into oscillator "+juce::String::charToString("ABC"[osc]),juce::File(),synthSample::formats().getWildcardForAllFormats());
@@ -886,6 +1058,7 @@ private:
         if(const int t=juce::jlimit(0,2,juce::roundToInt(state.getRawParameterValue("synthType")->load()));t!=shownType){shownType=t;repaint(0,0,getWidth(),28);}
         updateModes();
         refreshModulation();
+        syncCurrentPreset(false);
         for(auto& p:oscPanels){p.display->repaint();p.shapes->repaint();}
         filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();if(seqGraph.isVisible())seqGraph.repaint();scope.repaint();
         repaint(oscPanels[0].shapes->getBounds().getUnion(oscPanels[2].shapes->getBounds()));
@@ -899,7 +1072,7 @@ private:
         auto r=panels()[7].first.reduced(8,6);r.removeFromTop(16);
         const int shown=modRowsShown(),h=17;const bool add=shown<modRowCount;
         auto titles=r.removeFromTop(11);
-        modHint.setVisible(!fxView && r.getHeight()>=60);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
+        modHint.setVisible(lowerView==0 && r.getHeight()>=60);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
         const int content=shown*h+(add?20:0);const bool scroll=content>r.getHeight();const int width=r.getWidth()-(scroll?10:0);
         const auto columns=[](juce::Rectangle<int> row){std::array<juce::Rectangle<int>,4> c;c[3]=row.removeFromRight(16);row.removeFromRight(2);
             c[0]=row.removeFromLeft(row.getWidth()*35/100);row.removeFromLeft(3);c[1]=row.removeFromLeft(row.getWidth()*60/100);row.removeFromLeft(3);c[2]=row;return c;};
@@ -930,7 +1103,12 @@ private:
     int shownType{};   // the engine whose strip is drawn
     juce::Component* on{};juce::Component* type{};juce::Component* output{};juce::Slider* character{};juce::Component* source{};juce::Component* insert{};
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> characterAttachment;
-    juce::ComboBox patch;std::unique_ptr<juce::FileChooser> chooser;
+    std::unique_ptr<juce::FileChooser> chooser;
+    juce::ArrowButton presetPrev{"Previous preset",.5f,inkColour},presetNext{"Next preset",0.f,inkColour};juce::TextButton presetButton,presetSave,presetDelete,presetFolder;juce::ListBox presetList;juce::ComboBox presetBank,presetType,presetSaveType;
+    juce::TextEditor presetSearch,presetNameEditor;juce::Label presetStatus,presetCount;std::vector<juce::Component*> presetView_;
+    std::vector<SynthPreset> presets;std::vector<int> shownPresets;juce::File presetDirectory{synthPresets::defaultDirectory()};int unreadablePresets{};bool listed{};
+    std::vector<std::pair<juce::RangedAudioParameter*,float>> presetTargets;juce::String currentPreset,presetShownText;
+    bool currentUser{},presetEdited{},selecting{},confirmSave{},confirmDelete{};int lowerView{};
     std::array<OscPanel,synthOscCount> oscPanels;
     juce::Component* subOn{};juce::Component* subOctave{};juce::Component* subShape{};Knob* subLevel{};
     juce::Component* noiseOn{};Knob* noiseColor{};Knob* noiseLevel{};
@@ -944,6 +1122,6 @@ private:
     std::array<juce::TextButton,3> modTabs;int modTab{};StepGraph seqGraph;Knob* seqSteps{};juce::Component* seqRate{};juce::Slider* seqSmooth{};juce::Component* seqRetrigger{};std::array<juce::Slider*,synthMacroCount> macros{};
     Scope scope;std::vector<Knob*> masterKnobs;
     struct FxPanel {juce::Component* on{};std::vector<Knob*> knobs;};
-    juce::TextButton fxButton;bool fxView{};std::array<FxPanel,synthEffectCount> fxPanels;juce::Component* fxDelaySync{};juce::Component* fxDelayPingPong{};std::vector<juce::Component*> voiceView;
+    juce::TextButton fxButton;std::array<FxPanel,synthEffectCount> fxPanels;juce::Component* fxDelaySync{};juce::Component* fxDelayPingPong{};std::vector<juce::Component*> voiceView;
 };
 } // namespace spectralforge::synthUI

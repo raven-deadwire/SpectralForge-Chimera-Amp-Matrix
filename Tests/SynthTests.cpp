@@ -732,6 +732,65 @@ void wavetables() {
     std::cout<<"PASS wavetables: classic unchanged, frames normalised, position, band limit, warp\n";
 }
 
+// Preset files (docs/SYNTH_PRESETS.md): names, the round trip, refusals, the list.
+void presetFiles() {
+    namespace sp=spectralforge::synthPresets;
+    const auto dir=juce::File::createTempFile("synthPresets");dir.deleteRecursively();require(dir.createDirectory(),"No temporary preset folder");
+    struct Cleanup{juce::File d;~Cleanup(){d.deleteRecursively();}} cleanup{dir};
+    // Names
+    require(sp::cleanName("  My   Bass  ")=="My Bass" && sp::cleanName("a/b\\c:d*e?f\"g<h>i|j")=="abcdefghij" && sp::cleanName("..hidden")=="hidden" && sp::cleanName("end. . ")=="end","Preset names are not cleaned");
+    require(sp::cleanName("").isEmpty() && sp::cleanName(" ./\\ ").isEmpty() && sp::cleanName("con").isEmpty() && sp::cleanName("LPT1.x").isEmpty() && sp::cleanName("Console")=="Console","Empty or reserved preset names are accepted");
+    require(sp::cleanName(juce::String::repeatedString("x",200)).length()==sp::maxNameLength && sp::cleanName(juce::CharPointer_UTF8("\xec\x8b\xa0\xec\x8a\xa4 \xeb\xb2\xa0\xec\x9d\xb4\xec\x8a\xa4"))==juce::String(juce::CharPointer_UTF8("\xec\x8b\xa0\xec\x8a\xa4 \xeb\xb2\xa0\xec\x9d\xb4\xec\x8a\xa4")),"Long or non-Latin preset names are wrong");
+    require(sp::cleanCategory("pad")=="Pad" && sp::cleanCategory("nonsense")=="Other" && sp::categories().size()==7,"Preset types are wrong");
+    // Round trip: every carried parameter at a random legal value.
+    Host h;juce::Random random(41);int carried=0,kept=0;
+    for(auto* raw:h.getParameters()){auto* q=dynamic_cast<juce::RangedAudioParameter*>(raw);q->setValueNotifyingHost(random.nextFloat());if(sp::carries(q->getParameterID()))++carried;else ++kept;}
+    const auto captured=sp::capture(h,"Round / Trip","Lead");
+    require(captured.name=="Round Trip" && captured.category=="Lead" && int(captured.values.size())==carried && kept==8,"A capture does not hold every carried parameter");
+    juce::File file;require(sp::write(dir,captured,&file).wasOk() && file==dir.getChildFile("Round Trip.chimerasynth") && file.existsAsFile(),"A preset was not written under its name");
+    spectralforge::SynthPreset loaded;require(sp::read(file,loaded).wasOk() && loaded.name=="Round Trip" && loaded.category=="Lead" && loaded.user && loaded.values.size()==captured.values.size(),"A written preset does not read back");
+    double worst=0;for(const auto& [id,v]:captured.values){bool found=false;for(const auto& [other,w]:loaded.values)if(other==id){found=true;worst=std::max(worst,double(std::abs(v-w)));}require(found,"A parameter is missing from the read preset");}
+    for(const auto& [id,v]:loaded.values)require(!synthPatchKeeps(id),"A preset file holds a parameter presets must not change");
+    std::cout<<"MEASURE preset file: "<<carried<<" parameters carried, "<<kept<<" kept out, "<<file.getSize()<<" bytes; largest difference after write and read "<<worst<<"\n";
+    require(worst==0,"Preset values change in the file");
+    // Refusals. None may change the preset passed in.
+    const auto put=[&](const char* name,const juce::String& text){const auto f=dir.getChildFile(name);f.replaceWithText(text);return f;};
+    const auto refused=[&](const juce::File& f){spectralforge::SynthPreset q;q.name="untouched";const auto r=sp::read(f,q);return r.failed() && r.getErrorMessage().isNotEmpty() && q.name=="untouched";};
+    require(refused(dir.getChildFile("missing.chimerasynth")),"A missing preset file reads");
+    require(refused(put("a.chimerasynth","not json at all {")) && refused(put("a.chimerasynth","[1,2,3]")) && refused(put("a.chimerasynth","{\"format\":\"other\",\"version\":1,\"parameters\":{}}")),"A file that is not a preset reads");
+    require(refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":2,\"parameters\":{}}")) && refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":\"1\",\"parameters\":{}}"))
+         && refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":0,\"parameters\":{}}")) && refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1}")),"A preset of another version or without parameters reads");
+    require(refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1,\"parameters\":{\"synthCutoff\":\"high\"}}")) && refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1,\"parameters\":{\"synthCutoff\":true}}"))
+         && refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1,\"parameters\":{\"synthCutoff\":1e300}}")) && refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1,\"parameters\":{\"synthCutoff\":[1]}}")),"A preset with a value that is not a usable number reads");
+    require(refused(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1,\"parameters\":{},\"pad\":\""+juce::String::repeatedString("x",sp::maxFileBytes)+"\"}")),"A preset file over the size limit reads");
+    // Ids a preset may not change, and ids that are not the synth's, are dropped; an unknown type becomes Other.
+    spectralforge::SynthPreset partial;
+    require(sp::read(put("a.chimerasynth","{\"format\":\"chimera-synth-preset\",\"version\":1,\"category\":\"Chiptune\",\"parameters\":{\"synthOn\":1,\"synthLevel\":6,\"ampGain\":3,\"synthCutoff\":432,\"synthFutureThing\":2}}"),partial).wasOk(),"A sparse preset does not read");
+    require(partial.category=="Other" && partial.values.size()==2 && partial.name=="a","A preset keeps ids it must not carry");
+    dir.getChildFile("a.chimerasynth").deleteFile();
+    // The list: factory first, then the folder by name; unreadable files counted.
+    for(const char* name:{"zeta","Alpha 10","alpha 2","Beta"}){auto q=captured;q.name=name;require(sp::write(dir,q).wasOk(),"Preset not written");}
+    put("broken.chimerasynth","{");put("notes.txt","not a preset");
+    int unreadable=-1;const auto all=sp::list(dir,&unreadable);const auto factoryCount=synthPatches().size();
+    require(all.size()==factoryCount+5 && unreadable==1 && !all[0].user && all[0].name=="Init" && all[1].category=="Bass" && all[2].category=="Pad" && all[3].category=="Pluck","The preset list is wrong");
+    std::string order;for(size_t i=factoryCount;i<all.size();++i){require(all[i].user,"A file is listed as built in");order+=all[i].name.toStdString()+"|";}
+    require(order=="alpha 2|Alpha 10|Beta|Round Trip|zeta|","User presets are not in name order: "+order);
+    require(sp::list(dir.getChildFile("nowhere")).size()==factoryCount,"A missing folder does not list the factory presets alone");
+    // Saving a name that differs only in case replaces that preset; deleting is for user presets in the folder only.
+    {auto q=captured;q.name="BETA";q.category="Keys";require(sp::write(dir,q).wasOk(),"Preset not rewritten");const auto again=sp::list(dir);int betas=0;for(const auto& x:again)if(x.name.equalsIgnoreCase("beta")){++betas;require(x.name=="BETA" && x.category=="Keys","The replaced preset is the old one");}
+     require(betas==1 && again.size()==all.size(),"A name differing in case made a second preset");}
+    {auto q=captured;q.name="  ";require(sp::write(dir,q).failed(),"A preset without a name was written");}
+    require(sp::remove(dir,all[0]).failed(),"A factory preset can be deleted");
+    {auto outside=all.back();outside.file=dir.getParentDirectory().getChildFile("elsewhere.chimerasynth");require(sp::remove(dir,outside).failed(),"A file outside the preset folder can be deleted");
+     auto other=all.back();other.file=dir.getChildFile("notes.txt");require(sp::remove(dir,other).failed() && dir.getChildFile("notes.txt").existsAsFile(),"A file that is not a preset can be deleted");}
+    require(sp::remove(dir,all.back()).wasOk() && !all.back().file.existsAsFile(),"A user preset was not deleted");
+    // Many presets: the time to read the folder.
+    for(int i=0;i<300;++i){auto q=captured;q.name="Many "+juce::String(i);require(sp::write(dir,q).wasOk(),"Preset not written");}
+    const auto start=juce::Time::getMillisecondCounterHiRes();const auto many=sp::list(dir);const double ms=juce::Time::getMillisecondCounterHiRes()-start;
+    std::cout<<"MEASURE preset folder with "<<many.size()-factoryCount<<" presets: read in "<<juce::String(ms,1)<<" ms\n";
+    require(many.size()>=factoryCount+300,"Not every preset was listed");
+    std::cout<<"PASS preset names, file round trip, refusals, list order, replace and delete\n";
+}
 void processorInsertsAndPage() {
     // Each insert point: silent input + MIDI A3 -> the synth reaches the output.
     std::array<std::vector<float>,4> outputs;std::string line;
@@ -897,6 +956,115 @@ void processorInsertsAndPage() {
         require(with->getParameterIndex()==total-synthEffectsParameterCount+count && with->paramID==ids[count] && parameter->isAutomatable(),"An effect parameter is not in the last bank, in order");++count;}
      require(count==synthEffectsParameterCount && synthEffectsParameterCount==22,"Effect bank size wrong");
      for(const char* id:{"synthFxChorusOn","synthFxPhaserOn","synthFxDelayOn","synthFxReverbOn","synthFxEqOn"}){auto* q=p->parameters().getParameter(id);require(q->getDefaultValue()<.5f,"An effect is on by default");}}
+    // Preset browser (docs/SYNTH_PRESETS.md): previous / name / next in the top bar, the browser in the lower row, user presets as files.
+    {namespace sp=spectralforge::synthPresets;
+     const auto dir=juce::File::createTempFile("synthPagePresets");dir.deleteRecursively();
+     struct Cleanup{juce::File d;~Cleanup(){d.deleteRecursively();}} cleanup{dir};
+     const auto pumpNow=[]{juce::MessageManager::getInstance()->runDispatchLoopUntil(20);};
+     const auto shown=[&](const juce::String& id){auto* c=page.control(id);if(c==nullptr)return false;for(;c!=nullptr && c!=&page;c=c->getParentComponent())if(!c->isVisible())return false;return true;};
+     const auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+     const auto click=[&](const char* id){auto* b=dynamic_cast<juce::Button*>(page.control(id));require(b!=nullptr,std::string("No button ")+id);b->triggerClick();pumpNow();};
+     const auto status=[&]{return static_cast<juce::Label*>(page.control("synthPresetStatus"))->getText();};
+     page.showEffects(false);page.applyPatch(0);
+     page.setPresetDirectory(dir);require(!dir.exists(),"Opening the page or pointing it at a folder created the preset folder");
+     // Top bar: nothing overlaps, everything is on the page.
+     {std::vector<std::pair<std::string,juce::Rectangle<int>>> bar;
+      for(const char* id:{"synthOn","synthType","synthCharacter","synthSource","synthInsert","synthPresetPrev","synthPreset","synthPresetNext","synthFxView","synthVoices","synthOctave"}){
+         auto* c=page.control(id);require(c!=nullptr && c->isVisible(),std::string("Top-bar control missing: ")+id);auto* top=c;while(top->getParentComponent()!=&page)top=top->getParentComponent();
+         require(page.getLocalBounds().contains(top->getBounds()) && top->getBottom()<=28,std::string("Top-bar control off the bar: ")+id);
+         for(const auto& [other,taken]:bar)require(!taken.intersects(top->getBounds()),std::string("Top-bar controls overlap: ")+id+" and "+other);
+         bar.push_back({id,top->getBounds()});}
+      require(page.control("synthPreset")->getWidth()>=100 && page.control("synthPresetPrev")->getWidth()>=12 && page.control("synthPresetPrev")->getHeight()>=12,"The preset name or its arrows are too small");}
+     const juce::StringArray browser{"synthPresetList","synthPresetBank","synthPresetType","synthPresetSearch","synthPresetName","synthPresetSaveType","synthPresetSave","synthPresetDelete","synthPresetFolder","synthPresetStatus","synthPresetCount"};
+     for(const auto& id:browser)require(page.control(id)!=nullptr && !shown(id),("A browser control is missing or shown before the browser opens: "+id).toStdString());
+     auto* name=dynamic_cast<juce::TextButton*>(page.control("synthPreset"));auto* list=dynamic_cast<juce::ListBox*>(page.control("synthPresetList"));
+     auto* nameEditor=dynamic_cast<juce::TextEditor*>(page.control("synthPresetName"));auto* search=dynamic_cast<juce::TextEditor*>(page.control("synthPresetSearch"));
+     auto* bank=dynamic_cast<juce::ComboBox*>(page.control("synthPresetBank"));auto* kind=dynamic_cast<juce::ComboBox*>(page.control("synthPresetType"));auto* saveKind=dynamic_cast<juce::ComboBox*>(page.control("synthPresetSaveType"));
+     require(name && list && nameEditor && search && bank && kind && saveKind,"A browser control has the wrong type");
+     require(page.currentPresetName()=="Init" && name->getButtonText()=="Init" && !page.currentPresetEdited(),"The loaded patch's name is not shown");
+     writes.gestures=0;writes.changes.clear();
+     click("synthPreset");
+     require(page.presetsShown() && !page.effectsShown() && !shown("synthAmpAttack") && !shown("synthSubOn") && !shown("synthModAdd") && !shown("synthLfo1Rate") && !shown("synthFxChorusOn"),"The browser leaves envelope, LFO, matrix or effect controls on screen");
+     require(shown("synthLevel") && shown("synthCutoff") && shown("synthOscALevel") && shown("synthOutput"),"The browser hides the oscillators, filters or master");
+     {std::vector<std::pair<juce::String,juce::Rectangle<int>>> areas;const auto lower=page.getLocalBounds().withTrimmedTop(page.getHeight()/2);
+      for(const auto& id:browser){auto* c=page.control(id);require(shown(id),("A browser control is not shown: "+id).toStdString());const auto area=page.getLocalArea(c->getParentComponent(),c->getBounds());
+         require(lower.contains(area) && area.getWidth()>=60 && area.getHeight()>=16,("A browser control is outside the lower row or too small: "+id).toStdString());
+         for(const auto& [other,taken]:areas)require(!taken.intersects(area),("Browser controls overlap: "+id+" and "+other).toStdString());areas.push_back({id,area});}
+      require(!list->getBounds().intersects(page.getLocalArea(page.control("synthLevel")->getParentComponent(),page.control("synthLevel")->getBounds())),"The browser covers the master controls");
+      std::cout<<"MEASURE preset browser on the page ("<<page.getWidth()<<" x "<<page.getHeight()<<"): list "<<list->getWidth()<<" x "<<list->getHeight()<<" px, "<<list->getHeight()/list->getRowHeight()<<" rows without scrolling\n";
+      require(list->getHeight()/list->getRowHeight()>=6,"The preset list shows too few rows");}
+     const int factoryCount=int(synthPatches().size());
+     require(page.presetsListed()==factoryCount && page.presetNameAt(0)=="Init" && list->getSelectedRow()==0 && writes.changes.empty(),"The browser does not open on the factory presets with the loaded one marked, or opening it wrote a parameter");
+     // Save: the settings as they are, nothing written to a parameter; kept parameters are not in the file.
+     put("synthCutoff",777);put("synthFxDelayOn",1);put("synthMacro2",40);put("synthLevel",-10);put("synthOn",1);
+     require(page.currentPresetEdited() && name->getButtonText()=="Init *","A changed preset is not marked");
+     writes.gestures=0;writes.changes.clear();
+     click("synthPresetSave");require(status().containsIgnoreCase("name") && !dir.exists(),"Saving without a name did something");
+     nameEditor->setText("  My / Bass ",true);pumpNow();saveKind->setSelectedId(1,juce::sendNotificationSync);click("synthPresetSave");
+     const auto file=dir.getChildFile("My Bass.chimerasynth");
+     require(file.existsAsFile() && writes.changes.empty() && page.currentPresetName()=="My Bass" && !page.currentPresetEdited() && name->getButtonText()=="My Bass" && status().contains("Saved"),"SAVE did not write the preset and show it as loaded, or wrote a parameter");
+     require(page.presetsListed()==factoryCount+1 && page.presetNameAt(factoryCount)=="My Bass" && list->getSelectedRow()==factoryCount,"The saved preset is not in the list, selected");
+     {spectralforge::SynthPreset saved;require(sp::read(file,saved).wasOk() && saved.category=="Bass","The saved preset does not read or has the wrong type");
+      for(const auto& [id,v]:saved.values)require(id!="synthOn" && id!="synthLevel","A kept parameter was saved");}
+     // Loading: the Init patch, then the saved preset from the list. Routing, level and the on switch stay.
+     list->selectRow(0);pumpNow();
+     require(page.currentPresetName()=="Init" && std::abs(raw("synthCutoff")-6000)<1 && raw("synthFxDelayOn")<.5f && raw("synthMacro2")<.5f && std::abs(raw("synthLevel")+10)<.01f && raw("synthOn")>.5f,"Choosing Init in the list did not load it, or changed a kept parameter");
+     put("synthLevel",-3);writes.gestures=0;writes.changes.clear();
+     list->selectRow(factoryCount);pumpNow();
+     require(page.currentPresetName()=="My Bass" && std::abs(raw("synthCutoff")-777)<.5f && raw("synthFxDelayOn")>.5f && std::abs(raw("synthMacro2")-40)<.01f && std::abs(raw("synthLevel")+3)<.01f && !page.currentPresetEdited(),"Choosing the saved preset did not restore it");
+     require(writes.changes.size()==3 && writes.gestures==6 && writes.changes.count(index("synthLevel"))==0,"Loading a preset is not one gesture per changed parameter");
+     // Replace needs a second press.
+     put("synthCutoff",1234);click("synthPresetSave");
+     {spectralforge::SynthPreset saved;sp::read(file,saved);float cutoff=0;for(const auto& [id,v]:saved.values)if(id=="synthCutoff")cutoff=v;
+      require(std::abs(cutoff-777)<.5f && static_cast<juce::Button*>(page.control("synthPresetSave"))->getButtonText()=="REPLACE?" && page.currentPresetEdited(),"SAVE replaced a preset without asking");}
+     click("synthPresetSave");
+     {spectralforge::SynthPreset saved;sp::read(file,saved);float cutoff=0;for(const auto& [id,v]:saved.values)if(id=="synthCutoff")cutoff=v;
+      require(std::abs(cutoff-1234)<.5f && static_cast<juce::Button*>(page.control("synthPresetSave"))->getButtonText()=="SAVE" && !page.currentPresetEdited() && page.presetsListed()==factoryCount+1,"The second press did not replace the preset");}
+     // A second preset; filters, search, previous / next.
+     nameEditor->setText("Glass Pad",true);pumpNow();saveKind->setSelectedId(3,juce::sendNotificationSync);click("synthPresetSave");
+     require(page.presetsListed()==factoryCount+2 && page.currentPresetName()=="Glass Pad","The second preset was not saved");
+     bank->setSelectedId(3,juce::sendNotificationSync);require(page.presetsListed()==2 && page.presetNameAt(0)=="Glass Pad" && page.presetNameAt(1)=="My Bass" && list->getSelectedRow()==0,"USER does not list the two saved presets");
+     bank->setSelectedId(2,juce::sendNotificationSync);require(page.presetsListed()==factoryCount && list->getSelectedRow()<0,"FACTORY lists a user preset or marks one");
+     bank->setSelectedId(1,juce::sendNotificationSync);kind->setSelectedId(4,juce::sendNotificationSync);
+     require(page.presetsListed()==2 && page.presetNameAt(0)=="Seidr Dynamic" && page.presetNameAt(1)=="Glass Pad","The type filter does not list the pads");
+     kind->setSelectedId(1,juce::sendNotificationSync);search->setText("BAS",true);pumpNow();require(page.presetsListed()==1 && page.presetNameAt(0)=="My Bass","Search does not find the preset by part of its name");
+     search->setText("zzz",true);pumpNow();require(page.presetsListed()==0,"Search lists presets that do not match");
+     writes.changes.clear();click("synthPresetNext");require(writes.changes.empty() && page.currentPresetName()=="Glass Pad","Next loaded something from an empty list");
+     search->setText("",true);pumpNow();require(page.presetsListed()==factoryCount+2 && writes.changes.empty(),"Clearing the search does not list everything, or filtering loaded a preset");
+     click("synthPresetNext");require(page.currentPresetName()=="My Bass" && std::abs(raw("synthCutoff")-1234)<.5f,"Next does not load the next preset");
+     click("synthPresetNext");require(page.currentPresetName()=="Init" && std::abs(raw("synthCutoff")-6000)<1,"Next does not wrap to the first preset");
+     click("synthPresetPrev");click("synthPresetPrev");require(page.currentPresetName()=="Glass Pad","Previous does not step back");
+     bank->setSelectedId(3,juce::sendNotificationSync);click("synthPresetNext");click("synthPresetNext");require(page.currentPresetName()=="Glass Pad","Previous / next do not stay inside the filtered list");
+     bank->setSelectedId(1,juce::sendNotificationSync);
+     // The name travels with the project.
+     {juce::MemoryBlock saved;p->getStateInformation(saved);
+      auto q=std::make_unique<ChimeraProcessor>();q->setStateInformation(saved.getData(),int(saved.getSize()));
+      spectralforge::synthUI::SynthPage second(*q);second.setSize(1140,438);second.setPresetDirectory(dir);
+      require(second.currentPresetName()=="Glass Pad" && !second.currentPresetEdited() && static_cast<juce::Button*>(second.control("synthPreset"))->getButtonText()=="Glass Pad","A reloaded project does not show its preset");
+      auto* cutoff=q->parameters().getParameter("synthCutoff");cutoff->setValueNotifyingHost(.2f);require(second.currentPresetEdited(),"A change after a reload is not marked");}
+     // A hand-written file: values beyond a control's range are held at its limit; parameters it does not name take their defaults.
+     dir.getChildFile("Wild.chimerasynth").replaceWithText("{\"format\":\"chimera-synth-preset\",\"version\":1,\"category\":\"FX\",\"parameters\":{\"synthCutoff\":1e8,\"synthResonance\":-50,\"synthFilterType\":99,\"synthOn\":0,\"synthNotThere\":1}}");
+     dir.getChildFile("Broken.chimerasynth").replaceWithText("{");
+     page.refreshPresets();
+     {int row=-1;for(int i=0;i<page.presetsListed();++i)if(page.presetNameAt(i)=="Wild")row=i;require(row>=0 && page.presetsListed()==factoryCount+3,"A hand-written preset is not listed, or a broken file is");
+      require(static_cast<juce::Label*>(page.control("synthPresetCount"))->getText().contains("1 unreadable"),"A file that cannot be read is not reported");
+      list->selectRow(row);pumpNow();
+      auto* cutoff=p->parameters().getParameter("synthCutoff");auto* type=p->parameters().getParameter("synthFilterType");
+      require(page.currentPresetName()=="Wild" && raw("synthCutoff")==cutoff->convertFrom0to1(1.f) && raw("synthResonance")==0 && type->getValue()==1.f && raw("synthOn")>.5f && raw("synthFxDelayOn")<.5f && raw("synthMacro2")<.5f && !page.currentPresetEdited(),
+              "Out-of-range values are not held at the limits, a kept parameter was written, or an unnamed parameter kept its value");}
+     // Delete: a second press; the sound stays; built-in presets cannot be deleted.
+     click("synthPresetPrev");require(page.currentPresetName()=="My Bass","Previous from Wild is not My Bass");
+     writes.changes.clear();click("synthPresetDelete");
+     require(file.existsAsFile() && static_cast<juce::Button*>(page.control("synthPresetDelete"))->getButtonText()=="SURE?","DELETE removed a preset without asking");
+     click("synthPresetDelete");
+     require(!file.existsAsFile() && page.presetsListed()==factoryCount+2 && page.currentPresetName().isEmpty() && name->getButtonText()=="PRESETS" && writes.changes.empty() && std::abs(raw("synthCutoff")-1234)<.5f,"The second press did not delete the preset, or changed the sound");
+     page.applyPatch(1);click("synthPresetDelete");click("synthPresetDelete");
+     require(page.presetsListed()==factoryCount+2 && page.currentPresetName()=="Dvergr Analog" && status().isNotEmpty(),"A built-in preset was deleted");
+     // Closing the browser brings the envelopes back.
+     click("synthPreset");require(!page.presetsShown() && shown("synthAmpAttack") && shown("synthModAdd") && !shown("synthPresetList"),"Closing the browser does not bring the envelopes and matrix back");
+     click("synthFxView");click("synthPreset");require(page.presetsShown() && !page.effectsShown() && !shown("synthFxChorusOn") && !static_cast<juce::Button*>(page.control("synthFxView"))->getToggleState(),"The browser and the effect rack show together");
+     click("synthFxView");require(page.effectsShown() && !page.presetsShown() && !shown("synthPresetList") && !name->getToggleState(),"FX does not replace the browser");
+     page.showEffects(false);page.applyPatch(0);put("synthLevel",0);put("synthOn",0);}
     // Optional evidence: SYNTH_PAGE_SNAPSHOT=<directory> writes the page, with a sample in osc B.
     if(const char* dir=std::getenv("SYNTH_PAGE_SNAPSHOT")){
         const auto wav=juce::File::createTempFile(".wav");
@@ -917,6 +1085,14 @@ void processorInsertsAndPage() {
             for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthFxChorusOn",1},{"synthFxDelayOn",1},{"synthFxDelaySync",5},{"synthFxDelayFeedback",45},{"synthFxDelayPingPong",1},{"synthFxReverbOn",1},{"synthFxReverbDecay",3.5f},
                     {"synthFxEqOn",1},{"synthFxEqLow",3},{"synthFxEqHigh",-2}})put(id,v);
             page.showEffects(true);}
+        juce::File presetDir;
+        if(std::getenv("SYNTH_PAGE_PRESETS")){
+            presetDir=juce::File::createTempFile("synthSnapshotPresets");presetDir.deleteRecursively();
+            static const std::pair<const char*,const char*> names[]{{"Glass Pad","Pad"},{"Iron Bass","Bass"},{"Night Lead","Lead"},{"Rune Pluck","Pluck"},{"Shimmer Keys","Keys"},{"Storm Sweep","FX"}};
+            for(const auto& [name,kind]:names)require(spectralforge::synthPresets::write(presetDir,spectralforge::synthPresets::capture(*p,name,kind)).wasOk(),"Snapshot preset not written");
+            page.setPresetDirectory(presetDir);page.showPresets(true);
+            {int row=-1;for(int i=0;i<page.presetsListed();++i)if(page.presetNameAt(i)=="Iron Bass")row=i;static_cast<juce::ListBox*>(page.control("synthPresetList"))->selectRow(row);}
+            {auto* q=p->parameters().getParameter("synthResonance");q->setValueNotifyingHost(.4f);}(void)page.currentPresetEdited();}
         page.refreshModulation();
         page.updateModes();page.resized();
         for(const float scale:{1.f,1.5f}){
@@ -925,6 +1101,7 @@ void processorInsertsAndPage() {
             auto out=juce::File(dir).getChildFile("synth_page_"+juce::String(int(scale*100))+".png");out.deleteFile();
             auto stream=out.createOutputStream();require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the SYNTH page snapshot");
         }
+        if(presetDir!=juce::File()){page.setPresetDirectory(juce::File::createTempFile("none"));presetDir.deleteRecursively();}
     }
     // Filters and distortion (docs/SYNTH_FILTERS.md): thirteen parameters at version hint 39, appended last.
     {int count=0;const int total=p->getParameters().size();
@@ -957,7 +1134,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();effects();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();sequencerAndMacros();effects();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();presetFiles();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
