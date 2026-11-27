@@ -176,8 +176,9 @@ class SpaceModule {
     juce::AudioBuffer<float> feed;std::array<std::vector<float>,2> preLine;size_t preWrite{};bool preUsed{},shapeUsed{};
     juce::SmoothedValue<float> preSamples,hold,toneAmount,widthGain;
     std::array<std::array<float,2>,2> cutState{},toneState{};
+    double shapePhase{};float shapeLevel{1.f};
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
-    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;}
+    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
 public:
     // juce::Reverb snaps its parameter smoothers to the last target on prepare.
@@ -219,7 +220,14 @@ public:
             }
         } else if(preUsed) clearPre();   // back at no pre-delay: an old line must not be heard when it is raised again
         // The wet sum is shaped only away from the defaults (low cut off, tone flat, width as made).
-        const bool shaped=cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
+        // The tempo shape: its level is followed over 3 ms, so the Gate and the end of Reverse do not click.
+        const int shape=k.shape>reverbShapeOff && k.shape<reverbShapeCount?k.shape:reverbShapeOff;
+        const float shapeDepth=juce::jlimit(0.f,1.f,k.shapeDepth),shapePole=spatial_detail::onePole(1./(juce::MathConstants<double>::twoPi*.003),rate);
+        const double shapeStep=juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
+        if(shape!=reverbShapeOff && std::isfinite(k.ppq) && k.ppq>=0.)shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays
+        const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
+        if(!shaping){shapeLevel=1.f;shapePhase=0;}
+        const bool shaped=shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
         if(!shaped && shapeUsed)clearShape();
         if(shaped)shapeUsed=true;
         // TONE: a high shelf at 1.5 kHz of up to 12 dB either way with half of it taken back overall, so the
@@ -245,6 +253,7 @@ public:
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();
             std::array<float,2> wetSum{};
             const float widthNow=shaped?widthGain.getNextValue():1.f;
+            if(shaping){const float target=1.f-shapeDepth*(1.f-reverbShapeLevel(shape,shapePhase));shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
             const bool extended=weights[3]>0.f||weights[4]>0.f||weights[5]>0.f;
             if(extended!=extendedActive){if(!extended)clearExtended();extendedActive=extended;}
             float gate=1.f;
@@ -271,7 +280,7 @@ public:
             // LOW CUT: two one-pole high-passes. TONE: the shelf above (transposed direct form II).
             if(cutting)for(auto& z:cutState[(size_t)c]){z+=cutPole*(sum-z);sum-=z;}
             auto& z=toneState[(size_t)c];const float shelved=b0*sum+z[0];z[0]=b1*sum-a1*shelved+z[1];z[1]=b2*sum-a2*shelved;
-            wetSum[(size_t)c]=shelved;
+            wetSum[(size_t)c]=shelved*shapeLevel;
             }
             if(shaped) {
                 // WIDTH scales the difference of the two wet channels.

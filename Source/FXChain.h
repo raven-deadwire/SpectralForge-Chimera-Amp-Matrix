@@ -8,6 +8,7 @@
 namespace spectralforge {
 struct FXState {
     double tempo{120};   // host / internal tempo for tempo-synced POST processors
+    double ppq{std::numeric_limits<double>::quiet_NaN()};   // the host's quarter-note position at the block's first frame while it plays (the reverb's tempo shape)
     PostNativeState postNative=defaultPostNativeState(false);
     bool envelopeFirst{true};
     bool boostAfterDrive{false};
@@ -240,7 +241,7 @@ public:
             case postModulationModule:modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);peak(3);break;
             case postDelayModule:echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);peak(4);break;
             case postCreativeModule:if(creative)creative->process(buffer,state.tempo);if(delayMeter)peak(4);break;
-            case postReverbModule:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix,state.reverbControls);peak(5);break;
+            case postReverbModule:{auto controls=state.reverbControls;controls.tempo=state.tempo;controls.ppq=state.ppq;space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix,controls);}peak(5);break;
             default:break;
         }
     }

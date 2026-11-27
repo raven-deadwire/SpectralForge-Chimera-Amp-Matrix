@@ -157,6 +157,69 @@ void backToDefaults() {
     }
     std::cout<<"PASS reverb controls back to defaults: once the controls are back, a new note gets the plain reverb\n";
 }
+// The tempo shape (docs/POST_REVERB_SHAPE.md): the reverb's level follows a shape that repeats with the tempo.
+void shapeLevels() {
+    const auto at=[](int shape,double p){return double(reverbShapeLevel(shape,p));};
+    for(int shape=0;shape<reverbShapeCount;++shape)for(double p=0;p<3;p+=.001){const double v=at(shape,p);require(v>=0 && v<=1,"A shape leaves 0 to 1");require(std::abs(v-at(shape,p-std::floor(p)))<1e-6,"A shape does not repeat");}
+    for(double p=0;p<1;p+=.01)require(at(reverbShapeOff,p)==1,"Off is not level");
+    require(at(reverbShapeSwell,0)==0 && std::abs(at(reverbShapeSwell,.5)-.5)<1e-6 && at(reverbShapeSwell,.999)>.99,"Swell does not rise from nothing to full");
+    require(at(reverbShapeReverse,0)==0 && at(reverbShapeReverse,.5)<.15 && at(reverbShapeReverse,.999)>.99,"Reverse does not rise late, as a decay played backwards");
+    require(at(reverbShapeGate,.1)==1 && at(reverbShapeGate,.49)==1 && at(reverbShapeGate,.51)==0 && at(reverbShapeGate,.99)==0,"Gate is not open for the first half");
+    require(at(reverbShapeWave,0)==0 && std::abs(at(reverbShapeWave,.5)-1)<1e-6 && std::abs(at(reverbShapeWave,.25)-.5)<1e-6,"Wave is not one rise and fall");
+    require(at(reverbShapePump,0)==0 && at(reverbShapePump,.2)>.6 && at(reverbShapePump,.999)>.99,"Pump does not duck at the start and recover");
+    for(const int shape:{reverbShapeSwell,reverbShapeReverse,reverbShapePump})for(double p=.001;p<1;p+=.001)require(at(shape,p)>=at(shape,p-.001),"A rising shape falls");
+    std::cout<<"PASS reverb shape levels: Off is level; Swell, Reverse, Gate, Wave and Pump stay within 0 to 1, repeat, and have their form\n";
+}
+void shapeOnTheReverb() {
+    // Steady noise at 120 BPM with a length of one bar: the shape repeats every two seconds.
+    const auto steady=noise(8,8,31);
+    std::string measured;
+    for(int model=0;model<modelCount;++model) {
+        if(model==5)continue;   // the Gated Room closes on steady noise: it is covered with bursts below
+        const auto with=[&](int shape,float depth=1.f,int length=2){ReverbControls k;k.shape=shape;k.shapeDepth=depth;k.shapeLength=length;return render(model,steady,steady,fixed(k));};
+        const auto plain=with(reverbShapeOff);
+        // Levels through the fourth bar (6 s to 8 s), against the plain reverb at the same time.
+        const auto part=[&](const Wet& wet,double from,double to){return db(wet.power(6+2*from,6+2*to))-db(plain.power(6+2*from,6+2*to));};
+        const auto gate=with(reverbShapeGate);
+        require(std::abs(part(gate,.05,.45))<1 && part(gate,.55,.95)<-40,std::string(modelNames[model])+": Gate gave "+num(part(gate,.05,.45))+" dB in its open half and "+num(part(gate,.55,.95))+" dB in its closed half");
+        const auto swell=with(reverbShapeSwell);
+        require(part(swell,0,.1)<-20 && std::abs(part(swell,.45,.55)-(-6.02))<1.5 && part(swell,.9,1)>-1,std::string(modelNames[model])+": Swell gave "+num(part(swell,0,.1))+", "+num(part(swell,.45,.55))+" and "+num(part(swell,.9,1))+" dB at its start, middle and end");
+        const auto reverse=with(reverbShapeReverse);
+        require(part(reverse,0,.1)<-25 && part(reverse,.45,.55)<-15 && part(reverse,.9,1)>-4,std::string(modelNames[model])+": Reverse gave "+num(part(reverse,0,.1))+", "+num(part(reverse,.45,.55))+" and "+num(part(reverse,.9,1))+" dB");
+        const auto wave=with(reverbShapeWave);
+        require(part(wave,0,.05)<-20 && part(wave,.45,.55)>-.5 && part(wave,.95,1)<-20,std::string(modelNames[model])+": Wave gave "+num(part(wave,0,.05))+", "+num(part(wave,.45,.55))+" and "+num(part(wave,.95,1))+" dB");
+        const auto pump=with(reverbShapePump);
+        require(part(pump,0,.03)<-10 && part(pump,.5,1)>-1.5,std::string(modelNames[model])+": Pump gave "+num(part(pump,0,.03))+" dB at its start and "+num(part(pump,.5,1))+" dB after");
+        // DEPTH: at half, the Gate's closed half is 6 dB down; at none, the reverb is the plain one.
+        const auto half=with(reverbShapeGate,.5f),none=with(reverbShapeGate,0.f);
+        require(std::abs(part(half,.55,.95)-(-6.02))<.5,std::string(modelNames[model])+": Gate at half depth gave "+num(part(half,.55,.95))+" dB in its closed half");
+        double difference=0,reference=0;for(size_t n=size_t(rate);n<plain.left.size();++n){difference=std::max(difference,double(std::abs(none.left[n]-plain.left[n])));reference=std::max(reference,double(std::abs(plain.left[n])));}
+        require(difference<reference*1e-4,std::string(modelNames[model])+": a shape at no depth changed the reverb by "+num(difference/reference*100,4)+"% of its peak");
+        // LENGTH: at 1/4 the Gate repeats every half second.
+        const auto quarter=with(reverbShapeGate,1.f,0);
+        require(std::abs(db(quarter.power(6.025,6.225))-db(plain.power(6.025,6.225)))<1 && db(quarter.power(6.275,6.475))-db(plain.power(6.275,6.475))<-40 && std::abs(db(quarter.power(6.525,6.725))-db(plain.power(6.525,6.725)))<1,
+                std::string(modelNames[model])+": Gate at a length of 1/4 does not open and close every half second");
+        measured+=std::string(measured.empty()?"":" | ")+modelNames[model]+": gate "+num(part(gate,.05,.45),1)+"/"+num(part(gate,.55,.95),0)+" dB, swell "+num(part(swell,0,.1),0)+"/"+num(part(swell,.45,.55),1)+"/"+num(part(swell,.9,1),1)+" dB";
+    }
+    std::cout<<"MEASURE reverb shape at 120 BPM, one bar (Gate: open / closed half; Swell: start / middle / end, against the plain reverb): "<<measured<<'\n';
+    // The Gated Room, with bursts: its own gate and the shape's both apply.
+    {auto bursts=noise(8,8,32);for(size_t n=0;n<bursts.size();++n)if(n%size_t(rate*.25)>=size_t(rate*.1))bursts[n]=0;
+     ReverbControls k;k.shape=reverbShapeGate;const auto plain=render(5,bursts,bursts,fixed({})),gated=render(5,bursts,bursts,fixed(k));
+     require(std::abs(db(gated.power(6.1,6.9))-db(plain.power(6.1,6.9)))<1 && db(gated.power(7.1,7.9))-db(plain.power(7.1,7.9))<-40,"Gated Room: the shape's gate does not apply");}
+    // Locked to the host: with the host half a bar in when the playing starts, the Gate's closed half comes first.
+    {const int model=0;ReverbControls k;k.shape=reverbShapeGate;
+     const auto locked=render(model,steady,steady,[k](double t)mutable{k.ppq=2.+t*2.;return k;}),plain=render(model,steady,steady,fixed({}));
+     require(db(locked.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(locked.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position");}
+    // Switched off again, a later note gets the plain reverb.
+    for(int model=0;model<modelCount;++model) {
+        std::vector<float> x(size_t(rate*8),0.f);x[size_t(rate*.1)]=.5f;x[size_t(rate*6)]=.5f;
+        const auto plain=render(model,x,x,fixed({}),.2f);
+        const auto moved=render(model,x,x,[](double t){ReverbControls k;if(t<1)k.shape=reverbShapeWave;return k;},.2f);
+        double difference=0,reference=0;for(size_t n=size_t(rate*6);n<plain.left.size();++n){difference=std::max(difference,double(std::abs(moved.left[n]-plain.left[n])));reference=std::max(reference,double(std::abs(plain.left[n])));}
+        require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the shape was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");
+    }
+    std::cout<<"PASS reverb shape on the reverb: each shape gives its level through the bar in every model; depth scales it, length sets its period, the host's position locks it, and Off returns the plain reverb\n";
+}
 }
 int main(int argc,char** argv) {
     try {
@@ -167,6 +230,7 @@ int main(int argc,char** argv) {
         if(only.empty() || only=="--freeze")freeze();
         if(only.empty() || only=="--extremes")extremes();
         if(only.empty() || only=="--defaults")backToDefaults();
+        if(only.empty() || only=="--shape"){shapeLevels();shapeOnTheReverb();}
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
