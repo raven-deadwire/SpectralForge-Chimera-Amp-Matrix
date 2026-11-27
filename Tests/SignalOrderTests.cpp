@@ -413,8 +413,10 @@ void secondSlotsBank() {
         auto* original=p->parameters().getParameter(r->getParameterID().substring(6));require(original!=nullptr,"Second-slot parameter without a slot 1 original: "+r->getParameterID().toStdString());
         // The CREATIVE page's slot-2 copies came later, at their own version (docs/CREATIVE_PAGE.md).
         // Slots 3 and 4 came later still, all at version 37 (docs/POST_FOUR_SLOTS.md).
-        const bool late=!r->getParameterID().startsWith("slot2_"),page=late || r->getVersionHint()==creativePageParameterVersion;
-        require(r->getVersionHint()==(late?postExtraSlotParameterVersion:page?creativePageParameterVersion:postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
+        // The reverb controls of every slot came together, at version 43 (docs/POST_REVERB_CONTROLS.md).
+        const bool reverbControl=r->getVersionHint()==postReverbControlsParameterVersion;
+        const bool late=!r->getParameterID().startsWith("slot2_"),page=late || reverbControl || r->getVersionHint()==creativePageParameterVersion;
+        require(r->getVersionHint()==(reverbControl?postReverbControlsParameterVersion:late?postExtraSlotParameterVersion:page?creativePageParameterVersion:postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
                 && r->getNormalisableRange().start==original->getNormalisableRange().start && r->getNormalisableRange().end==original->getNormalisableRange().end,"Second-slot definition differs from slot 1: "+r->getParameterID().toStdString());
         if(!page)++copies;}
     require(copies+postSecondSlotOrderParameterCount==postSecondSlotParameterCount(),"Second-slot bank size");
@@ -585,7 +587,8 @@ void extraSlotsBank() {
         auto* twin=p->parameters().getParameter(postSlotID(1,r->getParameterID().substring(6)));require(twin!=nullptr,"No slot 2 twin: "+r->getParameterID().toStdString());
         require(r->getDefaultValue()==twin->getDefaultValue() && r->isAutomatable()==twin->isAutomatable() && r->getNormalisableRange().start==twin->getNormalisableRange().start && r->getNormalisableRange().end==twin->getNormalisableRange().end
                 && r->getName(64).endsWith("(slot "+juce::String(slot+1)+")"),"Slot definition differs from slot 2: "+r->getParameterID().toStdString());}
-    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_");
+    // Slot 2's reverb controls are not part of what slots 3 and 4 copied: theirs sit in the reverb controls bank (version 43).
+    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_") && r->getVersionHint()!=postReverbControlsParameterVersion;
     require(bank==postExtraSlotParameterCount() && order==postExtraSlotOrderParameterCount && copies[2]==slot2 && copies[3]==slot2,"Slot 3 / 4 bank size");
     for(int block=postModuleCount;block<postBlockCount;++block)require(!p->postBlockOn(block) && !p->postBlockShown(block),"A slot 2-4 block starts on");
     for(int block=0;block<postModuleCount;++block)require(p->postBlockShown(block),"A slot 1 block is hidden");
@@ -783,26 +786,29 @@ void reverbControlsAudio() {
     // 60 Hz through the rig with the reverb on: LOW CUT takes it out of the reverb, so the output changes; 4 kHz does not.
     const auto tone=[](double hz){std::vector<float> x(size_t(rate*2));for(size_t n=0;n<x.size();++n)x[n]=float(.05*std::sin(2*pi*hz*double(n)/rate));return x;};
     const auto with=[&](const std::function<void(ChimeraProcessor&)>& edit,const std::vector<float>& in){auto p=make();set(*p,"reverbon",1);set(*p,"reverbmix",.5f);if(edit)edit(*p);return renderInput(*p,in);};
-    const auto change=[&](const std::vector<float>& a,const std::vector<float>& b){double d=0,e=0;for(size_t n=size_t(rate);n<a.size();++n){d+=double(a[n]-b[n])*(a[n]-b[n]);e+=double(a[n])*a[n];}return db(std::sqrt(d/std::max(e,1e-30)));};
+    // The level of the tone itself in the output, over its last second.
+    const auto level=[&](const std::vector<float>& x,double hz){return db(magnitude(x,int(rate),int(x.size()),hz));};
     const auto low=tone(60),high=tone(4000);
     const auto plainLow=with({},low),cutLow=with([](ChimeraProcessor& p){set(p,"reverblowcut",500);},low);
     const auto plainHigh=with({},high),cutHigh=with([](ChimeraProcessor& p){set(p,"reverblowcut",500);},high);
-    const double lowChange=change(plainLow,cutLow),highChange=change(plainHigh,cutHigh);
-    require(lowChange>-20 && highChange<-30,"LOW CUT does not reach the reverb of slot 1 through the processor (60 Hz changed by "+std::to_string(lowChange)+" dB of the output, 4 kHz by "+std::to_string(highChange)+" dB)");
+    const double lowChange=level(cutLow,60)-level(plainLow,60),highChange=level(cutHigh,4000)-level(plainHigh,4000);
+    // 4 kHz is reported, not checked: the low cut turns the reverb's phase a little there, which moves the sum with the dry
+    // sound. That the cut leaves 4 kHz in the reverb itself is checked on the module (ChimeraReverbControlsDSPTests).
+    require(lowChange<-2 && cutLow!=plainLow,"LOW CUT does not reach the reverb of slot 1 through the processor (60 Hz changed by "+std::to_string(lowChange)+" dB in the output, 4 kHz by "+std::to_string(highChange)+" dB)");
     // Another slot's controls do nothing to this one: bit-identical with slot 2's reverb off and its controls moved, and the other way round.
     const auto moved=with([](ChimeraProcessor& p){set(p,"slot2_reverbpredelay",150);set(p,"slot2_reverblowcut",400);set(p,"slot2_reverbtone",-1);set(p,"slot2_reverbwidth",0);set(p,"slot2_reverbfreeze",1);},low);
     require(moved==plainLow,"A switched-off slot's reverb controls changed the sound");
     // Slot 2's reverb has its own: with slot 1 off, slot 2's LOW CUT works and slot 1's does nothing.
     const auto second=[&](const std::function<void(ChimeraProcessor&)>& edit){auto p=make();set(*p,"slot2_reverbon",1);set(*p,"slot2_reverbmix",.5f);if(edit)edit(*p);return renderInput(*p,low);};
     const auto secondPlain=second({}),secondCut=second([](ChimeraProcessor& p){set(p,"slot2_reverblowcut",500);}),secondOther=second([](ChimeraProcessor& p){set(p,"reverblowcut",500);set(p,"slot3_reverblowcut",500);});
-    require(change(secondPlain,secondCut)>-20 && secondOther==secondPlain,"Slot 2's reverb does not have its own controls");
+    require(level(secondCut,60)-level(secondPlain,60)<-2 && secondOther==secondPlain,"Slot 2's reverb does not have its own controls");
     // FREEZE through the processor: the reverb is still sounding five seconds after the playing stopped.
     const auto tail=[&](bool freeze){auto p=make();set(*p,"reverbon",1);set(*p,"reverbmix",.5f);std::vector<float> in(size_t(rate*7),0.f);const auto burst=tone(330);std::copy(burst.begin(),burst.begin()+long(rate),in.begin());
         const auto head=renderInput(*p,std::vector<float>(in.begin(),in.begin()+long(rate*.9)));if(freeze)set(*p,"reverbfreeze",1);
         const auto rest=renderInput(*p,std::vector<float>(in.begin()+long(rate*.9),in.end()));double e=0;for(size_t n=rest.size()-size_t(rate);n<rest.size();++n)e+=double(rest[n])*rest[n];return db(std::sqrt(e/rate));};
     const double open=tail(false),held=tail(true);
     require(held>open+30,"FREEZE does not hold the tail through the processor (frozen "+std::to_string(held)+" dB, open "+std::to_string(open)+" dB after five seconds)");
-    std::cout<<"MEASURE reverb controls through the processor: LOW CUT at 500 Hz changes the output by "<<lowChange<<" dB (60 Hz) and "<<highChange<<" dB (4 kHz) of its level; five seconds on, the tail is at "<<held<<" dB frozen and "<<open<<" dB open\n";
+    std::cout<<"MEASURE reverb controls through the processor: LOW CUT at 500 Hz changes the tone's level in the output by "<<lowChange<<" dB (60 Hz) and "<<highChange<<" dB (4 kHz); five seconds on, the tail is at "<<held<<" dB frozen and "<<open<<" dB open\n";
     std::cout<<"PASS reverb controls audio: slot 1 and slot 2 each have their own; a switched-off slot's controls change nothing (bit-identical); freeze holds\n";
 }
 void reverbControlsState() {
