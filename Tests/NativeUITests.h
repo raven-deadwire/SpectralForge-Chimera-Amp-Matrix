@@ -308,6 +308,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                  choose(spectralforge::reverbShapeGate,1.f,3);
                  require(display->shownShape()==spectralforge::reverbShapeGate && display->shownLength()==3 && display->shownLevel(.25)==1.f && display->shownLevel(.75)==0.f,"The reverb shape display does not draw the chosen shape and length");
                  choose(spectralforge::reverbShapeGate,.5f,0);require(std::abs(display->shownLevel(.75)-.5f)<1e-4f && display->shownLength()==0,"The reverb shape display does not draw the depth");
+                 choose(spectralforge::reverbShapeSwell,.8f,spectralforge::reverbShapeDefaultLength);if(scale==0)snapshot(panel,directory,"Native-Post-Reverb-ALL-Shape");
                  choose(spectralforge::reverbShapeOff,.62f,spectralforge::reverbShapeDefaultLength);require(display->shownShape()==spectralforge::reverbShapeOff && display->shownLevel(.75)==1.f,"The reverb shape display does not show Off as level");
                  require(panel.getLocalBounds().contains(display->getBounds()) && display->plot().getWidth()>200.f && display->plot().getHeight()>80.f,"The reverb shape display is outside the panel or too small");
                  for(auto* view:controls)require(!view->getBounds().intersects(display->getBounds()),"The reverb shape display covers a control");}
