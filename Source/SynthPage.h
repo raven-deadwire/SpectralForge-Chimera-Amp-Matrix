@@ -34,12 +34,25 @@ public:
         g.setColour(slider.isEnabled()?accentColour:mutedColour);g.strokePath(value,juce::PathStrokeType(thick,juce::PathStrokeType::curved,juce::PathStrokeType::rounded));
         const auto tip=c.getPointOnCircumference(radius-thick*1.6f,angle);
         g.setColour(inkColour);g.drawLine({c.getPointOnCircumference(radius*.25f,angle),tip},1.6f);
+        // A knob the matrix modulates: an outer arc from the set value, towards
+        // the side the modulation pushes it (its length follows the amount; it
+        // is an indicator, not the exact range).
+        if(const double mod=double(slider.getProperties().getWithDefault("mod",0.0));std::abs(mod)>.005){
+            const float span=float(juce::jlimit(-1.0,1.0,mod))*.5f*(end-start),to=juce::jlimit(start,end,angle+span);
+            juce::Path arc;arc.addCentredArc(c.x,c.y,radius+thick*.9f,radius+thick*.9f,0,juce::jmin(angle,to),juce::jmax(angle,to),true);
+            g.setColour(traceColour);g.strokePath(arc,juce::PathStrokeType(1.6f,juce::PathStrokeType::curved,juce::PathStrokeType::rounded));
+            g.fillEllipse(r.getRight()-6,r.getY()+1,4,4);
+        }
     }
     void drawLinearSlider(juce::Graphics& g,int x,int y,int width,int height,float position,float minimum,float maximum,juce::Slider::SliderStyle style,juce::Slider& slider) override {
         if(style!=juce::Slider::LinearBar){juce::LookAndFeel_V4::drawLinearSlider(g,x,y,width,height,position,minimum,maximum,style,slider);return;}
         const auto r=juce::Rectangle<int>(x,y,width,height).toFloat();
         g.setColour(juce::Colour(0xff0e1414));g.fillRoundedRectangle(r,3);
-        g.setColour(accentColour.withAlpha(.4f));g.fillRoundedRectangle(r.withRight(position),3);
+        if(slider.getMinimum()<0 && slider.getMaximum()>0){   // a two-way amount: the bar grows from the centre
+            const float centre=r.getX()+r.getWidth()*float(-slider.getMinimum()/(slider.getMaximum()-slider.getMinimum()));
+            g.setColour((slider.getValue()<0?traceColour:accentColour).withAlpha(.45f));g.fillRect(juce::Rectangle<float>::leftTopRightBottom(juce::jmin(centre,position),r.getY()+1,juce::jmax(centre,position),r.getBottom()-1));
+            g.setColour(mutedColour);g.fillRect(centre-.5f,r.getY()+2,1.f,r.getHeight()-4);
+        } else {g.setColour(accentColour.withAlpha(.4f));g.fillRoundedRectangle(r.withRight(position),3);}
         g.setColour(edgeColour);g.drawRoundedRectangle(r.reduced(.5f),3,1);
     }
     juce::Label* createSliderTextBox(juce::Slider& slider) override {
@@ -96,6 +109,7 @@ public:
         showValue();resized();
     }
     void setCompact(){label.setVisible(false);resized();}
+    void setLabel(const juce::String& text){if(label.getText()!=text){label.setText(text,juce::dontSendNotification);slider.setName(text);slider.setTooltip(text);}}
     juce::Slider slider;
 private:
     void showValue(){value.setText(slider.getTextFromValue(slider.getValue()),juce::dontSendNotification);}
@@ -103,12 +117,25 @@ private:
 };
 class Choice final : public juce::ComboBox {
 public:
-    Choice(juce::AudioProcessorValueTreeState& state,const juce::String& id,const juce::StringArray& items,const juce::String& tip) {
+    // `first`: the text shown for the first choice in place of its parameter name (for example "Source" for "Off").
+    Choice(juce::AudioProcessorValueTreeState& state,const juce::String& id,juce::StringArray items,const juce::String& tip,const juce::String& first={}) {
+        if(first.isNotEmpty() && !items.isEmpty())items.set(0,first);
         setComponentID(id);setTooltip(tip);setName(tip);addItemList(items,1);
         attachment=std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(state,id,*this);
     }
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> attachment;
+};
+// A horizontal bar on a 0-100 % parameter (the look's LinearBar).
+class Bar final : public juce::Slider {
+public:
+    Bar(juce::AudioProcessorValueTreeState& state,const juce::String& id,const juce::String& tip) {
+        setComponentID(id);setName(tip);setTooltip(tip);setSliderStyle(juce::Slider::LinearBar);setScrollWheelEnabled(false);
+        setColour(juce::Slider::textBoxTextColourId,inkColour);setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);
+        attachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state,id,*this);
+    }
+private:
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
 };
 class Toggle final : public juce::TextButton {
 public:
@@ -159,6 +186,8 @@ public:
         setTooltip("Click or drag across the wave to morph it; scroll for small steps; double-click snaps to a shape. In Sample mode, drag the start marker. Drop an audio file here to load it.");
     }
     bool sampleMode() const {return state.getRawParameterValue(synthOscID(osc,"Mode"))->load()>.5f;}
+    // The oscillator's wavetable (docs/SYNTH_WAVETABLE.md); 0 is the classic shapes.
+    int table() const {return juce::jlimit(0,synthTableCount-1,juce::roundToInt(state.getRawParameterValue(synthWavetableID(osc,"Table"))->load()));}
     float position() const {return state.getRawParameterValue(synthOscID(osc,"Wave"))->load();}
     // Wave position for a horizontal position: each shape sits above its tile
     // on the strip below (tile centres at 10 %, 30 % ... 90 % of the width).
@@ -170,6 +199,22 @@ public:
         const auto trace=on?traceColour:mutedColour.withAlpha(.4f);
         g.setColour(edgeColour);g.drawHorizontalLine(int(r.getCentreY()),r.getX()+4,r.getRight()-4);
         g.setFont(juce::FontOptions(9.f));
+        if(!sampleMode() && table()>0){
+            // A wavetable: six of its frames stacked back to front, and the
+            // frame at the wave position, through the warp, in front of them.
+            const auto& tables=SynthWavetables::get();const int t=table();const float at=position()*.25f;
+            const int warp=juce::roundToInt(state.getRawParameterValue(synthWavetableID(osc,"Warp"))->load());
+            const double amount=state.getRawParameterValue(synthWavetableID(osc,"WarpAmount"))->load()*.01;
+            const float depthX=r.getWidth()*.14f,depthY=r.getHeight()*.44f,w=r.getWidth()-10-depthX,h=r.getHeight()*.17f,baseY=r.getBottom()-5-h;
+            const auto curve=[&](float where,bool warped){juce::Path path;
+                for(int i=0;i<=96;++i){double phase=double(i)/96.0;if(phase>=1.0)phase=.999999;if(warped)phase=synthWarpPhase(warp,amount,phase);
+                    const float x=r.getX()+5+depthX*where+w*float(i)/96.f,y=baseY-depthY*where-h*float(tables.read(t,where,phase,1.0/4096.0));if(i==0)path.startNewSubPath(x,y);else path.lineTo(x,y);}
+                return path;};
+            for(int k=5;k>=0;--k){g.setColour(mutedColour.withAlpha(on?.34f:.18f));g.strokePath(curve(float(k)/5.f,false),juce::PathStrokeType(1.f));}
+            g.setColour(trace);g.strokePath(curve(at,true),juce::PathStrokeType(1.9f));
+            g.setColour(mutedColour);g.drawText(juce::String(synthTables[size_t(t)].name).toUpperCase()+"  "+juce::String(juce::roundToInt(at*100.f))+" %",getLocalBounds().reduced(6,2),juce::Justification::topRight);
+            return;
+        }
         if(!sampleMode()){
             juce::Path path;const float w=r.getWidth()-8,h=r.getHeight()*.36f;
             for(int i=0;i<=200;++i){const double phase=2.0*i/200.0;const float x=r.getX()+4+w*float(i)/200.f,y=r.getCentreY()-h*float(synthWaveDisplay(position(),phase));if(i==0)path.startNewSubPath(x,y);else path.lineTo(x,y);}
@@ -192,11 +237,12 @@ public:
     void mouseDown(const juce::MouseEvent& e) override {active().begin();mouseDrag(e);}
     void mouseDrag(const juce::MouseEvent& e) override {
         if(sampleMode())start.set(100.f*juce::jlimit(0.f,1.f,(e.position.x-4)/float(getWidth()-8)));
+        else if(table()>0)wave.set(4.f*juce::jlimit(0.f,1.f,(e.position.x-5)/float(juce::jmax(1,getWidth()-10))));   // a wavetable: left to right is first to last frame
         else wave.set(waveForX(e.position.x,float(getWidth())));
         repaint();
     }
     void mouseUp(const juce::MouseEvent&) override {wave.end();start.end();}
-    void mouseDoubleClick(const juce::MouseEvent&) override {if(!sampleMode()){wave.begin();wave.set(float(juce::roundToInt(position())));wave.end();repaint();}}
+    void mouseDoubleClick(const juce::MouseEvent&) override {if(!sampleMode() && table()==0){wave.begin();wave.set(float(juce::roundToInt(position())));wave.end();repaint();}}
     void mouseWheelMove(const juce::MouseEvent&,const juce::MouseWheelDetails& d) override {
         if(sampleMode()||d.deltaY==0)return;
         wave.begin();wave.set(juce::jlimit(0.f,4.f,position()+(d.deltaY>0?.05f:-.05f)));wave.end();repaint();
@@ -385,6 +431,10 @@ public:
             p.mode=static_cast<Segmented*>(add(std::make_unique<Segmented>(state,synthOscID(o,"Mode"),juce::StringArray{"WAVE","SAMPLE"},juce::String("Oscillator ")+"ABC"[o]+" mode")));
             p.display=static_cast<WaveDisplay*>(add(std::make_unique<WaveDisplay>(state,owner,o)));
             p.shapes=static_cast<WaveShapes*>(add(std::make_unique<WaveShapes>(state,o)));
+            // Wavetable (docs/SYNTH_WAVETABLE.md): the table, and its warp under the display.
+            p.table=add(std::make_unique<Choice>(state,synthWavetableID(o,"Table"),synthTableNames(),juce::String("Oscillator ")+"ABC"[o]+" wavetable. Classic is the five-shape oscillator; a table plays sixteen frames that POSITION moves through."));
+            p.warp=add(std::make_unique<Choice>(state,synthWavetableID(o,"Warp"),synthWarpNames(),"Warp: reshapes how the table is read. Bend pushes the wave to one side, Squeeze narrows its first half, Sync restarts it faster, Mirror folds it, Quantize steps it."));
+            p.warpAmount=add(std::make_unique<Bar>(state,synthWavetableID(o,"WarpAmount"),"Warp amount"));
             auto load=std::make_unique<juce::TextButton>("LOAD");load->setComponentID(synthOscID(o,"Load"));load->setTooltip("Load an audio file (WAV, AIFF, FLAC, OGG; up to 20 s) into this oscillator");
             load->onClick=[this,o]{chooseSample(o);};p.load=static_cast<juce::TextButton*>(add(std::move(load)));
             auto clear=std::make_unique<juce::TextButton>("X");clear->setComponentID(synthOscID(o,"Clear"));clear->setTooltip("Remove the sample and return to Wave mode");
@@ -418,17 +468,29 @@ public:
             lfoSync[size_t(l)]=add(std::make_unique<Choice>(state,base+"Sync",synthLfoSyncNames(),"LFO "+juce::String(l+1)+" tempo sync"));
             lfoRate[size_t(l)]=static_cast<Knob*>(add(std::make_unique<Knob>(state,base+"Rate","RATE")));
             addAndMakeVisible(lfoGraphs[size_t(l)]);}
-        // Modulation matrix
+        // Modulation matrix (docs/SYNTH_WAVETABLE.md, "Modulation matrix"): SOURCE
+        // moves TARGET by AMOUNT. Only the rows in use are shown; + adds one.
+        for(auto [label,text]:{std::pair<juce::Label*,const char*>{&modSourceTitle,"SOURCE"},{&modTargetTitle,"MOVES  TARGET"},{&modAmountTitle,"AMOUNT"}}){
+            label->setText(text,juce::dontSendNotification);label->setFont(juce::FontOptions(9.f,juce::Font::bold));label->setColour(juce::Label::textColourId,mutedColour);label->setBorderSize({});addAndMakeVisible(*label);}
         for(int m=0;m<synthModSlots;++m){
-            auto& row=modRows[size_t(m)];
-            row.source=add(std::make_unique<Choice>(state,synthModID(m,"Source"),synthModSourceNames(),"Mod "+juce::String(m+1)+" source"));
-            row.target=add(std::make_unique<Choice>(state,synthModID(m,"Target"),synthModTargetNames(),"Mod "+juce::String(m+1)+" target"));
-            auto amount=std::make_unique<juce::Slider>(juce::Slider::LinearHorizontal,juce::Slider::TextBoxRight);
-            amount->setComponentID(synthModID(m,"Amount"));amount->setTextBoxStyle(juce::Slider::TextBoxRight,false,34,16);amount->setTooltip("Mod "+juce::String(m+1)+" amount");
-            amount->setColour(juce::Slider::trackColourId,accentColour);amount->setScrollWheelEnabled(false);
+            auto& row=modRows[size_t(m)];const auto n=juce::String(m+1);
+            row.source=add(std::make_unique<Choice>(state,synthModID(m,"Source"),synthModSourceNames(),"Modulation "+n+": what moves the target (an envelope, an LFO, how hard you play ...)","Source ..."));
+            row.target=add(std::make_unique<Choice>(state,synthModID(m,"Target"),synthModTargetNames(),"Modulation "+n+": what is moved","Target ..."));
+            auto amount=std::make_unique<juce::Slider>();amount->setSliderStyle(juce::Slider::LinearBar);   // the bar shows its value as text
+            amount->setComponentID(synthModID(m,"Amount"));amount->setTooltip("Modulation "+n+" amount: right of the centre moves the target up, left moves it down. Double-click for 0.");
+            amount->setColour(juce::Slider::textBoxTextColourId,inkColour);amount->setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);amount->setScrollWheelEnabled(false);
             row.amountAttachment=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(state,synthModID(m,"Amount"),*amount);
+            // After the attachment, which installs the parameter's own text.
+            amount->setDoubleClickReturnValue(true,0.0);amount->textFromValueFunction=[](double v){const int i=juce::roundToInt(v);return juce::String(i>0?"+":"")+juce::String(i)+" %";};amount->updateText();
             row.amount=static_cast<juce::Slider*>(add(std::move(amount)));
+            auto clear=std::make_unique<juce::TextButton>("x");clear->setComponentID(synthModID(m,"Clear"));clear->setTooltip("Remove modulation "+n);
+            clear->onClick=[this,m]{clearModulation(m);};row.clear=static_cast<juce::TextButton*>(add(std::move(clear)));
         }
+        modAdd.setButtonText("+ ADD MODULATION");modAdd.setComponentID("synthModAdd");modAdd.setTooltip("Add a modulation row. You can also right-click a knob and choose what moves it.");
+        modAdd.onClick=[this]{modRowsRevealed=juce::jmin(synthModSlots,modRowsShown()+1);layoutMatrix();};addAndMakeVisible(modAdd);
+        modHint.setText("Right-click a knob to modulate it.",juce::dontSendNotification);modHint.setFont(juce::FontOptions(9.f));modHint.setColour(juce::Label::textColourId,mutedColour);modHint.setBorderSize({});addAndMakeVisible(modHint);
+        // Knobs the matrix can move: right-click opens "Modulate with".
+        for(auto& k:owned)if(auto* knob=dynamic_cast<Knob*>(k.get()))if(modTargetFor(knob->slider.getComponentID())>0)knob->slider.addMouseListener(this,false);
         // Scope and master
         output=add(std::make_unique<Choice>(state,"synthOutput",synthOutputNames(),"Synth output: into the guitar mix at its insert point, to the plugin's SYNTH output bus, or both. Without a SYNTH bus (the host enables it) the synth stays in the mix."));
         addAndMakeVisible(scope);
@@ -483,9 +545,11 @@ public:
         for(int o=0;o<synthOscCount;++o){
             auto r=p[size_t(o)].first.reduced(8,6);auto& panel=oscPanels[size_t(o)];
             auto head=r.removeFromTop(18);panel.on->setBounds(head.removeFromLeft(50));head.removeFromLeft(4);panel.mode->setBounds(head.removeFromLeft(98));
-            head.removeFromLeft(4);panel.clear->setBounds(head.removeFromRight(18));head.removeFromRight(2);panel.load->setBounds(head.removeFromRight(juce::jmin(44,head.getWidth())));
+            head.removeFromLeft(4);panel.table->setBounds(head);   // Wave mode; LOAD and X take this space in Sample mode
+            panel.clear->setBounds(head.removeFromRight(18));head.removeFromRight(2);panel.load->setBounds(head.removeFromRight(juce::jmin(44,head.getWidth())));
             r.removeFromTop(4);panel.display->setBounds(r.removeFromTop(48));r.removeFromTop(3);
             auto strip=r.removeFromTop(18);panel.shapes->setBounds(strip);
+            {auto warpArea=strip;panel.warp->setBounds(warpArea.removeFromLeft(96));warpArea.removeFromLeft(4);panel.warpAmount->setBounds(warpArea);}
             panel.loop->setBounds(strip.removeFromLeft(44));strip.removeFromLeft(4);
             panel.root->setCompact();panel.root->setBounds(strip.removeFromLeft(80));panel.root->setIncDec();
             r.removeFromTop(3);
@@ -504,9 +568,7 @@ public:
          for(int l=0;l<2;++l){auto half=r.removeFromTop(r.getHeight()/(2-l));auto head=half.removeFromTop(18);
              lfoShape[size_t(l)]->setBounds(head.removeFromLeft(head.getWidth()/2-2));head.removeFromLeft(4);lfoSync[size_t(l)]->setBounds(head);
              lfoRate[size_t(l)]->setBounds(half.removeFromRight(48));lfoGraphs[size_t(l)].setBounds(half.reduced(0,3));}}
-        {auto r=p[7].first.reduced(8,6);r.removeFromTop(16);const int h=r.getHeight()/synthModSlots;
-         for(int m=0;m<synthModSlots;++m){auto row=r.removeFromTop(h).reduced(0,1);auto& mr=modRows[size_t(m)];
-             mr.source->setBounds(row.removeFromLeft(row.getWidth()*3/10));row.removeFromLeft(3);mr.target->setBounds(row.removeFromLeft(row.getWidth()*45/100));row.removeFromLeft(3);mr.amount->setBounds(row);}}
+        layoutMatrix();
         {auto r=p[8].first.reduced(8,6);r.removeFromTop(16);auto sub=r.removeFromTop(r.getHeight()/2);
          auto head=sub.removeFromTop(18);subOn->setBounds(head.removeFromLeft(50));sub.removeFromTop(3);
          auto menus=sub.removeFromLeft(sub.getWidth()*3/5);subOctave->setBounds(menus.removeFromTop(20));menus.removeFromTop(3);subShape->setBounds(menus.removeFromTop(20));
@@ -523,10 +585,61 @@ public:
             if(auto* knob=dynamic_cast<Knob*>(k.get()))if(knob->slider.getComponentID()==id)return &knob->slider;
             if(auto* seg=dynamic_cast<Segmented*>(k.get()))for(int i=0;i<seg->count();++i)if(id==seg->getComponentID()+juce::String(i))return &seg->button(i);
         }
+        if(auto* direct=findChildWithID(id))return direct;   // members such as the matrix's + button
         return getComponentID()==id?this:nullptr;
     }
     FilterCurve& filterCurve() noexcept {return filter;}
     EnvelopeGraph& envelopeGraph(int index) noexcept {return index==0?ampEnvelope:modEnvelope;}
+    // The matrix target a knob stands for (0: none). Octave, semitones and fine all stand for the oscillator's pitch.
+    static int modTargetFor(const juce::String& id) {
+        for(int o=0;o<synthOscCount;++o){
+            if(id==synthOscID(o,"Octave")||id==synthOscID(o,"Semi")||id==synthOscID(o,"Fine"))return targetPitchA+o;
+            if(id==synthOscID(o,"Wave"))return targetWaveA+o;
+            if(id==synthOscID(o,"Level"))return targetLevelA+o;
+            if(id==synthOscID(o,"Detune"))return targetDetune;
+        }
+        static const std::array<std::pair<const char*,int>,6> direct{{{"synthFM",targetFM},{"synthCutoff",targetCutoff},{"synthResonance",targetResonance},{"synthSubLevel",targetSubLevel},{"synthNoiseLevel",targetNoiseLevel},{"synthLevel",targetAmp}}};
+        for(const auto& [name,target]:direct)if(id==name)return target;
+        return 0;
+    }
+    // Rows on screen and the marks on modulated knobs follow the parameters (a patch or the host may change them).
+    void refreshModulation() {if(modRowsShown()!=shownModRows)layoutMatrix();updateModulatedKnobs();}
+    int modValue(int row,const char* field) const {return juce::roundToInt(state.getRawParameterValue(synthModID(row,field))->load());}
+    bool modRowUsed(int row) const {return modValue(row,"Source")>0 || modValue(row,"Target")>0;}
+    // Rows on screen: every row up to the last one in use, and those added with + (at least one).
+    int modRowsShown() const {int last=0;for(int m=0;m<synthModSlots;++m)if(modRowUsed(m))last=m+1;return juce::jlimit(1,synthModSlots,juce::jmax(last,modRowsRevealed));}
+    // Connects `source` to `target`: the row that already does, else the first free row. Returns the row or -1.
+    int assignModulation(int source,int target) {
+        int row=-1;
+        for(int m=0;m<synthModSlots && row<0;++m)if(modValue(m,"Source")==source && modValue(m,"Target")==target)row=m;
+        for(int m=0;m<synthModSlots && row<0;++m)if(!modRowUsed(m))row=m;
+        if(row<0)return -1;
+        setParameter(synthModID(row,"Source"),float(source));setParameter(synthModID(row,"Target"),float(target));
+        if(modValue(row,"Amount")==0)setParameter(synthModID(row,"Amount"),50.f);
+        modRowsRevealed=juce::jmax(modRowsRevealed,row+1);layoutMatrix();updateModulatedKnobs();
+        return row;
+    }
+    void clearModulation(int row) {
+        const bool last=row+1==modRowsShown();   // removing the last row on screen takes the row away
+        for(const char* field:{"Source","Target","Amount"})setParameter(synthModID(row,field),0.f);
+        if(last)modRowsRevealed=juce::jlimit(1,synthModSlots,row);
+        layoutMatrix();updateModulatedKnobs();
+    }
+    void mouseDown(const juce::MouseEvent& e) override {
+        if(!e.mods.isPopupMenu() || e.eventComponent==nullptr || e.eventComponent==this)return;
+        const int target=modTargetFor(e.eventComponent->getComponentID());if(target<=0)return;
+        juce::PopupMenu menu;const auto sources=synthModSourceNames();const auto name=synthModTargetNames()[target];
+        menu.addSectionHeader("MODULATE "+name.toUpperCase()+" WITH");
+        bool any=false;
+        for(int source=1;source<sources.size();++source){bool on=false;for(int m=0;m<synthModSlots;++m)on|=modValue(m,"Source")==source && modValue(m,"Target")==target;any|=on;menu.addItem(source,sources[source],true,on);}
+        menu.addSeparator();menu.addItem(100,"Remove every modulation of "+name,any);
+        juce::Component::SafePointer<SynthPage> safe(this);
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(e.eventComponent),[safe,target](int result){
+            if(!safe || result<=0)return;
+            if(result==100){for(int m=0;m<synthModSlots;++m)if(safe->modValue(m,"Target")==target)safe->clearModulation(m);return;}
+            if(safe->assignModulation(result,target)<0)juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Modulation matrix full","All eight modulation rows are in use. Remove one first.");
+        });
+    }
     WaveDisplay& waveDisplay(int osc) noexcept {return *oscPanels[size_t(juce::jlimit(0,synthOscCount-1,osc))].display;}
     WaveShapes& waveShapes(int osc) noexcept {return *oscPanels[size_t(juce::jlimit(0,synthOscCount-1,osc))].shapes;}
     // Shows each oscillator's Wave or Sample controls, and the character
@@ -534,7 +647,9 @@ public:
     void updateModes() {
         for(int o=0;o<synthOscCount;++o){
             auto& p=oscPanels[size_t(o)];const bool sample=state.getRawParameterValue(synthOscID(o,"Mode"))->load()>.5f;
-            p.shapes->setVisible(!sample);p.knobs[6]->setVisible(!sample);
+            const bool table=!sample && state.getRawParameterValue(synthWavetableID(o,"Table"))->load()>.5f;
+            p.shapes->setVisible(!sample && !table);p.knobs[6]->setVisible(!sample);p.knobs[6]->setLabel(table?"POSITION":"MORPH");
+            p.table->setVisible(!sample);p.warp->setVisible(table);p.warpAmount->setVisible(table);
             for(juce::Component* c:{static_cast<juce::Component*>(p.load),static_cast<juce::Component*>(p.clear),p.loop,static_cast<juce::Component*>(p.root),static_cast<juce::Component*>(p.knobs[7])})c->setVisible(sample);
         }
         static const char* tips[]{"Dvergr Analog: slow pitch drift per oscillator (about 5 cents RMS at 100 %) and soft saturation into the filter",
@@ -565,12 +680,42 @@ private:
         if(!isShowing())return;
         if(const int t=juce::jlimit(0,2,juce::roundToInt(state.getRawParameterValue("synthType")->load()));t!=shownType){shownType=t;repaint(0,0,getWidth(),28);}
         updateModes();
+        refreshModulation();
         for(auto& p:oscPanels){p.display->repaint();p.shapes->repaint();}
         filter.repaint();ampEnvelope.repaint();modEnvelope.repaint();for(auto& l:lfoGraphs)l.repaint();scope.repaint();
         repaint(oscPanels[0].shapes->getBounds().getUnion(oscPanels[2].shapes->getBounds()));
     }
-    struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
-    struct ModRow {juce::Component* source{};juce::Component* target{};juce::Slider* amount{};std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> amountAttachment;};
+    struct OscPanel {juce::Component* on{};Segmented* mode{};WaveDisplay* display{};WaveShapes* shapes{};juce::Component* table{};juce::Component* warp{};juce::Component* warpAmount{};juce::TextButton* load{};juce::TextButton* clear{};juce::Component* loop{};Knob* root{};std::vector<Knob*> knobs;};
+    void setParameter(const juce::String& id,float value) {
+        if(auto* q=state.getParameter(id)){q->beginChangeGesture();q->setValueNotifyingHost(q->convertTo0to1(value));q->endChangeGesture();}
+    }
+    // Lays out the rows in use, the + button under them, and hides the rest.
+    void layoutMatrix() {
+        auto r=panels()[7].first.reduced(8,6);r.removeFromTop(16);
+        const auto columns=[](juce::Rectangle<int> row){std::array<juce::Rectangle<int>,4> c;c[3]=row.removeFromRight(16);row.removeFromRight(2);
+            c[0]=row.removeFromLeft(row.getWidth()*37/100);row.removeFromLeft(3);c[1]=row.removeFromLeft(row.getWidth()*55/100);row.removeFromLeft(3);c[2]=row;return c;};
+        {const auto c=columns(r.removeFromTop(11));modSourceTitle.setBounds(c[0]);modTargetTitle.setBounds(c[1]);modAmountTitle.setBounds(c[2]);}
+        const int shown=modRowsShown(),h=juce::jmin(20,r.getHeight()/(synthModSlots+1));
+        for(int m=0;m<synthModSlots;++m){
+            auto& mr=modRows[size_t(m)];const bool visible=m<shown;
+            for(juce::Component* c:{mr.source,mr.target,static_cast<juce::Component*>(mr.amount),static_cast<juce::Component*>(mr.clear)})c->setVisible(visible);
+            if(!visible)continue;
+            const auto c=columns(r.removeFromTop(h).reduced(0,1));mr.source->setBounds(c[0]);mr.target->setBounds(c[1]);mr.amount->setBounds(c[2]);mr.clear->setBounds(c[3]);
+        }
+        modAdd.setVisible(shown<synthModSlots);
+        if(shown<synthModSlots){r.removeFromTop(2);modAdd.setBounds(r.removeFromTop(juce::jmin(18,r.getHeight())).removeFromLeft(juce::jmin(130,r.getWidth())));}
+        modHint.setVisible(r.getHeight()>=12);if(modHint.isVisible())modHint.setBounds(r.removeFromBottom(12));
+        shownModRows=shown;
+    }
+    // Marks every knob the matrix moves (the look draws the arc).
+    void updateModulatedKnobs() {
+        std::array<double,synthModTargetCount> sum{};
+        for(int m=0;m<synthModSlots;++m){const int target=modValue(m,"Target");if(modValue(m,"Source")>0 && target>0 && target<synthModTargetCount)sum[size_t(target)]+=state.getRawParameterValue(synthModID(m,"Amount"))->load()*.01;}
+        for(auto& k:owned)if(auto* knob=dynamic_cast<Knob*>(k.get())){const int target=modTargetFor(knob->slider.getComponentID());if(target<=0)continue;
+            const double mod=juce::jlimit(-1.0,1.0,sum[size_t(target)]);
+            if(std::abs(double(knob->slider.getProperties().getWithDefault("mod",0.0))-mod)>1e-6){knob->slider.getProperties().set("mod",mod);knob->slider.repaint();}}
+    }
+    struct ModRow {juce::Component* source{};juce::Component* target{};juce::Slider* amount{};juce::TextButton* clear{};std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> amountAttachment;};
     SynthLook look;   // declared first: destroyed after every child that uses it
     ChimeraProcessor& processor;juce::AudioProcessorValueTreeState& state;
     std::vector<std::unique_ptr<juce::Component>> owned;std::vector<juce::Component*> children;std::vector<Knob*> header;
@@ -584,7 +729,7 @@ private:
     juce::Component* filterOn{};juce::Component* filterType{};FilterCurve filter;std::vector<Knob*> filterKnobs;
     EnvelopeGraph ampEnvelope,modEnvelope;std::array<std::vector<Knob*>,2> envKnobs;
     std::array<juce::Component*,2> lfoShape{},lfoSync{};std::array<Knob*,2> lfoRate{};std::array<LfoGraph,2> lfoGraphs;
-    std::array<ModRow,synthModSlots> modRows;
+    std::array<ModRow,synthModSlots> modRows;juce::Label modSourceTitle,modTargetTitle,modAmountTitle,modHint;juce::TextButton modAdd;int modRowsRevealed{1},shownModRows{-1};
     Scope scope;std::vector<Knob*> masterKnobs;
 };
 } // namespace spectralforge::synthUI
