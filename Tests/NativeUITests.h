@@ -273,12 +273,22 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                             processor.parameters().getRawParameterValue(spectralforge::effectExtensionID(family))->load())==choice,"Time/modulation ALL model callback is disconnected");
             }
             const std::array<const char*,3> ids=family==10?std::array<const char*,3>{"chorusrate","chorusdepth","chorusmix"}:family==1?std::array<const char*,3>{"delaytime","delayfeedback","delaymix"}:std::array<const char*,3>{"reverbsize","reverbdamping","reverbmix"};
-            std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:3u),"Time/modulation ALL omitted a processor control");
+            std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:family==2?3u+size_t(spectralforge::postReverbControlsPerSlot):3u),"Time/modulation ALL omitted a processor control");
             for(auto* view:controls){require(view->isVisible(),"Time/modulation ALL hides a control");inside(panel,*view,"Time/modulation ALL control exceeds panel bounds");}
             for(const auto* id:ids){auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr,"Time/modulation ALL knob missing");const auto& range=processor.parameters().getParameter(id)->getNormalisableRange();slider->setValue(range.start+(range.end-range.start)*.62,juce::sendNotificationSync);require(std::abs(processor.parameters().getRawParameterValue(id)->load()-slider->getValue())<.02,"Time/modulation ALL knob did not reach audio state");}
             const auto powerID=family==10?"choruson":family==1?"delayon":"reverbon";auto* power=find<juce::TextButton>(panel,powerID);require(power!=nullptr,"Time/modulation ALL power missing");
             const bool before=processor.parameters().getRawParameterValue(powerID)->load()>.5f;power->triggerClick();settle();require((processor.parameters().getRawParameterValue(powerID)->load()>.5f)!=before,"Time/modulation ALL power callback is disconnected");
             if(family==1){auto* sync=find<juce::TextButton>(panel,"delaysync");require(sync!=nullptr,"Delay ALL is missing tempo sync");const bool beforeSync=processor.parameters().getRawParameterValue("delaysync")->load()>.5f;sync->triggerClick();settle();require((processor.parameters().getRawParameterValue("delaysync")->load()>.5f)!=beforeSync,"Delay ALL tempo sync is disconnected");}
+            if(family==2) {
+                // The reverb's added controls (docs/POST_REVERB_CONTROLS.md): each knob writes its parameter, FREEZE toggles it, none overlaps another.
+                for(int i=0;i<spectralforge::postReverbControlsPerSlot;++i) {
+                    const auto id=spectralforge::reverbControlID(0,i);const auto& spec=spectralforge::reverbControlSpecs[(size_t)i];const auto raw=[&]{return processor.parameters().getRawParameterValue(id)->load();};
+                    if(spec.toggle){auto* button=find<juce::TextButton>(panel,id);require(button!=nullptr && button->isShowing(),"Reverb ALL is missing FREEZE");const bool was=raw()>.5f;button->triggerClick();settle();require((raw()>.5f)!=was,"Reverb ALL FREEZE callback is disconnected");button->triggerClick();settle();require((raw()>.5f)==was,"Reverb ALL FREEZE does not switch back");}
+                    else {auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr && slider->isShowing(),"Reverb ALL is missing an added knob");const double target=spec.minimum+(spec.maximum-spec.minimum)*.62;slider->setValue(target,juce::sendNotificationSync);
+                        require(std::abs(raw()-float(target))<(spec.maximum-spec.minimum)*.01f,"Reverb ALL added knob callback is disconnected");}
+                }
+                for(size_t a=0;a<controls.size();++a)for(size_t b=a+1;b<controls.size();++b)require(!controls[a]->getBounds().intersects(controls[b]->getBounds()),"Reverb ALL controls overlap");
+            }
             if(scale==0)snapshot(panel,directory,section==3?"Native-Post-Modulation-ALL":section==4?"Native-Post-Delay-ALL":"Native-Post-Reverb-ALL");close(window);
         }
     }

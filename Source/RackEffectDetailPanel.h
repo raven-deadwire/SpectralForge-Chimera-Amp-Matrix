@@ -27,7 +27,20 @@ public:
         for(int i=0;i<3;++i){auto control=std::make_unique<NativeControlView>();const auto& range=processor.parameters().getParameter(id(ids[(size_t)i]))->getNormalisableRange();control->bind(processor.parameters(),id(ids[(size_t)i]),labels[(size_t)i],title.getText(),0,{},range.start,range.end,range.interval,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
         if(family==1){auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),id("delaysync"),"TEMPO SYNC","DELAY",2,{"OFF","ON"},0,1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));controls.front()->slider.textFromValueFunction=[this](double value){const bool sync=processor.parameters().getRawParameterValue(id("delaysync"))->load()>.5f;return juce::String(sync?60000.0/processor.currentTempo():value,1)+" ms";};timerCallback();startTimerHz(15);}
         if(family==10)controls.front()->slider.setTextValueSuffix(" Hz");
-        refreshModel();setSize(740,270);
+        if(family==2) {
+            // The reverb's second row (docs/POST_REVERB_CONTROLS.md): four knobs and the freeze switch.
+            for(int i=0;i<spectralforge::postReverbControlsPerSlot;++i) {
+                static constexpr std::array<const char*,spectralforge::postReverbControlsPerSlot> names{"PRE-DELAY","LOW CUT","TONE","WIDTH","FREEZE"};
+                static constexpr std::array<const char*,spectralforge::postReverbControlsPerSlot> units{" ms"," Hz","","",""};
+                static constexpr std::array<int,spectralforge::postReverbControlsPerSlot> decimals{0,0,2,2,0};
+                const auto& spec=spectralforge::reverbControlSpecs[(size_t)i];const auto parameter=spectralforge::reverbControlID(slot,i);
+                auto control=std::make_unique<NativeControlView>();
+                control->bind(processor.parameters(),parameter,names[(size_t)i],title.getText(),spec.toggle?2:0,spec.toggle?juce::StringArray{"OFF","ON"}:juce::StringArray{},spec.minimum,spec.maximum,spec.toggle?1:0,3);
+                if(!spec.toggle){control->slider.setTextValueSuffix(units[(size_t)i]);control->slider.setNumDecimalPlacesToDisplay(decimals[(size_t)i]);control->slider.setDoubleClickReturnValue(true,spec.initial);}
+                addAndMakeVisible(*control);controls.push_back(std::move(control));
+            }
+        }
+        refreshModel();setSize(740,family==2?434:270);
     }
     ~RackEffectDetailPanel() override {stopTimer();setLookAndFeel(nullptr);}
     void paint(juce::Graphics& g) override {
@@ -36,7 +49,10 @@ public:
     }
     void resized() override {
         title.setBounds(18,8,260,18);model.setBounds(18,29,330,25);reference.setBounds(18,54,getWidth()-36,18);enabled.setBounds(getWidth()-104,24,85,28);
-        const int cell=(getWidth()-32)/juce::jmax(1,(int)controls.size());for(size_t i=0;i<controls.size();++i)controls[i]->setBounds(16+(int)i*cell,92,cell-8,154);
+        // The reverb has two rows: SIZE, DAMPING and MIX as before, its added controls under them.
+        const size_t first=family==2?3:controls.size();
+        const int cell=(getWidth()-32)/juce::jmax(1,(int)first);for(size_t i=0;i<first;++i)controls[i]->setBounds(16+(int)i*cell,92,cell-8,154);
+        if(controls.size()>first){const int below=(getWidth()-32)/int(controls.size()-first);for(size_t i=first;i<controls.size();++i)controls[i]->setBounds(16+int(i-first)*below,256,below-8,154);}
     }
 private:
     ChimeraProcessor& processor;int family{},slot{};
