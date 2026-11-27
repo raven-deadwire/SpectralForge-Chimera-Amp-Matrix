@@ -5,6 +5,7 @@
 #include "RigViewTestHelpers.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeCatalog.h"
+#include "RackEffectDetailPanel.h"
 #include "NativeMessageLoop.h"
 #include "PublicNameTests.h"
 #include <iostream>
