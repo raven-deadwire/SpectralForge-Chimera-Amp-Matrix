@@ -288,6 +288,15 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                         require(std::abs(raw()-float(target))<(spec.maximum-spec.minimum)*.01f,"Reverb ALL added knob callback is disconnected");}
                 }
                 for(size_t a=0;a<controls.size();++a)for(size_t b=a+1;b<controls.size();++b)require(!controls[a]->getBounds().intersects(controls[b]->getBounds()),"Reverb ALL controls overlap");
+                // Every row is on screen: no control reaches past the panel, and the window shows the whole panel without scrolling.
+                // A window manager may size the window a moment after it opens, so the check waits up to two seconds for it.
+                const auto wholeWindow=[&]{
+                    if(window->getContentComponent()!=&panel || !window->getLocalBounds().contains(window->getLocalArea(&panel,panel.getLocalBounds())))return false;
+                    for(auto* view:controls)if(!panel.getLocalBounds().contains(view->getBounds()))return false;
+                    return true;};
+                for(const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000;!wholeWindow() && juce::Time::getMillisecondCounterHiRes()<deadline;)settle(50);
+                int lowest=0;for(auto* view:controls)lowest=juce::jmax(lowest,view->getBottom());
+                require(wholeWindow(),("Reverb ALL does not show every row: panel "+panel.getBounds().toString()+", window "+window->getBounds().toString()+", lowest control ends at "+juce::String(lowest)).toRawUTF8());
             }
             if(scale==0)snapshot(panel,directory,section==3?"Native-Post-Modulation-ALL":section==4?"Native-Post-Delay-ALL":"Native-Post-Reverb-ALL");close(window);
         }
