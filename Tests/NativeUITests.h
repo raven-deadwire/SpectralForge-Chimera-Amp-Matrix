@@ -273,7 +273,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                             processor.parameters().getRawParameterValue(spectralforge::effectExtensionID(family))->load())==choice,"Time/modulation ALL model callback is disconnected");
             }
             const std::array<const char*,3> ids=family==10?std::array<const char*,3>{"chorusrate","chorusdepth","chorusmix"}:family==1?std::array<const char*,3>{"delaytime","delayfeedback","delaymix"}:std::array<const char*,3>{"reverbsize","reverbdamping","reverbmix"};
-            std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:family==2?3u+size_t(spectralforge::postReverbControlsPerSlot):3u),"Time/modulation ALL omitted a processor control");
+            std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:family==2?3u+size_t(spectralforge::postReverbControlsPerSlot+spectralforge::postReverbShapePerSlot):3u),"Time/modulation ALL omitted a processor control");
             for(auto* view:controls){require(view->isVisible(),"Time/modulation ALL hides a control");inside(panel,*view,"Time/modulation ALL control exceeds panel bounds");}
             for(const auto* id:ids){auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr,"Time/modulation ALL knob missing");const auto& range=processor.parameters().getParameter(id)->getNormalisableRange();slider->setValue(range.start+(range.end-range.start)*.62,juce::sendNotificationSync);require(std::abs(processor.parameters().getRawParameterValue(id)->load()-slider->getValue())<.02,"Time/modulation ALL knob did not reach audio state");}
             const auto powerID=family==10?"choruson":family==1?"delayon":"reverbon";auto* power=find<juce::TextButton>(panel,powerID);require(power!=nullptr,"Time/modulation ALL power missing");
@@ -287,6 +287,15 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                     else {auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr && slider->isShowing(),"Reverb ALL is missing an added knob");const double target=spec.minimum+(spec.maximum-spec.minimum)*.62;slider->setValue(target,juce::sendNotificationSync);
                         require(std::abs(raw()-float(target))<(spec.maximum-spec.minimum)*.01f,"Reverb ALL added knob callback is disconnected");}
                 }
+                // The tempo shape (docs/POST_REVERB_SHAPE.md): both menus list their choices and write their parameter; the depth knob writes its.
+                for(const int menu:{0,2}) {
+                    const auto id=spectralforge::reverbShapeID(0,menu);auto* box=find<juce::ComboBox>(panel,id);require(box!=nullptr && box->isShowing(),"Reverb ALL is missing a shape menu");
+                    const auto choices=menu==0?spectralforge::reverbShapeChoices():spectralforge::reverbShapeLengthChoices();require(box->getNumItems()==choices.size(),"A reverb shape menu does not list its choices");
+                    for(int choice=0;choice<choices.size();++choice){box->setSelectedId(choice+1,juce::sendNotificationSync);settle(20);require(box->getText()==choices[choice] && juce::roundToInt(processor.parameters().getRawParameterValue(id)->load())==choice,"A reverb shape menu callback is disconnected");}
+                    box->setSelectedId(menu==0?1:spectralforge::reverbShapeDefaultLength+1,juce::sendNotificationSync);settle(20);
+                }
+                {const auto id=spectralforge::reverbShapeID(0,1);auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr && slider->isShowing(),"Reverb ALL is missing the shape depth");slider->setValue(.62,juce::sendNotificationSync);
+                 require(std::abs(processor.parameters().getRawParameterValue(id)->load()-.62f)<.01f,"Reverb ALL shape depth callback is disconnected");}
                 for(size_t a=0;a<controls.size();++a)for(size_t b=a+1;b<controls.size();++b)require(!controls[a]->getBounds().intersects(controls[b]->getBounds()),"Reverb ALL controls overlap");
             }
             if(scale==0)snapshot(panel,directory,section==3?"Native-Post-Modulation-ALL":section==4?"Native-Post-Delay-ALL":"Native-Post-Reverb-ALL");close(window);

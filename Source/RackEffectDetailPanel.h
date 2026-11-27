@@ -39,8 +39,12 @@ public:
                 if(!spec.toggle){control->slider.setTextValueSuffix(units[(size_t)i]);control->slider.setNumDecimalPlacesToDisplay(decimals[(size_t)i]);control->slider.setDoubleClickReturnValue(true,spec.initial);}
                 addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
+            // The third row (docs/POST_REVERB_SHAPE.md): the tempo shape, its depth and its length.
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,0),"SHAPE",title.getText(),1,spectralforge::reverbShapeChoices(),0,spectralforge::reverbShapeCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,1),"SHAPE DEPTH",title.getText(),0,{},0,1,0,3);control->slider.setDoubleClickReturnValue(true,1.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,2),"SHAPE LENGTH",title.getText(),1,spectralforge::reverbShapeLengthChoices(),0,spectralforge::reverbShapeLengthCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
         }
-        refreshModel();setSize(740,family==2?434:270);
+        refreshModel();setSize(740,family==2?598:270);
     }
     ~RackEffectDetailPanel() override {stopTimer();setLookAndFeel(nullptr);}
     void paint(juce::Graphics& g) override {
@@ -49,10 +53,10 @@ public:
     }
     void resized() override {
         title.setBounds(18,8,260,18);model.setBounds(18,29,330,25);reference.setBounds(18,54,getWidth()-36,18);enabled.setBounds(getWidth()-104,24,85,28);
-        // The reverb has two rows: SIZE, DAMPING and MIX as before, its added controls under them.
-        const size_t first=family==2?3:controls.size();
-        const int cell=(getWidth()-32)/juce::jmax(1,(int)first);for(size_t i=0;i<first;++i)controls[i]->setBounds(16+(int)i*cell,92,cell-8,154);
-        if(controls.size()>first){const int below=(getWidth()-32)/int(controls.size()-first);for(size_t i=first;i<controls.size();++i)controls[i]->setBounds(16+int(i-first)*below,256,below-8,154);}
+        // The reverb has three rows: SIZE, DAMPING and MIX as before, its added controls under them, the tempo shape last.
+        const size_t first=family==2?3:controls.size(),second=family==2?first+size_t(spectralforge::postReverbControlsPerSlot):first;
+        const auto row=[this](size_t from,size_t to,int y){if(to<=from)return;const int cell=(getWidth()-32)/int(to-from);for(size_t i=from;i<to;++i)controls[i]->setBounds(16+int(i-from)*cell,y,cell-8,154);};
+        row(0,first,92);row(first,second,256);row(second,controls.size(),420);
     }
 private:
     ChimeraProcessor& processor;int family{},slot{};
