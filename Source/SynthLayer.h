@@ -2,6 +2,10 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "SynthWavetable.h"
+#include "SynthFilters.h"
+#include "SynthSequencer.h"
+#include "SynthEffects.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -101,6 +105,10 @@ inline double synthFilterMagnitude(int type, double cutoffHz, double resonance, 
         default: h = (s * s + 1.0) / d;break;
     }
     return std::abs(h);
+}
+// Filter 2's magnitude: the same curves, or a comb.
+inline double synthFilter2Magnitude(int type, double cutoffHz, double resonance, double hz, double rate) noexcept {
+    return type >= synthFilterCombPlus ? synthCombMagnitude(type == synthFilterCombMinus, cutoffHz, resonance, hz, rate) : synthFilterMagnitude(type, cutoffHz, resonance, hz, rate);
 }
 // ADSR shape for graphs and tests: linear attack over A, then decay and
 // release move 60 dB of their span in D and R. Times in seconds.
@@ -232,22 +240,22 @@ inline constexpr int synthParameterCount = 12 + synthOscCount * 12 + 4 + 3 + 7 +
 // Patches. Applying one writes host parameters (a UI action, one gesture per
 // parameter); nothing applies a patch on its own. Unlisted parameters return
 // to their defaults. Each engine type has its factory patch.
-struct SynthPatch { const char* name; std::vector<std::pair<juce::String, float>> values; };
+struct SynthPatch { const char* name; std::vector<std::pair<juce::String, float>> values; const char* category{"Other"}; };
 inline std::vector<SynthPatch> synthPatches() {
     return {
         {"Init", {}},
         {"Dvergr Analog", {{"synthType", float(synthAnalog)}, {"synthCharacter", 60.f}, {"synthOscAWave", 2.f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 2.f},
                            {"synthOscBFine", 12.f}, {"synthOscBLevel", 70.f}, {"synthSubOn", 1.f}, {"synthSubShape", 1.f}, {"synthSubLevel", 50.f},
                            {"synthFilterType", 1.f}, {"synthCutoff", 1200.f}, {"synthResonance", 35.f}, {"synthFilterEnv", 50.f}, {"synthModEnvAttack", 2.f},
-                           {"synthModEnvDecay", 500.f}, {"synthModEnvSustain", 20.f}, {"synthAmpSustain", 85.f}}},
+                           {"synthModEnvDecay", 500.f}, {"synthModEnvSustain", 20.f}, {"synthAmpSustain", 85.f}}, "Bass"},
         {"Seidr Dynamic", {{"synthType", float(synthDynamic)}, {"synthCharacter", 70.f}, {"synthOscAWave", 3.5f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 2.f},
                            {"synthOscBFine", 5.f}, {"synthOscBLevel", 30.f}, {"synthOscCOn", 1.f}, {"synthOscCWave", 0.f}, {"synthOscCOctave", 1.f},
                            {"synthOscCLevel", 20.f}, {"synthFilterType", 0.f}, {"synthCutoff", 600.f}, {"synthAmpAttack", 80.f}, {"synthAmpDecay", 500.f},
                            {"synthAmpSustain", 90.f}, {"synthAmpRelease", 900.f}, {"synthLfo1Rate", .3f}, {"synthMod1Source", float(modLfo1)},
-                           {"synthMod1Target", float(targetWaveA)}, {"synthMod1Amount", 12.f}}},
+                           {"synthMod1Target", float(targetWaveA)}, {"synthMod1Amount", 12.f}}, "Pad"},
         {"Mimir Impact", {{"synthType", float(synthImpact)}, {"synthCharacter", 70.f}, {"synthOscAWave", 0.f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 0.f},
                           {"synthOscBOctave", 1.f}, {"synthOscBLevel", 0.f}, {"synthFM", 10.f}, {"synthFilterOn", 0.f}, {"synthAmpAttack", 1.f},
-                          {"synthAmpDecay", 500.f}, {"synthAmpSustain", 0.f}, {"synthAmpRelease", 500.f}}},
+                          {"synthAmpDecay", 500.f}, {"synthAmpSustain", 0.f}, {"synthAmpRelease", 500.f}}, "Pluck"},
     };
 }
 // A patch never changes these: switching, routing and level, and each
@@ -467,16 +475,25 @@ public:
     struct Settings {
         bool on{}; int type{}, source{}, insert{2}, octave{}, voices{4};
         float character{.5f}, levelDb{-6.f}, glideMs{}, sensitivityDb{-40.f}, width{.5f}, fm{};
-        struct Osc { bool on{}; int mode{}; float wave{2.f}; int octave{}, semi{}; float fine{}; int unison{1}; float detune{.2f}, level{.8f}, start{}; bool loop{true}; int root{60}; };
+        struct Osc { bool on{}; int mode{}; float wave{2.f}; int octave{}, semi{}; float fine{}; int unison{1}; float detune{.2f}, level{.8f}, start{}; bool loop{true}; int root{60};
+                     int table{}, warp{}; float warpAmount{};   // docs/SYNTH_WAVETABLE.md; 0 / 0 / 0 is the released oscillator
+                     bool imported{}; };                         // plays the imported table, when the oscillator has one
         std::array<Osc, synthOscCount> osc{};
         bool subOn{}; int subOctave{}, subShape{}; float subLevel{.5f};
         bool noiseOn{}; float noiseColor{.7f}, noiseLevel{.2f};
         bool filterOn{true}; int filterType{1}; float cutoff{6000.f}, resonance{.2f}, drive{}, keyTrack{}, filterEnv{};
+        // docs/SYNTH_FILTERS.md; filter 2 and the distortion off is the released voice
+        bool filter2On{}; int filter2Type{2}; float cutoff2{200.f}, resonance2{.2f}, keyTrack2{}, filterEnv2{}; int routing{}; float balance{.5f};
+        bool distOn{}; int distType{}, distPlace{}; float distMix{1.f}, distDrive{.3f}; double distGain{1.0}, distSteps{32768.0};
+        // docs/SYNTH_SEQUENCER.md
+        int seqSteps{synthSeqMaxSteps}, seqRate{4}; float seqSmooth{}; bool seqRetrigger{true};
+        std::array<float, synthSeqMaxSteps> seq{}; std::array<float, synthMacroCount> macro{};
         std::array<SynthEnvelopeSettings, 2> env{};
         struct Lfo { int shape{}; float rate{2.f}; int sync{}; };
         std::array<Lfo, 2> lfo{};
         struct Slot { int source{}, target{}; float amount{}; };
         std::array<Slot, synthModSlots> mod{};
+        std::array<Slot, synthModSlotsB> modB{};
     };
     void bind(juce::AudioProcessorValueTreeState& state) {
         const auto get = [&](const juce::String& id) { return state.getRawParameterValue(id); };
@@ -488,11 +505,15 @@ public:
             q.on = get(synthOscID(o, "On"));q.mode = get(synthOscID(o, "Mode"));q.wave = get(synthOscID(o, "Wave"));q.octave = get(synthOscID(o, "Octave"));
             q.semi = get(synthOscID(o, "Semi"));q.fine = get(synthOscID(o, "Fine"));q.unison = get(synthOscID(o, "Unison"));q.detune = get(synthOscID(o, "Detune"));
             q.level = get(synthOscID(o, "Level"));q.start = get(synthOscID(o, "Start"));q.loop = get(synthOscID(o, "Loop"));q.root = get(synthOscID(o, "Root"));
+            q.table = get(synthWavetableID(o, "Table"));q.warp = get(synthWavetableID(o, "Warp"));q.warpAmount = get(synthWavetableID(o, "WarpAmount"));q.imported = get(synthWavetableID(o, "Imported"));
         }
         p.subOn = get("synthSubOn");p.subOctave = get("synthSubOctave");p.subShape = get("synthSubShape");p.subLevel = get("synthSubLevel");
         p.noiseOn = get("synthNoiseOn");p.noiseColor = get("synthNoiseColor");p.noiseLevel = get("synthNoiseLevel");
         p.filterOn = get("synthFilterOn");p.filterType = get("synthFilterType");p.cutoff = get("synthCutoff");p.resonance = get("synthResonance");
         p.drive = get("synthDrive");p.keyTrack = get("synthKeyTrack");p.filterEnv = get("synthFilterEnv");
+        p.filter2On = get("synthFilter2On");p.filter2Type = get("synthFilter2Type");p.cutoff2 = get("synthFilter2Cutoff");p.resonance2 = get("synthFilter2Resonance");
+        p.keyTrack2 = get("synthFilter2KeyTrack");p.filterEnv2 = get("synthFilter2Env");p.routing = get("synthFilterRouting");p.balance = get("synthFilterBalance");
+        p.distOn = get("synthDistOn");p.distType = get("synthDistType");p.distPlace = get("synthDistPlace");p.distDrive = get("synthDistDrive");p.distMix = get("synthDistMix");
         for (int e = 0; e < 2; ++e) {
             const juce::String base = e == 0 ? "synthAmp" : "synthModEnv";
             p.env[size_t(e)] = {get(base + "Attack"), get(base + "Decay"), get(base + "Sustain"), get(base + "Release")};
@@ -502,14 +523,24 @@ public:
             p.lfo[size_t(l)] = {get(base + "Shape"), get(base + "Rate"), get(base + "Sync")};
         }
         for (int s = 0; s < synthModSlots; ++s) p.mod[size_t(s)] = {get(synthModID(s, "Source")), get(synthModID(s, "Target")), get(synthModID(s, "Amount"))};
+        p.seqSteps = get("synthSeqSteps");p.seqRate = get("synthSeqRate");p.seqSmooth = get("synthSeqSmooth");p.seqRetrigger = get("synthSeqRetrigger");
+        for (int k = 0; k < synthSeqMaxSteps; ++k) p.seq[size_t(k)] = get(synthSeqStepID(k));
+        for (int k = 0; k < synthMacroCount; ++k) p.macro[size_t(k)] = get(synthMacroID(k));
+        for (int s = 0; s < synthModSlotsB; ++s) p.modB[size_t(s)] = {get(synthModBID(s, "Source")), get(synthModBID(s, "Target")), get(synthModBID(s, "Amount"))};
+        fx.bind(state);
     }
     void prepare(double sampleRate, int maximumBlock) {
         rate = sampleRate;
+        // Comb filter: one delay line per voice and channel, long enough for 20 Hz.
+        combLength = int(std::ceil(rate / 20.0)) + 4;
+        combs.assign(size_t(synthMaxVoices + 1) * 2 * size_t(combLength), 0.f);
         tracker.prepare(rate);
+        fx.prepare(rate);
         for (auto& ch : rendered) ch.assign(size_t(std::max(1, maximumBlock)), 0.f);
         // Analog drift: white noise through a one-pole low-pass at 1.5 Hz,
         // scaled to unit RMS (uniform noise has variance 1/3).
         driftCoefficient = 1.0 - std::exp(-6.283185307179586 * 1.5 / rate);
+        dcCoefficient = 1.0 - std::exp(-6.283185307179586 * 10.0 / rate);
         driftScale = 1.0 / std::sqrt(driftCoefficient / (2.0 - driftCoefficient) / 3.0);
         reset();
     }
@@ -517,8 +548,10 @@ public:
         tracker.reset();
         for (auto& v : voices) v = Voice{};
         guitar = Voice{};
+        std::fill(combs.begin(), combs.end(), 0.f);
+        fx.reset();
         midiNotes = {};midiCount = 0;bend = 0;wheel = 0;midiVelocity = 0;midiOnset = false;
-        lfoPhase = {};lfoHeld = {};lfoValue = {};seed = 0x2545f491u;clock = 0;
+        lfoPhase = {};lfoHeld = {};lfoValue = {};seqPhase = 0;seqValue = 0;seqStep = 0;seqStarted = false;macroValue = {};macroPrimed = false;seed = 0x2545f491u;clock = 0;
         guitarGate = false;guitarLevel = 0;onsetLevel = 0;active = false;renderedSamples = 0;attacks = 0;
         const auto s = read();
         for (int i = 0; i < synthInsertCount; ++i) gain[size_t(i)] = s.on && s.insert == i && toMain ? 1.f : 0.f;
@@ -539,11 +572,27 @@ public:
             r.on = f(q.on, o == 0 ? 1.f : 0.f) > .5f;r.mode = i(q.mode, 0, 0, 1);r.wave = juce::jlimit(0.f, 4.f, f(q.wave, 2.f));r.octave = i(q.octave, 0, -3, 3);r.semi = i(q.semi, 0, -12, 12);
             r.fine = juce::jlimit(-100.f, 100.f, f(q.fine, 0.f));r.unison = i(q.unison, 1, 1, synthMaxUnison);r.detune = pc(q.detune, 20.f);
             r.level = pc(q.level, o == 0 ? 80.f : o == 1 ? 60.f : 50.f);r.start = pc(q.start, 0.f);r.loop = f(q.loop, 1.f) > .5f;r.root = i(q.root, 60, 0, 127);
+            r.table = i(q.table, 0, 0, synthTableCount - 1);r.warp = i(q.warp, 0, 0, synthWarpCount - 1);r.warpAmount = pc(q.warpAmount, 0.f);r.imported = f(q.imported, 0.f) > .5f;
         }
         s.subOn = f(p.subOn, 0.f) > .5f;s.subOctave = i(p.subOctave, 0, 0, 1);s.subShape = i(p.subShape, 0, 0, 1);s.subLevel = pc(p.subLevel, 50.f);
         s.noiseOn = f(p.noiseOn, 0.f) > .5f;s.noiseColor = pc(p.noiseColor, 70.f);s.noiseLevel = pc(p.noiseLevel, 20.f);
         s.filterOn = f(p.filterOn, 1.f) > .5f;s.filterType = i(p.filterType, 1, 0, 5);s.cutoff = juce::jlimit(20.f, 20000.f, f(p.cutoff, 6000.f));
         s.resonance = pc(p.resonance, 20.f);s.drive = pc(p.drive, 0.f);s.keyTrack = pc(p.keyTrack, 0.f);s.filterEnv = juce::jlimit(-1.f, 1.f, f(p.filterEnv, 0.f) * .01f);
+        s.filter2On = f(p.filter2On, 0.f) > .5f;s.filter2Type = i(p.filter2Type, 2, 0, synthFilter2TypeCount - 1);s.cutoff2 = juce::jlimit(20.f, 20000.f, f(p.cutoff2, 200.f));
+        s.resonance2 = pc(p.resonance2, 20.f);s.keyTrack2 = pc(p.keyTrack2, 0.f);s.filterEnv2 = juce::jlimit(-1.f, 1.f, f(p.filterEnv2, 0.f) * .01f);
+        s.routing = i(p.routing, 0, 0, 1);s.balance = pc(p.balance, 50.f);
+        s.distOn = f(p.distOn, 0.f) > .5f;s.distType = i(p.distType, 0, 0, synthDistTypeCount - 1);s.distPlace = i(p.distPlace, 0, 0, synthDistPlaceCount - 1);
+        s.distMix = pc(p.distMix, 100.f);
+        s.distDrive = pc(p.distDrive, 30.f);
+        if (s.distOn) { s.distGain = synthDistGain(s.distDrive);s.distSteps = synthDistSteps(s.distDrive); }
+        s.seqSteps = i(p.seqSteps, synthSeqMaxSteps, 1, synthSeqMaxSteps);s.seqRate = i(p.seqRate, 4, 0, int(synthSeqRateBeats.size()) - 1);
+        s.seqSmooth = pc(p.seqSmooth, 0.f);s.seqRetrigger = f(p.seqRetrigger, 1.f) > .5f;
+        for (int k = 0; k < synthSeqMaxSteps; ++k) s.seq[size_t(k)] = juce::jlimit(-1.f, 1.f, f(p.seq[size_t(k)], 0.f) * .01f);
+        for (int k = 0; k < synthMacroCount; ++k) s.macro[size_t(k)] = pc(p.macro[size_t(k)], 0.f);
+        for (int m = 0; m < synthModSlotsB; ++m) {
+            const auto& q = p.modB[size_t(m)];
+            s.modB[size_t(m)] = {i(q.source, 0, 0, synthModSourceCountB - 1), i(q.target, 0, 0, synthModTargetCountB - 1), juce::jlimit(-1.f, 1.f, f(q.amount, 0.f) * .01f)};
+        }
         for (int e = 0; e < 2; ++e) {
             const auto& q = p.env[size_t(e)];
             s.env[size_t(e)] = {juce::jlimit(.5, 5000.0, double(f(q.attack, 5.f))) * .001, juce::jlimit(5.0, 10000.0, double(f(q.decay, 300.f))) * .001,
@@ -575,6 +624,17 @@ public:
         const juce::SpinLock::ScopedLockType reference(referenceLock);
         return samples[size_t(juce::jlimit(0, synthOscCount - 1, osc))];
     }
+    // Imported wavetables are swapped like samples, under the same locks.
+    std::shared_ptr<const SynthUserTable> swapTable(int osc, std::shared_ptr<const SynthUserTable> next) {
+        const juce::SpinLock::ScopedLockType audio(sampleLock);
+        const juce::SpinLock::ScopedLockType reference(referenceLock);
+        std::swap(userTables[size_t(juce::jlimit(0, synthOscCount - 1, osc))], next);
+        return next;
+    }
+    std::shared_ptr<const SynthUserTable> sharedTable(int osc) const {
+        const juce::SpinLock::ScopedLockType reference(referenceLock);
+        return userTables[size_t(juce::jlimit(0, synthOscCount - 1, osc))];
+    }
     // The oscillator's sample, or null; valid until the next swap (tests).
     const SynthSample* sample(int osc) const noexcept { return sharedSample(osc).get(); }
     // Host MIDI for this block, applied at the block start.
@@ -602,21 +662,28 @@ public:
         if (!s.on && !active && !anyGain) { pendingCount = 0;return; }
         active = true;
         const juce::SpinLock::ScopedTryLockType lock(sampleLock);
-        for (int o = 0; o < synthOscCount; ++o) playing[size_t(o)] = lock.isLocked() ? samples_(o) : nullptr;
+        for (int o = 0; o < synthOscCount; ++o) { playing[size_t(o)] = lock.isLocked() ? samples_(o) : nullptr;playingTables[size_t(o)] = lock.isLocked() ? userTables[size_t(o)].get() : nullptr; }
+        tablesReadable = lock.isLocked();
         applyNotes(s);
         trackGuitar(s, samples);
         for (auto& ch : rendered) std::fill(ch.begin(), ch.begin() + samples, 0.f);
         const double bpm = std::isfinite(tempo) && tempo > 20 ? tempo : 120.0;
+        // The effect rack (docs/SYNTH_EFFECTS.md) runs only while an effect is on or fading out.
+        const auto effects = fx.read();const bool rack = fx.running(effects);
+        if (rack) fx.begin(effects);
+        const double level = juce::Decibels::decibelsToGain(double(s.levelDb));
         for (int n = 0; n < samples; ++n) {
             advanceLfos(s, bpm);
+            advanceSequencer(s, bpm);
             std::array<double, 2> out{};
             for (int i = 0; i < s.voices; ++i) if (voices[size_t(i)].active) addVoice(voices[size_t(i)], s, out);
             for (int i = s.voices; i < synthMaxVoices; ++i) if (voices[size_t(i)].active) { voices[size_t(i)].amp.noteOff();addVoice(voices[size_t(i)], s, out); }
             if (guitar.active) addVoice(guitar, s, out);
-            const double level = juce::Decibels::decibelsToGain(double(s.levelDb));
+            out[0] *= level;out[1] *= level;
+            if (rack) fx.process(out[0], out[1], effects, bpm);
             // Safety stage: linear up to 0 dBFS, then softly bounded to +6 dBFS.
             const auto bound = [](double x) { const double m = std::abs(x);return m <= 1.0 ? x : std::copysign(1.0 + std::tanh(m - 1.0), x); };
-            rendered[0][size_t(n)] = float(bound(out[0] * level));rendered[1][size_t(n)] = float(bound(out[1] * level));
+            rendered[0][size_t(n)] = float(bound(out[0]));rendered[1][size_t(n)] = float(bound(out[1]));
         }
         playing = {};
         renderedSamples = samples;
@@ -625,7 +692,7 @@ public:
         for (int n = 0; n < samples; ++n) { scope[size_t(w)].store(.5f * (rendered[0][size_t(n)] + rendered[1][size_t(n)]), std::memory_order_relaxed);w = (w + 1) % int(scope.size()); }
         scopeWrite.store(w, std::memory_order_release);
         bool sounding = guitar.active;for (const auto& v : voices) sounding |= v.active;
-        if (!s.on && !sounding && !anyGain) active = false;
+        if (!s.on && !sounding && !anyGain) { active = false;fx.reset(); }
     }
     // Adds the rendered synth at `point`. A change of insert point crossfades
     // over 20 ms; the synth joins only where its gain is non-zero.
@@ -670,6 +737,10 @@ public:
     bool guitarGateOpen() const noexcept { return guitarGate; }
     int guitarAttacks() const noexcept { return attacks; }
     double lfoOutput(int i) const noexcept { return lfoValue[size_t(std::clamp(i, 0, 1))]; }
+    // The sequencer's current step and output (the page; not synchronised, a display may be a block late).
+    int sequencerStep() const noexcept { return seqStep; }
+    double sequencerOutput() const noexcept { return seqValue; }
+    SynthEffects::Settings effectSettings() const noexcept { return fx.read(); }
     // Copies the newest `count` scope samples (oldest first) for the page.
     void readScope(float* destination, int count) const noexcept {
         count = std::min(count, int(scope.size()));
@@ -708,6 +779,9 @@ private:
         Envelope amp, env2;
         std::array<std::array<std::array<double, 2>, 2>, 2> svf{};   // channel x stage x state
         double noiseLow{};
+        std::array<std::array<std::array<double, 2>, 2>, 2> svf2{};   // filter 2
+        int combWrite{};
+        std::array<double, 2> distDc{};
     };
     struct Pending { bool on{};int note{};float velocity{}; };
     struct Pointers {
@@ -715,19 +789,27 @@ private:
         std::atomic<float>* level{};std::atomic<float>* octave{};
         std::atomic<float>* glide{};std::atomic<float>* sensitivity{};std::atomic<float>* voices{};std::atomic<float>* width{};std::atomic<float>* fm{};
         struct Osc { std::atomic<float>* on{};std::atomic<float>* mode{};std::atomic<float>* wave{};std::atomic<float>* octave{};std::atomic<float>* semi{};std::atomic<float>* fine{};
-                     std::atomic<float>* unison{};std::atomic<float>* detune{};std::atomic<float>* level{};std::atomic<float>* start{};std::atomic<float>* loop{};std::atomic<float>* root{}; };
+                     std::atomic<float>* unison{};std::atomic<float>* detune{};std::atomic<float>* level{};std::atomic<float>* start{};std::atomic<float>* loop{};std::atomic<float>* root{};
+                     std::atomic<float>* table{};std::atomic<float>* warp{};std::atomic<float>* warpAmount{};std::atomic<float>* imported{}; };
         std::array<Osc, synthOscCount> osc{};
         std::atomic<float>* subOn{};std::atomic<float>* subOctave{};std::atomic<float>* subShape{};std::atomic<float>* subLevel{};
         std::atomic<float>* noiseOn{};std::atomic<float>* noiseColor{};std::atomic<float>* noiseLevel{};
         std::atomic<float>* filterOn{};std::atomic<float>* filterType{};std::atomic<float>* cutoff{};std::atomic<float>* resonance{};
         std::atomic<float>* drive{};std::atomic<float>* keyTrack{};std::atomic<float>* filterEnv{};
+        std::atomic<float>* filter2On{};std::atomic<float>* filter2Type{};std::atomic<float>* cutoff2{};std::atomic<float>* resonance2{};
+        std::atomic<float>* keyTrack2{};std::atomic<float>* filterEnv2{};std::atomic<float>* routing{};std::atomic<float>* balance{};
+        std::atomic<float>* distOn{};std::atomic<float>* distType{};std::atomic<float>* distPlace{};std::atomic<float>* distDrive{};std::atomic<float>* distMix{};
         struct Env { std::atomic<float>* attack{};std::atomic<float>* decay{};std::atomic<float>* sustain{};std::atomic<float>* release{}; };
         std::array<Env, 2> env{};
         struct Lfo { std::atomic<float>* shape{};std::atomic<float>* rate{};std::atomic<float>* sync{}; };
         std::array<Lfo, 2> lfo{};
         struct Slot { std::atomic<float>* source{};std::atomic<float>* target{};std::atomic<float>* amount{}; };
         std::array<Slot, synthModSlots> mod{};
+        std::atomic<float>* seqSteps{};std::atomic<float>* seqRate{};std::atomic<float>* seqSmooth{};std::atomic<float>* seqRetrigger{};
+        std::array<std::atomic<float>*, synthSeqMaxSteps> seq{};std::array<std::atomic<float>*, synthMacroCount> macro{};
+        std::array<Slot, synthModSlotsB> modB{};
     } p;
+    const SynthWavetables* tables{&SynthWavetables::get()};   // built here, off the audio thread
     const SynthSample* samples_(int o) const noexcept { return samples[size_t(o)].get(); }
     static double noteHz(double note) noexcept { return 440.0 * std::pow(2.0, (note - 69.0) / 12.0); }
     float random() noexcept { seed = seed * 1664525u + 1013904223u;return float(seed >> 8) / 8388608.f - 1.f; }
@@ -740,7 +822,7 @@ private:
         v.targetHz = target;if (!glide) v.hz = target;
         v.note = note;v.fromGuitar = note < 0;v.noteValue = note >= 0 ? (note - 60) / 24.0 : (12.0 * std::log2(std::max(hz, 1.0) / 261.63)) / 24.0;
         v.velocity = velocity;v.gate = true;v.age = ++clock;
-        if (!v.active) { v.svf = {};for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
+        if (!v.active) { v.svf = {};v.svf2 = {};v.distDc = {};v.combWrite = 0;if (!combs.empty()) std::fill_n(comb(v, 0), size_t(2 * combLength), 0.f);for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
         if (!legato || !v.active) { v.amp.gateOn();v.env2.gateOn();v.struck = 0;restartSamples(v); }
         v.active = true;
     }
@@ -754,6 +836,7 @@ private:
                 if (midiCount < int(midiNotes.size())) midiNotes[size_t(midiCount++)] = e.note;
                 midiVelocity = e.velocity;
                 if (!midiAllowed) continue;
+                phraseStart(s);
                 if (s.voices == 1) startVoice(voices[0], noteHz(e.note + bend), e.velocity, e.note, s, voices[0].gate);
                 else {
                     Voice* chosen = nullptr;
@@ -786,7 +869,7 @@ private:
             // one: a high note locks while its attack is still rising.
             const bool refractory = guitarGate && sinceAttack < .025 * rate;
             const bool onset = !guitarGate || (!refractory && tracker.rms() > onsetLevel * 2.0);
-            if (onset) { startVoice(guitar, tracker.hz(), guitarLevel, -1, s, false);++attacks; }
+            if (onset) { phraseStart(s);startVoice(guitar, tracker.hz(), guitarLevel, -1, s, false);++attacks; }
             else guitar.targetHz = tracker.hz() * std::pow(2.0, double(s.octave));
             guitarGate = true;
             if (onset) { onsetLevel = tracker.rms();sinceAttack = 0; }
@@ -804,6 +887,28 @@ private:
             if (ph >= 1.0) { ph -= std::floor(ph);lfoHeld[size_t(l)] = random(); }
             lfoValue[size_t(l)] = synthLfoShape(q.shape, ph, lfoHeld[size_t(l)]);
         }
+    }
+    // The step sequencer and the macros: one value each for every voice. A
+    // step lasts synthSeqRateBeats at the host tempo; SMOOTH glides to each
+    // step over up to its whole length. Macros are smoothed over 5 ms.
+    void advanceSequencer(const Settings& s, double bpm) noexcept {
+        const double perSample = bpm / 60.0 / synthSeqRateBeats[size_t(s.seqRate)] / rate;   // steps per sample
+        if (seqPhase >= s.seqSteps) seqPhase = std::fmod(seqPhase, double(s.seqSteps));
+        seqStep = std::min(s.seqSteps - 1, int(seqPhase));
+        const double target = s.seq[size_t(seqStep)];
+        if (s.seqSmooth <= 0.f || !seqStarted) seqValue = target;
+        else seqValue += (target - seqValue) * (1.0 - std::exp(-4.0 * perSample / double(s.seqSmooth)));   // within 2 % after SMOOTH of a step
+        seqStarted = true;
+        seqPhase += perSample;
+        const double k = 1.0 - std::exp(-1.0 / (.005 * rate));
+        for (int i = 0; i < synthMacroCount; ++i) macroValue[size_t(i)] = macroPrimed ? macroValue[size_t(i)] + k * (s.macro[size_t(i)] - macroValue[size_t(i)]) : double(s.macro[size_t(i)]);
+        macroPrimed = true;
+    }
+    // A note that starts while nothing is held starts the sequence again.
+    void phraseStart(const Settings& s) noexcept {
+        if (!s.seqRetrigger) return;
+        bool held = guitar.gate;for (const auto& v : voices) held |= v.gate;
+        if (!held) { seqPhase = 0;seqStarted = false; }
     }
     static double blep(double t, double dt) noexcept {
         if (t < dt) { t /= dt;return t + t - t * t - 1.0; }
@@ -839,8 +944,39 @@ private:
         const double c1 = .5 * (y2 - y0), c2 = y0 - 2.5 * y1 + 2.0 * y2 - .5 * y3, c3 = .5 * (y3 - y0) + 1.5 * (y1 - y2);
         return ((c3 * t + c2) * t + c1) * t + y1;
     }
+    // A voice's comb delay lines: two channels of combLength samples.
+    float* comb(const Voice& v, int channel) noexcept {
+        const size_t index = &v == &guitar ? size_t(synthMaxVoices) : size_t(&v - voices.data());
+        return combs.data() + (index * 2 + size_t(channel)) * size_t(combLength);
+    }
+    // Feedback comb tuned to the cutoff: peaks at its multiples (Comb +) or at
+    // the odd multiples of half of it (Comb -). The caller advances combWrite.
+    double combSample(Voice& v, int channel, double x, double cutoff, double resonance, bool negative) noexcept {
+        float* d = comb(v, channel);
+        const double delay = std::clamp(rate / std::clamp(cutoff, 20.0, rate * .45), 1.0, double(combLength - 2));
+        const double fb = synthCombFeedback(resonance, negative);
+        double at = v.combWrite - delay;if (at < 0) at += combLength;
+        const int i0 = std::min(combLength - 1, int(at));const int i1 = i0 + 1 < combLength ? i0 + 1 : 0;const double t = at - i0;
+        const double y = x + fb * (d[i0] + t * (double(d[i1]) - d[i0]));
+        d[v.combWrite] = float(y);
+        return y * std::sqrt(1.0 - fb * fb);
+    }
+    double filter2Sample(Voice& v, int channel, double x, const Settings& s, double cutoff, double resonance) noexcept {
+        if (s.filter2Type >= synthFilterCombPlus) return combs.empty() ? x : combSample(v, channel, x, cutoff, resonance, s.filter2Type == synthFilterCombMinus);
+        return svfSample(v.svf2[size_t(channel)], x, s.filter2Type, cutoff, resonance);
+    }
+    // The shaper and its mix. Tube is biased, so its DC is taken out (a 10 Hz high-pass per voice).
+    struct Drive { double gain, steps, mix; };   // this sample's drive and mix, after modulation
+    double distort(Voice& v, int channel, const Settings& s, const Drive& d, double x) const noexcept {
+        double y = synthDistort(s.distType, d.gain, d.steps, x);
+        if (s.distType == 3) { auto& dc = v.distDc[size_t(channel)];dc += dcCoefficient * (y - dc);y -= dc; }
+        return x + d.mix * (y - x);
+    }
     double filterSample(std::array<std::array<double, 2>, 2>& st, double x, const Settings& s, double cutoff, double resonance) const noexcept {
         if (s.drive > 0.f) { const double g = 1.0 + 9.0 * s.drive;x = std::tanh(g * x) / std::tanh(g); }
+        return svfSample(st, x, s.filterType, cutoff, resonance);
+    }
+    double svfSample(std::array<std::array<double, 2>, 2>& st, double x, int type, double cutoff, double resonance) const noexcept {
         const double g = std::tan(3.141592653589793 * std::clamp(cutoff, 20.0, rate * .45) / rate), k = 2.0 - 1.9 * std::clamp(resonance, 0.0, 1.0);
         const auto tick = [&](std::array<double, 2>& f, double in) {
             const double a1 = 1. / (1. + g * (g + k)), a2 = g * a1, a3 = g * a2;
@@ -848,7 +984,7 @@ private:
             f[0] = 2. * v1 - f[0];f[1] = 2. * v2 - f[1];
             return std::array<double, 3>{v2, v1, in - k * v1 - v2};
         };
-        switch (s.filterType) {
+        switch (type) {
             case 0: return tick(st[0], x)[0];
             case 1: return tick(st[1], tick(st[0], x)[0])[0];
             case 2: return tick(st[0], x)[2];
@@ -863,17 +999,23 @@ private:
         const double ampEnv = v.amp.next(s.env[0], rate), env2 = v.env2.next(s.env[1], rate);
         if (v.amp.stage == Envelope::idle) { v.active = false;v.gate = false;return; }
         // Modulation matrix: sources per voice, summed per target.
-        std::array<double, synthModTargetCount> m{};
-        for (const auto& slot : s.mod) {
-            if (slot.source == modOff || slot.target == targetOff || slot.amount == 0.f) continue;
+        // The second bank's rows (docs/SYNTH_SEQUENCER.md) add the sequencer,
+        // the macros and the newer targets.
+        std::array<double, synthModTargetCountB> m{};
+        const auto apply = [&](const Settings::Slot& slot) {
+            if (slot.source == modOff || slot.target == targetOff || slot.amount == 0.f) return;
             double src = 0;
             switch (slot.source) {
                 case modEnv2: src = env2;break;case modLfo1: src = lfoValue[0];break;case modLfo2: src = lfoValue[1];break;
                 case modVelocity: src = v.velocity;break;case modGuitarLevel: src = guitarLevel;break;case modNote: src = v.noteValue;break;
-                case modWheel: src = wheel;break;default: break;
+                case modWheel: src = wheel;break;case modSeq: src = seqValue;break;
+                case modMacro1: case modMacro2: case modMacro3: case modMacro4: src = macroValue[size_t(slot.source - modMacro1)];break;
+                default: break;
             }
-            m[size_t(slot.target)] += slot.amount * src * synthModDepth[size_t(slot.target)];
-        }
+            m[size_t(slot.target)] += slot.amount * src * synthModDepthB[size_t(slot.target)];
+        };
+        for (const auto& slot : s.mod) apply(slot);
+        for (const auto& slot : s.modB) apply(slot);
         // Engine type. Character 0 is the plain voice for every type.
         const double character = std::clamp(double(s.character) + m[targetCharacter], 0.0, 1.0);
         const bool analog = s.type == synthAnalog, dynamic = s.type == synthDynamic, impact = s.type == synthImpact;
@@ -894,6 +1036,9 @@ private:
             const double level = std::clamp(double(q.level) + m[size_t(targetLevelA + o)], 0.0, 1.0);
             const bool needed = q.on && (level > 0 || (o == 1 && (s.fm > 0 || m[targetFM] != 0 || impact)));
             if (!needed || (q.mode == 1 && sample == nullptr)) continue;
+            // The imported table, when this oscillator plays one. A block that meets a swap in progress plays it silent.
+            const SynthUserTable* user = q.mode == 0 && q.imported ? playingTables[size_t(o)] : nullptr;
+            if (q.mode == 0 && q.imported && !tablesReadable) continue;
             double cents = 0;
             if (analog && character > 0) {   // Dvergr Analog: slow pitch drift, about 5 cents RMS at 100 %
                 v.drift[size_t(o)] += driftCoefficient * (random() - v.drift[size_t(o)]);
@@ -939,13 +1084,17 @@ private:
                     modulator = std::sin(6.283185307179586 * v.impactPhase);
                     v.impactPhase += 2.0 * base / rate;v.impactPhase -= std::floor(v.impactPhase);
                 }
+                const double warpAmount = std::clamp(double(q.warpAmount) + m[size_t(targetWarpA + o)], 0.0, 1.0);
                 for (int u = 0; u < n; ++u) {
                     const double position = n > 1 ? 2.0 * u / (n - 1) - 1.0 : 0.0;
                     const double hz = base * std::pow(2.0, spread * position / 1200.0), dt = std::min(.5, hz / rate);
                     auto& ph = v.phase[size_t(o)][size_t(u)];
                     double readPhase = ph;
                     if (fmIndex > 0) { readPhase += fmIndex * modulator / 6.283185307179586;readPhase -= std::floor(readPhase); }
-                    const double y = morph(wave, readPhase, dt) / std::sqrt(double(n));
+                    // A wavetable reads its frames at the wave position, through the warp; Classic is the released oscillator.
+                    const double y = (user != nullptr ? user->read(wave * .25, synthWarpPhase(q.warp, warpAmount, readPhase), dt * synthWarpSlope(q.warp, warpAmount))
+                                    : q.table > 0 ? tables->read(q.table, wave * .25, synthWarpPhase(q.warp, warpAmount, readPhase), dt * synthWarpSlope(q.warp, warpAmount))
+                                                  : morph(wave, readPhase, dt)) / std::sqrt(double(n));
                     ph += hz / rate;ph -= std::floor(ph);
                     mono += y;
                     const double pan = .5 + .5 * s.width * position;   // equal-power spread across the width
@@ -974,11 +1123,40 @@ private:
             const double g = .5 * character;   // at 100 %: a full-scale peak loses 0.4 dB, a peak of 2 loses 2.4 dB
             for (auto& x : sum) x = std::tanh(g * x) / g;
         }
-        if (s.filterOn) {
+        if (s.filterOn && !s.filter2On && !s.distOn) {   // the released voice
             const double tracking = s.keyTrack * std::log2(std::max(v.hz, 1.0) / 261.63);
             const double cutoff = s.cutoff * std::pow(2.0, tracking + s.filterEnv * 5.0 * env2 + m[targetCutoff] + dynamicOctaves);
             const double resonance = s.resonance + m[targetResonance];
             for (int c = 0; c < 2; ++c) sum[size_t(c)] = filterSample(v.svf[size_t(c)], sum[size_t(c)], s, cutoff, resonance);
+        } else if (s.filterOn || s.filter2On || s.distOn) {
+            // Two filters and the distortion (docs/SYNTH_FILTERS.md). The matrix
+            // moves filter 1; filter 2 follows its own key tracking and ENV 2.
+            const double octave = std::log2(std::max(v.hz, 1.0) / 261.63);
+            const double cutoff1 = s.cutoff * std::pow(2.0, s.keyTrack * octave + s.filterEnv * 5.0 * env2 + m[targetCutoff] + dynamicOctaves);
+            const double resonance1 = s.resonance + m[targetResonance];
+            const double cutoff2 = s.filter2On ? s.cutoff2 * std::pow(2.0, s.keyTrack2 * octave + s.filterEnv2 * 5.0 * env2 + m[targetCutoff2] + dynamicOctaves) : 0.0;
+            const double resonance2 = s.resonance2 + m[targetResonance2];
+            const bool parallel = s.routing == 1 && s.filterOn && s.filter2On;
+            const double balance = std::clamp(double(s.balance) + m[targetFilterBalance], 0.0, 1.0);
+            const double gain1 = synthParallelGain(balance, false), gain2 = synthParallelGain(balance, true);
+            Drive d{s.distGain, s.distSteps, std::clamp(double(s.distMix) + m[targetDistMix], 0.0, 1.0)};
+            if (s.distOn && m[targetDistDrive] != 0.0) { const double drive = std::clamp(double(s.distDrive) + m[targetDistDrive], 0.0, 1.0);d.gain = synthDistGain(drive);d.steps = synthDistSteps(drive); }
+            for (int c = 0; c < 2; ++c) {
+                double x = sum[size_t(c)];
+                if (s.distOn && s.distPlace == synthDistBeforeFilters) x = distort(v, c, s, d, x);
+                if (parallel) {
+                    double a = filterSample(v.svf[size_t(c)], x, s, cutoff1, resonance1);
+                    if (s.distOn && s.distPlace == synthDistAfterFilter1) a = distort(v, c, s, d, a);
+                    x = gain1 * a + gain2 * filter2Sample(v, c, x, s, cutoff2, resonance2);
+                } else {
+                    if (s.filterOn) x = filterSample(v.svf[size_t(c)], x, s, cutoff1, resonance1);
+                    if (s.distOn && s.distPlace == synthDistAfterFilter1) x = distort(v, c, s, d, x);
+                    if (s.filter2On) x = filter2Sample(v, c, x, s, cutoff2, resonance2);
+                }
+                if (s.distOn && s.distPlace == synthDistAfterFilters) x = distort(v, c, s, d, x);
+                sum[size_t(c)] = x;
+            }
+            if (s.filter2On && s.filter2Type >= synthFilterCombPlus) v.combWrite = v.combWrite + 1 < combLength ? v.combWrite + 1 : 0;
         }
         const double amp = ampEnv * dynamicGain * std::clamp(1.0 + m[targetAmp], 0.0, 2.0);
         out[0] += sum[0] * amp;out[1] += sum[1] * amp;
@@ -987,12 +1165,15 @@ private:
         int k = 0;for (int i = 0; i < midiCount; ++i) if (midiNotes[size_t(i)] != note) midiNotes[size_t(k++)] = midiNotes[size_t(i)];
         midiCount = k;
     }
-    double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0};
+    double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0}, dcCoefficient{1.3e-3};
+    std::vector<float> combs;int combLength{4};   // (voices + guitar) x channel x combLength
     PitchTracker tracker;
+    SynthEffects fx;
     std::array<Voice, synthMaxVoices> voices{};Voice guitar{};
     std::array<int, 16> midiNotes{};int midiCount{};double bend{}, wheel{};float midiVelocity{};bool midiOnset{}, allOff{};
     std::array<Pending, 64> pending{};int pendingCount{};
     std::array<double, 2> lfoPhase{}, lfoHeld{}, lfoValue{};
+    double seqPhase{}, seqValue{};int seqStep{};bool seqStarted{}, macroPrimed{};std::array<double, synthMacroCount> macroValue{};
     std::uint32_t seed{0x2545f491u};std::uint64_t clock{};
     bool guitarGate{}, active{};double guitarLevel{}, onsetLevel{};int attacks{}, sinceAttack{};
     std::array<std::vector<float>, 2> rendered;int renderedSamples{};
@@ -1003,6 +1184,8 @@ private:
     mutable juce::SpinLock referenceLock;    // copying a reference (never the audio thread)
     std::array<std::shared_ptr<const SynthSample>, synthOscCount> samples;
     std::array<const SynthSample*, synthOscCount> playing{};   // valid during render() only
+    std::array<std::shared_ptr<const SynthUserTable>, synthOscCount> userTables;
+    std::array<const SynthUserTable*, synthOscCount> playingTables{};bool tablesReadable{};   // valid during render() only
 };
 
 } // namespace spectralforge

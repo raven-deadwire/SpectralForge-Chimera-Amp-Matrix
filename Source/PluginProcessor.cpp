@@ -4,6 +4,7 @@
 #include "CabIRFile.h"
 #include "IRStateAssets.h"
 #include "SynthSampleIO.h"
+#include "SynthWavetableIO.h"
 #include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
@@ -792,6 +793,23 @@ void ChimeraProcessor::clearSynthSample(int osc)
     synth.swapSample(osc,nullptr);
     setRawParameter(spectralforge::synthOscID(osc,"Mode"),0);
 }
+juce::Result ChimeraProcessor::loadSynthTable(int osc,const juce::File& file,int frameSize,juce::String* note)
+{
+    if(osc<0 || osc>=spectralforge::synthOscCount)return juce::Result::fail("Invalid oscillator");
+    std::unique_ptr<spectralforge::SynthUserTable> table;
+    const auto result=spectralforge::synthTableIO::load(file,frameSize,table,note);
+    if(result.failed())return result;
+    synth.swapTable(osc,std::move(table));   // the replaced table is destroyed here, on this thread
+    setRawParameter(spectralforge::synthOscID(osc,"On"),1);setRawParameter(spectralforge::synthOscID(osc,"Mode"),0);
+    setRawParameter(spectralforge::synthWavetableID(osc,"Imported"),1);
+    return result;
+}
+void ChimeraProcessor::clearSynthTable(int osc)
+{
+    if(osc<0 || osc>=spectralforge::synthOscCount)return;
+    setRawParameter(spectralforge::synthWavetableID(osc,"Imported"),0);
+    synth.swapTable(osc,nullptr);
+}
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
     if(lane<0 || lane>2)return juce::Result::fail("Invalid lane");
@@ -951,6 +969,16 @@ spectralforge::appendPostSecondSlotParameters(p);
 spectralforge::appendCreativePageParameters(p,0);spectralforge::appendCreativePageParameters(p,1);
 // Slots 3 and 4 of every POST section, version hint 37 (docs/POST_FOUR_SLOTS.md).
 spectralforge::appendPostExtraSlotParameters(p);
+// SYNTH wavetables: table, warp and warp amount per oscillator, version hint 38 (docs/SYNTH_WAVETABLE.md).
+spectralforge::appendSynthWavetableParameters(p,spectralforge::synthOscCount);
+// SYNTH filter 2, filter routing and distortion, version hint 39 (docs/SYNTH_FILTERS.md).
+spectralforge::appendSynthFiltersParameters(p);
+// SYNTH step sequencer, macros and eight more matrix rows, version hint 40 (docs/SYNTH_SEQUENCER.md).
+spectralforge::appendSynthSequencerParameters(p);
+// SYNTH effect rack, version hint 41 (docs/SYNTH_EFFECTS.md).
+spectralforge::appendSynthEffectsParameters(p);
+// SYNTH imported wavetables: one switch per oscillator, version hint 42 (docs/SYNTH_WAVETABLE_IMPORT.md).
+spectralforge::appendSynthTableImportParameters(p,spectralforge::synthOscCount);
 return p;
 }
 
@@ -1097,6 +1125,8 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
     saved.appendChild(midi,nullptr);
     // SYNTH samples belong to the project, not to an A/B slot.
     saved.appendChild(spectralforge::synthSample::save(synth),nullptr);
+    // So do imported wavetables (at most 0.5 MB each; kept when the samples are not).
+    saved.appendChild(spectralforge::synthTableIO::save(synth),nullptr);
     // Too large with the samples (64 MB budget): keep the project, without them.
     if(!spectralforge::irState::serialize(saved,data)) {
         saved.removeChild(saved.getChildWithName("SYNTH_SAMPLES"),nullptr);
@@ -1197,10 +1227,11 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
     clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
     restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);
     auto loaded=spectralforge::synthSample::restore(restored.getChildWithName("SYNTH_SAMPLES"));
-    restored.removeChild(restored.getChildWithName("SYNTH_SAMPLES"),nullptr);restoreCore(restored);
+    auto loadedTables=spectralforge::synthTableIO::restore(restored.getChildWithName("SYNTH_TABLES"));
+    restored.removeChild(restored.getChildWithName("SYNTH_SAMPLES"),nullptr);restored.removeChild(restored.getChildWithName("SYNTH_TABLES"),nullptr);restoreCore(restored);
     // After restoreCore has started the switch, so the new samples are not
     // heard through the old settings before the fade.
-    for(int o=0;o<spectralforge::synthOscCount;++o)synth.swapSample(o,std::move(loaded[(size_t)o]));
+    for(int o=0;o<spectralforge::synthOscCount;++o){synth.swapSample(o,std::move(loaded[(size_t)o]));synth.swapTable(o,std::move(loadedTables[(size_t)o]));}
     warmInactiveComparison();
 }
 void ChimeraProcessor::selectComparison(int slot)
