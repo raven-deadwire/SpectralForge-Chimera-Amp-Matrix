@@ -955,6 +955,8 @@ spectralforge::appendPostExtraSlotParameters(p);
 spectralforge::appendSynthWavetableParameters(p,spectralforge::synthOscCount);
 // SYNTH filter 2, filter routing and distortion, version hint 39 (docs/SYNTH_FILTERS.md).
 spectralforge::appendSynthFiltersParameters(p);
+// SYNTH step sequencer, macros and eight more matrix rows, version hint 40 (docs/SYNTH_SEQUENCER.md).
+spectralforge::appendSynthSequencerParameters(p);
 return p;
 }
 
