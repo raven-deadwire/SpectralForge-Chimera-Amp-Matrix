@@ -38,7 +38,7 @@ void require(bool ok,const std::string& message){if(!ok)throw std::runtime_error
 double db(double v){return 20*std::log10(std::max(v,1.e-30));}
 struct Host final : juce::AudioProcessor {
     juce::AudioProcessorValueTreeState state;
-    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);return l;}
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout(){juce::AudioProcessorValueTreeState::ParameterLayout l;appendSynthParameters(l);appendSynthWavetableParameters(l,synthOscCount);appendSynthFiltersParameters(l);return l;}
     Host():state(*this,nullptr,"SYNTH",layout()){}
     void set(const char* id,float v){auto* p=state.getParameter(id);require(p!=nullptr,std::string("no parameter ")+id);p->setValueNotifyingHost(p->convertTo0to1(v));}
     const juce::String getName() const override {return "synth";}
@@ -189,6 +189,76 @@ void filterResponse() {
     std::cout<<"MEASURE filter vs analytic response, cutoff 1 kHz / resonance 30 %, largest error at harmonics 110 Hz-4 kHz:"<<line<<"\n";
     require(worst<.2,"Filter response differs from the curve the page draws");
     std::cout<<"PASS six filter types match the analytic response shown on the page\n";
+}
+
+void filtersAndDistortion() {
+    // docs/SYNTH_FILTERS.md. Off (the defaults), whatever else is set: the released voice, sample for sample.
+    {Host a;a.set("synthOn",1);a.set("synthSource",2);a.set("synthDrive",40);a.set("synthFilterEnv",50);
+     Host b;b.set("synthOn",1);b.set("synthSource",2);b.set("synthDrive",40);b.set("synthFilterEnv",50);
+     for(const auto& [id,v]:std::initializer_list<std::pair<const char*,float>>{{"synthFilter2Type",6},{"synthFilter2Cutoff",900},{"synthFilter2Resonance",80},{"synthFilter2KeyTrack",100},{"synthFilter2Env",-60},
+         {"synthFilterRouting",1},{"synthFilterBalance",10},{"synthDistType",2},{"synthDistPlace",2},{"synthDistDrive",100},{"synthDistMix",40}})b.set(id,v);
+     const auto x=render(a,48000,silence(),hold({45,57})).l,y=render(b,48000,silence(),hold({45,57})).l;
+     double diff=0;for(size_t n=0;n<x.size();++n)diff=std::max(diff,double(std::abs(x[n]-y[n])));
+     std::cout<<"MEASURE filter 2 and distortion off, their settings changed: largest sample difference "<<diff<<"\n";
+     require(diff==0,"The voice changed with filter 2 and the distortion off");}
+    // Filter 2 alone: each type against the curve the page draws (a 55 Hz saw at 96 kHz worth of samples).
+    Host plain;clean(plain,2);const auto dry=render(plain,96000,silence(),hold({33})).l;
+    const auto relative=[&](const std::vector<float>& wet,double f){return db(magnitude(wet,24000,96000,f)/magnitude(dry,24000,96000,f));};
+    const auto with=[&](std::initializer_list<std::pair<const char*,float>> values){Host h;clean(h,2);for(const auto& [id,v]:values)h.set(id,v);return render(h,96000,silence(),hold({33})).l;};
+    {double worst=0;std::string line;
+     for(int type=0;type<synthFilter2TypeCount;++type){
+        const float cutoff=type>=synthFilterCombPlus?480.f:1000.f;   // 480 Hz: a comb of exactly 100 samples
+        const auto wet=with({{"synthFilter2On",1},{"synthFilter2Type",float(type)},{"synthFilter2Cutoff",cutoff},{"synthFilter2Resonance",30}});double typeWorst=0;
+        for(int k:{2,5,9,18,36,72}){const double f=55.0*k,expected=db(synthFilter2Magnitude(type,cutoff,.3,f,rate));if(expected>-40)typeWorst=std::max(typeWorst,std::abs(relative(wet,f)-expected));}
+        worst=std::max(worst,typeWorst);line+=" "+synthFilter2TypeNames()[type].toStdString()+" "+juce::String(typeWorst,3).toStdString()+" dB;";}
+     std::cout<<"MEASURE filter 2 vs analytic response, resonance 30 %, largest error at harmonics 110 Hz-4 kHz:"<<line<<"\n";
+     require(worst<.3,"Filter 2 differs from the curve the page draws");}
+    // Serial: the two responses multiply. Parallel: the balance ends are one filter alone.
+    {const auto serial=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthResonance",30},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilter2Resonance",30}});
+     double worst=0;for(int k:{2,5,9,18,36,72}){const double f=55.0*k;worst=std::max(worst,std::abs(relative(serial,f)-db(synthFilterMagnitude(0,2000,.3,f,rate))-db(synthFilter2Magnitude(2,300,.3,f,rate))));}
+     const auto one=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000}}),two=with({{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300}});
+     const auto left=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilterRouting",1},{"synthFilterBalance",0}});
+     const auto right=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilterRouting",1},{"synthFilterBalance",100}});
+     const auto centre=with({{"synthFilterOn",1},{"synthFilterType",0},{"synthCutoff",2000},{"synthFilter2On",1},{"synthFilter2Type",2},{"synthFilter2Cutoff",300},{"synthFilterRouting",1}});
+     double d1=0,d2=0,d3=0;for(size_t n=0;n<one.size();++n){d1=std::max(d1,double(std::abs(left[n]-one[n])));d2=std::max(d2,double(std::abs(right[n]-two[n])));d3=std::max(d3,double(std::abs(centre[n]-(one[n]+two[n]))));}
+     std::cout<<"MEASURE routing: serial vs the product of both curves "<<worst<<" dB; parallel balance 0 vs filter 1 alone "<<d1<<", 100 vs filter 2 alone "<<d2<<", 50 vs their sum "<<d3<<"\n";
+     require(worst<.3 && d1<1e-6 && d2<1e-6 && d3<1e-5,"Filter routing wrong");}
+    // Comb with KEY 100 %: tuned at C4, it follows the note (A3: peaks at 220 Hz and its multiples).
+    {const auto comb=[&](float key){Host h;clean(h,2);h.set("synthNoiseOn",1);h.set("synthNoiseLevel",100);h.set("synthNoiseColor",100);h.set("synthOscAOn",0);
+        h.set("synthFilter2On",1);h.set("synthFilter2Type",6);h.set("synthFilter2Cutoff",262);h.set("synthFilter2Resonance",90);h.set("synthFilter2KeyTrack",key);return render(h,96000,silence(),hold({57})).l;};
+     const auto fixed=comb(0),tracked=comb(100);
+     const auto band=[&](const std::vector<float>& x,double f){double e=0;for(double d=-6;d<=6;d+=1.5)e+=std::pow(magnitude(x,24000,96000,f+d),2);return 10*std::log10(e);};
+     const double trackedPeak=band(tracked,220)-band(tracked,330),fixedPeak=band(fixed,262)-band(fixed,393);
+     std::cout<<"MEASURE comb on noise, resonance 90 %: tuned 262 Hz, peak over the dip a fifth above "<<fixedPeak<<" dB; with KEY 100 % at A3, 220 Hz over 330 Hz "<<trackedPeak<<" dB\n";
+     require(fixedPeak>15 && trackedPeak>15,"The comb does not ring at its cutoff, or does not follow the key");}
+    // Distortion. Every shape stays inside +-1 (Bit crush: inside the input's peak plus half a step).
+    {double bound=0;for(int type=0;type<synthDistTypeCount;++type)for(const double drive:{0.0,.3,1.0})for(double x=-4;x<=4;x+=.001){
+        const double y=synthDistort(type,synthDistGain(drive),synthDistSteps(drive),x);require(std::isfinite(y),"Distortion output not finite");
+        bound=std::max(bound,type==5?std::abs(y)-std::abs(x)-.5/synthDistSteps(drive):std::abs(y)-1.0);}
+     require(bound<1e-9,"A distortion shape leaves its bound");}
+    {const auto sine=[&](std::initializer_list<std::pair<const char*,float>> values,std::initializer_list<int> notes={57}){Host h;clean(h,0);for(const auto& [id,v]:values)h.set(id,v);return render(h,48000,silence(),hold(notes)).l;};
+     const auto off=sine({}),unity=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",0}}),dry=sine({{"synthDistOn",1},{"synthDistType",2},{"synthDistDrive",100},{"synthDistMix",0}});
+     double d1=0,d2=0;for(size_t n=0;n<off.size();++n){d1=std::max(d1,double(std::abs(off[n]-unity[n])));d2=std::max(d2,double(std::abs(off[n]-dry[n])));}
+     std::string line;
+     for(int type=0;type<synthDistTypeCount;++type){const auto wet=sine({{"synthDistOn",1},{"synthDistType",float(type)},{"synthDistDrive",70}});
+        line+=" "+synthDistTypeNames()[type].toStdString()+" h2 "+juce::String(harmonicDb(wet,220,2),1).toStdString()+" h3 "+juce::String(harmonicDb(wet,220,3),1).toStdString()+";";
+        require(std::max(harmonicDb(wet,220,2),harmonicDb(wet,220,3))>-40 || type==5,std::string("A distortion type adds no harmonics: ")+synthDistTypeNames()[type].toStdString());}
+     const auto mean=[](const std::vector<float>& x){double m=0;for(int n=24000;n<48000;++n)m+=x[size_t(n)];return m/24000;};
+     const auto tube=sine({{"synthDistOn",1},{"synthDistType",3},{"synthDistDrive",70}}),crush=sine({{"synthDistOn",1},{"synthDistType",5},{"synthDistDrive",100}});
+     // Per voice: a fifth through the hard clipper has no 2 f1 - f2 product (110.4 Hz), which a clipper after the mix would add.
+     const double f1=hz(57),f2=hz(64);const auto chord=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthVoices",4}},{57,64});
+     const double intermod=db(magnitude(chord,12000,48000,2*f1-f2)/magnitude(chord,12000,48000,f1));
+     // Position: before a low-pass the filter removes the new harmonics; after it they stay.
+     const auto before=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthDistPlace",0},{"synthFilterOn",1},{"synthFilterType",1},{"synthCutoff",400},{"synthResonance",0}});
+     const auto after=sine({{"synthDistOn",1},{"synthDistType",1},{"synthDistDrive",70},{"synthDistPlace",2},{"synthFilterOn",1},{"synthFilterType",1},{"synthCutoff",400},{"synthResonance",0}});
+     std::cout<<"MEASURE distortion on a sine at A3, drive 70 %, harmonics 2 / 3 (dB re 1):"<<line<<"\n";
+     std::cout<<"MEASURE distortion: hard clip at drive 0 % differs from off by "<<d1<<", mix 0 % by "<<d2<<"; Tube harmonic 2 "<<harmonicDb(tube,220,2)<<" dB, DC "<<mean(tube)<<"; Bit crush at 100 % harmonic 3 "<<harmonicDb(crush,220,3)
+              <<" dB; A3 + E4 hard clipped, 2 f1 - f2 "<<intermod<<" dB re f1; harmonic 9 before / after a 400 Hz low-pass "<<harmonicDb(before,220,9)<<" / "<<harmonicDb(after,220,9)<<" dB\n";
+     require(d1==0 && d2==0,"Distortion at unity or mix 0 is not clean");
+     require(harmonicDb(tube,220,2)>-20 && std::abs(mean(tube))<1e-3 && harmonicDb(crush,220,3)>-40,"Tube adds no even harmonic or leaves DC, or Bit crush does nothing");
+     require(intermod<-60,"The distortion is not per voice");
+     require(harmonicDb(after,220,9)>harmonicDb(before,220,9)+30,"The distortion position does not change the order");}
+    std::cout<<"PASS filter 2 (eight types), serial / parallel routing, comb key tracking, per-voice distortion\n";
 }
 
 std::vector<double> envelope(const std::vector<float>& x,int frame){std::vector<double> e;for(size_t n=0;n+size_t(frame)<=x.size();n+=size_t(frame))e.push_back(rms(x,int(n),int(n)+frame)*std::sqrt(2.0));return e;}
@@ -578,7 +648,7 @@ void processorInsertsAndPage() {
     // Wavetable controls (docs/SYNTH_WAVETABLE.md): nine parameters at version hint 38, appended last.
     {int count=0;const int total=p->getParameters().size();
      for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthWavetableParameterVersion){
-        require(with->getParameterIndex()>=total-synthOscCount*synthWavetableParametersPerOsc && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
+        require(with->getParameterIndex()>=total-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount) && with->paramID.startsWith("synthOsc"),"A wavetable parameter is not in the last bank");++count;}
      require(count==synthOscCount*synthWavetableParametersPerOsc && raw("synthOscATable")==0 && raw("synthOscAWarp")==0 && raw("synthOscAWarpAmount")==0,"Wavetable bank size or defaults wrong");
      static_cast<juce::Button*>(page.control("synthOscBMode0"))->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(20);page.updateModes();
      require(page.control("synthOscBTable")->isVisible() && !page.control("synthOscBWarp")->isVisible() && page.control("synthOscBShapes")->isVisible(),"Classic shapes do not show the shape strip and the table choice");
@@ -616,7 +686,9 @@ void processorInsertsAndPage() {
         require(p->loadSynthSample(1,wav).wasOk(),"Snapshot sample did not load");wav.deleteFile();
         {auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
          put("synthOscATable",9);put("synthOscAWave",1.6f);put("synthOscAWarp",float(synthWarpBendUp));put("synthOscAWarpAmount",35);
-         put("synthOscCOn",1);put("synthOscCTable",3);put("synthOscCWave",2.4f);}
+         put("synthOscCOn",1);put("synthOscCTable",3);put("synthOscCWave",2.4f);
+         put("synthFilter2On",1);put("synthFilter2Type",6);put("synthFilter2Cutoff",440);put("synthFilter2Resonance",60);put("synthFilterRouting",1);put("synthFilterBalance",35);
+         put("synthDistOn",1);put("synthDistType",2);put("synthDistPlace",1);put("synthDistDrive",45);put("synthDistMix",80);}
         page.assignModulation(2,targetWaveA);page.assignModulation(1,targetCutoff);page.assignModulation(4,targetLevelC);
         {auto put=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};put(synthModID(1,"Amount"),-40);put(synthModID(2,"Amount"),70);}
         page.refreshModulation();
@@ -628,6 +700,29 @@ void processorInsertsAndPage() {
             auto stream=out.createOutputStream();require(stream && juce::PNGImageFormat().writeImageToStream(image,*stream),"Cannot write the SYNTH page snapshot");
         }
     }
+    // Filters and distortion (docs/SYNTH_FILTERS.md): thirteen parameters at version hint 39, appended last.
+    {int count=0;const int total=p->getParameters().size();
+     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==synthFiltersParameterVersion){
+        require(with->getParameterIndex()>=total-synthFiltersParameterCount && (with->paramID.startsWith("synthFilter")||with->paramID.startsWith("synthDist")),"A filter 2 / distortion parameter is not in the last bank");++count;}
+     const auto initial=[&](const char* id){auto* q=p->parameters().getParameter(id);return q->convertFrom0to1(q->getDefaultValue());};
+     require(count==synthFiltersParameterCount && initial("synthFilter2On")==0 && initial("synthDistOn")==0 && initial("synthFilterRouting")==0 && initial("synthDistMix")==100,"Filter 2 / distortion bank size or defaults wrong");
+     const std::vector<const char*> ids{"synthFilterOn","synthFilterType","synthCutoff","synthResonance","synthDrive","synthKeyTrack","synthFilterEnv","synthFilter2On","synthFilter2Type","synthFilter2Cutoff",
+         "synthFilter2Resonance","synthFilter2KeyTrack","synthFilter2Env","synthFilterRouting","synthFilterBalance","synthDistOn","synthDistType","synthDistPlace","synthDistDrive","synthDistMix"};
+     const auto put=[&](const char* id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
+     put("synthFilterRouting",0);page.updateModes();require(page.control("synthFilterBalance")!=nullptr && !page.control("synthFilterBalance")->isVisible(),"The parallel balance shows in Serial");
+     put("synthFilterRouting",1);page.updateModes();require(page.control("synthFilterBalance")->isVisible(),"The parallel balance is hidden in Parallel");
+     const auto area=[&](juce::Component* c){auto* top=c;while(top->getParentComponent()!=&page)top=top->getParentComponent();return top->getBounds();};   // a knob's slider sits in its Knob
+     std::vector<juce::Rectangle<int>> boxes{curve.getBounds()};
+     for(const auto* id:ids){auto* c=page.control(id);require(c!=nullptr && c->isVisible(),std::string("SYNTH page control missing: ")+id);boxes.push_back(area(c));}
+     for(size_t i=0;i<boxes.size();++i){require(page.getLocalBounds().contains(boxes[i]) && boxes[i].getWidth()>=30 && boxes[i].getHeight()>=16,"A filter-panel control is off the page or too small");
+        for(size_t j=i+1;j<boxes.size();++j)require(!boxes[i].intersects(boxes[j]),std::string("Filter-panel controls overlap: ")+(i?ids[i-1]:"curve")+" / "+ids[j-1]);}
+     require(curve.getHeight()>=56,"The filter curve is too small");
+     // The curve: with filter 2 on, a press near its handle moves filter 2 and leaves filter 1.
+     put("synthFilter2On",1);put("synthCutoff",6000);put("synthResonance",20);put("synthFilter2Cutoff",200);put("synthFilter2Resonance",20);
+     const auto h2=curve.handle(1);writes.gestures=0;writes.changes.clear();drag(curve,h2,{h2.x+40,h2.y});
+     std::cout<<"MEASURE filter panel: curve "<<curve.getWidth()<<" x "<<curve.getHeight()<<" px; dragging filter 2's handle: cutoff 2 "<<raw("synthFilter2Cutoff")<<" Hz, cutoff 1 "<<raw("synthCutoff")<<" Hz, gestures "<<writes.gestures<<"\n";
+     require(raw("synthFilter2Cutoff")>250 && std::abs(raw("synthCutoff")-6000)<1 && writes.gestures==4 && writes.changes.count(index("synthCutoff"))==0,"Dragging filter 2's handle is wrong");
+     put("synthFilter2On",0);put("synthFilterRouting",0);put("synthFilter2Cutoff",200);put("synthFilter2Resonance",20);page.updateModes();}
     std::cout<<"MEASURE page: square tile -> wave "<<squareValue<<", display drag to the saw tile -> "<<morphed<<"\n";
     p->removeListener(&writes);
     std::cout<<"PASS inserts in the processor and the path, SYNTH page controls, graph drags as host gestures, patches\n";
@@ -636,7 +731,7 @@ void processorInsertsAndPage() {
 
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
-    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
+    try {tracker();tuningTest();waveMorph();unisonSubNoise();wavetables();filterResponse();filtersAndDistortion();envelopes();lfoAndMatrix();fmAndVoices();guitarAndMidi();oscillatorC();engineTypes();sampleOscillator();sampleState();reviewFixes();contractAndPatches();processorInsertsAndPage();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

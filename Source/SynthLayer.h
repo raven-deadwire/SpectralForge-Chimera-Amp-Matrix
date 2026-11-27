@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include "SynthWavetable.h"
+#include "SynthFilters.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -102,6 +103,10 @@ inline double synthFilterMagnitude(int type, double cutoffHz, double resonance, 
         default: h = (s * s + 1.0) / d;break;
     }
     return std::abs(h);
+}
+// Filter 2's magnitude: the same curves, or a comb.
+inline double synthFilter2Magnitude(int type, double cutoffHz, double resonance, double hz, double rate) noexcept {
+    return type >= synthFilterCombPlus ? synthCombMagnitude(type == synthFilterCombMinus, cutoffHz, resonance, hz, rate) : synthFilterMagnitude(type, cutoffHz, resonance, hz, rate);
 }
 // ADSR shape for graphs and tests: linear attack over A, then decay and
 // release move 60 dB of their span in D and R. Times in seconds.
@@ -474,6 +479,9 @@ public:
         bool subOn{}; int subOctave{}, subShape{}; float subLevel{.5f};
         bool noiseOn{}; float noiseColor{.7f}, noiseLevel{.2f};
         bool filterOn{true}; int filterType{1}; float cutoff{6000.f}, resonance{.2f}, drive{}, keyTrack{}, filterEnv{};
+        // docs/SYNTH_FILTERS.md; filter 2 and the distortion off is the released voice
+        bool filter2On{}; int filter2Type{2}; float cutoff2{200.f}, resonance2{.2f}, keyTrack2{}, filterEnv2{}; int routing{}; float balance{.5f};
+        bool distOn{}; int distType{}, distPlace{}; float distMix{1.f}; double distGain{1.0}, distSteps{32768.0};
         std::array<SynthEnvelopeSettings, 2> env{};
         struct Lfo { int shape{}; float rate{2.f}; int sync{}; };
         std::array<Lfo, 2> lfo{};
@@ -496,6 +504,9 @@ public:
         p.noiseOn = get("synthNoiseOn");p.noiseColor = get("synthNoiseColor");p.noiseLevel = get("synthNoiseLevel");
         p.filterOn = get("synthFilterOn");p.filterType = get("synthFilterType");p.cutoff = get("synthCutoff");p.resonance = get("synthResonance");
         p.drive = get("synthDrive");p.keyTrack = get("synthKeyTrack");p.filterEnv = get("synthFilterEnv");
+        p.filter2On = get("synthFilter2On");p.filter2Type = get("synthFilter2Type");p.cutoff2 = get("synthFilter2Cutoff");p.resonance2 = get("synthFilter2Resonance");
+        p.keyTrack2 = get("synthFilter2KeyTrack");p.filterEnv2 = get("synthFilter2Env");p.routing = get("synthFilterRouting");p.balance = get("synthFilterBalance");
+        p.distOn = get("synthDistOn");p.distType = get("synthDistType");p.distPlace = get("synthDistPlace");p.distDrive = get("synthDistDrive");p.distMix = get("synthDistMix");
         for (int e = 0; e < 2; ++e) {
             const juce::String base = e == 0 ? "synthAmp" : "synthModEnv";
             p.env[size_t(e)] = {get(base + "Attack"), get(base + "Decay"), get(base + "Sustain"), get(base + "Release")};
@@ -508,11 +519,15 @@ public:
     }
     void prepare(double sampleRate, int maximumBlock) {
         rate = sampleRate;
+        // Comb filter: one delay line per voice and channel, long enough for 20 Hz.
+        combLength = int(std::ceil(rate / 20.0)) + 4;
+        combs.assign(size_t(synthMaxVoices + 1) * 2 * size_t(combLength), 0.f);
         tracker.prepare(rate);
         for (auto& ch : rendered) ch.assign(size_t(std::max(1, maximumBlock)), 0.f);
         // Analog drift: white noise through a one-pole low-pass at 1.5 Hz,
         // scaled to unit RMS (uniform noise has variance 1/3).
         driftCoefficient = 1.0 - std::exp(-6.283185307179586 * 1.5 / rate);
+        dcCoefficient = 1.0 - std::exp(-6.283185307179586 * 10.0 / rate);
         driftScale = 1.0 / std::sqrt(driftCoefficient / (2.0 - driftCoefficient) / 3.0);
         reset();
     }
@@ -520,6 +535,7 @@ public:
         tracker.reset();
         for (auto& v : voices) v = Voice{};
         guitar = Voice{};
+        std::fill(combs.begin(), combs.end(), 0.f);
         midiNotes = {};midiCount = 0;bend = 0;wheel = 0;midiVelocity = 0;midiOnset = false;
         lfoPhase = {};lfoHeld = {};lfoValue = {};seed = 0x2545f491u;clock = 0;
         guitarGate = false;guitarLevel = 0;onsetLevel = 0;active = false;renderedSamples = 0;attacks = 0;
@@ -548,6 +564,12 @@ public:
         s.noiseOn = f(p.noiseOn, 0.f) > .5f;s.noiseColor = pc(p.noiseColor, 70.f);s.noiseLevel = pc(p.noiseLevel, 20.f);
         s.filterOn = f(p.filterOn, 1.f) > .5f;s.filterType = i(p.filterType, 1, 0, 5);s.cutoff = juce::jlimit(20.f, 20000.f, f(p.cutoff, 6000.f));
         s.resonance = pc(p.resonance, 20.f);s.drive = pc(p.drive, 0.f);s.keyTrack = pc(p.keyTrack, 0.f);s.filterEnv = juce::jlimit(-1.f, 1.f, f(p.filterEnv, 0.f) * .01f);
+        s.filter2On = f(p.filter2On, 0.f) > .5f;s.filter2Type = i(p.filter2Type, 2, 0, synthFilter2TypeCount - 1);s.cutoff2 = juce::jlimit(20.f, 20000.f, f(p.cutoff2, 200.f));
+        s.resonance2 = pc(p.resonance2, 20.f);s.keyTrack2 = pc(p.keyTrack2, 0.f);s.filterEnv2 = juce::jlimit(-1.f, 1.f, f(p.filterEnv2, 0.f) * .01f);
+        s.routing = i(p.routing, 0, 0, 1);s.balance = pc(p.balance, 50.f);
+        s.distOn = f(p.distOn, 0.f) > .5f;s.distType = i(p.distType, 0, 0, synthDistTypeCount - 1);s.distPlace = i(p.distPlace, 0, 0, synthDistPlaceCount - 1);
+        s.distMix = pc(p.distMix, 100.f);
+        if (s.distOn) { const double drive = pc(p.distDrive, 30.f);s.distGain = synthDistGain(drive);s.distSteps = synthDistSteps(drive); }
         for (int e = 0; e < 2; ++e) {
             const auto& q = p.env[size_t(e)];
             s.env[size_t(e)] = {juce::jlimit(.5, 5000.0, double(f(q.attack, 5.f))) * .001, juce::jlimit(5.0, 10000.0, double(f(q.decay, 300.f))) * .001,
@@ -712,6 +734,9 @@ private:
         Envelope amp, env2;
         std::array<std::array<std::array<double, 2>, 2>, 2> svf{};   // channel x stage x state
         double noiseLow{};
+        std::array<std::array<std::array<double, 2>, 2>, 2> svf2{};   // filter 2
+        int combWrite{};
+        std::array<double, 2> distDc{};
     };
     struct Pending { bool on{};int note{};float velocity{}; };
     struct Pointers {
@@ -726,6 +751,9 @@ private:
         std::atomic<float>* noiseOn{};std::atomic<float>* noiseColor{};std::atomic<float>* noiseLevel{};
         std::atomic<float>* filterOn{};std::atomic<float>* filterType{};std::atomic<float>* cutoff{};std::atomic<float>* resonance{};
         std::atomic<float>* drive{};std::atomic<float>* keyTrack{};std::atomic<float>* filterEnv{};
+        std::atomic<float>* filter2On{};std::atomic<float>* filter2Type{};std::atomic<float>* cutoff2{};std::atomic<float>* resonance2{};
+        std::atomic<float>* keyTrack2{};std::atomic<float>* filterEnv2{};std::atomic<float>* routing{};std::atomic<float>* balance{};
+        std::atomic<float>* distOn{};std::atomic<float>* distType{};std::atomic<float>* distPlace{};std::atomic<float>* distDrive{};std::atomic<float>* distMix{};
         struct Env { std::atomic<float>* attack{};std::atomic<float>* decay{};std::atomic<float>* sustain{};std::atomic<float>* release{}; };
         std::array<Env, 2> env{};
         struct Lfo { std::atomic<float>* shape{};std::atomic<float>* rate{};std::atomic<float>* sync{}; };
@@ -746,7 +774,7 @@ private:
         v.targetHz = target;if (!glide) v.hz = target;
         v.note = note;v.fromGuitar = note < 0;v.noteValue = note >= 0 ? (note - 60) / 24.0 : (12.0 * std::log2(std::max(hz, 1.0) / 261.63)) / 24.0;
         v.velocity = velocity;v.gate = true;v.age = ++clock;
-        if (!v.active) { v.svf = {};for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
+        if (!v.active) { v.svf = {};v.svf2 = {};v.distDc = {};v.combWrite = 0;if (!combs.empty()) std::fill_n(comb(v, 0), size_t(2 * combLength), 0.f);for (auto& o : v.phase) for (auto& ph : o) ph = .5 * (random() + 1.f);v.drift = {};v.impactPhase = 0; }
         if (!legato || !v.active) { v.amp.gateOn();v.env2.gateOn();v.struck = 0;restartSamples(v); }
         v.active = true;
     }
@@ -845,8 +873,38 @@ private:
         const double c1 = .5 * (y2 - y0), c2 = y0 - 2.5 * y1 + 2.0 * y2 - .5 * y3, c3 = .5 * (y3 - y0) + 1.5 * (y1 - y2);
         return ((c3 * t + c2) * t + c1) * t + y1;
     }
+    // A voice's comb delay lines: two channels of combLength samples.
+    float* comb(const Voice& v, int channel) noexcept {
+        const size_t index = &v == &guitar ? size_t(synthMaxVoices) : size_t(&v - voices.data());
+        return combs.data() + (index * 2 + size_t(channel)) * size_t(combLength);
+    }
+    // Feedback comb tuned to the cutoff: peaks at its multiples (Comb +) or at
+    // the odd multiples of half of it (Comb -). The caller advances combWrite.
+    double combSample(Voice& v, int channel, double x, double cutoff, double resonance, bool negative) noexcept {
+        float* d = comb(v, channel);
+        const double delay = std::clamp(rate / std::clamp(cutoff, 20.0, rate * .45), 1.0, double(combLength - 2));
+        const double fb = synthCombFeedback(resonance, negative);
+        double at = v.combWrite - delay;if (at < 0) at += combLength;
+        const int i0 = std::min(combLength - 1, int(at));const int i1 = i0 + 1 < combLength ? i0 + 1 : 0;const double t = at - i0;
+        const double y = x + fb * (d[i0] + t * (double(d[i1]) - d[i0]));
+        d[v.combWrite] = float(y);
+        return y * std::sqrt(1.0 - fb * fb);
+    }
+    double filter2Sample(Voice& v, int channel, double x, const Settings& s, double cutoff, double resonance) noexcept {
+        if (s.filter2Type >= synthFilterCombPlus) return combs.empty() ? x : combSample(v, channel, x, cutoff, resonance, s.filter2Type == synthFilterCombMinus);
+        return svfSample(v.svf2[size_t(channel)], x, s.filter2Type, cutoff, resonance);
+    }
+    // The shaper and its mix. Tube is biased, so its DC is taken out (a 10 Hz high-pass per voice).
+    double distort(Voice& v, int channel, const Settings& s, double x) const noexcept {
+        double y = synthDistort(s.distType, s.distGain, s.distSteps, x);
+        if (s.distType == 3) { auto& dc = v.distDc[size_t(channel)];dc += dcCoefficient * (y - dc);y -= dc; }
+        return x + s.distMix * (y - x);
+    }
     double filterSample(std::array<std::array<double, 2>, 2>& st, double x, const Settings& s, double cutoff, double resonance) const noexcept {
         if (s.drive > 0.f) { const double g = 1.0 + 9.0 * s.drive;x = std::tanh(g * x) / std::tanh(g); }
+        return svfSample(st, x, s.filterType, cutoff, resonance);
+    }
+    double svfSample(std::array<std::array<double, 2>, 2>& st, double x, int type, double cutoff, double resonance) const noexcept {
         const double g = std::tan(3.141592653589793 * std::clamp(cutoff, 20.0, rate * .45) / rate), k = 2.0 - 1.9 * std::clamp(resonance, 0.0, 1.0);
         const auto tick = [&](std::array<double, 2>& f, double in) {
             const double a1 = 1. / (1. + g * (g + k)), a2 = g * a1, a3 = g * a2;
@@ -854,7 +912,7 @@ private:
             f[0] = 2. * v1 - f[0];f[1] = 2. * v2 - f[1];
             return std::array<double, 3>{v2, v1, in - k * v1 - v2};
         };
-        switch (s.filterType) {
+        switch (type) {
             case 0: return tick(st[0], x)[0];
             case 1: return tick(st[1], tick(st[0], x)[0])[0];
             case 2: return tick(st[0], x)[2];
@@ -982,11 +1040,36 @@ private:
             const double g = .5 * character;   // at 100 %: a full-scale peak loses 0.4 dB, a peak of 2 loses 2.4 dB
             for (auto& x : sum) x = std::tanh(g * x) / g;
         }
-        if (s.filterOn) {
+        if (s.filterOn && !s.filter2On && !s.distOn) {   // the released voice
             const double tracking = s.keyTrack * std::log2(std::max(v.hz, 1.0) / 261.63);
             const double cutoff = s.cutoff * std::pow(2.0, tracking + s.filterEnv * 5.0 * env2 + m[targetCutoff] + dynamicOctaves);
             const double resonance = s.resonance + m[targetResonance];
             for (int c = 0; c < 2; ++c) sum[size_t(c)] = filterSample(v.svf[size_t(c)], sum[size_t(c)], s, cutoff, resonance);
+        } else if (s.filterOn || s.filter2On || s.distOn) {
+            // Two filters and the distortion (docs/SYNTH_FILTERS.md). The matrix
+            // moves filter 1; filter 2 follows its own key tracking and ENV 2.
+            const double octave = std::log2(std::max(v.hz, 1.0) / 261.63);
+            const double cutoff1 = s.cutoff * std::pow(2.0, s.keyTrack * octave + s.filterEnv * 5.0 * env2 + m[targetCutoff] + dynamicOctaves);
+            const double resonance1 = s.resonance + m[targetResonance];
+            const double cutoff2 = s.filter2On ? s.cutoff2 * std::pow(2.0, s.keyTrack2 * octave + s.filterEnv2 * 5.0 * env2 + dynamicOctaves) : 0.0;
+            const bool parallel = s.routing == 1 && s.filterOn && s.filter2On;
+            const double gain1 = synthParallelGain(s.balance, false), gain2 = synthParallelGain(s.balance, true);
+            for (int c = 0; c < 2; ++c) {
+                double x = sum[size_t(c)];
+                if (s.distOn && s.distPlace == synthDistBeforeFilters) x = distort(v, c, s, x);
+                if (parallel) {
+                    double a = filterSample(v.svf[size_t(c)], x, s, cutoff1, resonance1);
+                    if (s.distOn && s.distPlace == synthDistAfterFilter1) a = distort(v, c, s, a);
+                    x = gain1 * a + gain2 * filter2Sample(v, c, x, s, cutoff2, s.resonance2);
+                } else {
+                    if (s.filterOn) x = filterSample(v.svf[size_t(c)], x, s, cutoff1, resonance1);
+                    if (s.distOn && s.distPlace == synthDistAfterFilter1) x = distort(v, c, s, x);
+                    if (s.filter2On) x = filter2Sample(v, c, x, s, cutoff2, s.resonance2);
+                }
+                if (s.distOn && s.distPlace == synthDistAfterFilters) x = distort(v, c, s, x);
+                sum[size_t(c)] = x;
+            }
+            if (s.filter2On && s.filter2Type >= synthFilterCombPlus) v.combWrite = v.combWrite + 1 < combLength ? v.combWrite + 1 : 0;
         }
         const double amp = ampEnv * dynamicGain * std::clamp(1.0 + m[targetAmp], 0.0, 2.0);
         out[0] += sum[0] * amp;out[1] += sum[1] * amp;
@@ -995,7 +1078,8 @@ private:
         int k = 0;for (int i = 0; i < midiCount; ++i) if (midiNotes[size_t(i)] != note) midiNotes[size_t(k++)] = midiNotes[size_t(i)];
         midiCount = k;
     }
-    double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0};
+    double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0}, dcCoefficient{1.3e-3};
+    std::vector<float> combs;int combLength{4};   // (voices + guitar) x channel x combLength
     PitchTracker tracker;
     std::array<Voice, synthMaxVoices> voices{};Voice guitar{};
     std::array<int, 16> midiNotes{};int midiCount{};double bend{}, wheel{};float midiVelocity{};bool midiOnset{}, allOff{};
