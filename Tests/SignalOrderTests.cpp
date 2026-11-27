@@ -858,7 +858,7 @@ void reverbShape() {
     juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
     for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbShapePerSlot;++control)require(std::abs(get(*loaded,reverbShapeID(slot,control))-get(*source,reverbShapeID(slot,control)))<1e-4f,"A reverb shape value did not come back from a saved project");
     juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
-    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.endsWith("reverbshape") || id.endsWith("reverbshapedepth") || id.endsWith("reverbshapelength")){tree.removeChild(i,nullptr);++removed;}   // the three of this bank, not the later ones that share the prefix}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.endsWith("reverbshape") || id.endsWith("reverbshapedepth") || id.endsWith("reverbshapelength")){tree.removeChild(i,nullptr);++removed;}}
     require(removed==postReverbShapeParameterCount,"The saved project does not hold every reverb shape value");
     juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
     loaded->setStateInformation(old.getData(),int(old.getSize()));
