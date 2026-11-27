@@ -17,6 +17,7 @@ struct FXState {
     float busThreshold{-18},busRatio{4},busAttack{30},busRelease{100},busMakeup{},preampDrive{6},preampColour{.65f},preampLevel{-6};
     float eqLow{},eqMidHz{1000},eqMid{},eqQ{.707f},eqHigh{},chorusRate{.7f},chorusDepth{.3f},chorusMix{.25f};
     float drive{.3f},tone{4000},driveLevel{},delayMs{250},feedback{.25f},delayMix{.2f},room{.35f},damping{.55f},reverbMix{.15f};
+    ReverbControls reverbControls;   // pre-delay, low cut, tone, width, freeze (docs/POST_REVERB_CONTROLS.md)
 };
 // Original 4x-oversampled voicings, informed by the named references rather
 // than circuit or capture replicas. Control filters are smoothed on a fixed
@@ -239,7 +240,7 @@ public:
             case postModulationModule:modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);peak(3);break;
             case postDelayModule:echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);peak(4);break;
             case postCreativeModule:if(creative)creative->process(buffer,state.tempo);if(delayMeter)peak(4);break;
-            case postReverbModule:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);peak(5);break;
+            case postReverbModule:space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix,state.reverbControls);peak(5);break;
             default:break;
         }
     }

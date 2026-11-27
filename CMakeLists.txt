@@ -762,6 +762,14 @@ target_compile_definitions(ChimeraAutoSetBusOrderDSPTests PRIVATE JUCE_USE_CURL=
 target_link_libraries(ChimeraAutoSetBusOrderDSPTests PRIVATE juce::juce_dsp juce::juce_graphics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraAutoSetBusOrderDSPTests COMMAND ChimeraAutoSetBusOrderDSPTests)
 set_tests_properties(ChimeraAutoSetBusOrderDSPTests PROPERTIES TIMEOUT 900)
+# POST reverb controls (docs/POST_REVERB_CONTROLS.md): pre-delay, low cut, tone, width and freeze on the reverb module.
+juce_add_console_app(ChimeraReverbControlsDSPTests PRODUCT_NAME "Chimera Reverb Controls DSP Tests")
+target_sources(ChimeraReverbControlsDSPTests PRIVATE Tests/ReverbControlsDSPTests.cpp)
+target_include_directories(ChimeraReverbControlsDSPTests PRIVATE Source)
+target_compile_definitions(ChimeraReverbControlsDSPTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraReverbControlsDSPTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraReverbControlsDSPTests COMMAND ChimeraReverbControlsDSPTests)
+set_tests_properties(ChimeraReverbControlsDSPTests PROPERTIES TIMEOUT 600)
 add_test(NAME ChimeraAutoSetParameterSafetyTests COMMAND ChimeraAutoSetTests --level-parameters)
 # Instrument detection (guitar / bass / vocal / keys / percussion) on a synthetic corpus.
 juce_add_console_app(ChimeraAutoSetInstrumentTests PRODUCT_NAME "Chimera Auto Set Instrument Detection Tests")

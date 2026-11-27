@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <functional>
 #include <complex>
 #include <iostream>
 #include <map>
@@ -412,13 +413,15 @@ void secondSlotsBank() {
         auto* original=p->parameters().getParameter(r->getParameterID().substring(6));require(original!=nullptr,"Second-slot parameter without a slot 1 original: "+r->getParameterID().toStdString());
         // The CREATIVE page's slot-2 copies came later, at their own version (docs/CREATIVE_PAGE.md).
         // Slots 3 and 4 came later still, all at version 37 (docs/POST_FOUR_SLOTS.md).
-        const bool late=!r->getParameterID().startsWith("slot2_"),page=late || r->getVersionHint()==creativePageParameterVersion;
-        require(r->getVersionHint()==(late?postExtraSlotParameterVersion:page?creativePageParameterVersion:postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
+        // The reverb controls of every slot came together, at version 43 (docs/POST_REVERB_CONTROLS.md).
+        const bool reverbControl=r->getVersionHint()==postReverbControlsParameterVersion;
+        const bool late=!r->getParameterID().startsWith("slot2_"),page=late || reverbControl || r->getVersionHint()==creativePageParameterVersion;
+        require(r->getVersionHint()==(reverbControl?postReverbControlsParameterVersion:late?postExtraSlotParameterVersion:page?creativePageParameterVersion:postSecondSlotParameterVersion) && r->getDefaultValue()==original->getDefaultValue() && r->isAutomatable()==original->isAutomatable()
                 && r->getNormalisableRange().start==original->getNormalisableRange().start && r->getNormalisableRange().end==original->getNormalisableRange().end,"Second-slot definition differs from slot 1: "+r->getParameterID().toStdString());
         if(!page)++copies;}
     require(copies+postSecondSlotOrderParameterCount==postSecondSlotParameterCount(),"Second-slot bank size");
     // Automation of released parameters still targets slot 1: same IDs, same indices.
-    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+synthTableImportParameterCount)),"A released ID moved");
+    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+(synthTableImportParameterCount+postReverbControlsParameterCount))),"A released ID moved");
     std::cout<<"MEASURE second-slot bank: "<<postSecondSlotParameterCount()<<" parameters at version "<<postSecondSlotParameterVersion<<" ("<<copies<<" slot2_ copies + "<<postSecondSlotOrderParameterCount<<" order slots), all off by default\n";
     std::cout<<"PASS second slots: appended bank, slot 1 definitions, off by default, released IDs unchanged\n";
 }
@@ -576,7 +579,7 @@ void extraSlotsBank() {
     auto p=make();int bank=0,order=0;std::array<int,postSlotCount> copies{};
     const int total=p->getParameters().size();
     for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getVersionHint()==postExtraSlotParameterVersion){
-        require(r->getParameterIndex()>=total-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+synthTableImportParameterCount)),"A slot 3 / 4 parameter is not in the last bank");++bank;
+        require(r->getParameterIndex()>=total-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+(synthEffectsParameterCount+(synthTableImportParameterCount+postReverbControlsParameterCount))),"A slot 3 / 4 parameter is not in the last bank");++bank;
         if(r->getParameterID().startsWith("orderPost")){++order;continue;}
         const int slot=r->getParameterID().startsWith("slot3_")?2:r->getParameterID().startsWith("slot4_")?3:-1;require(slot>0,"Unexpected ID in the slot 3 / 4 bank: "+r->getParameterID().toStdString());
         ++copies[size_t(slot)];
@@ -584,7 +587,8 @@ void extraSlotsBank() {
         auto* twin=p->parameters().getParameter(postSlotID(1,r->getParameterID().substring(6)));require(twin!=nullptr,"No slot 2 twin: "+r->getParameterID().toStdString());
         require(r->getDefaultValue()==twin->getDefaultValue() && r->isAutomatable()==twin->isAutomatable() && r->getNormalisableRange().start==twin->getNormalisableRange().start && r->getNormalisableRange().end==twin->getNormalisableRange().end
                 && r->getName(64).endsWith("(slot "+juce::String(slot+1)+")"),"Slot definition differs from slot 2: "+r->getParameterID().toStdString());}
-    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_");
+    // Slot 2's reverb controls are not part of what slots 3 and 4 copied: theirs sit in the reverb controls bank (version 43).
+    int slot2=0;for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))slot2+=r->getParameterID().startsWith("slot2_") && r->getVersionHint()!=postReverbControlsParameterVersion;
     require(bank==postExtraSlotParameterCount() && order==postExtraSlotOrderParameterCount && copies[2]==slot2 && copies[3]==slot2,"Slot 3 / 4 bank size");
     for(int block=postModuleCount;block<postBlockCount;++block)require(!p->postBlockOn(block) && !p->postBlockShown(block),"A slot 2-4 block starts on");
     for(int block=0;block<postModuleCount;++block)require(p->postBlockShown(block),"A slot 1 block is hidden");
@@ -760,11 +764,80 @@ void extraSlotsPage() {
     }
     std::cout<<"PASS POST page: four-slot switches, slot 2-4 rows, lights, + ADD; choosing a slot writes nothing\n";
 }
+// POST reverb controls (docs/POST_REVERB_CONTROLS.md): the bank, the audio of a slot, and state.
+void reverbControlsBank() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbControlsParameterVersion) {
+        const int slot=count/postReverbControlsPerSlot,control=count%postReverbControlsPerSlot;const auto& spec=reverbControlSpecs[size_t(control)];
+        require(with->getParameterIndex()==total-postReverbControlsParameterCount+count && with->paramID==reverbControlID(slot,control) && parameter->isAutomatable(),"A reverb control is not in the last bank, slot 1 first");
+        require(with->getName(64)==postSlotName(slot,spec.name),"A reverb control has the wrong host name: "+with->getName(64).toStdString());
+        require(std::abs(get(*p,with->paramID)-spec.initial)<1e-6f,"A reverb control does not start at its default: "+with->paramID.toStdString());++count;}
+    require(count==postReverbControlsParameterCount && count==20,"The reverb controls bank is not five parameters for each of four slots");
+    // The defaults ask nothing of the reverb.
+    const ReverbControls plain;
+    require(get(*p,"reverbpredelay")==plain.preDelayMs && get(*p,"reverblowcut")==plain.lowCutHz && get(*p,"reverbtone")==plain.tone && get(*p,"reverbwidth")==plain.width && get(*p,"reverbfreeze")<.5f,
+            "The parameter defaults are not the reverb's plain controls");
+    // Each slot has its own.
+    set(*p,"slot2_reverbpredelay",120);set(*p,"slot4_reverbfreeze",1);
+    require(get(*p,"reverbpredelay")==0 && get(*p,"slot3_reverbpredelay")==0 && get(*p,"reverbfreeze")<.5f && get(*p,"slot3_reverbfreeze")<.5f,"Slots share a reverb control");
+    std::cout<<"PASS reverb controls bank: 20 parameters at version 43, last, five for each slot, at defaults that leave the reverb as it was\n";
+}
+void reverbControlsAudio() {
+    // 60 Hz through the rig with the reverb on: LOW CUT takes it out of the reverb, so the output changes; 4 kHz does not.
+    const auto tone=[](double hz){std::vector<float> x(size_t(rate*2));for(size_t n=0;n<x.size();++n)x[n]=float(.05*std::sin(2*pi*hz*double(n)/rate));return x;};
+    const auto with=[&](const std::function<void(ChimeraProcessor&)>& edit,const std::vector<float>& in){auto p=make();set(*p,"reverbon",1);set(*p,"reverbmix",.5f);if(edit)edit(*p);return renderInput(*p,in);};
+    // The level of the tone itself in the output, over its last second.
+    const auto level=[&](const std::vector<float>& x,double hz){return db(magnitude(x,int(rate),int(x.size()),hz));};
+    const auto low=tone(60),high=tone(4000);
+    const auto plainLow=with({},low),cutLow=with([](ChimeraProcessor& p){set(p,"reverblowcut",500);},low);
+    const auto plainHigh=with({},high),cutHigh=with([](ChimeraProcessor& p){set(p,"reverblowcut",500);},high);
+    const double lowChange=level(cutLow,60)-level(plainLow,60),highChange=level(cutHigh,4000)-level(plainHigh,4000);
+    // 4 kHz is reported, not checked: the low cut turns the reverb's phase a little there, which moves the sum with the dry
+    // sound. That the cut leaves 4 kHz in the reverb itself is checked on the module (ChimeraReverbControlsDSPTests).
+    require(lowChange<-2 && cutLow!=plainLow,"LOW CUT does not reach the reverb of slot 1 through the processor (60 Hz changed by "+std::to_string(lowChange)+" dB in the output, 4 kHz by "+std::to_string(highChange)+" dB)");
+    // Another slot's controls do nothing to this one: bit-identical with slot 2's reverb off and its controls moved, and the other way round.
+    const auto moved=with([](ChimeraProcessor& p){set(p,"slot2_reverbpredelay",150);set(p,"slot2_reverblowcut",400);set(p,"slot2_reverbtone",-1);set(p,"slot2_reverbwidth",0);set(p,"slot2_reverbfreeze",1);},low);
+    require(moved==plainLow,"A switched-off slot's reverb controls changed the sound");
+    // Slot 2's reverb has its own: with slot 1 off, slot 2's LOW CUT works and slot 1's does nothing.
+    const auto second=[&](const std::function<void(ChimeraProcessor&)>& edit){auto p=make();set(*p,"slot2_reverbon",1);set(*p,"slot2_reverbmix",.5f);if(edit)edit(*p);return renderInput(*p,low);};
+    const auto secondPlain=second({}),secondCut=second([](ChimeraProcessor& p){set(p,"slot2_reverblowcut",500);}),secondOther=second([](ChimeraProcessor& p){set(p,"reverblowcut",500);set(p,"slot3_reverblowcut",500);});
+    require(level(secondCut,60)-level(secondPlain,60)<-2 && secondOther==secondPlain,"Slot 2's reverb does not have its own controls");
+    // FREEZE through the processor: the reverb is still sounding five seconds after the playing stopped.
+    const auto tail=[&](bool freeze){auto p=make();set(*p,"reverbon",1);set(*p,"reverbmix",.5f);std::vector<float> in(size_t(rate*7),0.f);const auto burst=tone(330);std::copy(burst.begin(),burst.begin()+long(rate),in.begin());
+        const auto head=renderInput(*p,std::vector<float>(in.begin(),in.begin()+long(rate*.9)));if(freeze)set(*p,"reverbfreeze",1);
+        const auto rest=renderInput(*p,std::vector<float>(in.begin()+long(rate*.9),in.end()));double e=0;for(size_t n=rest.size()-size_t(rate);n<rest.size();++n)e+=double(rest[n])*rest[n];return db(std::sqrt(e/rate));};
+    const double open=tail(false),held=tail(true);
+    require(held>open+30,"FREEZE does not hold the tail through the processor (frozen "+std::to_string(held)+" dB, open "+std::to_string(open)+" dB after five seconds)");
+    std::cout<<"MEASURE reverb controls through the processor: LOW CUT at 500 Hz changes the tone's level in the output by "<<lowChange<<" dB (60 Hz) and "<<highChange<<" dB (4 kHz); five seconds on, the tail is at "<<held<<" dB frozen and "<<open<<" dB open\n";
+    std::cout<<"PASS reverb controls audio: slot 1 and slot 2 each have their own; a switched-off slot's controls change nothing (bit-identical); freeze holds\n";
+}
+void reverbControlsState() {
+    // Saved and loaded: every value comes back.
+    auto source=make();
+    const std::array<float,postReverbControlsPerSlot> values{85.f,240.f,-.4f,1.5f,1.f};
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbControlsPerSlot;++control)set(*source,reverbControlID(slot,control),control==4?float((slot+1)%2):values[size_t(control)]+float(slot));
+    juce::MemoryBlock saved;source->getStateInformation(saved);
+    auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbControlsPerSlot;++control)
+        require(std::abs(get(*loaded,reverbControlID(slot,control))-get(*source,reverbControlID(slot,control)))<1e-4f,"A reverb control did not come back from a saved project: "+reverbControlID(slot,control).toStdString());
+    // A project saved before the controls existed loads them at their defaults, over a session that had moved them.
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;
+    for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();
+        for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbControlsPerSlot;++control)if(id==reverbControlID(slot,control)){tree.removeChild(i,nullptr);++removed;slot=postSlotCount;break;}}
+    require(removed==postReverbControlsParameterCount,"The saved project does not hold every reverb control");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbControlsPerSlot;++control)
+        require(std::abs(get(*loaded,reverbControlID(slot,control))-reverbControlSpecs[size_t(control)].initial)<1e-6f,"A project saved before the reverb controls did not load them at their defaults: "+reverbControlID(slot,control).toStdString());
+    std::cout<<"PASS reverb controls state: all 20 values are saved and loaded; an older project loads them at their defaults\n";
+}
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
     try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();
         secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();
-        extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();extraSlotsPage();}
+        extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();extraSlotsPage();
+        reverbControlsBank();reverbControlsAudio();reverbControlsState();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
