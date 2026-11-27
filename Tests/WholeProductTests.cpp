@@ -124,6 +124,11 @@ void everythingOnStaysBounded(){
         // longer than 4 s to fall 60 dB. Both stay on, without repeats and at
         // a 1 s decay; their tails are measured in ChimeraSynthTests.
         set(*p,"synthFxDelayFeedback",0);set(*p,"synthFxReverbDecay",1);
+        // The POST reverb's DECAY (docs/POST_REVERB_DECAY.md) and FREEZE (docs/POST_REVERB_CONTROLS.md)
+        // likewise: a decay of up to 20 s and a held tail do not fall 60 dB in 4 s, by design. The
+        // reverbs of the two slots the decay check keeps stay on, with SIZE setting their decay and
+        // not frozen; DECAY and FREEZE are measured in ChimeraReverbControlsDSPTests.
+        for(const char* id:{"reverbdecay","slot2_reverbdecay","reverbfreeze","slot2_reverbfreeze"})set(*p,id,0);
         // Slots 3 and 4 (docs/POST_FOUR_SLOTS.md) are checked in two steps.
         // With them on, the output must stay finite and under the ceiling.
         // The decay check then runs without them: the released reverbs keep
