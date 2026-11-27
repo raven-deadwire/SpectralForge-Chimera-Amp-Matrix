@@ -48,6 +48,40 @@ Slots 2 to 4 have the same five under `slot2_`, `slot3_` and `slot4_`.
 
 There is no added latency: only the reverb is delayed.
 
+## Verification (Linux)
+
+- **The plain reverb is unchanged.** One program rendered noise through the
+  reverb module built from the source before this change and from the source
+  after it, in 108 configurations (44.1, 48 and 96 kHz; blocks of 64, 256 and
+  480; mono and stereo; all six models), with the reverb switched off and on,
+  a model change and SIZE, DAMPING and MIX moving on the way, then a reset
+  and a second prepare. The 108 outputs are bit-identical. That program is
+  not part of the repository.
+- **`ChimeraReverbControlsDSPTests`** (new, on the module, all six models):
+  pre-delay, low cut and tone, width, freeze, every control moving at its
+  extremes in mono and stereo, and a new note after the controls return to
+  their defaults.
+- **`ChimeraSignalOrderTests`** (three new cases): the bank of 20 parameters,
+  each slot's own controls through the processor (a switched-off slot's
+  controls change nothing, bit for bit), and saving, loading and an older
+  project.
+- The whole test suite: 106 of 106 pass.
+
+Measured on the module, the same in all six models to the figure shown:
+
+| Control | Setting | Result |
+|---|---|---|
+| Pre-delay | 100 ms | the reverb 100 ms later, silent until then |
+| Low cut | 500 Hz | 60 Hz in the reverb -37 dB, 4 kHz -0.7 dB |
+| Tone | +1 | 150 Hz in the reverb -5.9 dB, 8 kHz +5.6 dB |
+| Width | 2 | the difference of the channels +6.02 dB, their sum kept |
+| Freeze | 6.5 s | the tail within 0 to -2.5 dB of where it was held; new playing not taken in |
+
+Two existing checks in `SignalOrderTests.cpp` assumed every `slotN_`
+parameter sits at version 35, 36 or 37; they now know the reverb controls'
+version. The parameter-count checks of thirteen test files count the new
+bank.
+
 ## Not in this change
 
 - The knobs and the freeze switch on the POST page.
