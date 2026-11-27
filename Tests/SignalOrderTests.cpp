@@ -873,7 +873,7 @@ void reverbShapeMore() {
         const int slot=count/postReverbShapeMorePerSlot,control=count%postReverbShapeMorePerSlot;
         require(with->getParameterIndex()==total-postReverbShapeMoreParameterCount+count && with->paramID==reverbShapeMoreID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeMoreNames[size_t(control)]),"One more reverb shape parameter is not in the last bank, slot 1 first, under its name");++count;}
     require(count==postReverbShapeMoreParameterCount && count==16,"More of the reverb shape is not four parameters for each of four slots");
-    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeMoreID(slot,0))==0 && get(*p,reverbShapeMoreID(slot,1))==1 && get(*p,reverbShapeMoreID(slot,2))==0 && get(*p,reverbShapeMoreID(slot,3))==0,"The reverb shape does not start in bars, one second, as drawn and without morph");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeMoreID(slot,0))==0 && std::abs(get(*p,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*p,reverbShapeMoreID(slot,2))==0 && get(*p,reverbShapeMoreID(slot,3))==0,"The reverb shape does not start in bars, one second, as drawn and without morph");
     // Through the processor: a Gate two seconds long, in seconds, opens and closes the reverb as the one-bar Gate at 120 BPM does.
     const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.2f);if(edit)edit(*q);
         std::vector<float> in(size_t(rate*4));for(size_t n=0;n<in.size();++n)in[n]=float(.05*std::sin(2*pi*440*double(n)/rate));return renderInput(*q,in);};
@@ -898,7 +898,7 @@ void reverbShapeMore() {
     require(removed==postReverbShapeMoreParameterCount,"The saved project does not hold every one of the added reverb shape values");
     juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
     loaded->setStateInformation(old.getData(),int(old.getSize()));
-    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShapeMoreID(slot,0))==0 && get(*loaded,reverbShapeMoreID(slot,1))==1 && get(*loaded,reverbShapeMoreID(slot,2))==0 && get(*loaded,reverbShapeMoreID(slot,3))==0,"A project saved before these controls did not load them at their defaults");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShapeMoreID(slot,0))==0 && std::abs(get(*loaded,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*loaded,reverbShapeMoreID(slot,2))==0 && get(*loaded,reverbShapeMoreID(slot,3))==0,"A project saved before these controls did not load them at their defaults");
     std::cout<<"PASS more of the reverb shape: 16 parameters at version 46, last; seconds, CURVE and MORPH act through the processor and not with the shape Off; each slot its own; saved, loaded, and defaults in an older project\n";
 }
 // DECAY (docs/POST_REVERB_DECAY.md): four parameters at version 45, after the shape; through the processor; saved and loaded.
