@@ -192,6 +192,7 @@ public:
     std::array<float,6> stagePeaks{};
     float compressorReduction() const {return busReduction;}
     float nativeMeter(int section) const {return native.meter(section);}
+    float reverbShapePosition() const noexcept {return space.shapePosition();}
     // `delayed`: the key delayed by the preamp's latency, for POST dynamics
     // placed after the preamp (docs/SIGNAL_ORDER_1_4.md).
     void setKey(const juce::AudioBuffer<float>* key,const juce::AudioBuffer<float>* delayed=nullptr) noexcept {keys={key,delayed!=nullptr?delayed:key};native.setKey(key);}

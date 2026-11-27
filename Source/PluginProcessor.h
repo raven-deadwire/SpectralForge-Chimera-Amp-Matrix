@@ -232,6 +232,8 @@ public:
     void clearMidi();
     bool learningMidi() const {return midiLearn.load()>=0;}
     float currentTempo() const {return tempoMeter.load();}
+    // Where a slot's reverb shape is in its pass, 0 to 1, as of the last block; below 0 while no shape runs (docs/POST_REVERB_DECAY.md).
+    float reverbShapePosition(int slot) const {return reverbShapePositions[(size_t)juce::jlimit(0,postExtraSlots,slot)].load();}
     // Zero when the latest audio callback had no usable HOST tempo.
     float currentHostTempo() const {return hostTempoMeter.load();}
     // The tempo the host reported in the latest audio callback (40-240 BPM), whether
@@ -449,6 +451,7 @@ private:
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
     spectralforge::LoudnessMeter loudness;
     std::atomic<float> preReduction{0},postReduction{0};
+    std::array<std::atomic<float>,postExtraSlots+1> reverbShapePositions{};
     std::array<std::atomic<float>,6> postPeaks{};std::array<std::array<std::atomic<float>,6>,3> postPeaksExtra{};
     std::array<std::atomic<float>,3> nativePostMeters{};std::array<std::array<std::atomic<float>,3>,3> nativePostMetersExtra{};
     std::atomic<float> cpuAverage{0},cpuPeak{0};

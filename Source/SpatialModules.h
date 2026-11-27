@@ -176,7 +176,7 @@ class SpaceModule {
     juce::AudioBuffer<float> feed;std::array<std::vector<float>,2> preLine;size_t preWrite{};bool preUsed{},shapeUsed{};
     juce::SmoothedValue<float> preSamples,hold,toneAmount,widthGain;
     std::array<std::array<float,2>,2> cutState{},toneState{};
-    double shapePhase{};float shapeLevel{1.f};
+    double shapePhase{};float shapeLevel{1.f};bool shapeRunning{};
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
     void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
@@ -192,6 +192,8 @@ public:
         morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
     void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();
         for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->setCurrentAndTargetValue(v->getTargetValue());}
+    // Where the tempo shape is in its pass, 0 to 1, for the display; below 0 while no shape runs.
+    float shapePosition() const noexcept {return shapeRunning?float(shapePhase):-1.f;}
     void process(juce::AudioBuffer<float>& b,bool on,int model,float size,float damping,float amount,const ReverbControls& k={}) {
         morph.select(model);mix.setTargetValue(on ? amount : 0);
         // Freeze holds only while the reverb is on.
@@ -225,6 +227,7 @@ public:
         const float shapeDepth=juce::jlimit(0.f,1.f,k.shapeDepth),shapePole=spatial_detail::onePole(1./(juce::MathConstants<double>::twoPi*.003),rate);
         const double shapeStep=juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
         if(shape!=reverbShapeOff && std::isfinite(k.ppq) && k.ppq>=0.)shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays
+        shapeRunning=on && shape!=reverbShapeOff;
         const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
         if(!shaping){shapeLevel=1.f;shapePhase=0;}
         const bool shaped=shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;

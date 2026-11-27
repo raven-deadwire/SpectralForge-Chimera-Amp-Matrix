@@ -664,6 +664,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     creativeAt(spectralforge::creativeAfterPost);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
+    reverbShapePositions[0].store(postFX.reverbShapePosition());for(int e=0;e<postExtraSlots;++e)reverbShapePositions[(size_t)e+1].store(postFXExtra[(size_t)e].reverbShapePosition());
     for(int section=0;section<3;++section)nativePostMeters[(size_t)section].store(postFX.nativeMeter(section));
     for(int e=0;e<postExtraSlots;++e)for(int section=0;section<3;++section)nativePostMetersExtra[(size_t)e][(size_t)section].store(postFXExtra[(size_t)e].nativeMeter(section));
     for(size_t i=0;i<postPeaks.size();++i){
