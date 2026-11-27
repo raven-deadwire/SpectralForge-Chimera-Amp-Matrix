@@ -19,7 +19,7 @@ inline void run(const juce::File& directory) {
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
     // Released host ordinals (including POST) precede all new E670FE banks.
-    bool sawAppended=false;int synthEffectsCount=0,synthSequencerCount=0,synthFiltersCount=0,wavetableCount=0,extraSlotCount=0,creativePageCount=0,eqCount=0,appended=0,originalCount=0,channelCount=0,niflheimrCount=0,cabCount=0,originalCabCount=0,expandedCabCount=0,layoutCabCount=0,tunerCount=0,dynamicsCount=0,independentDynamicsCount=0,extraGateCount=0,cutBypassCount=0,pedalExpansionCount=0,stereoCount=0,saturationCount=0,referenceAmpCount=0,fltCount=0,postExpansionCount=0,effectExtensionCount=0,creativeCount=0,synthCount=0,sidechainCount=0,orderCount=0,modulationCount=0,sixBandCount=0,truePeakCount=0,autoOversamplingCount=0,metroCleanCount=0,secondSlotCount=0,roomCount=0,roomAdvancedCount=0,roomSpaceCount=0;
+    bool sawAppended=false;int synthTableImportCount=0,synthEffectsCount=0,synthSequencerCount=0,synthFiltersCount=0,wavetableCount=0,extraSlotCount=0,creativePageCount=0,eqCount=0,appended=0,originalCount=0,channelCount=0,niflheimrCount=0,cabCount=0,originalCabCount=0,expandedCabCount=0,layoutCabCount=0,tunerCount=0,dynamicsCount=0,independentDynamicsCount=0,extraGateCount=0,cutBypassCount=0,pedalExpansionCount=0,stereoCount=0,saturationCount=0,referenceAmpCount=0,fltCount=0,postExpansionCount=0,effectExtensionCount=0,creativeCount=0,synthCount=0,sidechainCount=0,orderCount=0,modulationCount=0,sixBandCount=0,truePeakCount=0,autoOversamplingCount=0,metroCleanCount=0,secondSlotCount=0,roomCount=0,roomAdvancedCount=0,roomSpaceCount=0;
     juce::StringArray tunerIDs{"tunerProfile","tunerDisplay","tunerString"};
     for(int i=1;i<=8;++i){tunerIDs.add("tunerNote"+juce::String(i));tunerIDs.add("tunerOffset"+juce::String(i));}
     juce::StringArray independentDynamicsIDs{"mbOn","mbMix","mbDetector","mbCrossover1","mbCrossover2","mbCrossover3"};
@@ -35,8 +35,10 @@ inline void run(const juce::File& directory) {
         const int tunerIndex=tunerIDs.indexOf(id->paramID);
         // POST second slots (docs/POST_SECOND_SLOTS.md): the last bank, version 35, orderPost8-14 then "slot2_" copies.
         // CREATIVE page (docs/CREATIVE_PAGE.md): the last bank, version 36, slot 1 then slot 2.
-        if(parameter->getVersionHint()==spectralforge::synthEffectsParameterVersion){   // SYNTH effect rack (docs/SYNTH_EFFECTS.md), appended last
-            require(parameter->getParameterIndex()==p.getParameters().size()-(spectralforge::synthEffectsParameterCount+spectralforge::synthTableImportParameterCount)+synthEffectsCount && id->paramID.startsWith("synthFx"),"SYNTH effect bank must be last, at version 41");++synthEffectsCount;}
+        if(parameter->getVersionHint()==spectralforge::synthTableImportParameterVersion){   // SYNTH imported-table switches (docs/SYNTH_WAVETABLE_IMPORT.md), appended last
+            require(parameter->getParameterIndex()==p.getParameters().size()-spectralforge::synthTableImportParameterCount+synthTableImportCount && id->paramID.startsWith("synthOsc") && id->paramID.endsWith("Imported"),"SYNTH imported-table switches must be last, at version 42");++synthTableImportCount;}
+        else if(parameter->getVersionHint()==spectralforge::synthEffectsParameterVersion){   // SYNTH effect rack (docs/SYNTH_EFFECTS.md), appended last
+            require(parameter->getParameterIndex()==p.getParameters().size()-(spectralforge::synthEffectsParameterCount+spectralforge::synthTableImportParameterCount)+synthEffectsCount && id->paramID.startsWith("synthFx"),"SYNTH effect bank must precede the imported-table switches, at version 41");++synthEffectsCount;}
         else if(parameter->getVersionHint()==spectralforge::synthSequencerParameterVersion){   // SYNTH sequencer, macros, second matrix bank (docs/SYNTH_SEQUENCER.md)
             require(parameter->getParameterIndex()==p.getParameters().size()-(spectralforge::synthEffectsParameterCount+spectralforge::synthTableImportParameterCount)-spectralforge::synthSequencerParameterCount+synthSequencerCount && (id->paramID.startsWith("synthSeq") || id->paramID.startsWith("synthMacro") || id->paramID.startsWith("synthModB")),"SYNTH sequencer bank must follow the filter bank, at version 40");++synthSequencerCount;}
         else if(parameter->getVersionHint()==spectralforge::synthFiltersParameterVersion){   // SYNTH filter 2, routing, distortion (docs/SYNTH_FILTERS.md)
@@ -109,13 +111,14 @@ inline void run(const juce::File& directory) {
     require(wavetableCount==spectralforge::synthOscCount*spectralforge::synthWavetableParametersPerOsc,"SYNTH wavetable bank incomplete");
     require(synthFiltersCount==spectralforge::synthFiltersParameterCount,"SYNTH filter 2 / distortion bank incomplete");
     require(synthSequencerCount==spectralforge::synthSequencerParameterCount,"SYNTH sequencer bank incomplete");
-    require(synthEffectsCount==(spectralforge::synthEffectsParameterCount+spectralforge::synthTableImportParameterCount),"SYNTH effect bank incomplete");
+    require(synthEffectsCount==spectralforge::synthEffectsParameterCount,"SYNTH effect bank incomplete");
+    require(synthTableImportCount==spectralforge::synthTableImportParameterCount,"SYNTH imported-table switches incomplete");
     require(secondSlotCount==spectralforge::postSecondSlotParameterCount(),"POST second-slot bank incomplete");
     require(metroCleanCount==spectralforge::metroCleanTT800ParameterCount() && metroCleanCount==6*8,"Metro Clean TT-800 bank incomplete");
     require(roomCount==spectralforge::roomParameterCount,"Room parameter bank incomplete");
     require(roomAdvancedCount==spectralforge::roomAdvancedParameterCount,"Room Advanced parameter bank incomplete");
     require(roomSpaceCount==spectralforge::roomSpaceParameterCount,"Room spatial parameter bank incomplete");
-    require(p.getParameters().size()==5026+independentDynamicsCount+extraGateCount+cutBypassCount+pedalExpansionCount+stereoCount+saturationCount+referenceAmpCount+fltCount+postExpansionCount+effectExtensionCount+creativeCount+synthCount+sidechainCount+orderCount+modulationCount+sixBandCount+truePeakCount+autoOversamplingCount+metroCleanCount+secondSlotCount+creativePageCount+extraSlotCount+wavetableCount+synthFiltersCount+synthSequencerCount+synthEffectsCount+roomCount+roomAdvancedCount+roomSpaceCount && cutBypassCount==6,"Independent dynamics changed the released parameter prefix");
+    require(p.getParameters().size()==5026+independentDynamicsCount+extraGateCount+cutBypassCount+pedalExpansionCount+stereoCount+saturationCount+referenceAmpCount+fltCount+postExpansionCount+effectExtensionCount+creativeCount+synthCount+sidechainCount+orderCount+modulationCount+sixBandCount+truePeakCount+autoOversamplingCount+metroCleanCount+secondSlotCount+creativePageCount+extraSlotCount+wavetableCount+synthFiltersCount+synthSequencerCount+synthEffectsCount+synthTableImportCount+roomCount+roomAdvancedCount+roomSpaceCount && cutBypassCount==6,"Independent dynamics changed the released parameter prefix");
     require(channelCount==342,"Original channel bank incomplete");
     require(niflheimrCount==6*(2+5*14),"Niflheimr six-context five-channel bank incomplete");
     require(originalCabCount==spectralforge::originalCabParameterCount,"Original CAB bank incomplete");
