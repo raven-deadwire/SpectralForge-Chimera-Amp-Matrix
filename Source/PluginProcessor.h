@@ -40,6 +40,7 @@
 #include "LoudnessMeter.h"
 #include "OversamplingAuto.h"
 #include "PostSecondSlotParameters.h"
+#include "PostReverbControls.h"
 
 class ChimeraProcessor : public juce::AudioProcessor, private juce::VST3ClientExtensions {
 public:
@@ -370,6 +371,7 @@ private:
     std::array<spectralforge::CreativeFX,postExtraSlots> creativeExtra;
     std::array<spectralforge::PostNativeParameterCache,postExtraSlots> nativePostExtra;
     std::array<spectralforge::PostSlotFXParameters,postExtraSlots> postSlotExtra;
+    std::array<spectralforge::PostReverbControlParameters,spectralforge::postSlotCount> reverbControlParameters;   // slot 1 first
     std::array<bool,postExtraSlots> preampExtraActive{};std::atomic<int> preampExtraReported{0};   // reported: one bit per extra slot
     int extraPreampLatency() const noexcept {int n=0;for(int e=0;e<postExtraSlots;++e)if(preampExtraActive[(size_t)e])n+=postFXExtra[(size_t)e].latency();return n;}
     spectralforge::FXState readPostSlot(int slot,const spectralforge::FXState& slot1) const noexcept;
