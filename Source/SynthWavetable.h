@@ -23,7 +23,7 @@ inline constexpr int synthTableFrames = 16, synthTableOrder = 11, synthTableSize
 // Harmonics kept at a level: 1024 at level 0, then half an octave fewer per level, down to 1.
 inline int synthTableHarmonics(int level) noexcept { return std::max(1, int(std::floor(1024.0 * std::pow(2.0, -.5 * level) + 1.0e-9))); }
 inline constexpr int synthWavetableParametersPerOsc = 3;
-inline constexpr int synthTableImportParameterVersion = 42;
+inline constexpr int synthTableImportParameterVersion = 42, synthTableImportParameterCount = 3;   // one switch per oscillator
 
 struct SynthTableInfo { const char* name; const char* character; };
 // Index 0 is "no table": the oscillator plays the classic morphing shapes.
