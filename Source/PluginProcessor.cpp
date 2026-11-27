@@ -951,6 +951,8 @@ spectralforge::appendPostSecondSlotParameters(p);
 spectralforge::appendCreativePageParameters(p,0);spectralforge::appendCreativePageParameters(p,1);
 // Slots 3 and 4 of every POST section, version hint 37 (docs/POST_FOUR_SLOTS.md).
 spectralforge::appendPostExtraSlotParameters(p);
+// SYNTH wavetables: table, warp and warp amount per oscillator, version hint 38 (docs/SYNTH_WAVETABLE.md).
+spectralforge::appendSynthWavetableParameters(p,spectralforge::synthOscCount);
 return p;
 }
 

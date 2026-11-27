@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "SynthWavetable.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -467,7 +468,8 @@ public:
     struct Settings {
         bool on{}; int type{}, source{}, insert{2}, octave{}, voices{4};
         float character{.5f}, levelDb{-6.f}, glideMs{}, sensitivityDb{-40.f}, width{.5f}, fm{};
-        struct Osc { bool on{}; int mode{}; float wave{2.f}; int octave{}, semi{}; float fine{}; int unison{1}; float detune{.2f}, level{.8f}, start{}; bool loop{true}; int root{60}; };
+        struct Osc { bool on{}; int mode{}; float wave{2.f}; int octave{}, semi{}; float fine{}; int unison{1}; float detune{.2f}, level{.8f}, start{}; bool loop{true}; int root{60};
+                     int table{}, warp{}; float warpAmount{}; };   // docs/SYNTH_WAVETABLE.md; 0 / 0 / 0 is the released oscillator
         std::array<Osc, synthOscCount> osc{};
         bool subOn{}; int subOctave{}, subShape{}; float subLevel{.5f};
         bool noiseOn{}; float noiseColor{.7f}, noiseLevel{.2f};
@@ -488,6 +490,7 @@ public:
             q.on = get(synthOscID(o, "On"));q.mode = get(synthOscID(o, "Mode"));q.wave = get(synthOscID(o, "Wave"));q.octave = get(synthOscID(o, "Octave"));
             q.semi = get(synthOscID(o, "Semi"));q.fine = get(synthOscID(o, "Fine"));q.unison = get(synthOscID(o, "Unison"));q.detune = get(synthOscID(o, "Detune"));
             q.level = get(synthOscID(o, "Level"));q.start = get(synthOscID(o, "Start"));q.loop = get(synthOscID(o, "Loop"));q.root = get(synthOscID(o, "Root"));
+            q.table = get(synthWavetableID(o, "Table"));q.warp = get(synthWavetableID(o, "Warp"));q.warpAmount = get(synthWavetableID(o, "WarpAmount"));
         }
         p.subOn = get("synthSubOn");p.subOctave = get("synthSubOctave");p.subShape = get("synthSubShape");p.subLevel = get("synthSubLevel");
         p.noiseOn = get("synthNoiseOn");p.noiseColor = get("synthNoiseColor");p.noiseLevel = get("synthNoiseLevel");
@@ -539,6 +542,7 @@ public:
             r.on = f(q.on, o == 0 ? 1.f : 0.f) > .5f;r.mode = i(q.mode, 0, 0, 1);r.wave = juce::jlimit(0.f, 4.f, f(q.wave, 2.f));r.octave = i(q.octave, 0, -3, 3);r.semi = i(q.semi, 0, -12, 12);
             r.fine = juce::jlimit(-100.f, 100.f, f(q.fine, 0.f));r.unison = i(q.unison, 1, 1, synthMaxUnison);r.detune = pc(q.detune, 20.f);
             r.level = pc(q.level, o == 0 ? 80.f : o == 1 ? 60.f : 50.f);r.start = pc(q.start, 0.f);r.loop = f(q.loop, 1.f) > .5f;r.root = i(q.root, 60, 0, 127);
+            r.table = i(q.table, 0, 0, synthTableCount - 1);r.warp = i(q.warp, 0, 0, synthWarpCount - 1);r.warpAmount = pc(q.warpAmount, 0.f);
         }
         s.subOn = f(p.subOn, 0.f) > .5f;s.subOctave = i(p.subOctave, 0, 0, 1);s.subShape = i(p.subShape, 0, 0, 1);s.subLevel = pc(p.subLevel, 50.f);
         s.noiseOn = f(p.noiseOn, 0.f) > .5f;s.noiseColor = pc(p.noiseColor, 70.f);s.noiseLevel = pc(p.noiseLevel, 20.f);
@@ -715,7 +719,8 @@ private:
         std::atomic<float>* level{};std::atomic<float>* octave{};
         std::atomic<float>* glide{};std::atomic<float>* sensitivity{};std::atomic<float>* voices{};std::atomic<float>* width{};std::atomic<float>* fm{};
         struct Osc { std::atomic<float>* on{};std::atomic<float>* mode{};std::atomic<float>* wave{};std::atomic<float>* octave{};std::atomic<float>* semi{};std::atomic<float>* fine{};
-                     std::atomic<float>* unison{};std::atomic<float>* detune{};std::atomic<float>* level{};std::atomic<float>* start{};std::atomic<float>* loop{};std::atomic<float>* root{}; };
+                     std::atomic<float>* unison{};std::atomic<float>* detune{};std::atomic<float>* level{};std::atomic<float>* start{};std::atomic<float>* loop{};std::atomic<float>* root{};
+                     std::atomic<float>* table{};std::atomic<float>* warp{};std::atomic<float>* warpAmount{}; };
         std::array<Osc, synthOscCount> osc{};
         std::atomic<float>* subOn{};std::atomic<float>* subOctave{};std::atomic<float>* subShape{};std::atomic<float>* subLevel{};
         std::atomic<float>* noiseOn{};std::atomic<float>* noiseColor{};std::atomic<float>* noiseLevel{};
@@ -728,6 +733,7 @@ private:
         struct Slot { std::atomic<float>* source{};std::atomic<float>* target{};std::atomic<float>* amount{}; };
         std::array<Slot, synthModSlots> mod{};
     } p;
+    const SynthWavetables* tables{&SynthWavetables::get()};   // built here, off the audio thread
     const SynthSample* samples_(int o) const noexcept { return samples[size_t(o)].get(); }
     static double noteHz(double note) noexcept { return 440.0 * std::pow(2.0, (note - 69.0) / 12.0); }
     float random() noexcept { seed = seed * 1664525u + 1013904223u;return float(seed >> 8) / 8388608.f - 1.f; }
@@ -945,7 +951,9 @@ private:
                     auto& ph = v.phase[size_t(o)][size_t(u)];
                     double readPhase = ph;
                     if (fmIndex > 0) { readPhase += fmIndex * modulator / 6.283185307179586;readPhase -= std::floor(readPhase); }
-                    const double y = morph(wave, readPhase, dt) / std::sqrt(double(n));
+                    // A wavetable reads its frames at the wave position, through the warp; Classic is the released oscillator.
+                    const double y = (q.table > 0 ? tables->read(q.table, wave * .25, synthWarpPhase(q.warp, q.warpAmount, readPhase), dt * synthWarpSlope(q.warp, q.warpAmount))
+                                                  : morph(wave, readPhase, dt)) / std::sqrt(double(n));
                     ph += hz / rate;ph -= std::floor(ph);
                     mono += y;
                     const double pan = .5 + .5 * s.width * position;   // equal-power spread across the width
