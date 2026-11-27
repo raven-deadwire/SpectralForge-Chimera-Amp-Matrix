@@ -5,6 +5,7 @@
 #include "SynthWavetable.h"
 #include "SynthFilters.h"
 #include "SynthSequencer.h"
+#include "SynthEffects.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -525,6 +526,7 @@ public:
         for (int k = 0; k < synthSeqMaxSteps; ++k) p.seq[size_t(k)] = get(synthSeqStepID(k));
         for (int k = 0; k < synthMacroCount; ++k) p.macro[size_t(k)] = get(synthMacroID(k));
         for (int s = 0; s < synthModSlotsB; ++s) p.modB[size_t(s)] = {get(synthModBID(s, "Source")), get(synthModBID(s, "Target")), get(synthModBID(s, "Amount"))};
+        fx.bind(state);
     }
     void prepare(double sampleRate, int maximumBlock) {
         rate = sampleRate;
@@ -532,6 +534,7 @@ public:
         combLength = int(std::ceil(rate / 20.0)) + 4;
         combs.assign(size_t(synthMaxVoices + 1) * 2 * size_t(combLength), 0.f);
         tracker.prepare(rate);
+        fx.prepare(rate);
         for (auto& ch : rendered) ch.assign(size_t(std::max(1, maximumBlock)), 0.f);
         // Analog drift: white noise through a one-pole low-pass at 1.5 Hz,
         // scaled to unit RMS (uniform noise has variance 1/3).
@@ -545,6 +548,7 @@ public:
         for (auto& v : voices) v = Voice{};
         guitar = Voice{};
         std::fill(combs.begin(), combs.end(), 0.f);
+        fx.reset();
         midiNotes = {};midiCount = 0;bend = 0;wheel = 0;midiVelocity = 0;midiOnset = false;
         lfoPhase = {};lfoHeld = {};lfoValue = {};seqPhase = 0;seqValue = 0;seqStep = 0;seqStarted = false;macroValue = {};macroPrimed = false;seed = 0x2545f491u;clock = 0;
         guitarGate = false;guitarLevel = 0;onsetLevel = 0;active = false;renderedSamples = 0;attacks = 0;
@@ -651,6 +655,10 @@ public:
         trackGuitar(s, samples);
         for (auto& ch : rendered) std::fill(ch.begin(), ch.begin() + samples, 0.f);
         const double bpm = std::isfinite(tempo) && tempo > 20 ? tempo : 120.0;
+        // The effect rack (docs/SYNTH_EFFECTS.md) runs only while an effect is on or fading out.
+        const auto effects = fx.read();const bool rack = fx.running(effects);
+        if (rack) fx.begin(effects);
+        const double level = juce::Decibels::decibelsToGain(double(s.levelDb));
         for (int n = 0; n < samples; ++n) {
             advanceLfos(s, bpm);
             advanceSequencer(s, bpm);
@@ -658,10 +666,11 @@ public:
             for (int i = 0; i < s.voices; ++i) if (voices[size_t(i)].active) addVoice(voices[size_t(i)], s, out);
             for (int i = s.voices; i < synthMaxVoices; ++i) if (voices[size_t(i)].active) { voices[size_t(i)].amp.noteOff();addVoice(voices[size_t(i)], s, out); }
             if (guitar.active) addVoice(guitar, s, out);
-            const double level = juce::Decibels::decibelsToGain(double(s.levelDb));
+            out[0] *= level;out[1] *= level;
+            if (rack) fx.process(out[0], out[1], effects, bpm);
             // Safety stage: linear up to 0 dBFS, then softly bounded to +6 dBFS.
             const auto bound = [](double x) { const double m = std::abs(x);return m <= 1.0 ? x : std::copysign(1.0 + std::tanh(m - 1.0), x); };
-            rendered[0][size_t(n)] = float(bound(out[0] * level));rendered[1][size_t(n)] = float(bound(out[1] * level));
+            rendered[0][size_t(n)] = float(bound(out[0]));rendered[1][size_t(n)] = float(bound(out[1]));
         }
         playing = {};
         renderedSamples = samples;
@@ -670,7 +679,7 @@ public:
         for (int n = 0; n < samples; ++n) { scope[size_t(w)].store(.5f * (rendered[0][size_t(n)] + rendered[1][size_t(n)]), std::memory_order_relaxed);w = (w + 1) % int(scope.size()); }
         scopeWrite.store(w, std::memory_order_release);
         bool sounding = guitar.active;for (const auto& v : voices) sounding |= v.active;
-        if (!s.on && !sounding && !anyGain) active = false;
+        if (!s.on && !sounding && !anyGain) { active = false;fx.reset(); }
     }
     // Adds the rendered synth at `point`. A change of insert point crossfades
     // over 20 ms; the synth joins only where its gain is non-zero.
@@ -718,6 +727,7 @@ public:
     // The sequencer's current step and output (the page; not synchronised, a display may be a block late).
     int sequencerStep() const noexcept { return seqStep; }
     double sequencerOutput() const noexcept { return seqValue; }
+    SynthEffects::Settings effectSettings() const noexcept { return fx.read(); }
     // Copies the newest `count` scope samples (oldest first) for the page.
     void readScope(float* destination, int count) const noexcept {
         count = std::min(count, int(scope.size()));
@@ -1141,6 +1151,7 @@ private:
     double rate{48000}, driftCoefficient{1e-4}, driftScale{1.0}, dcCoefficient{1.3e-3};
     std::vector<float> combs;int combLength{4};   // (voices + guitar) x channel x combLength
     PitchTracker tracker;
+    SynthEffects fx;
     std::array<Voice, synthMaxVoices> voices{};Voice guitar{};
     std::array<int, 16> midiNotes{};int midiCount{};double bend{}, wheel{};float midiVelocity{};bool midiOnset{}, allOff{};
     std::array<Pending, 64> pending{};int pendingCount{};

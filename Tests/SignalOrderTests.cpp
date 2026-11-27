@@ -418,7 +418,7 @@ void secondSlotsBank() {
         if(!page)++copies;}
     require(copies+postSecondSlotOrderParameterCount==postSecondSlotParameterCount(),"Second-slot bank size");
     // Automation of released parameters still targets slot 1: same IDs, same indices.
-    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount),"A released ID moved");
+    auto* released=p->parameters().getParameter("delaytime");require(released!=nullptr && released->getParameterIndex()<p->getParameters().size()-postSecondSlotParameterCount()-creativePageTotalParameterCount-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+synthEffectsParameterCount),"A released ID moved");
     std::cout<<"MEASURE second-slot bank: "<<postSecondSlotParameterCount()<<" parameters at version "<<postSecondSlotParameterVersion<<" ("<<copies<<" slot2_ copies + "<<postSecondSlotOrderParameterCount<<" order slots), all off by default\n";
     std::cout<<"PASS second slots: appended bank, slot 1 definitions, off by default, released IDs unchanged\n";
 }
@@ -576,7 +576,7 @@ void extraSlotsBank() {
     auto p=make();int bank=0,order=0;std::array<int,postSlotCount> copies{};
     const int total=p->getParameters().size();
     for(auto* raw:p->getParameters())if(auto* r=dynamic_cast<juce::RangedAudioParameter*>(raw))if(r->getVersionHint()==postExtraSlotParameterVersion){
-        require(r->getParameterIndex()>=total-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount),"A slot 3 / 4 parameter is not in the last bank");++bank;
+        require(r->getParameterIndex()>=total-postExtraSlotParameterCount()-(synthOscCount*synthWavetableParametersPerOsc+synthFiltersParameterCount+synthSequencerParameterCount+synthEffectsParameterCount),"A slot 3 / 4 parameter is not in the last bank");++bank;
         if(r->getParameterID().startsWith("orderPost")){++order;continue;}
         const int slot=r->getParameterID().startsWith("slot3_")?2:r->getParameterID().startsWith("slot4_")?3:-1;require(slot>0,"Unexpected ID in the slot 3 / 4 bank: "+r->getParameterID().toStdString());
         ++copies[size_t(slot)];

@@ -957,6 +957,8 @@ spectralforge::appendSynthWavetableParameters(p,spectralforge::synthOscCount);
 spectralforge::appendSynthFiltersParameters(p);
 // SYNTH step sequencer, macros and eight more matrix rows, version hint 40 (docs/SYNTH_SEQUENCER.md).
 spectralforge::appendSynthSequencerParameters(p);
+// SYNTH effect rack, version hint 41 (docs/SYNTH_EFFECTS.md).
+spectralforge::appendSynthEffectsParameters(p);
 return p;
 }
 
