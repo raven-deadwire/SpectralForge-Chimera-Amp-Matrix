@@ -106,7 +106,8 @@ inline juce::Result write(const juce::File& directory, const SynthPreset& preset
     if (text.getNumBytesAsUTF8() > size_t(maxFileBytes)) return juce::Result::fail("The preset is too large to save.");
     const auto target = directory.getChildFile(name + extension);
     for (const auto& other : directory.findChildFiles(juce::File::findFiles, false, juce::String("*") + extension))
-        if (other != target && other.getFileNameWithoutExtension().equalsIgnoreCase(name)) other.deleteFile();
+        // By the name as written: on a file system that ignores case, the old spelling is this same file and would keep its name.
+        if (other.getFileName() != target.getFileName() && other.getFileNameWithoutExtension().equalsIgnoreCase(name)) other.deleteFile();
     if (!target.replaceWithText(text, false, false, "\n")) return juce::Result::fail("The preset could not be written.");
     if (written != nullptr) *written = target;
     return juce::Result::ok();
