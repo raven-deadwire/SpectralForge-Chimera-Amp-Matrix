@@ -180,6 +180,11 @@ class SpaceModule {
     std::array<std::array<float,3>,2> converterState{};double converterPhase{},driftPhase{};
     std::array<std::vector<float>,2> driftLine;size_t driftWrite{};juce::SmoothedValue<float> driftDepth;bool driftUsed{};
     double shapePhase{};float shapeLevel{1.f},shapeValue{1.f};bool shapeRunning{};
+    // Shimmer (docs/POST_REVERB_SHIMMER.md): a two-tap pitch shifter on what the reverbs hear. Its output is
+    // low-passed and part of it goes back into it.
+    std::array<std::vector<float>,2> shimmerLine;size_t shimmerWrite{};double shimmerPhase{};std::array<std::array<float,3>,2> shimmerState{};
+    juce::SmoothedValue<float> shimmerAmount;bool shimmerUsed{};
+    void clearShimmer() noexcept {for(auto& l:shimmerLine)std::fill(l.begin(),l.end(),0.f);shimmerWrite=0;shimmerPhase=0;shimmerState={};shimmerUsed=false;}
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
     void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;converterState={};converterPhase=0;driftPhase=0;for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
@@ -188,13 +193,14 @@ public:
     // Restore the construction defaults first so every prepare starts the same
     // ramp; otherwise a re-prepared instance renders differently from a new one.
     void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].setParameters({});rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);
-        feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
+        feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:shimmerLine)l.assign(size_t(rate*reverbShimmerGrainMs*.001)+8,0.f);shimmerAmount.reset(rate,.05);shimmerAmount.setCurrentAndTargetValue(0);
+        for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
         for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth})v->reset(rate,.05);driftDepth.setCurrentAndTargetValue(0);
         for(auto& l:driftLine)l.assign(size_t(rate*.001*(reverbDriftBaseMs+reverbDriftSwingMs))+8,0.f);
         preSamples.setCurrentAndTargetValue(0);hold.setCurrentAndTargetValue(0);toneAmount.setCurrentAndTargetValue(0);widthGain.setCurrentAndTargetValue(1);
         for(auto& channel:networks){channel[0].prepare(rate,.06);channel[1].prepare(rate,.12);channel[2].prepare(rate,.04);}predelay.setMaximumDelayInSamples(int(rate*.05));predelay.prepare(s);
         morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
-    void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();
+    void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();clearShimmer();shimmerAmount.setCurrentAndTargetValue(shimmerAmount.getTargetValue());
         for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth})v->setCurrentAndTargetValue(v->getTargetValue());}
     // Where the tempo shape is in its pass, 0 to 1, for the display; below 0 while no shape runs.
     float shapePosition() const noexcept {return shapeRunning?float(shapePhase):-1.f;}
@@ -225,6 +231,33 @@ public:
                 if(++preWrite>=preLine[0].size())preWrite=0;
             }
         } else if(preUsed) clearPre();   // back at no pre-delay: an old line must not be heard when it is raised again
+        // SHIMMER: each channel of the feed goes through a delay read by two taps half a grain apart, each moving
+        // through the grain at the interval's rate and faded in and out over it, so the pitch moves by the interval.
+        shimmerAmount.setTargetValue(on?juce::jlimit(0.f,1.f,k.shimmer):0.f);
+        if(shimmerAmount.isSmoothing() || shimmerAmount.getTargetValue()>0.f) {
+            shimmerUsed=true;const int channels=juce::jmin(2,b.getNumChannels());
+            const double ratio=reverbShimmerRatios[juce::jlimit(0,reverbShimmerIntervalCount-1,k.shimmerInterval)],grain=rate*reverbShimmerGrainMs*.001,step=std::abs(ratio-1.)/grain;
+            const float pole=spatial_detail::onePole(juce::jmin(reverbShimmerCutHz,rate*.45),rate);
+            for(int n=0;n<b.getNumSamples();++n) {
+                const float amount=shimmerAmount.getNextValue();
+                for(int c=0;c<channels;++c) {
+                    auto& line=shimmerLine[(size_t)c];auto& z=shimmerState[(size_t)c];
+                    line[shimmerWrite]=feed.getSample(c,n)+float(reverbShimmerFeedback)*amount*z[2];
+                    float shifted=0;
+                    for(int tap=0;tap<2;++tap) {
+                        double p=shimmerPhase+.5*tap;p-=std::floor(p);
+                        const double behind=(ratio>1.?1.-p:p)*grain,position=double(shimmerWrite)-behind,wrapped=position<0?position+double(line.size()):position;
+                        const size_t a=size_t(wrapped)%line.size(),next=(a+1)%line.size();const float frac=float(wrapped-std::floor(wrapped));
+                        const double window=std::sin(juce::MathConstants<double>::pi*p);
+                        shifted+=float(window*window)*(line[a]+frac*(line[next]-line[a]));
+                    }
+                    z[0]+=pole*(shifted-z[0]);z[1]+=pole*(z[0]-z[1]);z[2]=z[1];
+                    feed.setSample(c,n,feed.getSample(c,n)+amount*z[2]);
+                }
+                if(++shimmerWrite>=shimmerLine[0].size())shimmerWrite=0;
+                shimmerPhase+=step;shimmerPhase-=std::floor(shimmerPhase);
+            }
+        } else if(shimmerUsed) clearShimmer();
         // The wet sum is shaped only away from the defaults (low cut off, tone flat, width as made).
         // The tempo shape: its level is followed over 3 ms, so the Chop and the end of Rewind do not click.
         const int shape=k.shape>reverbShapeOff && k.shape<reverbShapeCount?k.shape:reverbShapeOff;

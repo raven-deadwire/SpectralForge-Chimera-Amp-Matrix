@@ -31,9 +31,16 @@ struct ReverbControls {
     int converter{0};        // reverbConverterOff .. reverbConverterLate: the bandwidth and sample rate of an older converter
     float dirt{0.f};         // 0 = none .. 1: fewer bits
     float drift{0.f};        // 0 = none .. 1: slow pitch drift
+    // Shimmer (docs/POST_REVERB_SHIMMER.md): what the reverb hears gains a copy of itself moved up or down in pitch.
+    float shimmer{0.f};      // 0 = none .. 1
+    int shimmerInterval{0};  // index into reverbShimmerRatios
     float decaySeconds{0.f}; // below reverbDecayMinSeconds: SIZE sets the decay; from there up: the time to fall 60 dB
 };
 enum ReverbShape {reverbShapeOff=0,reverbShapeRise,reverbShapeRewind,reverbShapeChop,reverbShapeTide,reverbShapeDuck,reverbShapeCount};
+inline constexpr int reverbShimmerIntervalCount=3;
+inline constexpr double reverbShimmerRatios[reverbShimmerIntervalCount]{2.,1.5,.5};   // an octave up, a fifth up, an octave down
+// The shifter's grain, the share of its output fed back into it at full (so octaves stack), and its low-pass.
+inline constexpr double reverbShimmerGrainMs=60.,reverbShimmerFeedback=.45,reverbShimmerCutHz=7000.;
 enum ReverbConverter {reverbConverterOff=0,reverbConverterEarly,reverbConverterMiddle,reverbConverterLate,reverbConverterCount};
 // The low-pass and the sample rate each converter stands for. Off is not read.
 inline constexpr double reverbConverterCutHz[reverbConverterCount]{20000.,6000.,9000.,13000.},reverbConverterRateHz[reverbConverterCount]{48000.,16000.,24000.,32000.};

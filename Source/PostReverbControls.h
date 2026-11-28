@@ -96,11 +96,26 @@ inline void appendPostReverbCharacterParameters(juce::AudioProcessorValueTreeSta
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbCharacterID(slot, 2), v}, postSlotName(slot, reverbCharacterNames[2]), juce::NormalisableRange<float>{0.f, 1.f}, 0.f));
     }
 }
+// Shimmer (docs/POST_REVERB_SHIMMER.md): amount and interval for every slot's reverb, appended at version hint 48.
+// At amount 0, the default, the reverb renders as it did.
+inline constexpr int postReverbShimmerParameterVersion = 48, postReverbShimmerPerSlot = 2;
+inline constexpr int postReverbShimmerParameterCount = postReverbShimmerPerSlot * postSlotCount;
+inline constexpr std::array<const char*, postReverbShimmerPerSlot> reverbShimmerIDs{{"reverbshimmer", "reverbshimmerinterval"}};
+inline constexpr std::array<const char*, postReverbShimmerPerSlot> reverbShimmerNames{{"Reverb shimmer", "Reverb shimmer interval"}};
+inline juce::StringArray reverbShimmerIntervalChoices() { return {"Octave up", "Fifth up", "Octave down"}; }
+inline juce::String reverbShimmerID(int slot, int control) { return postSlotID(slot, reverbShimmerIDs[size_t(control)]); }
+inline void appendPostReverbShimmerParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    constexpr int v = postReverbShimmerParameterVersion;
+    for (int slot = 0; slot < postSlotCount; ++slot) {
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbShimmerID(slot, 0), v}, postSlotName(slot, reverbShimmerNames[0]), juce::NormalisableRange<float>{0.f, 1.f}, 0.f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbShimmerID(slot, 1), v}, postSlotName(slot, reverbShimmerNames[1]), reverbShimmerIntervalChoices(), 0));
+    }
+}
 // Every reverb bank appended after the shape's. The parameter-count checks of the tests count from the end
 // through this, so a later reverb bank is added here and nowhere else.
-inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount + postReverbShapeMoreParameterCount + postReverbCharacterParameterCount;
+inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount + postReverbShapeMoreParameterCount + postReverbCharacterParameterCount + postReverbShimmerParameterCount;
 // The reverb banks appended to every slot after the slots' own banks.
-inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion || version == postReverbShapeMoreParameterVersion || version == postReverbCharacterParameterVersion; }
+inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion || version == postReverbShapeMoreParameterVersion || version == postReverbCharacterParameterVersion || version == postReverbShimmerParameterVersion; }
 
 struct PostReverbControlParameters {
     std::array<std::atomic<float>*, postReverbControlsPerSlot> values{};
@@ -108,12 +123,14 @@ struct PostReverbControlParameters {
     std::atomic<float>* decay{};
     std::array<std::atomic<float>*, postReverbShapeMorePerSlot> more{};
     std::array<std::atomic<float>*, postReverbCharacterPerSlot> character{};
+    std::array<std::atomic<float>*, postReverbShimmerPerSlot> shimmer{};
     void bind(juce::AudioProcessorValueTreeState& state, int slot) {
         for (int i = 0; i < postReverbControlsPerSlot; ++i) values[size_t(i)] = state.getRawParameterValue(reverbControlID(slot, i));
         for (int i = 0; i < postReverbShapePerSlot; ++i) shape[size_t(i)] = state.getRawParameterValue(reverbShapeID(slot, i));
         decay = state.getRawParameterValue(reverbDecayID(slot));
         for (int i = 0; i < postReverbShapeMorePerSlot; ++i) more[size_t(i)] = state.getRawParameterValue(reverbShapeMoreID(slot, i));
         for (int i = 0; i < postReverbCharacterPerSlot; ++i) character[size_t(i)] = state.getRawParameterValue(reverbCharacterID(slot, i));
+        for (int i = 0; i < postReverbShimmerPerSlot; ++i) shimmer[size_t(i)] = state.getRawParameterValue(reverbShimmerID(slot, i));
     }
     // tempo and ppq are the session's, set by the caller.
     ReverbControls read() const noexcept {
@@ -123,6 +140,7 @@ struct PostReverbControlParameters {
         k.decaySeconds = decay->load();
         k.shapeInSeconds = more[0]->load() > .5f;k.shapeSeconds = more[1]->load();k.shapeCurve = more[2]->load();k.shapeMorph = more[3]->load();
         k.converter = juce::roundToInt(character[0]->load());k.dirt = character[1]->load();k.drift = character[2]->load();
+        k.shimmer = shimmer[0]->load();k.shimmerInterval = juce::roundToInt(shimmer[1]->load());
         return k;
     }
 };
