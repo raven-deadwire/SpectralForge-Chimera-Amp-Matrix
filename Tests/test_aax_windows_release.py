@@ -20,7 +20,7 @@ class AaxWindowsReleaseTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()   # macOS: /var is a link to /private/var
         self.package = self.root / "input"
         self.bundle = self.package / BUNDLE
         self.binary = self.bundle / BINARY
