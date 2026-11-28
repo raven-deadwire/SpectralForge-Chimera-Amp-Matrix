@@ -90,7 +90,6 @@ change.
 - Modulated bars show no mark; only knobs do.
 - Rows 1-8 keep their short lists.
 - No factory patch uses the sequencer or a macro.
-- DE / KO manual text is not written.
 
 ## Measurements
 

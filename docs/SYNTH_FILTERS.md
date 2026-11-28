@@ -119,7 +119,6 @@ Seidr Dynamic opens both filters with the playing level.
 - More filter types (formant, phaser, ladder models), filter 1 combs.
 - Oversampling in the distortion.
 - No factory patch uses filter 2 or the distortion.
-- DE / KO manual text is not written.
 
 ## Measurements
 

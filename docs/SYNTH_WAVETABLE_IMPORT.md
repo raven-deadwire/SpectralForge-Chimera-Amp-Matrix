@@ -97,7 +97,6 @@ Chosen in the oscillator's table menu.
   read.
 - A table can be swapped while a note sounds; the oscillator is silent for
   the one block the swap meets, as with samples. Not measured by ear.
-- DE / KO manual text is not written.
 
 ## Measurements
 
