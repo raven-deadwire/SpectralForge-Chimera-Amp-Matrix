@@ -91,6 +91,10 @@ public:
              control->slider.setSkewFactorFromMidPoint(2.0);control->slider.textFromValueFunction=[](double value){return spectralforge::reverbDecayText(float(value));};
              control->slider.valueFromTextFunction=[](const juce::String& text){return text.trim().equalsIgnoreCase("SIZE")?0.0:text.getDoubleValue();};control->slider.updateText();
              control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.insert(controls.begin(),std::move(control));}
+            // Character, the rest of the first row (docs/POST_REVERB_CHARACTER.md): an older converter, fewer bits, a slow drift.
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbCharacterID(slot,0),"CONVERTER",title.getText(),1,spectralforge::reverbConverterChoices(),0,spectralforge::reverbConverterCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            for(int i=1;i<spectralforge::postReverbCharacterPerSlot;++i){auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbCharacterID(slot,i),i==1?"DIRT":"DRIFT",title.getText(),0,{},0,1,0,3);
+                control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             shapeDisplay=std::make_unique<ReverbShapeDisplay>(processor,slot);addAndMakeVisible(*shapeDisplay);
             // The reverb's second row (docs/POST_REVERB_CONTROLS.md): four knobs and the freeze switch.
             for(int i=0;i<spectralforge::postReverbControlsPerSlot;++i) {
@@ -122,8 +126,8 @@ public:
     }
     void resized() override {
         title.setBounds(18,8,260,18);model.setBounds(18,29,330,25);reference.setBounds(18,54,getWidth()-36,18);enabled.setBounds(getWidth()-104,24,85,28);
-        // The reverb has four rows: DECAY with SIZE, DAMPING and MIX, its added controls under them, the tempo shape in the last two.
-        const size_t first=family==2?4:controls.size(),second=family==2?first+size_t(spectralforge::postReverbControlsPerSlot):first;
+        // The reverb has four rows: DECAY, SIZE, DAMPING and MIX with the character's three, its added controls under them, the tempo shape in the last two.
+        const size_t first=family==2?4+size_t(spectralforge::postReverbCharacterPerSlot):controls.size(),second=family==2?first+size_t(spectralforge::postReverbControlsPerSlot):first;
         const auto row=[this](size_t from,size_t to,int y){if(to<=from)return;const int cell=(getWidth()-32)/int(to-from);for(size_t i=from;i<to;++i)controls[i]->setBounds(16+int(i-from)*cell,y,cell-8,154);};
         row(0,first,92);row(first,second,256);
         // The third and fourth rows: the shape's controls on the left, four and then three, and its display beside both.
@@ -138,7 +142,7 @@ private:
     std::unique_ptr<juce::ParameterAttachment> enabledAttachment;std::vector<std::unique_ptr<NativeControlView>> controls;std::unique_ptr<ReverbShapeDisplay> shapeDisplay;
     void timerCallback() override {
         // The reverb shape's length is set in bars or in seconds: the one not in use is greyed.
-        if(family==2 && controls.size()>=13){const bool seconds=processor.parameters().getRawParameterValue(spectralforge::reverbShapeMoreID(slot,0))->load()>.5f;controls[11]->choice.setEnabled(!seconds);controls[12]->slider.setEnabled(seconds);}
+        if(family==2 && controls.size()>=16){const bool seconds=processor.parameters().getRawParameterValue(spectralforge::reverbShapeMoreID(slot,0))->load()>.5f;controls[14]->choice.setEnabled(!seconds);controls[15]->slider.setEnabled(seconds);}
         if(family==1 && !controls.empty()){controls.front()->slider.setEnabled(processor.parameters().getRawParameterValue(id("delaysync"))->load()<.5f);controls.front()->slider.updateText();}}
     void refreshModel(){const int selected=juce::jmax(0,model.getSelectedId()-1);reference.setText(juce::String::fromUTF8(spectralforge::modelInfo(family,selected).character),juce::dontSendNotification);reference.setTooltip(reference.getText());for(auto& control:controls)control->slider.getProperties().set("knobStyle",spectralforge::art::rackStyle(family,selected).knobStyle);repaint();}
 };
