@@ -320,6 +320,47 @@ void character() {
     }
     std::cout<<"PASS reverb character: each converter takes the top off in order; DIRT puts the reverb in steps of its word length; DRIFT swings the pitch and keeps the level; at the defaults none is there; moving them stays bounded\n";
 }
+// Shimmer (docs/POST_REVERB_SHIMMER.md): the reverb hears a copy of the note moved by an interval, and part of that again.
+// The level of one frequency in the reverb, by correlation over the window.
+double partial(const Wet& w,double hz,double from,double to) {
+    double re=0,im=0;const size_t a=size_t(from*rate),b=size_t(to*rate);
+    for(size_t n=a;n<b;++n){const double t=2*pi*hz*double(n)/rate;re+=w.left[n]*std::cos(t);im+=w.left[n]*std::sin(t);}
+    return db(4*(re*re+im*im)/(double(b-a)*double(b-a)));
+}
+void shimmer() {
+    const auto note=sine(6,440);std::string measured;
+    for(int model=0;model<5;++model) {
+        const auto plain=render(model,note,note,fixed({}));
+        measured+=std::string(model?" | ":"")+modelNames[model]+":";
+        const double targets[reverbShimmerIntervalCount]{880,660,220};
+        for(int interval=0;interval<reverbShimmerIntervalCount;++interval) {
+            ReverbControls k;k.shimmer=1;k.shimmerInterval=interval;const auto w=render(model,note,note,fixed(k));
+            const double moved=partial(w,targets[interval],3,5),without=partial(plain,targets[interval],3,5),root=partial(plain,440,3,5);
+            require(moved>without+30 && moved>root-20,std::string(modelNames[model])+": SHIMMER does not put the note at "+num(targets[interval],0)+" Hz into the reverb ("+num(moved,1)+" dB, "+num(without,1)+" dB without it, the note itself "+num(root,1)+" dB)");
+            require(db(w.power(3,5))-db(plain.power(3,5))<10,std::string(modelNames[model])+": SHIMMER raises the reverb by "+num(db(w.power(3,5))-db(plain.power(3,5)),1)+" dB");
+            measured+=" "+num(moved-root,1);
+            // Part of the shifted sound is shifted again: an octave up puts two octaves up in as well, lower.
+            if(interval==0){const double twice=partial(w,1760,3,5);require(twice>partial(plain,1760,3,5)+20 && twice<moved,std::string(modelNames[model])+": the shimmer does not stack a second octave under the first");}
+        }
+        measured+=" dB against the note";
+        // Half the amount is less of it.
+        {ReverbControls k;k.shimmer=1;auto half=k;half.shimmer=.5f;require(partial(render(model,note,note,fixed(half)),880,3,5)<partial(render(model,note,note,fixed(k)),880,3,5)-3,std::string(modelNames[model])+": half the SHIMMER is not less of it");}
+        // At no amount it is not there, whatever the interval, and a new note after it returns is the plain reverb.
+        {const auto burst=noise(3,.05,41);ReverbControls none;none.shimmerInterval=2;
+         const auto a=render(model,burst,burst,fixed({})),b=render(model,burst,burst,fixed(none));require(a.left==b.left && a.right==b.right,std::string(modelNames[model])+": the shimmer at no amount changed the reverb");
+         std::vector<float> x(size_t(rate*6),0.f);{const auto first=noise(.3,.3,42),second=noise(.3,.3,43);std::copy(first.begin(),first.end(),x.begin());std::copy(second.begin(),second.end(),x.begin()+ptrdiff_t(rate*4));}
+         const auto moved=render(model,x,x,[](double t){ReverbControls k;if(t<1)k.shimmer=1;return k;},.2f),still=render(model,x,x,fixed({}),.2f);
+         double difference=0,reference=0;for(size_t n=size_t(rate*4);n<still.left.size();++n){difference=std::max(difference,double(std::abs(moved.left[n]-still.left[n])));reference=std::max(reference,double(std::abs(still.left[n])));}
+         require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the shimmer was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");}
+    }
+    std::cout<<"MEASURE reverb shimmer at full (octave up, fifth up, octave down; the moved note against the note itself in the plain reverb): "<<measured<<'\n';
+    // Moving the amount and the interval under loud noise, every model, mono and stereo, frozen as well: finite (render checks) and bounded.
+    for(int model=0;model<modelCount;++model)for(const int channels:{1,2}) {
+        const auto x=noise(5,3,44,.5f);const auto moved=render(model,x,x,[](double t){ReverbControls k;k.shimmer=float(.5+.5*std::sin(2*pi*1.3*t));k.shimmerInterval=int(t*2)%reverbShimmerIntervalCount;k.freeze=t>3.5;return k;},.9f,.1f,channels);
+        double peak=0;for(const float v:moved.left)peak=std::max(peak,double(std::abs(v)));require(peak<50,std::string(modelNames[model])+": the shimmer made the reverb run away (peak "+num(peak,1)+")");
+    }
+    std::cout<<"PASS reverb shimmer: the note appears at the interval in every model, and again an octave on; the amount scales it; at no amount it is not there; moving it under loud noise stays bounded\n";
+}
 // DECAY (docs/POST_REVERB_DECAY.md): the time the reverb takes to fall 60 dB, whatever SIZE is.
 // Measured below 300 Hz, where DAMPING does not shorten the tail, from the backward-integrated decay after a
 // 50 ms burst of noise, fitted from -5 to -25 dB.
@@ -376,6 +417,7 @@ int main(int argc,char** argv) {
         if(only.empty() || only=="--decay")decay();
         if(only.empty() || only=="--shape-more")shapeMore();
         if(only.empty() || only=="--character")character();
+        if(only.empty() || only=="--shimmer")shimmer();
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }
