@@ -858,7 +858,7 @@ void reverbShape() {
     juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
     for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbShapePerSlot;++control)require(std::abs(get(*loaded,reverbShapeID(slot,control))-get(*source,reverbShapeID(slot,control)))<1e-4f,"A reverb shape value did not come back from a saved project");
     juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
-    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.contains("reverbshape")){tree.removeChild(i,nullptr);++removed;}}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.endsWith("reverbshape") || id.endsWith("reverbshapedepth") || id.endsWith("reverbshapelength")){tree.removeChild(i,nullptr);++removed;}}
     require(removed==postReverbShapeParameterCount,"The saved project does not hold every reverb shape value");
     juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
     loaded->setStateInformation(old.getData(),int(old.getSize()));
@@ -866,12 +866,129 @@ void reverbShape() {
     std::cout<<"MEASURE reverb shape through the processor (Chop, 120 BPM, one bar; difference from the plain reverb): "<<open<<" dB in the open half, "<<closed<<" dB in the closed half\n";
     std::cout<<"PASS reverb shape: 12 parameters at version 44, last; the Chop opens and closes the reverb through the processor; each slot its own; saved, loaded, and Off in an older project\n";
 }
-// DECAY (docs/POST_REVERB_DECAY.md): four parameters at version 45, last; through the processor; saved and loaded.
+// More of the reverb shape (docs/POST_REVERB_SHAPE_MORE.md): sixteen parameters at version 46, last; through the processor; saved and loaded.
+void reverbShapeMore() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbShapeMoreParameterVersion) {
+        const int slot=count/postReverbShapeMorePerSlot,control=count%postReverbShapeMorePerSlot;
+        require(with->getParameterIndex()==total-postReverbShapeMoreParameterCount-postReverbCharacterParameterCount-postReverbShimmerParameterCount-postReverbKeyParameterCount+count && with->paramID==reverbShapeMoreID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeMoreNames[size_t(control)]),"One more reverb shape parameter is not in its bank after the decay, slot 1 first, under its name");++count;}
+    require(count==postReverbShapeMoreParameterCount && count==16,"More of the reverb shape is not four parameters for each of four slots");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeMoreID(slot,0))==0 && std::abs(get(*p,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*p,reverbShapeMoreID(slot,2))==0 && get(*p,reverbShapeMoreID(slot,3))==0,"The reverb shape does not start in bars, one second, as drawn and without morph");
+    // Through the processor: a Chop two seconds long, in seconds, opens and closes the reverb as the one-bar Chop at 120 BPM does.
+    const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.2f);if(edit)edit(*q);
+        std::vector<float> in(size_t(rate*4));for(size_t n=0;n<in.size();++n)in[n]=float(.05*std::sin(2*pi*440*double(n)/rate));return renderInput(*q,in);};
+    const auto plain=render({}),bars=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));}),
+        seconds=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",2);set(q,"reverbshapelength",0);});
+    require(seconds==bars,"A shape two seconds long is not the one-bar shape at 120 BPM through the processor");
+    const auto shorter=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",.5f);});
+    require(shorter!=bars,"The shape's length in seconds does nothing through the processor");
+    const auto curved=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeRise));set(q,"reverbshapecurve",1);}),drawn=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeRise));}),
+        morphed=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeRise));set(q,"reverbshapemorph",1);});
+    require(curved!=drawn && morphed!=drawn,"CURVE or MORPH does nothing through the processor");
+    // With the shape Off, and in a switched-off slot, they change nothing.
+    const auto off=render([](ChimeraProcessor& q){set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",.3f);set(q,"reverbshapecurve",1);set(q,"reverbshapemorph",-1);
+        set(q,"slot2_reverbshapeunit",1);set(q,"slot3_reverbshapecurve",-1);set(q,"slot4_reverbshapemorph",1);});
+    require(off==plain,"More of the reverb shape changed the sound with the shape Off");
+    // Saved and loaded; an older project loads the defaults.
+    auto source=make();for(int slot=0;slot<postSlotCount;++slot){set(*source,reverbShapeMoreID(slot,0),float(slot%2));set(*source,reverbShapeMoreID(slot,1),.5f+float(slot));set(*source,reverbShapeMoreID(slot,2),-.5f+.3f*float(slot));set(*source,reverbShapeMoreID(slot,3),.8f-.4f*float(slot));}
+    juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbShapeMorePerSlot;++control)require(std::abs(get(*loaded,reverbShapeMoreID(slot,control))-get(*source,reverbShapeMoreID(slot,control)))<1e-3f,"One more reverb shape value did not come back from a saved project");
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.contains("reverbshapeunit") || id.contains("reverbshapeseconds") || id.contains("reverbshapecurve") || id.contains("reverbshapemorph")){tree.removeChild(i,nullptr);++removed;}}
+    require(removed==postReverbShapeMoreParameterCount,"The saved project does not hold every one of the added reverb shape values");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShapeMoreID(slot,0))==0 && std::abs(get(*loaded,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*loaded,reverbShapeMoreID(slot,2))==0 && get(*loaded,reverbShapeMoreID(slot,3))==0,"A project saved before these controls did not load them at their defaults");
+    std::cout<<"PASS more of the reverb shape: 16 parameters at version 46, after the decay; seconds, CURVE and MORPH act through the processor and not with the shape Off; each slot its own; saved, loaded, and defaults in an older project\n";
+}
+// Key (docs/POST_REVERB_KEY.md): twenty parameters at version 49, last; through the processor; saved and loaded.
+void reverbKey() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbKeyParameterVersion) {
+        const int slot=count/postReverbKeyPerSlot,control=count%postReverbKeyPerSlot;
+        require(with->getParameterIndex()==total-postReverbKeyParameterCount+count && with->paramID==reverbKeyID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbKeyNames[size_t(control)]),"A reverb key parameter is not in the last bank, slot 1 first, under its name");++count;}
+    require(count==postReverbKeyParameterCount && count==20,"The reverb key is not five parameters for each of four slots");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbKeyID(slot,0))==0 && get(*p,reverbKeyID(slot,1))==0 && get(*p,reverbKeyID(slot,2))==0 && get(*p,reverbKeyID(slot,3))==0 && std::abs(get(*p,reverbKeyID(slot,4))-.5f)<1e-6f,"The reverb key does not start at none, C major, in tune, at half ring");
+    const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
+        std::vector<float> in(size_t(rate*3));unsigned seed=7;for(size_t n=0;n<in.size();++n){seed=seed*1664525u+1013904223u;in[n]=.05f*(float(seed>>8)/8388608.f-1.f);}return renderInput(*q,in);};
+    const auto plain=render({}),keyed=render([](ChimeraProcessor& q){set(q,"reverbkey",1);});
+    bool finite=true;for(const float v:keyed)finite=finite && std::isfinite(v);require(finite && keyed!=plain,"KEY does nothing through the processor, or is not finite");
+    for(int control=1;control<postReverbKeyPerSlot;++control){const auto changed=render([control](ChimeraProcessor& q){set(q,"reverbkey",1);set(q,reverbKeyID(0,control),control==1?7.f:control==2?3.f:control==3?35.f:.9f);});
+        require(changed!=keyed,std::string("The reverb key's ")+reverbKeyIDs[size_t(control)]+" does nothing through the processor");}
+    // At no amount the other four change nothing, and neither does a switched-off slot's key.
+    const auto other=render([](ChimeraProcessor& q){set(q,"reverbkeyroot",5);set(q,"reverbkeyscale",2);set(q,"reverbkeytune",-30);set(q,"reverbkeyring",1);set(q,"slot2_reverbkey",1);set(q,"slot3_reverbkey",.5f);set(q,"slot4_reverbkeyroot",9);});
+    require(other==plain,"The key changed the sound at no amount or in a switched-off slot");
+    auto source=make();for(int slot=0;slot<postSlotCount;++slot){set(*source,reverbKeyID(slot,0),.2f+.2f*float(slot));set(*source,reverbKeyID(slot,1),float(2+3*slot));set(*source,reverbKeyID(slot,2),float(slot));set(*source,reverbKeyID(slot,3),-40.f+25.f*float(slot));set(*source,reverbKeyID(slot,4),.1f+.25f*float(slot));}
+    juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbKeyPerSlot;++control)require(std::abs(get(*loaded,reverbKeyID(slot,control))-get(*source,reverbKeyID(slot,control)))<1e-3f,"A reverb key value did not come back from a saved project");
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();bool mine=false;for(const char* own:reverbKeyIDs)mine=mine || id.endsWith(own);if(mine){tree.removeChild(i,nullptr);++removed;}}
+    require(removed==postReverbKeyParameterCount,"The saved project does not hold every reverb key value");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbKeyID(slot,0))==0 && get(*loaded,reverbKeyID(slot,1))==0 && get(*loaded,reverbKeyID(slot,2))==0 && get(*loaded,reverbKeyID(slot,3))==0 && std::abs(get(*loaded,reverbKeyID(slot,4))-.5f)<1e-6f,"A project saved before the reverb key did not load it at none");
+    std::cout<<"PASS reverb key: 20 parameters at version 49, last; the amount, root, scale, tune and ring act through the processor and not at no amount; each slot its own; saved, loaded, and none in an older project\n";
+}
+// Shimmer (docs/POST_REVERB_SHIMMER.md): eight parameters at version 48, after the character; through the processor; saved and loaded.
+void reverbShimmer() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbShimmerParameterVersion) {
+        const int slot=count/postReverbShimmerPerSlot,control=count%postReverbShimmerPerSlot;
+        require(with->getParameterIndex()==total-postReverbShimmerParameterCount-postReverbKeyParameterCount+count && with->paramID==reverbShimmerID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShimmerNames[size_t(control)]),"A reverb shimmer parameter is not in its bank after the character, slot 1 first, under its name");++count;}
+    require(count==postReverbShimmerParameterCount && count==8,"The reverb shimmer is not two parameters for each of four slots");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShimmerID(slot,0))==0 && get(*p,reverbShimmerID(slot,1))==0,"The reverb shimmer does not start at none, an octave up");
+    const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
+        std::vector<float> in(size_t(rate*3));for(size_t n=0;n<in.size();++n)in[n]=float(.05*std::sin(2*pi*440*double(n)/rate));return renderInput(*q,in);};
+    const auto plain=render({}),up=render([](ChimeraProcessor& q){set(q,"reverbshimmer",1);}),fifth=render([](ChimeraProcessor& q){set(q,"reverbshimmer",1);set(q,"reverbshimmerinterval",1);});
+    bool finite=true;for(const float v:up)finite=finite && std::isfinite(v);
+    require(finite && up!=plain && fifth!=up,"SHIMMER or its interval does nothing through the processor, or is not finite");
+    // The interval alone, with no shimmer, and a switched-off slot's shimmer change nothing.
+    const auto other=render([](ChimeraProcessor& q){set(q,"reverbshimmerinterval",2);set(q,"slot2_reverbshimmer",1);set(q,"slot3_reverbshimmer",.5f);set(q,"slot4_reverbshimmerinterval",1);});
+    require(other==plain,"The shimmer changed the sound at no amount or in a switched-off slot");
+    auto source=make();for(int slot=0;slot<postSlotCount;++slot){set(*source,reverbShimmerID(slot,0),.2f+.2f*float(slot));set(*source,reverbShimmerID(slot,1),float(slot%reverbShimmerIntervalCount));}
+    juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbShimmerPerSlot;++control)require(std::abs(get(*loaded,reverbShimmerID(slot,control))-get(*source,reverbShimmerID(slot,control)))<1e-4f,"A reverb shimmer value did not come back from a saved project");
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.endsWith("reverbshimmer") || id.endsWith("reverbshimmerinterval")){tree.removeChild(i,nullptr);++removed;}}
+    require(removed==postReverbShimmerParameterCount,"The saved project does not hold every reverb shimmer value");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShimmerID(slot,0))==0 && get(*loaded,reverbShimmerID(slot,1))==0,"A project saved before the reverb shimmer did not load it at none");
+    std::cout<<"PASS reverb shimmer: 8 parameters at version 48, after the character; the amount and the interval act through the processor and not at no amount; each slot its own; saved, loaded, and none in an older project\n";
+}
+// Character (docs/POST_REVERB_CHARACTER.md): twelve parameters at version 47, after the shape; through the processor; saved and loaded.
+void reverbCharacter() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbCharacterParameterVersion) {
+        const int slot=count/postReverbCharacterPerSlot,control=count%postReverbCharacterPerSlot;
+        require(with->getParameterIndex()==total-postReverbCharacterParameterCount-postReverbShimmerParameterCount-postReverbKeyParameterCount+count && with->paramID==reverbCharacterID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbCharacterNames[size_t(control)]),"A reverb character parameter is not in its bank after the added shape controls, slot 1 first, under its name");++count;}
+    require(count==postReverbCharacterParameterCount && count==12,"The reverb character is not three parameters for each of four slots");
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbCharacterPerSlot;++control)require(get(*p,reverbCharacterID(slot,control))==0,"The reverb character does not start off");
+    const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
+        std::vector<float> in(size_t(rate*3));for(size_t n=0;n<in.size();++n)in[n]=float(.05*std::sin(2*pi*440*double(n)/rate));return renderInput(*q,in);};
+    const auto plain=render({});
+    for(int control=0;control<postReverbCharacterPerSlot;++control){const auto changed=render([control](ChimeraProcessor& q){set(q,reverbCharacterID(0,control),1);});
+        bool finite=true;for(const float v:changed)finite=finite && std::isfinite(v);
+        require(finite && changed!=plain,std::string("The reverb's ")+reverbCharacterIDs[size_t(control)]+" does nothing through the processor, or is not finite");}
+    const auto other=render([](ChimeraProcessor& q){set(q,"slot2_reverbconverter",1);set(q,"slot3_reverbdirt",1);set(q,"slot4_reverbdrift",1);});
+    require(other==plain,"A switched-off slot's reverb character changed the sound");
+    auto source=make();for(int slot=0;slot<postSlotCount;++slot){set(*source,reverbCharacterID(slot,0),float(slot));set(*source,reverbCharacterID(slot,1),.2f+.2f*float(slot));set(*source,reverbCharacterID(slot,2),.9f-.2f*float(slot));}
+    juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbCharacterPerSlot;++control)require(std::abs(get(*loaded,reverbCharacterID(slot,control))-get(*source,reverbCharacterID(slot,control)))<1e-4f,"A reverb character value did not come back from a saved project");
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();if(id.endsWith("reverbconverter") || id.endsWith("reverbdirt") || id.endsWith("reverbdrift")){tree.removeChild(i,nullptr);++removed;}}
+    require(removed==postReverbCharacterParameterCount,"The saved project does not hold every reverb character value");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbCharacterPerSlot;++control)require(get(*loaded,reverbCharacterID(slot,control))==0,"A project saved before the reverb character did not load it off");
+    std::cout<<"PASS reverb character: 12 parameters at version 47, after the shape; converter, dirt and drift act through the processor; each slot its own; saved, loaded, and off in an older project\n";
+}
+// DECAY (docs/POST_REVERB_DECAY.md): four parameters at version 45, after the shape; through the processor; saved and loaded.
 void reverbDecay() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbDecayParameterVersion) {
-        require(with->getParameterIndex()==total-postReverbDecayParameterCount+count && with->paramID==reverbDecayID(count) && parameter->isAutomatable() && with->getName(64)==postSlotName(count,"Reverb decay"),"A reverb decay parameter is not in the last bank, slot 1 first, under its name");++count;}
-    require(count==postReverbDecayParameterCount && count==4 && postReverbAfterShapeParameterCount==postReverbDecayParameterCount,"The reverb decay bank is not one parameter for each of four slots");
+        require(with->getParameterIndex()==total-postReverbAfterShapeParameterCount+count && with->paramID==reverbDecayID(count) && parameter->isAutomatable() && with->getName(64)==postSlotName(count,"Reverb decay"),"A reverb decay parameter is not first after the reverb shape, slot 1 first, under its name");++count;}
+    require(count==postReverbDecayParameterCount && count==4,"The reverb decay bank is not one parameter for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbDecayID(slot))==0,"A reverb decay does not start with SIZE setting it");
     {auto* q=p->parameters().getParameter("reverbdecay");require(q->getText(q->convertTo0to1(0),32)=="SIZE" && q->getText(q->convertTo0to1(2.5f),32)=="2.50 s" && std::abs(q->convertFrom0to1(q->getValueForText("SIZE")))<1e-6f && std::abs(q->convertFrom0to1(q->getValueForText("3.5 s"))-3.5f)<1e-3f,"The reverb decay does not read as SIZE or as seconds");}
     // Through the processor: a burst of tone, then silence. A long DECAY leaves more a second later than SIZE alone; a short one less.
@@ -894,14 +1011,14 @@ void reverbDecay() {
     loaded->setStateInformation(old.getData(),int(old.getSize()));
     for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbDecayID(slot))==0,"A project saved before the reverb decay did not load with SIZE setting it");
     std::cout<<"MEASURE reverb decay through the processor (a second after the note): SIZE alone "<<level(plain)<<" dB, 12 s "<<level(longer)<<" dB, 0.3 s "<<level(shorter)<<" dB\n";
-    std::cout<<"PASS reverb decay: 4 parameters at version 45, last; it lengthens and shortens the reverb through the processor; each slot its own; saved, loaded, and SIZE in an older project\n";
+    std::cout<<"PASS reverb decay: 4 parameters at version 45, after the shape; it lengthens and shortens the reverb through the processor; each slot its own; saved, loaded, and SIZE in an older project\n";
 }
 int main() {
     juce::ScopedJuceInitialiser_GUI init;
     try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();
         secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();
         extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();extraSlotsPage();
-        reverbControlsBank();reverbControlsAudio();reverbControlsState();reverbShape();reverbDecay();}
+        reverbControlsBank();reverbControlsAudio();reverbControlsState();reverbShape();reverbDecay();reverbShapeMore();reverbCharacter();reverbShimmer();reverbKey();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }

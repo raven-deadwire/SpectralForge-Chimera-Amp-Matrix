@@ -176,22 +176,51 @@ class SpaceModule {
     juce::AudioBuffer<float> feed;std::array<std::vector<float>,2> preLine;size_t preWrite{};bool preUsed{},shapeUsed{};
     juce::SmoothedValue<float> preSamples,hold,toneAmount,widthGain;
     std::array<std::array<float,2>,2> cutState{},toneState{};
-    double shapePhase{};float shapeLevel{1.f};bool shapeRunning{};
+    // Character (docs/POST_REVERB_CHARACTER.md): the converter's two low-passes and its held sample, the drift's delay line.
+    std::array<std::array<float,3>,2> converterState{};double converterPhase{},driftPhase{};
+    // Key (docs/POST_REVERB_KEY.md): one two-pole resonator for each note of the key in range, on the reverb.
+    struct KeyNote {float b0{},a1{},a2{};};std::array<KeyNote,reverbKeyMaxNotes> keyNotes{};int keyCount{};float keyGain{1.f};
+    std::array<std::array<std::array<float,4>,reverbKeyMaxNotes>,2> keyState{};juce::SmoothedValue<float> keyAmount;
+    int keySetRoot{-1},keySetScale{-1};float keySetTune{1e9f},keySetRing{-1.f};bool keyUsed{};
+    void clearKey() noexcept {keyState={};keyUsed=false;}
+    void setKey(int root,int scale,float cents,float ring) noexcept {
+        if(root==keySetRoot && scale==keySetScale && cents==keySetTune && ring==keySetRing)return;
+        keySetRoot=root;keySetScale=scale;keySetTune=cents;keySetRing=ring;keyCount=0;double passed=0;const double q=reverbKeyQ(ring);
+        for(int note=reverbKeyLowestNote;note<=reverbKeyHighestNote && keyCount<reverbKeyMaxNotes;++note) {
+            if(!reverbKeyHolds(scale,root,note))continue;
+            const double hz=reverbKeyHz(note,cents);if(hz>=rate*.45)break;
+            const double width=hz/q,r=std::exp(-juce::MathConstants<double>::pi*width/rate),w=juce::MathConstants<double>::twoPi*hz/rate;
+            keyNotes[(size_t)keyCount++]={float(.5*(1.-r*r)),float(-2.*r*std::cos(w)),float(r*r)};passed+=.5*juce::MathConstants<double>::pi*width/(1.+(hz/reverbKeyColourHz)*(hz/reverbKeyColourHz));
+        }
+        // The resonators together pass this share of a reverb's power (see reverbKeyOverlap): the gain gives it back.
+        int toTheOctave=0;for(const int step:reverbKeyScales[scale])toTheOctave+=step>=0;
+        const double whole=reverbKeyColourHz*std::atan(.5*rate/reverbKeyColourHz),share=passed*std::pow(10.,reverbKeyOverlap(toTheOctave,ring)/10.)/whole;
+        keyGain=share>0.?float(std::sqrt(juce::jmin(400.,1./share))):1.f;
+    }
+    std::array<std::vector<float>,2> driftLine;size_t driftWrite{};juce::SmoothedValue<float> driftDepth;bool driftUsed{};
+    double shapePhase{};float shapeLevel{1.f},shapeValue{1.f};bool shapeRunning{};
+    // Shimmer (docs/POST_REVERB_SHIMMER.md): a two-tap pitch shifter on what the reverbs hear. Its output is
+    // low-passed and part of it goes back into it.
+    std::array<std::vector<float>,2> shimmerLine;size_t shimmerWrite{};double shimmerPhase{};std::array<std::array<float,3>,2> shimmerState{};
+    juce::SmoothedValue<float> shimmerAmount;bool shimmerUsed{};
+    void clearShimmer() noexcept {for(auto& l:shimmerLine)std::fill(l.begin(),l.end(),0.f);shimmerWrite=0;shimmerPhase=0;shimmerState={};shimmerUsed=false;}
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
-    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;}
+    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;keyState={};keyUsed=false;converterState={};converterPhase=0;driftPhase=0;for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
 public:
     // juce::Reverb snaps its parameter smoothers to the last target on prepare.
     // Restore the construction defaults first so every prepare starts the same
     // ramp; otherwise a re-prepared instance renders differently from a new one.
     void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].setParameters({});rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);
-        feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
-        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->reset(rate,.05);
+        feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:shimmerLine)l.assign(size_t(rate*reverbShimmerGrainMs*.001)+8,0.f);shimmerAmount.reset(rate,.05);shimmerAmount.setCurrentAndTargetValue(0);
+        for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth,&keyAmount})v->reset(rate,.05);driftDepth.setCurrentAndTargetValue(0);keyAmount.setCurrentAndTargetValue(0);keySetRoot=-1;
+        for(auto& l:driftLine)l.assign(size_t(rate*.001*(reverbDriftBaseMs+reverbDriftSwingMs))+8,0.f);
         preSamples.setCurrentAndTargetValue(0);hold.setCurrentAndTargetValue(0);toneAmount.setCurrentAndTargetValue(0);widthGain.setCurrentAndTargetValue(1);
         for(auto& channel:networks){channel[0].prepare(rate,.06);channel[1].prepare(rate,.12);channel[2].prepare(rate,.04);}predelay.setMaximumDelayInSamples(int(rate*.05));predelay.prepare(s);
         morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
-    void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();
-        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->setCurrentAndTargetValue(v->getTargetValue());}
+    void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();clearShimmer();shimmerAmount.setCurrentAndTargetValue(shimmerAmount.getTargetValue());
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth,&keyAmount})v->setCurrentAndTargetValue(v->getTargetValue());}
     // Where the tempo shape is in its pass, 0 to 1, for the display; below 0 while no shape runs.
     float shapePosition() const noexcept {return shapeRunning?float(shapePhase):-1.f;}
     void process(juce::AudioBuffer<float>& b,bool on,int model,float size,float damping,float amount,const ReverbControls& k={}) {
@@ -221,21 +250,66 @@ public:
                 if(++preWrite>=preLine[0].size())preWrite=0;
             }
         } else if(preUsed) clearPre();   // back at no pre-delay: an old line must not be heard when it is raised again
+        // SHIMMER: each channel of the feed goes through a delay read by two taps half a grain apart, each moving
+        // through the grain at the interval's rate and faded in and out over it, so the pitch moves by the interval.
+        shimmerAmount.setTargetValue(on?juce::jlimit(0.f,1.f,k.shimmer):0.f);
+        if(shimmerAmount.isSmoothing() || shimmerAmount.getTargetValue()>0.f) {
+            shimmerUsed=true;const int channels=juce::jmin(2,b.getNumChannels());
+            const double ratio=reverbShimmerRatios[juce::jlimit(0,reverbShimmerIntervalCount-1,k.shimmerInterval)],grain=rate*reverbShimmerGrainMs*.001,step=std::abs(ratio-1.)/grain;
+            const float pole=spatial_detail::onePole(juce::jmin(reverbShimmerCutHz,rate*.45),rate);
+            for(int n=0;n<b.getNumSamples();++n) {
+                const float amount=shimmerAmount.getNextValue();
+                // The two taps are half a grain apart, so their windows are sin^2 and cos^2 of the same angle: one sine a sample.
+                const double sine=std::sin(juce::MathConstants<double>::pi*shimmerPhase);const float windows[2]{float(sine*sine),float(1.-sine*sine)};
+                for(int c=0;c<channels;++c) {
+                    auto& line=shimmerLine[(size_t)c];auto& z=shimmerState[(size_t)c];
+                    line[shimmerWrite]=feed.getSample(c,n)+float(reverbShimmerFeedback)*amount*z[2];
+                    float shifted=0;
+                    for(int tap=0;tap<2;++tap) {
+                        double p=shimmerPhase+.5*tap;p-=std::floor(p);
+                        const double behind=(ratio>1.?1.-p:p)*grain,position=double(shimmerWrite)-behind,wrapped=position<0?position+double(line.size()):position;
+                        const size_t a=size_t(wrapped)%line.size(),next=(a+1)%line.size();const float frac=float(wrapped-std::floor(wrapped));
+                        shifted+=windows[tap]*(line[a]+frac*(line[next]-line[a]));
+                    }
+                    z[0]+=pole*(shifted-z[0]);z[1]+=pole*(z[0]-z[1]);z[2]=z[1];
+                    feed.setSample(c,n,feed.getSample(c,n)+amount*z[2]);
+                }
+                if(++shimmerWrite>=shimmerLine[0].size())shimmerWrite=0;
+                shimmerPhase+=step;shimmerPhase-=std::floor(shimmerPhase);
+            }
+        } else if(shimmerUsed) clearShimmer();
         // The wet sum is shaped only away from the defaults (low cut off, tone flat, width as made).
         // The tempo shape: its level is followed over 3 ms, so the Chop and the end of Rewind do not click.
         const int shape=k.shape>reverbShapeOff && k.shape<reverbShapeCount?k.shape:reverbShapeOff;
         const float shapeDepth=juce::jlimit(0.f,1.f,k.shapeDepth),shapePole=spatial_detail::onePole(1./(juce::MathConstants<double>::twoPi*.003),rate);
-        const double shapeStep=juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
-        if(shape!=reverbShapeOff && std::isfinite(k.ppq))shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays, before the start of the song as well: the phase is wrapped where it is used
+        // In seconds the pass runs freely at its own length; in bars it follows the tempo and the host's position.
+        const double shapeStep=k.shapeInSeconds?1./(double(juce::jlimit(reverbShapeMinSeconds,reverbShapeMaxSeconds,k.shapeSeconds))*rate):juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
+        const float shapeCurve=juce::jlimit(-1.f,1.f,k.shapeCurve),shapeMorph=shape!=reverbShapeOff?juce::jlimit(-1.f,1.f,k.shapeMorph):0.f;
+        if(shape!=reverbShapeOff && !k.shapeInSeconds && std::isfinite(k.ppq))shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays, before the start of the song as well: the phase is wrapped where it is used
         shapeRunning=on && shape!=reverbShapeOff;
         const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
-        if(!shaping){shapeLevel=1.f;shapePhase=0;}
-        const bool shaped=shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
+        if(!shaping){shapeLevel=1.f;shapeValue=1.f;shapePhase=0;}
+        // Character: an older converter (a low-pass each side of a sample held at a lower rate), fewer bits, a slow drift of pitch.
+        const int converter=k.converter>reverbConverterOff && k.converter<reverbConverterCount?k.converter:reverbConverterOff;
+        const float dirt=juce::jlimit(0.f,1.f,k.dirt),dirtStep=float(std::pow(2.,1.-reverbDirtBits(dirt)));
+        driftDepth.setTargetValue(juce::jlimit(0.f,1.f,k.drift));
+        const bool drifting=driftDepth.isSmoothing() || driftDepth.getTargetValue()>0.f;
+        if(drifting)driftUsed=true;else if(driftUsed){for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}   // an old line must not be heard when the drift comes back
+        const float converterPole=spatial_detail::onePole(juce::jmin(reverbConverterCutHz[converter],rate*.45),rate);
+        const double converterStep=juce::jmin(1.,reverbConverterRateHz[converter]/rate);
+        // KEY: the reverb through the key's resonators, crossed with the reverb as it is by the amount.
+        keyAmount.setTargetValue(juce::jlimit(0.f,1.f,k.keyAmount));
+        const bool keyed=keyAmount.isSmoothing() || keyAmount.getTargetValue()>0.f;
+        if(keyed){keyUsed=true;setKey(juce::jlimit(0,11,k.keyRoot),juce::jlimit(0,reverbKeyScaleCount-1,k.keyScale),juce::jlimit(-50.f,50.f,k.keyTuneCents),juce::jlimit(0.f,1.f,k.keyRing));}
+        else if(keyUsed)clearKey();
+        const bool shaped=keyed || converter!=reverbConverterOff || dirt>0.f || drifting || shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
         if(!shaped && shapeUsed)clearShape();
         if(shaped)shapeUsed=true;
         // TONE: a high shelf at 1.5 kHz of up to 12 dB either way with half of it taken back overall, so the
         // reverb tilts by up to 6 dB each way. Set once a block from the gliding amount.
-        const float toneNow=shaped?toneAmount.skip(b.getNumSamples()):0.f;
+        // MORPH: the tone follows the shape, darker where the shape is low and brighter where it is high
+        // (the other way round below 0), by up to the whole range of TONE. Set once a block, as TONE is.
+        const float toneNow=juce::jlimit(-1.f,1.f,(shaped?toneAmount.skip(b.getNumSamples()):0.f)+shapeMorph*(2.f*shapeValue-1.f));
         const auto shelf=juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(rate,1500.f,.5f,juce::Decibels::decibelsToGain(12.f*toneNow));
         const float toneTrim=juce::Decibels::decibelsToGain(-6.f*toneNow)/shelf[3],b0=shelf[0]*toneTrim,b1=shelf[1]*toneTrim,b2=shelf[2]*toneTrim,a1=shelf[4]/shelf[3],a2=shelf[5]/shelf[3];
         const float cutPole=spatial_detail::onePole(cutHz,rate);
@@ -263,7 +337,9 @@ public:
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();
             std::array<float,2> wetSum{};
             const float widthNow=shaped?widthGain.getNextValue():1.f;
-            if(shaping){const float target=1.f-shapeDepth*(1.f-reverbShapeLevel(shape,shapePhase));shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
+            const float driftNow=drifting?driftDepth.getNextValue():0.f,keyNow=keyed?keyAmount.getNextValue():0.f;
+            bool converterTick=false;if(converter!=reverbConverterOff){converterPhase+=converterStep;if(converterPhase>=1.){converterPhase-=1.;converterTick=true;}}
+            if(shaping){shapeValue=reverbShapeCurved(reverbShapeLevel(shape,shapePhase),shapeCurve);const float target=1.f-shapeDepth*(1.f-shapeValue);shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
             const bool extended=weights[3]>0.f||weights[4]>0.f||weights[5]>0.f;
             if(extended!=extendedActive){if(!extended)clearExtended();extendedActive=extended;}
             float gate=1.f;
@@ -290,9 +366,26 @@ public:
             // LOW CUT: two one-pole high-passes. TONE: the shelf above (transposed direct form II).
             if(cutting)for(auto& z:cutState[(size_t)c]){z+=cutPole*(sum-z);sum-=z;}
             auto& z=toneState[(size_t)c];const float shelved=b0*sum+z[0];z[0]=b1*sum-a1*shelved+z[1];z[1]=b2*sum-a2*shelved;
-            wetSum[(size_t)c]=shelved*shapeLevel;
+            float voiced=shelved;
+            if(keyed) {
+                float rung=0;auto& states=keyState[(size_t)c];
+                for(int i=0;i<keyCount;++i){const auto& note=keyNotes[(size_t)i];auto& s=states[(size_t)i];   // s: x1, x2, y1, y2
+                    const float y=note.b0*(voiced-s[1])-note.a1*s[2]-note.a2*s[3];s[1]=s[0];s[0]=voiced;s[3]=s[2];s[2]=y;rung+=y;}
+                voiced+=keyNow*(rung*keyGain-voiced);
+            }
+            if(converter!=reverbConverterOff){auto& s=converterState[(size_t)c];s[0]+=converterPole*(voiced-s[0]);if(converterTick)s[2]=s[0];s[1]+=converterPole*(s[2]-s[1]);voiced=s[1];}
+            if(dirt>0.f)voiced=std::rint(voiced/dirtStep)*dirtStep;   // to the nearest step, ties to even: one instruction, and no bias
+            if(drifting) {
+                auto& line=driftLine[(size_t)c];line[driftWrite]=voiced;
+                const float behind=float(rate*.001)*float(reverbDriftBaseMs+reverbDriftSwingMs*std::sin(juce::MathConstants<double>::twoPi*(driftPhase+.25*double(c))));
+                const float position=float(driftWrite)-behind*driftNow,wrapped=position<0?position+float(line.size()):position;
+                const size_t a=size_t(wrapped)%line.size(),next=(a+1)%line.size();const float frac=wrapped-std::floor(wrapped);
+                voiced=line[a]+frac*(line[next]-line[a]);
+            }
+            wetSum[(size_t)c]=voiced*shapeLevel;
             }
             if(shaped) {
+                if(drifting){if(++driftWrite>=driftLine[0].size())driftWrite=0;driftPhase+=reverbDriftHz/rate;driftPhase-=std::floor(driftPhase);}
                 // WIDTH scales the difference of the two wet channels.
                 if(b.getNumChannels()>=2){const float mid=.5f*(wetSum[0]+wetSum[1]),side=.5f*(wetSum[0]-wetSum[1])*widthNow;wetSum[0]=mid+side;wetSum[1]=mid-side;}
                 for(int c=0;c<b.getNumChannels();++c)b.setSample(c,n,b.getSample(c,n)*(1-m)+wetSum[(size_t)c]*m);
