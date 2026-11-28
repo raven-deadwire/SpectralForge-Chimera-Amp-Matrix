@@ -27,8 +27,9 @@ Wavetable import is not in this change.
 
 ## Built-in and own presets
 
-- The four built-in patches are the factory presets: Init (Other), Dvergr
-  Analog (Bass), Seidr Dynamic (Pad), Mimir Impact (Pluck).
+- The four built-in patches are the first factory presets: Init (Other),
+  Dvergr Analog (Bass), Seidr Dynamic (Pad), Mimir Impact (Pluck). Seventeen
+  more follow them (docs/SYNTH_FACTORY_PRESETS.md).
 - A preset the user saves is one file, `<name>.chimerasynth`, in
   `SpectralForge/Chimera/Synth Presets` under the user's application data
   folder. The folder is created the first time a preset is saved (or OPEN
@@ -97,8 +98,6 @@ Wavetable import is not in this change.
 - No undo for loading a preset over unsaved settings, and no warning.
 - Presets do not carry samples (see above).
 - The list shows about nine rows at the default size; it scrolls.
-- No more factory presets were made: there are still four, and none uses the
-  sequencer, a macro or an effect.
 - The preset name following an A/B switch was not tested.
 - DE / KO manual text is not written.
 
