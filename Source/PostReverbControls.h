@@ -30,12 +30,59 @@ inline void appendPostReverbControlParameters(juce::AudioProcessorValueTreeState
         }
 }
 
+// The tempo shape (docs/POST_REVERB_SHAPE.md): shape, depth and length for every slot's reverb, appended at
+// version hint 44. With the shape Off, the default, the reverb renders as it did before.
+inline constexpr int postReverbShapeParameterVersion = 44, postReverbShapePerSlot = 3;
+inline constexpr int postReverbShapeParameterCount = postReverbShapePerSlot * postSlotCount;
+inline constexpr std::array<const char*, postReverbShapePerSlot> reverbShapeIDs{{"reverbshape", "reverbshapedepth", "reverbshapelength"}};
+inline constexpr std::array<const char*, postReverbShapePerSlot> reverbShapeNames{{"Reverb shape", "Reverb shape depth", "Reverb shape length"}};
+inline juce::StringArray reverbShapeChoices() { return {"Off", "Rise", "Rewind", "Chop", "Tide", "Duck"}; }
+inline juce::StringArray reverbShapeLengthChoices() { return {"1/4", "1/2", "1 bar", "2 bars"}; }
+inline constexpr int reverbShapeDefaultLength = 2;
+inline juce::String reverbShapeID(int slot, int control) { return postSlotID(slot, reverbShapeIDs[size_t(control)]); }
+inline void appendPostReverbShapeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    constexpr int v = postReverbShapeParameterVersion;
+    for (int slot = 0; slot < postSlotCount; ++slot) {
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbShapeID(slot, 0), v}, postSlotName(slot, reverbShapeNames[0]), reverbShapeChoices(), 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbShapeID(slot, 1), v}, postSlotName(slot, reverbShapeNames[1]), juce::NormalisableRange<float>{0.f, 1.f}, 1.f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbShapeID(slot, 2), v}, postSlotName(slot, reverbShapeNames[2]), reverbShapeLengthChoices(), reverbShapeDefaultLength));
+    }
+}
+
+// DECAY (docs/POST_REVERB_DECAY.md): the reverb's decay time in seconds for every slot, appended at version
+// hint 45. Below reverbDecayMinSeconds, the default, SIZE sets the decay and the reverb renders as it did.
+inline constexpr int postReverbDecayParameterVersion = 45, postReverbDecayPerSlot = 1;
+inline constexpr int postReverbDecayParameterCount = postReverbDecayPerSlot * postSlotCount;
+inline juce::String reverbDecayID(int slot) { return postSlotID(slot, "reverbdecay"); }
+inline juce::String reverbDecayText(float seconds) { return seconds < reverbDecayMinSeconds ? juce::String("SIZE") : juce::String(seconds, seconds < 10.f ? 2 : 1) + " s"; }
+inline void appendPostReverbDecayParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    juce::NormalisableRange<float> range{0.f, reverbDecayMaxSeconds};range.setSkewForCentre(2.f);
+    for (int slot = 0; slot < postSlotCount; ++slot)
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbDecayID(slot), postReverbDecayParameterVersion}, postSlotName(slot, "Reverb decay"), range, 0.f,
+            juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float v, int) { return reverbDecayText(v); })
+                .withValueFromStringFunction([](const juce::String& t) { return t.trim().equalsIgnoreCase("SIZE") ? 0.f : t.getFloatValue(); })));
+}
+// Every reverb bank appended after the shape's. The parameter-count checks of the tests count from the end
+// through this, so a later reverb bank is added here and nowhere else.
+inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount;
+// The reverb banks appended to every slot after the slots' own banks.
+inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion; }
+
 struct PostReverbControlParameters {
     std::array<std::atomic<float>*, postReverbControlsPerSlot> values{};
-    void bind(juce::AudioProcessorValueTreeState& state, int slot) { for (int i = 0; i < postReverbControlsPerSlot; ++i) values[size_t(i)] = state.getRawParameterValue(reverbControlID(slot, i)); }
+    std::array<std::atomic<float>*, postReverbShapePerSlot> shape{};
+    std::atomic<float>* decay{};
+    void bind(juce::AudioProcessorValueTreeState& state, int slot) {
+        for (int i = 0; i < postReverbControlsPerSlot; ++i) values[size_t(i)] = state.getRawParameterValue(reverbControlID(slot, i));
+        for (int i = 0; i < postReverbShapePerSlot; ++i) shape[size_t(i)] = state.getRawParameterValue(reverbShapeID(slot, i));
+        decay = state.getRawParameterValue(reverbDecayID(slot));
+    }
+    // tempo and ppq are the session's, set by the caller.
     ReverbControls read() const noexcept {
         ReverbControls k;
         k.preDelayMs = values[0]->load();k.lowCutHz = values[1]->load();k.tone = values[2]->load();k.width = values[3]->load();k.freeze = values[4]->load() > .5f;
+        k.shape = juce::roundToInt(shape[0]->load());k.shapeDepth = shape[1]->load();k.shapeLength = juce::roundToInt(shape[2]->load());
+        k.decaySeconds = decay->load();
         return k;
     }
 };

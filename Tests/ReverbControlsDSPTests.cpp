@@ -157,6 +157,117 @@ void backToDefaults() {
     }
     std::cout<<"PASS reverb controls back to defaults: once the controls are back, a new note gets the plain reverb\n";
 }
+// The tempo shape (docs/POST_REVERB_SHAPE.md): the reverb's level follows a shape that repeats with the tempo.
+void shapeLevels() {
+    const auto at=[](int shape,double p){return double(reverbShapeLevel(shape,p));};
+    for(int shape=0;shape<reverbShapeCount;++shape)for(double p=0;p<3;p+=.001){const double v=at(shape,p);require(v>=0 && v<=1,"A shape leaves 0 to 1");require(std::abs(v-at(shape,p-std::floor(p)))<1e-6,"A shape does not repeat");}
+    for(double p=0;p<1;p+=.01)require(at(reverbShapeOff,p)==1,"Off is not level");
+    require(at(reverbShapeRise,0)==0 && std::abs(at(reverbShapeRise,.5)-.5)<1e-6 && at(reverbShapeRise,.999)>.99,"Rise does not rise from nothing to full");
+    require(at(reverbShapeRewind,0)==0 && at(reverbShapeRewind,.5)<.15 && at(reverbShapeRewind,.999)>.99,"Rewind does not rise late, as a decay played backwards");
+    require(at(reverbShapeChop,.1)==1 && at(reverbShapeChop,.49)==1 && at(reverbShapeChop,.51)==0 && at(reverbShapeChop,.99)==0,"Chop is not open for the first half");
+    require(at(reverbShapeTide,0)==0 && std::abs(at(reverbShapeTide,.5)-1)<1e-6 && std::abs(at(reverbShapeTide,.25)-.5)<1e-6,"Tide is not one rise and fall");
+    require(at(reverbShapeDuck,0)==0 && at(reverbShapeDuck,.2)>.6 && at(reverbShapeDuck,.999)>.99,"Duck does not duck at the start and recover");
+    for(const int shape:{reverbShapeRise,reverbShapeRewind,reverbShapeDuck})for(double p=.001;p<1;p+=.001)require(at(shape,p)>=at(shape,p-.001),"A rising shape falls");
+    std::cout<<"PASS reverb shape levels: Off is level; Rise, Rewind, Chop, Tide and Duck stay within 0 to 1, repeat, and have their form\n";
+}
+void shapeOnTheReverb() {
+    // Steady noise at 120 BPM with a length of one bar: the shape repeats every two seconds.
+    const auto steady=noise(8,8,31);
+    std::string measured;
+    for(int model=0;model<modelCount;++model) {
+        if(model==5)continue;   // the Gated Room closes on steady noise: it is covered with bursts below
+        const auto with=[&](int shape,float depth=1.f,int length=2){ReverbControls k;k.shape=shape;k.shapeDepth=depth;k.shapeLength=length;return render(model,steady,steady,fixed(k));};
+        const auto plain=with(reverbShapeOff);
+        // Levels through one bar, against the plain reverb at the same time. render() runs half a second before the
+        // playing starts, a quarter of a bar, so a bar starts at 5.5 s.
+        const auto part=[&](const Wet& wet,double from,double to){return db(wet.power(5.5+2*from,5.5+2*to))-db(plain.power(5.5+2*from,5.5+2*to));};
+        const auto gate=with(reverbShapeChop);
+        require(std::abs(part(gate,.05,.45))<1 && part(gate,.55,.95)<-40,std::string(modelNames[model])+": Chop gave "+num(part(gate,.05,.45))+" dB in its open half and "+num(part(gate,.55,.95))+" dB in its closed half");
+        const auto swell=with(reverbShapeRise);
+        // A shape that ends full and starts empty falls over the 3 ms follower: the first tenth of the bar still holds a little of it.
+        require(part(swell,0,.1)<-12 && std::abs(part(swell,.45,.55)-(-6.02))<1.5 && part(swell,.9,1)>-1,std::string(modelNames[model])+": Rise gave "+num(part(swell,0,.1))+", "+num(part(swell,.45,.55))+" and "+num(part(swell,.9,1))+" dB at its start, middle and end");
+        const auto reverse=with(reverbShapeRewind);
+        require(part(reverse,0,.1)<-12 && part(reverse,.45,.55)<-15 && part(reverse,.9,1)>-4,std::string(modelNames[model])+": Rewind gave "+num(part(reverse,0,.1))+", "+num(part(reverse,.45,.55))+" and "+num(part(reverse,.9,1))+" dB");
+        const auto wave=with(reverbShapeTide);
+        require(part(wave,0,.05)<-20 && part(wave,.45,.55)>-.5 && part(wave,.95,1)<-20,std::string(modelNames[model])+": Tide gave "+num(part(wave,0,.05))+", "+num(part(wave,.45,.55))+" and "+num(part(wave,.95,1))+" dB");
+        const auto pump=with(reverbShapeDuck);
+        require(part(pump,.004,.02)<-12 && part(pump,.5,1)>-1.5,std::string(modelNames[model])+": Duck gave "+num(part(pump,.004,.02))+" dB at its start and "+num(part(pump,.5,1))+" dB after");
+        // DEPTH: at half, the Chop's closed half is 6 dB down; at none, the reverb is the plain one.
+        const auto half=with(reverbShapeChop,.5f),none=with(reverbShapeChop,0.f);
+        require(std::abs(part(half,.55,.95)-(-6.02))<.5,std::string(modelNames[model])+": Chop at half depth gave "+num(part(half,.55,.95))+" dB in its closed half");
+        double difference=0,reference=0;for(size_t n=size_t(rate);n<plain.left.size();++n){difference=std::max(difference,double(std::abs(none.left[n]-plain.left[n])));reference=std::max(reference,double(std::abs(plain.left[n])));}
+        require(difference<reference*1e-4,std::string(modelNames[model])+": a shape at no depth changed the reverb by "+num(difference/reference*100,4)+"% of its peak");
+        // LENGTH: at 1/4 the Chop repeats every half second.
+        const auto quarter=with(reverbShapeChop,1.f,0);
+        require(std::abs(db(quarter.power(6.025,6.225))-db(plain.power(6.025,6.225)))<1 && db(quarter.power(6.275,6.475))-db(plain.power(6.275,6.475))<-40 && std::abs(db(quarter.power(6.525,6.725))-db(plain.power(6.525,6.725)))<1,
+                std::string(modelNames[model])+": Chop at a length of 1/4 does not open and close every half second");
+        measured+=std::string(measured.empty()?"":" | ")+modelNames[model]+": gate "+num(part(gate,.05,.45),1)+"/"+num(part(gate,.55,.95),0)+" dB, swell "+num(part(swell,0,.1),0)+"/"+num(part(swell,.45,.55),1)+"/"+num(part(swell,.9,1),1)+" dB";
+    }
+    std::cout<<"MEASURE reverb shape at 120 BPM, one bar (Chop: open / closed half; Rise: start / middle / end, against the plain reverb): "<<measured<<'\n';
+    // The Gated Room, with bursts: its own gate and the shape's both apply.
+    {auto bursts=noise(8,8,32);for(size_t n=0;n<bursts.size();++n)if(n%size_t(rate*.25)>=size_t(rate*.1))bursts[n]=0;
+     ReverbControls k;k.shape=reverbShapeChop;const auto plain=render(5,bursts,bursts,fixed({})),gated=render(5,bursts,bursts,fixed(k));
+     require(std::abs(db(gated.power(5.6,6.4))-db(plain.power(5.6,6.4)))<1 && db(gated.power(6.6,7.4))-db(plain.power(6.6,7.4))<-40,"Gated Room: the shape's gate does not apply");}
+    // Locked to the host: with the host half a bar in when the playing starts, the Chop's closed half comes first.
+    {const int model=0;ReverbControls k;k.shape=reverbShapeChop;
+     const auto locked=render(model,steady,steady,[k](double t)mutable{k.ppq=2.+t*2.;return k;}),plain=render(model,steady,steady,fixed({}));
+     require(db(locked.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(locked.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position");
+     // Before the start of the song the position is negative (a count-in): the shape is locked there too, on the same bars.
+     const auto before=render(model,steady,steady,[k](double t)mutable{k.ppq=2.+t*2.-32.;return k;});
+     require(db(before.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(before.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position before the start of the song");}
+    // Switched off again, a later note gets the plain reverb.
+    for(int model=0;model<modelCount;++model) {
+        std::vector<float> x(size_t(rate*8),0.f);x[size_t(rate*.1)]=.5f;x[size_t(rate*6)]=.5f;
+        const auto plain=render(model,x,x,fixed({}),.2f);
+        const auto moved=render(model,x,x,[](double t){ReverbControls k;if(t<1)k.shape=reverbShapeTide;return k;},.2f);
+        double difference=0,reference=0;for(size_t n=size_t(rate*6);n<plain.left.size();++n){difference=std::max(difference,double(std::abs(moved.left[n]-plain.left[n])));reference=std::max(reference,double(std::abs(plain.left[n])));}
+        require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the shape was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");
+    }
+    std::cout<<"PASS reverb shape on the reverb: each shape gives its level through the bar in every model; depth scales it, length sets its period, the host's position locks it, and Off returns the plain reverb\n";
+}
+}
+// DECAY (docs/POST_REVERB_DECAY.md): the time the reverb takes to fall 60 dB, whatever SIZE is.
+// Measured below 300 Hz, where DAMPING does not shorten the tail, from the backward-integrated decay after a
+// 50 ms burst of noise, fitted from -5 to -25 dB.
+double decayTime(const Wet& wet) {
+    const double pole=1-std::exp(-2*pi*300/rate);double low=0;std::vector<double> back(wet.left.size());
+    for(size_t n=0;n<wet.left.size();++n){low+=pole*(wet.left[n]-low);back[n]=low*low;}
+    const size_t start=size_t(.1*rate);double sum=0;for(size_t n=back.size();n-->start;){sum+=back[n];back[n]=sum;}
+    double at5=-1;for(size_t n=start;n<back.size();++n){const double level=db(back[n]/back[start]);if(at5<0 && level<=-5)at5=double(n)/rate;if(level<=-25)return (double(n)/rate-at5)*3;}
+    return -1;
+}
+void decay() {
+    std::string measured;
+    for(int model=0;model<5;++model) {
+        measured+=std::string(model?" | ":"")+modelNames[model]+":";
+        for(const float seconds:{.5f,2.f,6.f}) {
+            const auto burst=noise(double(seconds)*2.5+2,.05,11);ReverbControls k;k.decaySeconds=seconds;
+            const double small=decayTime(render(model,burst,burst,fixed(k),.2f)),large=decayTime(render(model,burst,burst,fixed(k),.8f));
+            require(small>0 && large>0,std::string(modelNames[model])+": the reverb did not fall 25 dB in the time rendered at DECAY "+num(seconds,1)+" s");
+            require(std::abs(small/seconds-1)<.2 && std::abs(large/seconds-1)<.2,std::string(modelNames[model])+": DECAY "+num(seconds,1)+" s measured "+num(small)+" s at a small SIZE and "+num(large)+" s at a large one");
+            measured+=" "+num(seconds,1)+" s -> "+num(small)+" / "+num(large)+" s";
+        }
+        // Below its minimum DECAY is not there: the render is the one SIZE alone gives, sample for sample.
+        const auto burst=noise(3,.05,12);ReverbControls under;under.decaySeconds=reverbDecayMinSeconds*.99f;
+        const auto plain=render(model,burst,burst,fixed({})),same=render(model,burst,burst,fixed(under));
+        require(plain.left==same.left && plain.right==same.right,std::string(modelNames[model])+": DECAY below its minimum changed the reverb");
+        // And SIZE alone still sets the decay then.
+        const double shortTail=decayTime(render(model,noise(30,.05,13),noise(30,.05,13),fixed({}),.1f)),longTail=decayTime(render(model,noise(30,.05,13),noise(30,.05,13),fixed({}),.9f));
+        require(shortTail>0 && longTail>shortTail*1.2,std::string(modelNames[model])+": without DECAY, SIZE no longer sets the decay");
+    }
+    std::cout<<"MEASURE reverb decay (set -> measured below 300 Hz at SIZE 0.2 / 0.8): "<<measured<<'\n';
+    // The Gated Room: its gate stays open for the decay time. Bursts a second long, three seconds apart.
+    {std::vector<float> bursts(size_t(rate*9),0.f);std::mt19937 rng{14};std::normal_distribution<float> g(0,.1f);for(int burst=0;burst<3;++burst)for(size_t n=0;n<size_t(rate*.05);++n)bursts[size_t(rate*3*burst)+n]=g(rng);
+     ReverbControls k;k.decaySeconds=1.5f;const auto timed=render(5,bursts,bursts,fixed(k));
+     const double open=db(timed.power(3.9,4.4)),closed=db(timed.power(4.7,5.2));
+     require(open>-90 && closed<open-40,"Gated Room: the gate does not stay open for the DECAY time (level "+num(open,1)+" dB before it ends, "+num(closed,1)+" dB after)");}
+    // Moving DECAY while a tail rings, every model, mono and stereo: finite (render checks) and bounded.
+    for(int model=0;model<modelCount;++model)for(const int channels:{1,2}) {
+        const auto x=noise(6,3,15);const auto moved=render(model,x,x,[](double t){ReverbControls k;k.decaySeconds=float(10+10*std::sin(2*pi*1.3*t));return k;},.5f,.55f,channels);
+        double peak=0;for(const float v:moved.left)peak=std::max(peak,double(std::abs(v)));
+        require(peak<20,std::string(modelNames[model])+": moving DECAY made the reverb run away (peak "+num(peak,1)+")");
+    }
+    std::cout<<"PASS reverb decay: the set time is the measured one in the five decaying models whatever SIZE is; the Gated Room's gate follows it; below its minimum the render is unchanged; moving it stays bounded\n";
 }
 int main(int argc,char** argv) {
     try {
@@ -167,6 +278,8 @@ int main(int argc,char** argv) {
         if(only.empty() || only=="--freeze")freeze();
         if(only.empty() || only=="--extremes")extremes();
         if(only.empty() || only=="--defaults")backToDefaults();
+        if(only.empty() || only=="--shape"){shapeLevels();shapeOnTheReverb();}
+        if(only.empty() || only=="--decay")decay();
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

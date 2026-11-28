@@ -5,6 +5,7 @@
 #include "RigViewTestHelpers.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeCatalog.h"
+#include "RackEffectDetailPanel.h"
 #include "NativeMessageLoop.h"
 #include "PublicNameTests.h"
 #include <iostream>
@@ -273,12 +274,56 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                             processor.parameters().getRawParameterValue(spectralforge::effectExtensionID(family))->load())==choice,"Time/modulation ALL model callback is disconnected");
             }
             const std::array<const char*,3> ids=family==10?std::array<const char*,3>{"chorusrate","chorusdepth","chorusmix"}:family==1?std::array<const char*,3>{"delaytime","delayfeedback","delaymix"}:std::array<const char*,3>{"reverbsize","reverbdamping","reverbmix"};
-            std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:3u),"Time/modulation ALL omitted a processor control");
+            std::vector<NativeControlView*> controls;views(panel,controls);require(controls.size()==(family==1?4u:family==2?4u+size_t(spectralforge::postReverbControlsPerSlot+spectralforge::postReverbShapePerSlot):3u),"Time/modulation ALL omitted a processor control");
             for(auto* view:controls){require(view->isVisible(),"Time/modulation ALL hides a control");inside(panel,*view,"Time/modulation ALL control exceeds panel bounds");}
             for(const auto* id:ids){auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr,"Time/modulation ALL knob missing");const auto& range=processor.parameters().getParameter(id)->getNormalisableRange();slider->setValue(range.start+(range.end-range.start)*.62,juce::sendNotificationSync);require(std::abs(processor.parameters().getRawParameterValue(id)->load()-slider->getValue())<.02,"Time/modulation ALL knob did not reach audio state");}
             const auto powerID=family==10?"choruson":family==1?"delayon":"reverbon";auto* power=find<juce::TextButton>(panel,powerID);require(power!=nullptr,"Time/modulation ALL power missing");
             const bool before=processor.parameters().getRawParameterValue(powerID)->load()>.5f;power->triggerClick();settle();require((processor.parameters().getRawParameterValue(powerID)->load()>.5f)!=before,"Time/modulation ALL power callback is disconnected");
             if(family==1){auto* sync=find<juce::TextButton>(panel,"delaysync");require(sync!=nullptr,"Delay ALL is missing tempo sync");const bool beforeSync=processor.parameters().getRawParameterValue("delaysync")->load()>.5f;sync->triggerClick();settle();require((processor.parameters().getRawParameterValue("delaysync")->load()>.5f)!=beforeSync,"Delay ALL tempo sync is disconnected");}
+            if(family==2) {
+                // The reverb's added controls (docs/POST_REVERB_CONTROLS.md): each knob writes its parameter, FREEZE toggles it, none overlaps another.
+                for(int i=0;i<spectralforge::postReverbControlsPerSlot;++i) {
+                    const auto id=spectralforge::reverbControlID(0,i);const auto& spec=spectralforge::reverbControlSpecs[(size_t)i];const auto raw=[&]{return processor.parameters().getRawParameterValue(id)->load();};
+                    if(spec.toggle){auto* button=find<juce::TextButton>(panel,id);require(button!=nullptr && button->isShowing(),"Reverb ALL is missing FREEZE");const bool was=raw()>.5f;button->triggerClick();settle();require((raw()>.5f)!=was,"Reverb ALL FREEZE callback is disconnected");button->triggerClick();settle();require((raw()>.5f)==was,"Reverb ALL FREEZE does not switch back");}
+                    else {auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr && slider->isShowing(),"Reverb ALL is missing an added knob");const double target=spec.minimum+(spec.maximum-spec.minimum)*.62;slider->setValue(target,juce::sendNotificationSync);
+                        require(std::abs(raw()-float(target))<(spec.maximum-spec.minimum)*.01f,"Reverb ALL added knob callback is disconnected");}
+                }
+                // The tempo shape (docs/POST_REVERB_SHAPE.md): both menus list their choices and write their parameter; the depth knob writes its.
+                for(const int menu:{0,2}) {
+                    const auto id=spectralforge::reverbShapeID(0,menu);auto* box=find<juce::ComboBox>(panel,id);require(box!=nullptr && box->isShowing(),"Reverb ALL is missing a shape menu");
+                    const auto choices=menu==0?spectralforge::reverbShapeChoices():spectralforge::reverbShapeLengthChoices();require(box->getNumItems()==choices.size(),"A reverb shape menu does not list its choices");
+                    for(int choice=0;choice<choices.size();++choice){box->setSelectedId(choice+1,juce::sendNotificationSync);settle(20);require(box->getText()==choices[choice] && juce::roundToInt(processor.parameters().getRawParameterValue(id)->load())==choice,"A reverb shape menu callback is disconnected");}
+                    box->setSelectedId(menu==0?1:spectralforge::reverbShapeDefaultLength+1,juce::sendNotificationSync);settle(20);
+                }
+                {const auto id=spectralforge::reverbShapeID(0,1);auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr && slider->isShowing(),"Reverb ALL is missing the shape depth");slider->setValue(.62,juce::sendNotificationSync);
+                 require(std::abs(processor.parameters().getRawParameterValue(id)->load()-.62f)<.01f,"Reverb ALL shape depth callback is disconnected");}
+                // DECAY (docs/POST_REVERB_DECAY.md): at its lowest it reads SIZE, above it reads seconds and writes its parameter; a double-click returns it.
+                {const auto id=spectralforge::reverbDecayID(0);auto* slider=find<juce::Slider>(panel,id);require(slider!=nullptr && slider->isShowing(),"Reverb ALL is missing DECAY");
+                 const auto raw=[&]{return processor.parameters().getRawParameterValue(id)->load();};
+                 slider->setValue(0,juce::sendNotificationSync);require(raw()==0 && slider->getTextFromValue(slider->getValue())=="SIZE","Reverb ALL DECAY at its lowest does not read SIZE");
+                 slider->setValue(2.5,juce::sendNotificationSync);require(std::abs(raw()-2.5f)<.01f && slider->getTextFromValue(slider->getValue())=="2.50 s","Reverb ALL DECAY does not write and read seconds");
+                 require(slider->isDoubleClickReturnEnabled() && slider->getDoubleClickReturnValue()==0,"Reverb ALL DECAY does not return to SIZE on a double-click");}
+                // The shape display draws what the three shape controls say, and follows them.
+                {auto* display=dynamic_cast<ReverbShapeDisplay*>(panel.findChildWithID(spectralforge::postSlotID(0,"reverbShapeDisplay")));require(display!=nullptr && display->isShowing(),"Reverb ALL is missing the shape display");
+                 const auto choose=[&](int shape,float depth,int length){set(processor,spectralforge::reverbShapeID(0,0),float(shape));set(processor,spectralforge::reverbShapeID(0,1),depth);set(processor,spectralforge::reverbShapeID(0,2),float(length));settle(60);display->refresh();};
+                 choose(spectralforge::reverbShapeChop,1.f,3);
+                 require(display->shownShape()==spectralforge::reverbShapeChop && display->shownLength()==3 && display->shownLevel(.25)==1.f && display->shownLevel(.75)==0.f,"The reverb shape display does not draw the chosen shape and length");
+                 choose(spectralforge::reverbShapeChop,.5f,0);require(std::abs(display->shownLevel(.75)-.5f)<1e-4f && display->shownLength()==0,"The reverb shape display does not draw the depth");
+                 choose(spectralforge::reverbShapeRise,.8f,spectralforge::reverbShapeDefaultLength);if(scale==0)snapshot(panel,directory,"Native-Post-Reverb-ALL-Shape");
+                 choose(spectralforge::reverbShapeOff,.62f,spectralforge::reverbShapeDefaultLength);require(display->shownShape()==spectralforge::reverbShapeOff && display->shownLevel(.75)==1.f,"The reverb shape display does not show Off as level");
+                 require(panel.getLocalBounds().contains(display->getBounds()) && display->plot().getWidth()>200.f && display->plot().getHeight()>80.f,"The reverb shape display is outside the panel or too small");
+                 for(auto* view:controls)require(!view->getBounds().intersects(display->getBounds()),"The reverb shape display covers a control");}
+                for(size_t a=0;a<controls.size();++a)for(size_t b=a+1;b<controls.size();++b)require(!controls[a]->getBounds().intersects(controls[b]->getBounds()),"Reverb ALL controls overlap");
+                // Every row is on screen: no control reaches past the panel, and the window shows the whole panel without scrolling.
+                // A window manager may size the window a moment after it opens, so the check waits up to two seconds for it.
+                const auto wholeWindow=[&]{
+                    if(window->getContentComponent()!=&panel || !window->getLocalBounds().contains(window->getLocalArea(&panel,panel.getLocalBounds())))return false;
+                    for(auto* view:controls)if(!panel.getLocalBounds().contains(view->getBounds()))return false;
+                    return true;};
+                for(const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000;!wholeWindow() && juce::Time::getMillisecondCounterHiRes()<deadline;)settle(50);
+                int lowest=0;for(auto* view:controls)lowest=juce::jmax(lowest,view->getBottom());
+                require(wholeWindow(),("Reverb ALL does not show every row: panel "+panel.getBounds().toString()+", window "+window->getBounds().toString()+", lowest control ends at "+juce::String(lowest)).toRawUTF8());
+            }
             if(scale==0)snapshot(panel,directory,section==3?"Native-Post-Modulation-ALL":section==4?"Native-Post-Delay-ALL":"Native-Post-Reverb-ALL");close(window);
         }
     }

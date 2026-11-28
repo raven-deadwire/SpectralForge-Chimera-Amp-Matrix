@@ -475,7 +475,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         if(bus){synth.writeBus(busLeft,busRight,buffer.getNumSamples());delaySynthBus(busLeft,busRight,buffer.getNumSamples());}
     }
     synthTracked.store(synth.read().on?synth.pitchTracker().hz():0.0,std::memory_order_relaxed);
-    auto fx=spectralforge::readFX(fxParameters);fx.reverbControls=reverbControlParameters[0].read();fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();fx.tempo=tempoMeter.load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
+    auto fx=spectralforge::readFX(fxParameters);fx.reverbControls=reverbControlParameters[0].read();fx.ppq=chunkPpq;fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=modelExtensionParameters[i]?spectralforge::effectSelectedModel(int(i),modelParameters[i]->load(),modelExtensionParameters[i]->load()):(int)modelParameters[i]->load();fx.tempo=tempoMeter.load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     fx.postNative=nativePost.read();
     ExtraFX fxExtra;for(int e=0;e<postExtraSlots;++e)fxExtra[(size_t)e]=readPostSlot(e+1,fx);
     const bool pitching=value(pitchOn)>.5f && int(value(semitones))!=0;
@@ -664,6 +664,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     creativeAt(spectralforge::creativeAfterPost);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
+    reverbShapePositions[0].store(postFX.reverbShapePosition());for(int e=0;e<postExtraSlots;++e)reverbShapePositions[(size_t)e+1].store(postFXExtra[(size_t)e].reverbShapePosition());
     for(int section=0;section<3;++section)nativePostMeters[(size_t)section].store(postFX.nativeMeter(section));
     for(int e=0;e<postExtraSlots;++e)for(int section=0;section<3;++section)nativePostMetersExtra[(size_t)e][(size_t)section].store(postFXExtra[(size_t)e].nativeMeter(section));
     for(size_t i=0;i<postPeaks.size();++i){
@@ -982,6 +983,9 @@ spectralforge::appendSynthEffectsParameters(p);
 spectralforge::appendSynthTableImportParameters(p,spectralforge::synthOscCount);
 // POST reverb pre-delay, low cut, tone, width and freeze for every slot, version hint 43 (docs/POST_REVERB_CONTROLS.md).
 spectralforge::appendPostReverbControlParameters(p);
+// POST reverb tempo shape for every slot, version hint 44 (docs/POST_REVERB_SHAPE.md).
+spectralforge::appendPostReverbShapeParameters(p);
+spectralforge::appendPostReverbDecayParameters(p);
 return p;
 }
 
@@ -1625,7 +1629,7 @@ spectralforge::FXState ChimeraProcessor::readPostSlot(int slot,const spectralfor
     const auto& postSlot2=postSlotExtra[(size_t)(slot-1)];
     auto fx=spectralforge::readFX(postSlot2.fx);
     for(size_t i=0;i<postSlot2.models.size();++i)fx.models[i]=postSlot2.extensions[i]?spectralforge::effectSelectedModel(int(i),postSlot2.models[i]->load(),postSlot2.extensions[i]->load()):(int)postSlot2.models[i]->load();
-    fx.tempo=slot1.tempo;fx.envelopeFirst=slot1.envelopeFirst;fx.boostAfterDrive=slot1.boostAfterDrive;
+    fx.tempo=slot1.tempo;fx.ppq=slot1.ppq;fx.envelopeFirst=slot1.envelopeFirst;fx.boostAfterDrive=slot1.boostAfterDrive;
     if(fx.delaySync)fx.delayMs=60000.f/float(juce::jmax(1.0,fx.tempo));
     fx.postNative=nativePostExtra[(size_t)(slot-1)].read();
     fx.reverbControls=reverbControlParameters[(size_t)slot].read();
