@@ -211,7 +211,10 @@ void shapeOnTheReverb() {
     // Locked to the host: with the host half a bar in when the playing starts, the Chop's closed half comes first.
     {const int model=0;ReverbControls k;k.shape=reverbShapeChop;
      const auto locked=render(model,steady,steady,[k](double t)mutable{k.ppq=2.+t*2.;return k;}),plain=render(model,steady,steady,fixed({}));
-     require(db(locked.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(locked.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position");}
+     require(db(locked.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(locked.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position");
+     // Before the start of the song the position is negative (a count-in): the shape is locked there too, on the same bars.
+     const auto before=render(model,steady,steady,[k](double t)mutable{k.ppq=2.+t*2.-32.;return k;});
+     require(db(before.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(before.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position before the start of the song");}
     // Switched off again, a later note gets the plain reverb.
     for(int model=0;model<modelCount;++model) {
         std::vector<float> x(size_t(rate*8),0.f);x[size_t(rate*.1)]=.5f;x[size_t(rate*6)]=.5f;
