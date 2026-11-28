@@ -226,7 +226,7 @@ public:
         const int shape=k.shape>reverbShapeOff && k.shape<reverbShapeCount?k.shape:reverbShapeOff;
         const float shapeDepth=juce::jlimit(0.f,1.f,k.shapeDepth),shapePole=spatial_detail::onePole(1./(juce::MathConstants<double>::twoPi*.003),rate);
         const double shapeStep=juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
-        if(shape!=reverbShapeOff && std::isfinite(k.ppq) && k.ppq>=0.)shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays
+        if(shape!=reverbShapeOff && std::isfinite(k.ppq))shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays, before the start of the song as well: the phase is wrapped where it is used
         shapeRunning=on && shape!=reverbShapeOff;
         const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
         if(!shaping){shapeLevel=1.f;shapePhase=0;}
