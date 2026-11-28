@@ -77,8 +77,9 @@ inline constexpr float reverbShapeMinSeconds = .1f, reverbShapeMaxSeconds = 10.f
 // keeps it nearer the middle for longer. 0 and 1 stay where they are; at 0 the level is returned untouched.
 inline float reverbShapeCurved(float level,float curve) noexcept {
     if(curve==0.f || level<=0.f || level>=1.f)return level;
-    const double k=curve>0.f?1.+4.*double(curve):1./(1.-4.*double(curve)),up=std::pow(double(level),k),down=std::pow(1.-double(level),k);
-    return float(up/(up+down));
+    // v^k / (v^k + (1-v)^k), written with one power: this runs once a sample while a shape with a curve is on.
+    const double k=curve>0.f?1.+4.*double(curve):1./(1.-4.*double(curve));
+    return float(1./(1.+std::pow((1.-double(level))/double(level),k)));
 }
 inline constexpr int reverbShapeLengthCount=4;
 inline constexpr double reverbShapeBeats[reverbShapeLengthCount]{1.,2.,4.,8.};   // quarter notes: 1/4, 1/2, one bar and two bars of 4/4

@@ -259,6 +259,8 @@ public:
             const float pole=spatial_detail::onePole(juce::jmin(reverbShimmerCutHz,rate*.45),rate);
             for(int n=0;n<b.getNumSamples();++n) {
                 const float amount=shimmerAmount.getNextValue();
+                // The two taps are half a grain apart, so their windows are sin^2 and cos^2 of the same angle: one sine a sample.
+                const double sine=std::sin(juce::MathConstants<double>::pi*shimmerPhase);const float windows[2]{float(sine*sine),float(1.-sine*sine)};
                 for(int c=0;c<channels;++c) {
                     auto& line=shimmerLine[(size_t)c];auto& z=shimmerState[(size_t)c];
                     line[shimmerWrite]=feed.getSample(c,n)+float(reverbShimmerFeedback)*amount*z[2];
@@ -267,8 +269,7 @@ public:
                         double p=shimmerPhase+.5*tap;p-=std::floor(p);
                         const double behind=(ratio>1.?1.-p:p)*grain,position=double(shimmerWrite)-behind,wrapped=position<0?position+double(line.size()):position;
                         const size_t a=size_t(wrapped)%line.size(),next=(a+1)%line.size();const float frac=float(wrapped-std::floor(wrapped));
-                        const double window=std::sin(juce::MathConstants<double>::pi*p);
-                        shifted+=float(window*window)*(line[a]+frac*(line[next]-line[a]));
+                        shifted+=windows[tap]*(line[a]+frac*(line[next]-line[a]));
                     }
                     z[0]+=pole*(shifted-z[0]);z[1]+=pole*(z[0]-z[1]);z[2]=z[1];
                     feed.setSample(c,n,feed.getSample(c,n)+amount*z[2]);
@@ -373,7 +374,7 @@ public:
                 voiced+=keyNow*(rung*keyGain-voiced);
             }
             if(converter!=reverbConverterOff){auto& s=converterState[(size_t)c];s[0]+=converterPole*(voiced-s[0]);if(converterTick)s[2]=s[0];s[1]+=converterPole*(s[2]-s[1]);voiced=s[1];}
-            if(dirt>0.f)voiced=std::round(voiced/dirtStep)*dirtStep;
+            if(dirt>0.f)voiced=std::rint(voiced/dirtStep)*dirtStep;   // to the nearest step, ties to even: one instruction, and no bias
             if(drifting) {
                 auto& line=driftLine[(size_t)c];line[driftWrite]=voiced;
                 const float behind=float(rate*.001)*float(reverbDriftBaseMs+reverbDriftSwingMs*std::sin(juce::MathConstants<double>::twoPi*(driftPhase+.25*double(c))));
