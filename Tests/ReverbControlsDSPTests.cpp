@@ -162,13 +162,13 @@ void shapeLevels() {
     const auto at=[](int shape,double p){return double(reverbShapeLevel(shape,p));};
     for(int shape=0;shape<reverbShapeCount;++shape)for(double p=0;p<3;p+=.001){const double v=at(shape,p);require(v>=0 && v<=1,"A shape leaves 0 to 1");require(std::abs(v-at(shape,p-std::floor(p)))<1e-6,"A shape does not repeat");}
     for(double p=0;p<1;p+=.01)require(at(reverbShapeOff,p)==1,"Off is not level");
-    require(at(reverbShapeSwell,0)==0 && std::abs(at(reverbShapeSwell,.5)-.5)<1e-6 && at(reverbShapeSwell,.999)>.99,"Swell does not rise from nothing to full");
-    require(at(reverbShapeReverse,0)==0 && at(reverbShapeReverse,.5)<.15 && at(reverbShapeReverse,.999)>.99,"Reverse does not rise late, as a decay played backwards");
-    require(at(reverbShapeGate,.1)==1 && at(reverbShapeGate,.49)==1 && at(reverbShapeGate,.51)==0 && at(reverbShapeGate,.99)==0,"Gate is not open for the first half");
-    require(at(reverbShapeWave,0)==0 && std::abs(at(reverbShapeWave,.5)-1)<1e-6 && std::abs(at(reverbShapeWave,.25)-.5)<1e-6,"Wave is not one rise and fall");
-    require(at(reverbShapePump,0)==0 && at(reverbShapePump,.2)>.6 && at(reverbShapePump,.999)>.99,"Pump does not duck at the start and recover");
-    for(const int shape:{reverbShapeSwell,reverbShapeReverse,reverbShapePump})for(double p=.001;p<1;p+=.001)require(at(shape,p)>=at(shape,p-.001),"A rising shape falls");
-    std::cout<<"PASS reverb shape levels: Off is level; Swell, Reverse, Gate, Wave and Pump stay within 0 to 1, repeat, and have their form\n";
+    require(at(reverbShapeRise,0)==0 && std::abs(at(reverbShapeRise,.5)-.5)<1e-6 && at(reverbShapeRise,.999)>.99,"Rise does not rise from nothing to full");
+    require(at(reverbShapeRewind,0)==0 && at(reverbShapeRewind,.5)<.15 && at(reverbShapeRewind,.999)>.99,"Rewind does not rise late, as a decay played backwards");
+    require(at(reverbShapeChop,.1)==1 && at(reverbShapeChop,.49)==1 && at(reverbShapeChop,.51)==0 && at(reverbShapeChop,.99)==0,"Chop is not open for the first half");
+    require(at(reverbShapeTide,0)==0 && std::abs(at(reverbShapeTide,.5)-1)<1e-6 && std::abs(at(reverbShapeTide,.25)-.5)<1e-6,"Tide is not one rise and fall");
+    require(at(reverbShapeDuck,0)==0 && at(reverbShapeDuck,.2)>.6 && at(reverbShapeDuck,.999)>.99,"Duck does not duck at the start and recover");
+    for(const int shape:{reverbShapeRise,reverbShapeRewind,reverbShapeDuck})for(double p=.001;p<1;p+=.001)require(at(shape,p)>=at(shape,p-.001),"A rising shape falls");
+    std::cout<<"PASS reverb shape levels: Off is level; Rise, Rewind, Chop, Tide and Duck stay within 0 to 1, repeat, and have their form\n";
 }
 void shapeOnTheReverb() {
     // Steady noise at 120 BPM with a length of one bar: the shape repeats every two seconds.
@@ -181,42 +181,42 @@ void shapeOnTheReverb() {
         // Levels through one bar, against the plain reverb at the same time. render() runs half a second before the
         // playing starts, a quarter of a bar, so a bar starts at 5.5 s.
         const auto part=[&](const Wet& wet,double from,double to){return db(wet.power(5.5+2*from,5.5+2*to))-db(plain.power(5.5+2*from,5.5+2*to));};
-        const auto gate=with(reverbShapeGate);
-        require(std::abs(part(gate,.05,.45))<1 && part(gate,.55,.95)<-40,std::string(modelNames[model])+": Gate gave "+num(part(gate,.05,.45))+" dB in its open half and "+num(part(gate,.55,.95))+" dB in its closed half");
-        const auto swell=with(reverbShapeSwell);
+        const auto gate=with(reverbShapeChop);
+        require(std::abs(part(gate,.05,.45))<1 && part(gate,.55,.95)<-40,std::string(modelNames[model])+": Chop gave "+num(part(gate,.05,.45))+" dB in its open half and "+num(part(gate,.55,.95))+" dB in its closed half");
+        const auto swell=with(reverbShapeRise);
         // A shape that ends full and starts empty falls over the 3 ms follower: the first tenth of the bar still holds a little of it.
-        require(part(swell,0,.1)<-12 && std::abs(part(swell,.45,.55)-(-6.02))<1.5 && part(swell,.9,1)>-1,std::string(modelNames[model])+": Swell gave "+num(part(swell,0,.1))+", "+num(part(swell,.45,.55))+" and "+num(part(swell,.9,1))+" dB at its start, middle and end");
-        const auto reverse=with(reverbShapeReverse);
-        require(part(reverse,0,.1)<-12 && part(reverse,.45,.55)<-15 && part(reverse,.9,1)>-4,std::string(modelNames[model])+": Reverse gave "+num(part(reverse,0,.1))+", "+num(part(reverse,.45,.55))+" and "+num(part(reverse,.9,1))+" dB");
-        const auto wave=with(reverbShapeWave);
-        require(part(wave,0,.05)<-20 && part(wave,.45,.55)>-.5 && part(wave,.95,1)<-20,std::string(modelNames[model])+": Wave gave "+num(part(wave,0,.05))+", "+num(part(wave,.45,.55))+" and "+num(part(wave,.95,1))+" dB");
-        const auto pump=with(reverbShapePump);
-        require(part(pump,.004,.02)<-12 && part(pump,.5,1)>-1.5,std::string(modelNames[model])+": Pump gave "+num(part(pump,.004,.02))+" dB at its start and "+num(part(pump,.5,1))+" dB after");
-        // DEPTH: at half, the Gate's closed half is 6 dB down; at none, the reverb is the plain one.
-        const auto half=with(reverbShapeGate,.5f),none=with(reverbShapeGate,0.f);
-        require(std::abs(part(half,.55,.95)-(-6.02))<.5,std::string(modelNames[model])+": Gate at half depth gave "+num(part(half,.55,.95))+" dB in its closed half");
+        require(part(swell,0,.1)<-12 && std::abs(part(swell,.45,.55)-(-6.02))<1.5 && part(swell,.9,1)>-1,std::string(modelNames[model])+": Rise gave "+num(part(swell,0,.1))+", "+num(part(swell,.45,.55))+" and "+num(part(swell,.9,1))+" dB at its start, middle and end");
+        const auto reverse=with(reverbShapeRewind);
+        require(part(reverse,0,.1)<-12 && part(reverse,.45,.55)<-15 && part(reverse,.9,1)>-4,std::string(modelNames[model])+": Rewind gave "+num(part(reverse,0,.1))+", "+num(part(reverse,.45,.55))+" and "+num(part(reverse,.9,1))+" dB");
+        const auto wave=with(reverbShapeTide);
+        require(part(wave,0,.05)<-20 && part(wave,.45,.55)>-.5 && part(wave,.95,1)<-20,std::string(modelNames[model])+": Tide gave "+num(part(wave,0,.05))+", "+num(part(wave,.45,.55))+" and "+num(part(wave,.95,1))+" dB");
+        const auto pump=with(reverbShapeDuck);
+        require(part(pump,.004,.02)<-12 && part(pump,.5,1)>-1.5,std::string(modelNames[model])+": Duck gave "+num(part(pump,.004,.02))+" dB at its start and "+num(part(pump,.5,1))+" dB after");
+        // DEPTH: at half, the Chop's closed half is 6 dB down; at none, the reverb is the plain one.
+        const auto half=with(reverbShapeChop,.5f),none=with(reverbShapeChop,0.f);
+        require(std::abs(part(half,.55,.95)-(-6.02))<.5,std::string(modelNames[model])+": Chop at half depth gave "+num(part(half,.55,.95))+" dB in its closed half");
         double difference=0,reference=0;for(size_t n=size_t(rate);n<plain.left.size();++n){difference=std::max(difference,double(std::abs(none.left[n]-plain.left[n])));reference=std::max(reference,double(std::abs(plain.left[n])));}
         require(difference<reference*1e-4,std::string(modelNames[model])+": a shape at no depth changed the reverb by "+num(difference/reference*100,4)+"% of its peak");
-        // LENGTH: at 1/4 the Gate repeats every half second.
-        const auto quarter=with(reverbShapeGate,1.f,0);
+        // LENGTH: at 1/4 the Chop repeats every half second.
+        const auto quarter=with(reverbShapeChop,1.f,0);
         require(std::abs(db(quarter.power(6.025,6.225))-db(plain.power(6.025,6.225)))<1 && db(quarter.power(6.275,6.475))-db(plain.power(6.275,6.475))<-40 && std::abs(db(quarter.power(6.525,6.725))-db(plain.power(6.525,6.725)))<1,
-                std::string(modelNames[model])+": Gate at a length of 1/4 does not open and close every half second");
+                std::string(modelNames[model])+": Chop at a length of 1/4 does not open and close every half second");
         measured+=std::string(measured.empty()?"":" | ")+modelNames[model]+": gate "+num(part(gate,.05,.45),1)+"/"+num(part(gate,.55,.95),0)+" dB, swell "+num(part(swell,0,.1),0)+"/"+num(part(swell,.45,.55),1)+"/"+num(part(swell,.9,1),1)+" dB";
     }
-    std::cout<<"MEASURE reverb shape at 120 BPM, one bar (Gate: open / closed half; Swell: start / middle / end, against the plain reverb): "<<measured<<'\n';
+    std::cout<<"MEASURE reverb shape at 120 BPM, one bar (Chop: open / closed half; Rise: start / middle / end, against the plain reverb): "<<measured<<'\n';
     // The Gated Room, with bursts: its own gate and the shape's both apply.
     {auto bursts=noise(8,8,32);for(size_t n=0;n<bursts.size();++n)if(n%size_t(rate*.25)>=size_t(rate*.1))bursts[n]=0;
-     ReverbControls k;k.shape=reverbShapeGate;const auto plain=render(5,bursts,bursts,fixed({})),gated=render(5,bursts,bursts,fixed(k));
+     ReverbControls k;k.shape=reverbShapeChop;const auto plain=render(5,bursts,bursts,fixed({})),gated=render(5,bursts,bursts,fixed(k));
      require(std::abs(db(gated.power(5.6,6.4))-db(plain.power(5.6,6.4)))<1 && db(gated.power(6.6,7.4))-db(plain.power(6.6,7.4))<-40,"Gated Room: the shape's gate does not apply");}
-    // Locked to the host: with the host half a bar in when the playing starts, the Gate's closed half comes first.
-    {const int model=0;ReverbControls k;k.shape=reverbShapeGate;
+    // Locked to the host: with the host half a bar in when the playing starts, the Chop's closed half comes first.
+    {const int model=0;ReverbControls k;k.shape=reverbShapeChop;
      const auto locked=render(model,steady,steady,[k](double t)mutable{k.ppq=2.+t*2.;return k;}),plain=render(model,steady,steady,fixed({}));
      require(db(locked.power(6.1,6.9))-db(plain.power(6.1,6.9))<-40 && std::abs(db(locked.power(7.1,7.9))-db(plain.power(7.1,7.9)))<1,"The shape does not follow the host's position");}
     // Switched off again, a later note gets the plain reverb.
     for(int model=0;model<modelCount;++model) {
         std::vector<float> x(size_t(rate*8),0.f);x[size_t(rate*.1)]=.5f;x[size_t(rate*6)]=.5f;
         const auto plain=render(model,x,x,fixed({}),.2f);
-        const auto moved=render(model,x,x,[](double t){ReverbControls k;if(t<1)k.shape=reverbShapeWave;return k;},.2f);
+        const auto moved=render(model,x,x,[](double t){ReverbControls k;if(t<1)k.shape=reverbShapeTide;return k;},.2f);
         double difference=0,reference=0;for(size_t n=size_t(rate*6);n<plain.left.size();++n){difference=std::max(difference,double(std::abs(moved.left[n]-plain.left[n])));reference=std::max(reference,double(std::abs(plain.left[n])));}
         require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the shape was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");
     }
@@ -236,24 +236,24 @@ void shapeMore() {
     for(int model=0;model<5;++model) {
         const auto plain=render(model,steady,steady,fixed({}));
         const auto against=[&](const Wet& w,double from,double to){return db(w.power(from,to))-db(plain.power(from,to));};
-        // SECONDS: a Gate one second long, whatever the tempo and the host's position. The half second render() runs first is half a pass.
-        ReverbControls k;k.shape=reverbShapeGate;k.shapeInSeconds=true;k.shapeSeconds=1.f;
+        // SECONDS: a Chop one second long, whatever the tempo and the host's position. The half second render() runs first is half a pass.
+        ReverbControls k;k.shape=reverbShapeChop;k.shapeInSeconds=true;k.shapeSeconds=1.f;
         const auto slow=render(model,steady,steady,[k](double){auto c=k;c.tempo=60;return c;}),fast=render(model,steady,steady,[k](double t){auto c=k;c.tempo=180;c.ppq=t*3;return c;});
         require(slow.left==fast.left && slow.right==fast.right,std::string(modelNames[model])+": a shape in seconds follows the tempo or the host's position");
-        require(std::abs(against(slow,5.6,5.9))<1 && against(slow,5.1,5.4)<-40 && std::abs(against(slow,6.6,6.9))<1 && against(slow,6.1,6.4)<-40,std::string(modelNames[model])+": a Gate one second long does not open and close each second");
-        // CURVE on the reverb: a hard Swell is lower than the Swell early in the bar and no lower late in it; a soft one the other way.
-        ReverbControls swell;swell.shape=reverbShapeSwell;auto hard=swell;hard.shapeCurve=1;auto soft=swell;soft.shapeCurve=-1;
+        require(std::abs(against(slow,5.6,5.9))<1 && against(slow,5.1,5.4)<-40 && std::abs(against(slow,6.6,6.9))<1 && against(slow,6.1,6.4)<-40,std::string(modelNames[model])+": a Chop one second long does not open and close each second");
+        // CURVE on the reverb: a hard Rise is lower than the Rise early in the bar and no lower late in it; a soft one the other way.
+        ReverbControls swell;swell.shape=reverbShapeRise;auto hard=swell;hard.shapeCurve=1;auto soft=swell;soft.shapeCurve=-1;
         const auto drawn=render(model,steady,steady,fixed(swell)),harder=render(model,steady,steady,fixed(hard)),softer=render(model,steady,steady,fixed(soft));
         const double early=db(harder.power(5.8,6.0))-db(drawn.power(5.8,6.0)),earlySoft=db(softer.power(5.8,6.0))-db(drawn.power(5.8,6.0)),late=db(harder.power(7.0,7.2))-db(drawn.power(7.0,7.2));
-        require(early<-6 && earlySoft>3 && late>-.5,std::string(modelNames[model])+": CURVE does not bend the Swell (hard "+num(early,1)+" dB and soft "+num(earlySoft,1)+" dB early in the bar, hard "+num(late,1)+" dB late)");
+        require(early<-6 && earlySoft>3 && late>-.5,std::string(modelNames[model])+": CURVE does not bend the Rise (hard "+num(early,1)+" dB and soft "+num(earlySoft,1)+" dB early in the bar, hard "+num(late,1)+" dB late)");
         measured+=std::string(model?" | ":"")+modelNames[model]+": hard "+num(early,1)+" dB, soft +"+num(earlySoft,1)+" dB early";
     }
-    std::cout<<"MEASURE reverb shape curve (Swell, 120 BPM, one bar, against the Swell as drawn): "<<measured<<'\n';
-    // MORPH: with a Gate at no depth the level stays and only the tone follows: bright in the open half, dark in the closed one.
+    std::cout<<"MEASURE reverb shape curve (Rise, 120 BPM, one bar, against the Rise as drawn): "<<measured<<'\n';
+    // MORPH: with a Chop at no depth the level stays and only the tone follows: bright in the open half, dark in the closed one.
     measured.clear();
     for(int model=0;model<5;++model) {
         // Noise in, and the reverb's level above 4 kHz and below 300 Hz: a steady tone would beat in the models that are modulated.
-        ReverbControls k;k.shape=reverbShapeGate;k.shapeDepth=0;k.shapeMorph=1;auto other=k;other.shapeMorph=-1;
+        ReverbControls k;k.shape=reverbShapeChop;k.shapeDepth=0;k.shapeMorph=1;auto other=k;other.shapeMorph=-1;
         const auto band=[](const Wet& w,bool top,double from,double to){const double pole=1-std::exp(-2*pi*(top?4000.:300.)/rate);double z=0,e=0;
             for(size_t n=size_t((from-.2)*rate);n<size_t(to*rate);++n){z+=pole*(w.left[n]-z);const double v=top?w.left[n]-z:z;if(n>=size_t(from*rate))e+=v*v;}return db(e);};
         const auto step=[&](bool top,const ReverbControls& c){const auto w=render(model,steady,steady,fixed(c));return band(w,top,5.8,6.3)-band(w,top,6.8,7.3);};
@@ -265,7 +265,7 @@ void shapeMore() {
         const auto burst=noise(3,.05,22);const auto plain=render(model,burst,burst,fixed({})),same=render(model,burst,burst,fixed(off));
         require(plain.left==same.left && plain.right==same.right,std::string(modelNames[model])+": with the shape Off its other controls changed the reverb");
     }
-    std::cout<<"MEASURE reverb shape morph (Gate at no depth; open half against closed half): "<<measured<<'\n';
+    std::cout<<"MEASURE reverb shape morph (Chop at no depth; open half against closed half): "<<measured<<'\n';
     std::cout<<"PASS more of the reverb shape: a length in seconds ignores the tempo and the host; CURVE bends the level and keeps its ends; MORPH moves the tone with the shape; none of them is there with the shape Off\n";
 }
 // DECAY (docs/POST_REVERB_DECAY.md): the time the reverb takes to fall 60 dB, whatever SIZE is.

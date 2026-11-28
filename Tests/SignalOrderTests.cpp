@@ -840,18 +840,18 @@ void reverbShape() {
         require(with->getParameterIndex()==total-(postReverbShapeParameterCount+postReverbAfterShapeParameterCount)+count && with->paramID==reverbShapeID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeNames[size_t(control)]),"A reverb shape parameter is not in the last bank, slot 1 first, under its name");++count;}
     require(count==postReverbShapeParameterCount && count==12,"The reverb shape bank is not three parameters for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeID(slot,0))==0 && get(*p,reverbShapeID(slot,1))==1 && juce::roundToInt(get(*p,reverbShapeID(slot,2)))==reverbShapeDefaultLength,"A reverb shape does not start Off, at full depth and one bar");
-    // Through the processor at 120 BPM, one bar: the Gate lets the reverb through for a second and closes it for a second.
+    // Through the processor at 120 BPM, one bar: the Chop lets the reverb through for a second and closes it for a second.
     const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.2f);if(edit)edit(*q);
         std::vector<float> in(size_t(rate*4));for(size_t n=0;n<in.size();++n)in[n]=float(.05*std::sin(2*pi*440*double(n)/rate));return renderInput(*q,in);};
-    const auto plain=render({}),gated=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeGate));});
+    const auto plain=render({}),gated=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));});
     const auto apart=[&](double from,double to){double d=0,e=0;for(size_t n=size_t(from*rate);n<size_t(to*rate);++n){d+=double(gated[n]-plain[n])*(gated[n]-plain[n]);e+=double(plain[n])*plain[n];}return db(std::sqrt(d/std::max(e,1e-30)));};
     const double open=apart(2.2,2.8),closed=apart(3.2,3.8);
-    require(open<-40 && closed>-20,"The Gate shape does not open and close the reverb through the processor (difference from the plain reverb "+std::to_string(open)+" dB in the open half, "+std::to_string(closed)+" dB in the closed half)");
+    require(open<-40 && closed>-20,"The Chop shape does not open and close the reverb through the processor (difference from the plain reverb "+std::to_string(open)+" dB in the open half, "+std::to_string(closed)+" dB in the closed half)");
     // Each slot has its own, and a switched-off slot's shape changes nothing.
-    const auto other=render([](ChimeraProcessor& q){set(q,"slot2_reverbshape",float(reverbShapeGate));set(q,"slot3_reverbshapedepth",.3f);set(q,"slot4_reverbshapelength",0);});
+    const auto other=render([](ChimeraProcessor& q){set(q,"slot2_reverbshape",float(reverbShapeChop));set(q,"slot3_reverbshapedepth",.3f);set(q,"slot4_reverbshapelength",0);});
     require(other==plain,"A switched-off slot's reverb shape changed the sound");
     // Depth 0 is the plain reverb, to within the follower's rounding.
-    const auto none=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeGate));set(q,"reverbshapedepth",0);});
+    const auto none=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));set(q,"reverbshapedepth",0);});
     {double d=0,e=0;for(size_t n=0;n<plain.size();++n){d=std::max(d,double(std::abs(none[n]-plain[n])));e=std::max(e,double(std::abs(plain[n])));}require(d<e*1e-4,"A shape at no depth changed the sound");}
     // Saved and loaded; an older project loads Off.
     auto source=make();for(int slot=0;slot<postSlotCount;++slot){set(*source,reverbShapeID(slot,0),float(1+slot));set(*source,reverbShapeID(slot,1),.2f+.1f*float(slot));set(*source,reverbShapeID(slot,2),float(slot));}
@@ -863,8 +863,8 @@ void reverbShape() {
     juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
     loaded->setStateInformation(old.getData(),int(old.getSize()));
     for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShapeID(slot,0))==0 && get(*loaded,reverbShapeID(slot,1))==1 && juce::roundToInt(get(*loaded,reverbShapeID(slot,2)))==reverbShapeDefaultLength,"A project saved before the reverb shape did not load it Off");
-    std::cout<<"MEASURE reverb shape through the processor (Gate, 120 BPM, one bar; difference from the plain reverb): "<<open<<" dB in the open half, "<<closed<<" dB in the closed half\n";
-    std::cout<<"PASS reverb shape: 12 parameters at version 44, last; the Gate opens and closes the reverb through the processor; each slot its own; saved, loaded, and Off in an older project\n";
+    std::cout<<"MEASURE reverb shape through the processor (Chop, 120 BPM, one bar; difference from the plain reverb): "<<open<<" dB in the open half, "<<closed<<" dB in the closed half\n";
+    std::cout<<"PASS reverb shape: 12 parameters at version 44, last; the Chop opens and closes the reverb through the processor; each slot its own; saved, loaded, and Off in an older project\n";
 }
 // More of the reverb shape (docs/POST_REVERB_SHAPE_MORE.md): sixteen parameters at version 46, last; through the processor; saved and loaded.
 void reverbShapeMore() {
@@ -874,16 +874,16 @@ void reverbShapeMore() {
         require(with->getParameterIndex()==total-postReverbShapeMoreParameterCount+count && with->paramID==reverbShapeMoreID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeMoreNames[size_t(control)]),"One more reverb shape parameter is not in the last bank, slot 1 first, under its name");++count;}
     require(count==postReverbShapeMoreParameterCount && count==16,"More of the reverb shape is not four parameters for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeMoreID(slot,0))==0 && std::abs(get(*p,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*p,reverbShapeMoreID(slot,2))==0 && get(*p,reverbShapeMoreID(slot,3))==0,"The reverb shape does not start in bars, one second, as drawn and without morph");
-    // Through the processor: a Gate two seconds long, in seconds, opens and closes the reverb as the one-bar Gate at 120 BPM does.
+    // Through the processor: a Chop two seconds long, in seconds, opens and closes the reverb as the one-bar Chop at 120 BPM does.
     const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.2f);if(edit)edit(*q);
         std::vector<float> in(size_t(rate*4));for(size_t n=0;n<in.size();++n)in[n]=float(.05*std::sin(2*pi*440*double(n)/rate));return renderInput(*q,in);};
-    const auto plain=render({}),bars=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeGate));}),
-        seconds=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeGate));set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",2);set(q,"reverbshapelength",0);});
+    const auto plain=render({}),bars=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));}),
+        seconds=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",2);set(q,"reverbshapelength",0);});
     require(seconds==bars,"A shape two seconds long is not the one-bar shape at 120 BPM through the processor");
-    const auto shorter=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeGate));set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",.5f);});
+    const auto shorter=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeChop));set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",.5f);});
     require(shorter!=bars,"The shape's length in seconds does nothing through the processor");
-    const auto curved=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeSwell));set(q,"reverbshapecurve",1);}),drawn=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeSwell));}),
-        morphed=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeSwell));set(q,"reverbshapemorph",1);});
+    const auto curved=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeRise));set(q,"reverbshapecurve",1);}),drawn=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeRise));}),
+        morphed=render([](ChimeraProcessor& q){set(q,"reverbshape",float(reverbShapeRise));set(q,"reverbshapemorph",1);});
     require(curved!=drawn && morphed!=drawn,"CURVE or MORPH does nothing through the processor");
     // With the shape Off, and in a switched-off slot, they change nothing.
     const auto off=render([](ChimeraProcessor& q){set(q,"reverbshapeunit",1);set(q,"reverbshapeseconds",.3f);set(q,"reverbshapecurve",1);set(q,"reverbshapemorph",-1);

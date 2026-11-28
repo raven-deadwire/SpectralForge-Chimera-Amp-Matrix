@@ -13,8 +13,10 @@ struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefor
                          std::array<float,2> highShareBeforeDb{},highShareAfterDb{},presenceBefore{},presenceAfter{};std::array<PowerResult,2> power{};};
 // lanes: the two lanes the passes listen to (Dual rigs 0 and 1, Matrix lanes 1 and 2).
 // lowNotes: pure 82 and 98 Hz notes, which do not reach a MID or HIGH band.
+// finished (phase 49): called with the processor after the run and its measurements, before it is released.
 RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,const Controller::Options& options,std::array<float,2> gainFraction,
-                                  const std::function<void(ChimeraProcessor&)>& prepare={},bool lowNotes=false) {
+                                  const std::function<void(ChimeraProcessor&)>& prepare={},bool lowNotes=false,
+                                  const std::function<void(ChimeraProcessor&)>& finished={}) {
     using P=Controller::Phase;
     auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
@@ -106,6 +108,7 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
         result.levelAfterDb[size_t(index)]=laneLevelDb(lanes[size_t(index)]);result.highShareAfterDb[size_t(index)]=highShareDb;
         result.presenceAfter[size_t(index)]=presenceOf(lanes[size_t(index)]);
     }
+    if(finished)finished(*p); // phase 49: the session as the run left it
     p->releaseResources();
     return result;
 }
@@ -297,4 +300,106 @@ void rigPassEnginePowerAndLocks() {
               && std::abs(m.levelAfterDb[size_t(index)]-m.levelBeforeDb[size_t(index)])<.3f,"The Matrix levels lock did not keep a lane on the real engine: "+lockRow(m,index==0?P::matrixTrim2:P::matrixTrim3,index));
     }
     std::cout<<"PASS auto set rig pass engine presence and locks: phase 34 through processBlock with the rig's measured top end following each PRESENCE move; the Dual rig levels lock keeps rig 2 and the Matrix levels lock both lanes, levels unmoved\n";
+}
+// Phase 48: a PRESENCE that is raised, on the real engine (docs/AUTO_SET_PHASE48.md). Phase 47's settings only
+// produced a lowered or kept PRESENCE. A dark rig (GAIN low, TREBLE at its bottom, BASS and MIDDLE at their top,
+// PRESENCE at its bottom) plays under the bite target, so the step raises PRESENCE.
+void rigPassEnginePresenceRaised() {
+    using P=Controller::Phase;
+    constexpr int model=2;
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    // Both rigs dark, with PRESENCE at its bottom.
+    const auto dark=[=](ChimeraProcessor& p) {
+        for(int rig=0;rig<2;++rig) {
+            const int channel=p.selectedAmpChannel(rig),context=spectralforge::ampNativeContext(1,rig);
+            const auto set=[&](int control,float fraction){p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,control,channel))->setValueNotifyingHost(fraction);};
+            const auto roles=roleControls(model,channel,0);
+            set(powerControl(model,channel,powerPresence),0.f);set(roles[ampTreble],0.f);set(roles[ampBass],1.f);set(roles[ampMiddle],1.f);
+        }
+    };
+    std::string measured;
+    for(const auto style:{Style::metal,Style::rock}) {
+        Controller::Options options{1,false,style,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+        options.sync=options.cabIR=options.polarity=false;options.dualPower=true;
+        const auto r=runRigPassEngine(1,0,{0,1},options,{.1f,.1f},dark);
+        check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},"The presence passes of the dark rigs did not run on the real engine");
+        for(int rig=0;rig<2;++rig) {
+            const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+            const std::string row=step?step->result.toStdString():std::string("no step");
+            const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)],share=r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)];
+            const float excess=r.power[size_t(rig)].excessBeforeDb[powerPresence];
+            const std::string seen="PRESENCE "+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+", above 3 kHz "+db(r.highShareBeforeDb[size_t(rig)])+" > "+db(r.highShareAfterDb[size_t(rig)])+" dB, bite "+db(excess)+" dB from the target ["+row+"]";
+            check(step && step->changed && step->result.contains("PRESENCE"),"The dark rig's presence row does not show a PRESENCE move: "+seen);
+            check(excess<0,"The dark rig did not play under the bite target: "+seen);
+            check(knob>1e-6f,"PRESENCE of the dark rig was not raised on the real engine: "+seen);
+            // RESONANCE lowered alone raises the share by about 0.7 dB (phase 47): a raised PRESENCE must give more.
+            check(share>1.f,"PRESENCE was raised but the rig's top end did not rise by more than 1 dB: "+seen);
+            measured+=std::string(measured.empty()?"":" | ")+(style==Style::metal?"metal":"rock")+" rig "+std::to_string(rig+1)+": "+seen;
+        }
+    }
+    std::cout<<"MEASURE auto set rig pass engine presence raised: "<<measured<<'\n';
+    std::cout<<"PASS auto set rig pass engine presence raised: dark Dual Blend rigs under the bite target, PRESENCE raised through processBlock, the rig's measured top end rising with it\n";
+}
+// Phase 49: Auto Set run again and again on the same session, on the real engine (docs/AUTO_SET_PHASE49.md).
+void rigPassEngineRepeatedRuns() {
+    using P=Controller::Phase;
+    constexpr int model=2;
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    // Both rigs: PRESENCE at the given fraction; treble, bassMiddle>=0: those knobs too.
+    const auto knobs=[=](float,float presence,float treble,float bassMiddle) {
+        return [=](ChimeraProcessor& p) {
+            for(int rig=0;rig<2;++rig) {
+                const int channel=p.selectedAmpChannel(rig),context=spectralforge::ampNativeContext(1,rig);
+                const auto set=[&](int control,float fraction){p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,control,channel))->setValueNotifyingHost(fraction);};
+                const auto roles=roleControls(model,channel,0);
+                set(powerControl(model,channel,powerPresence),presence);
+                if(treble>=0)set(roles[ampTreble],treble);
+                if(bassMiddle>=0){set(roles[ampBass],bassMiddle);set(roles[ampMiddle],bassMiddle);}
+            }
+        };
+    };
+    struct Case {const char* name;Style style;float gain,presence,treble,bassMiddle;};
+    for(const Case& k:{Case{"dark metal",Style::metal,.1f,0.f,0.f,1.f},Case{"dark rock",Style::rock,.1f,0.f,0.f,1.f},Case{"bright rock",Style::rock,.3f,1.f,-1.f,-1.f}}) {
+        Controller::Options options{1,false,k.style,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+        options.sync=options.cabIR=options.polarity=false;options.dualPower=true;
+        juce::ValueTree session;
+        constexpr int runs=6;
+        int settledAt=0,direction=0;std::string measured;
+        std::array<float,2> presence{},share{};
+        for(int run=0;run<runs;++run) {
+            const auto first=knobs(k.gain,k.presence,k.treble,k.bassMiddle);
+            // The next run starts on the session the last one left: every parameter is carried over.
+            const auto r=runRigPassEngine(1,0,{0,1},options,{k.gain,k.gain},[&](ChimeraProcessor& p){if(session.isValid())p.parameters().replaceState(session.createCopy());else first(p);},false,
+                                          [&](ChimeraProcessor& p){session=p.parameters().copyState();});
+            const std::string name=std::string(k.name)+", run "+std::to_string(run+1);
+            check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},name+": the run on the real engine did not finish");
+            bool changed=false;
+            for(int rig=0;rig<2;++rig) {
+                const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+                check(step && !step->result.contains("no playing heard"),name+": the presence step did not hear the rig: "+(step?step->result.toStdString():std::string("no step")));
+                const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)];
+                // The session was carried over: this run starts where the last one ended.
+                if(run>0)check(std::abs(r.presenceBefore[size_t(rig)]-presence[size_t(rig)])<1e-6f && std::abs(r.highShareBeforeDb[size_t(rig)]-share[size_t(rig)])<.05f,
+                               name+": the run did not start on the session the last run left (PRESENCE "+db(presence[size_t(rig)])+" > "+db(r.presenceBefore[size_t(rig)])+", above 3 kHz "+db(share[size_t(rig)])+" > "+db(r.highShareBeforeDb[size_t(rig)])+" dB)");
+                // No run takes back what an earlier one did.
+                if(std::abs(knob)>1e-6f) {
+                    const int sign=knob>0?1:-1;
+                    check(direction==0 || direction==sign,name+": PRESENCE was moved back ("+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+"): "+step->result.toStdString());
+                    direction=sign;
+                }
+                if(!step->changed)check(std::abs(knob)<1e-6f && std::abs(r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)])<.05f,name+": a kept rig moved: "+step->result.toStdString());
+                changed=changed || step->changed;
+                presence[size_t(rig)]=r.presenceAfter[size_t(rig)];share[size_t(rig)]=r.highShareAfterDb[size_t(rig)];
+            }
+            // Once a run keeps both rigs, every later run keeps them too.
+            check(settledAt==0 || !changed,name+": a rig was set again after run "+std::to_string(settledAt)+" had kept both");
+            if(!changed && settledAt==0)settledAt=run+1;
+            if(settledAt==0 || settledAt==run+1)measured+=std::string(run?", ":"")+"run "+std::to_string(run+1)+" PRESENCE "+db(presence[0])+"/"+db(presence[1])+(changed?"":" (kept)");
+        }
+        check(settledAt>0 && settledAt<runs,std::string(k.name)+": the rigs were still being set after "+std::to_string(runs-1)+" runs: "+measured);
+        // The rigs have the same head, knobs and cabinet: they end on the same PRESENCE, whichever run set each.
+        check(std::abs(presence[0]-presence[1])<1e-6f,std::string(k.name)+": two identical rigs ended on different PRESENCE: "+measured);
+        std::cout<<"MEASURE auto set rig pass engine repeated runs, "<<k.name<<" (PRESENCE rig 1/rig 2): "<<measured<<"; above 3 kHz "<<db(share[0])<<"/"<<db(share[1])<<" dB\n";
+    }
+    std::cout<<"PASS auto set rig pass engine repeated runs: six runs on one session through processBlock; PRESENCE never moved back, both rigs kept from some run on and by every run after, identical rigs ending alike\n";
 }

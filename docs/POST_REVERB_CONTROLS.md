@@ -2,9 +2,9 @@
 
 The POST reverb had three controls: SIZE, DAMPING and MIX. This adds five to
 the reverb of every POST slot. This change is the engine, the parameters and
-their tests. **The controls are not on the POST page yet**: until the page
-change follows they are reachable from the host's parameter list and
-automation only.
+their tests. The controls are in the reverb's ALL window, as its second row
+(four knobs and the FREEZE switch; a double-click returns a knob to its
+default). The reverb's row on the POST page itself is not changed.
 
 ## The controls
 
@@ -42,8 +42,8 @@ Slots 2 to 4 have the same five under `slot2_`, `slot3_` and `slot4_`.
   Room's gate stays open; the spring's loop is closed (feedback 0.9995) with
   its filter open. Freeze holds only while the reverb is on.
 - **Low cut, tone and width** act on the reverb's sum before it is mixed with
-  the dry sound. Low cut is two one-pole high-passes; tone splits the sum at
-  1.5 kHz with one pole and scales the two parts; width scales half the
+  the dry sound. Low cut is two one-pole high-passes; tone is a high shelf at
+  1.5 kHz of up to 12 dB either way with half of it taken back overall; width scales half the
   difference of the two channels. With one channel, width does nothing.
 
 There is no added latency: only the reverb is delayed.
@@ -84,7 +84,7 @@ bank.
 
 ## Not in this change
 
-- The knobs and the freeze switch on the POST page.
+- The controls on the POST page's own reverb row: they are in the ALL window only.
 - Tempo-synced shapes, the older-digital character, key tracking and shimmer.
 - Auto Set does not set these controls and its Space lock does not cover them.
 - Factory presets do not use them.

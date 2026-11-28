@@ -222,7 +222,7 @@ public:
             }
         } else if(preUsed) clearPre();   // back at no pre-delay: an old line must not be heard when it is raised again
         // The wet sum is shaped only away from the defaults (low cut off, tone flat, width as made).
-        // The tempo shape: its level is followed over 3 ms, so the Gate and the end of Reverse do not click.
+        // The tempo shape: its level is followed over 3 ms, so the Chop and the end of Rewind do not click.
         const int shape=k.shape>reverbShapeOff && k.shape<reverbShapeCount?k.shape:reverbShapeOff;
         const float shapeDepth=juce::jlimit(0.f,1.f,k.shapeDepth),shapePole=spatial_detail::onePole(1./(juce::MathConstants<double>::twoPi*.003),rate);
         // In seconds the pass runs freely at its own length; in bars it follows the tempo and the host's position.

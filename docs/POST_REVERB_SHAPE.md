@@ -10,7 +10,7 @@ those controls.
 
 | Parameter | ID (slot 1) | Choices or range | Default | What it does |
 |---|---|---|---|---|
-| Reverb shape | `reverbshape` | Off, Swell, Reverse, Gate, Wave, Pump | Off | The form the reverb's level follows. |
+| Reverb shape | `reverbshape` | Off, Rise, Rewind, Chop, Tide, Duck | Off | The form the reverb's level follows. |
 | Reverb shape depth | `reverbshapedepth` | 0 to 1 | 1 | 0 leaves the reverb as it is; 1 applies the whole shape. |
 | Reverb shape length | `reverbshapelength` | 1/4, 1/2, 1 bar, 2 bars | 1 bar | One pass of the shape: 1, 2, 4 or 8 quarter notes. |
 
@@ -18,11 +18,11 @@ Slots 2 to 4 have the same three under `slot2_`, `slot3_` and `slot4_`.
 
 | Shape | The reverb's level through one pass |
 |---|---|
-| Swell | rises smoothly from nothing to full |
-| Reverse | rises like a decay played backwards, then cuts |
-| Gate | full for the first half, silent for the second |
-| Wave | one rise and one fall |
-| Pump | ducked at the start, recovering quickly |
+| Rise | rises smoothly from nothing to full |
+| Rewind | rises like a decay played backwards, then cuts |
+| Chop | full for the first half, silent for the second |
+| Tide | one rise and one fall |
+| Duck | ducked at the start, recovering quickly |
 
 Only the reverb is shaped. The dry sound is not touched.
 
@@ -34,7 +34,7 @@ Only the reverb is shaped. The dry sound is not touched.
   the host's time signature and bar offsets are not read.
 - **While the host is stopped, or gives no position**, the shape runs freely
   at the tempo Chimera already uses for its delay, from 20 to 999 BPM.
-- The level is followed over 3 ms, so the Gate and the end of Reverse do not
+- The level is followed over 3 ms, so the Chop and the end of Rewind do not
   click.
 
 ## Compatibility
@@ -61,7 +61,7 @@ double-click returns it to 1) and SHAPE LENGTH (menu). The window is 740 by
   and the shape's both apply, and after Off a new note's reverb is the plain
   one.
 - **`ChimeraSignalOrderTests`** (one new case): the bank of 12 parameters at
-  version 44; the Gate through the processor; a switched-off slot's shape
+  version 44; the Chop through the processor; a switched-off slot's shape
   changes nothing, bit for bit; saving, loading and an older project.
 - **`ChimeraUITests`**: the two menus list their choices and write their
   parameters, the knob writes its, and no control of the window overlaps
@@ -73,12 +73,12 @@ bar, against the same reverb without a shape:
 
 | Shape | Where in the bar | Reverb level |
 |---|---|---|
-| Gate | open half | -0.0 dB |
-| Gate | closed half | below -270 dB |
-| Swell | start / middle / end | -15 to -16 dB / -6.1 dB / -0.1 dB |
+| Chop | open half | -0.0 dB |
+| Chop | closed half | below -270 dB |
+| Rise | start / middle / end | -15 to -16 dB / -6.1 dB / -0.1 dB |
 
 The five models measured (the two rooms, the spring, Hall Prime and Void
-Space) agree to the figures shown. Through the whole processor the Gate
+Space) agree to the figures shown. Through the whole processor the Chop
 leaves the open half within -102 dB of the plain reverb and takes the reverb
 out of the closed half.
 
@@ -97,4 +97,4 @@ the two slot checks of `SignalOrderTests.cpp` know version 44.
 No listening test: every measurement is on synthetic input. Not run in a
 host: the lock to the host's position is tested with a position handed to
 the processor by the test, not with a real transport, loop or tempo change.
-The shape names are working names. Not run on macOS or Windows yet.
+Not run on macOS or Windows yet.

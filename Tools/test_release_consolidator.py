@@ -184,6 +184,8 @@ class Consolidation(unittest.TestCase):
         self.assertEqual(self.status(result, 'E1.DSP'), 'BLOCKED')
         self.assertEqual(self.status(result, 'E1.STATE_UI'), 'BLOCKED')
         self.assertEqual(self.status(result, 'E1.LEGACY'), 'PASS')
+        self.assertEqual(result['counts']['checks']['pass'], 19)
+        self.assertEqual(result['counts']['checks']['blocked'], 109)
 
     def test_current_e1_coverage_totals_remain_exact(self):
         current = (self.folder('windows') / 'raw/LastTest.log').read_text(encoding='utf-8')
