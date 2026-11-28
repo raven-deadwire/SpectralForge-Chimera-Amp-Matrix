@@ -232,7 +232,7 @@ public:
         // In seconds the pass runs freely at its own length; in bars it follows the tempo and the host's position.
         const double shapeStep=k.shapeInSeconds?1./(double(juce::jlimit(reverbShapeMinSeconds,reverbShapeMaxSeconds,k.shapeSeconds))*rate):juce::jlimit(20.,999.,k.tempo)/60./rate/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];
         const float shapeCurve=juce::jlimit(-1.f,1.f,k.shapeCurve),shapeMorph=shape!=reverbShapeOff?juce::jlimit(-1.f,1.f,k.shapeMorph):0.f;
-        if(shape!=reverbShapeOff && !k.shapeInSeconds && std::isfinite(k.ppq) && k.ppq>=0.)shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays
+        if(shape!=reverbShapeOff && !k.shapeInSeconds && std::isfinite(k.ppq))shapePhase=k.ppq/reverbShapeBeats[juce::jlimit(0,reverbShapeLengthCount-1,k.shapeLength)];   // locked to the host's bar while it plays, before the start of the song as well: the phase is wrapped where it is used
         shapeRunning=on && shape!=reverbShapeOff;
         const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
         if(!shaping){shapeLevel=1.f;shapeValue=1.f;shapePhase=0;}
