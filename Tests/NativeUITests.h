@@ -332,7 +332,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                  choose(spectralforge::reverbShapeChop,.5f,0);require(std::abs(display->shownLevel(.75)-.5f)<1e-4f && display->shownLength()==0,"The reverb shape display does not draw the depth");
                  choose(spectralforge::reverbShapeRise,.8f,spectralforge::reverbShapeDefaultLength);if(scale==0)snapshot(panel,directory,"Native-Post-Reverb-ALL-Shape");
                  choose(spectralforge::reverbShapeOff,.62f,spectralforge::reverbShapeDefaultLength);require(display->shownShape()==spectralforge::reverbShapeOff && display->shownLevel(.75)==1.f,"The reverb shape display does not show Off as level");
-                 require(panel.getLocalBounds().contains(display->getBounds()) && display->plot().getWidth()>200.f && display->plot().getHeight()>80.f,"The reverb shape display is outside the panel or too small");
+                 require(panel.getLocalBounds().contains(display->getBounds()) && display->plot().getWidth()>150.f && display->plot().getHeight()>80.f,"The reverb shape display is outside the panel or too small");
                  for(auto* view:controls)require(!view->getBounds().intersects(display->getBounds()),"The reverb shape display covers a control");}
                 for(size_t a=0;a<controls.size();++a)for(size_t b=a+1;b<controls.size();++b)require(!controls[a]->getBounds().intersects(controls[b]->getBounds()),"Reverb ALL controls overlap");
                 // Every row is on screen: no control reaches past the panel, and the window shows the whole panel without scrolling.

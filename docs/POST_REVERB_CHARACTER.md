@@ -39,9 +39,11 @@ Slots 2 to 4 have the same three under `slot2_`, `slot3_` and `slot4_`.
 
 ## The ALL window
 
-CONVERTER (menu), DIRT and DRIFT (knobs; a double-click returns them to 0)
-follow DECAY, SIZE, DAMPING and MIX in the first row, which now holds seven
-controls. The window keeps its size.
+CONVERTER (menu) sits with the shape's menus in the third row, before
+SECONDS; DIRT and DRIFT (knobs; a double-click returns them to 0) follow
+DEPTH, CURVE and MORPH in the fourth. Both rows now hold five controls and
+the shape's display beside them is narrower. The first row stays DECAY,
+SIZE, DAMPING and MIX. The window keeps its size.
 
 ## Verification (Linux)
 
