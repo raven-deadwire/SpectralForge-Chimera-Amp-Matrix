@@ -111,11 +111,30 @@ inline void appendPostReverbShimmerParameters(juce::AudioProcessorValueTreeState
         layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbShimmerID(slot, 1), v}, postSlotName(slot, reverbShimmerNames[1]), reverbShimmerIntervalChoices(), 0));
     }
 }
+// Key (docs/POST_REVERB_KEY.md): amount, root, scale, tune and ring for every slot's reverb, appended at version
+// hint 49. At amount 0, the default, the reverb renders as it did.
+inline constexpr int postReverbKeyParameterVersion = 49, postReverbKeyPerSlot = 5;
+inline constexpr int postReverbKeyParameterCount = postReverbKeyPerSlot * postSlotCount;
+inline constexpr std::array<const char*, postReverbKeyPerSlot> reverbKeyIDs{{"reverbkey", "reverbkeyroot", "reverbkeyscale", "reverbkeytune", "reverbkeyring"}};
+inline constexpr std::array<const char*, postReverbKeyPerSlot> reverbKeyNames{{"Reverb key", "Reverb key root", "Reverb key scale", "Reverb key tune", "Reverb key ring"}};
+inline juce::StringArray reverbKeyRootChoices() { return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"}; }
+inline juce::StringArray reverbKeyScaleChoices() { return {"Major", "Minor", "Dorian", "Minor pentatonic", "Major pentatonic"}; }
+inline juce::String reverbKeyID(int slot, int control) { return postSlotID(slot, reverbKeyIDs[size_t(control)]); }
+inline void appendPostReverbKeyParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    constexpr int v = postReverbKeyParameterVersion;
+    for (int slot = 0; slot < postSlotCount; ++slot) {
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbKeyID(slot, 0), v}, postSlotName(slot, reverbKeyNames[0]), juce::NormalisableRange<float>{0.f, 1.f}, 0.f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbKeyID(slot, 1), v}, postSlotName(slot, reverbKeyNames[1]), reverbKeyRootChoices(), 0));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{reverbKeyID(slot, 2), v}, postSlotName(slot, reverbKeyNames[2]), reverbKeyScaleChoices(), 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbKeyID(slot, 3), v}, postSlotName(slot, reverbKeyNames[3]), juce::NormalisableRange<float>{-50.f, 50.f}, 0.f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{reverbKeyID(slot, 4), v}, postSlotName(slot, reverbKeyNames[4]), juce::NormalisableRange<float>{0.f, 1.f}, .5f));
+    }
+}
 // Every reverb bank appended after the shape's. The parameter-count checks of the tests count from the end
 // through this, so a later reverb bank is added here and nowhere else.
-inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount + postReverbShapeMoreParameterCount + postReverbCharacterParameterCount + postReverbShimmerParameterCount;
+inline constexpr int postReverbAfterShapeParameterCount = postReverbDecayParameterCount + postReverbShapeMoreParameterCount + postReverbCharacterParameterCount + postReverbShimmerParameterCount + postReverbKeyParameterCount;
 // The reverb banks appended to every slot after the slots' own banks.
-inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion || version == postReverbShapeMoreParameterVersion || version == postReverbCharacterParameterVersion || version == postReverbShimmerParameterVersion; }
+inline constexpr bool isPostReverbAddedVersion(int version) noexcept { return version == postReverbControlsParameterVersion || version == postReverbShapeParameterVersion || version == postReverbDecayParameterVersion || version == postReverbShapeMoreParameterVersion || version == postReverbCharacterParameterVersion || version == postReverbShimmerParameterVersion || version == postReverbKeyParameterVersion; }
 
 struct PostReverbControlParameters {
     std::array<std::atomic<float>*, postReverbControlsPerSlot> values{};
@@ -124,6 +143,7 @@ struct PostReverbControlParameters {
     std::array<std::atomic<float>*, postReverbShapeMorePerSlot> more{};
     std::array<std::atomic<float>*, postReverbCharacterPerSlot> character{};
     std::array<std::atomic<float>*, postReverbShimmerPerSlot> shimmer{};
+    std::array<std::atomic<float>*, postReverbKeyPerSlot> key{};
     void bind(juce::AudioProcessorValueTreeState& state, int slot) {
         for (int i = 0; i < postReverbControlsPerSlot; ++i) values[size_t(i)] = state.getRawParameterValue(reverbControlID(slot, i));
         for (int i = 0; i < postReverbShapePerSlot; ++i) shape[size_t(i)] = state.getRawParameterValue(reverbShapeID(slot, i));
@@ -131,6 +151,7 @@ struct PostReverbControlParameters {
         for (int i = 0; i < postReverbShapeMorePerSlot; ++i) more[size_t(i)] = state.getRawParameterValue(reverbShapeMoreID(slot, i));
         for (int i = 0; i < postReverbCharacterPerSlot; ++i) character[size_t(i)] = state.getRawParameterValue(reverbCharacterID(slot, i));
         for (int i = 0; i < postReverbShimmerPerSlot; ++i) shimmer[size_t(i)] = state.getRawParameterValue(reverbShimmerID(slot, i));
+        for (int i = 0; i < postReverbKeyPerSlot; ++i) key[size_t(i)] = state.getRawParameterValue(reverbKeyID(slot, i));
     }
     // tempo and ppq are the session's, set by the caller.
     ReverbControls read() const noexcept {
@@ -141,6 +162,7 @@ struct PostReverbControlParameters {
         k.shapeInSeconds = more[0]->load() > .5f;k.shapeSeconds = more[1]->load();k.shapeCurve = more[2]->load();k.shapeMorph = more[3]->load();
         k.converter = juce::roundToInt(character[0]->load());k.dirt = character[1]->load();k.drift = character[2]->load();
         k.shimmer = shimmer[0]->load();k.shimmerInterval = juce::roundToInt(shimmer[1]->load());
+        k.keyAmount = key[0]->load();k.keyRoot = juce::roundToInt(key[1]->load());k.keyScale = juce::roundToInt(key[2]->load());k.keyTuneCents = key[3]->load();k.keyRing = key[4]->load();
         return k;
     }
 };

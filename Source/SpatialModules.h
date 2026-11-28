@@ -178,6 +178,23 @@ class SpaceModule {
     std::array<std::array<float,2>,2> cutState{},toneState{};
     // Character (docs/POST_REVERB_CHARACTER.md): the converter's two low-passes and its held sample, the drift's delay line.
     std::array<std::array<float,3>,2> converterState{};double converterPhase{},driftPhase{};
+    // Key (docs/POST_REVERB_KEY.md): one two-pole resonator for each note of the key in range, on the reverb.
+    struct KeyNote {float b0{},a1{},a2{};};std::array<KeyNote,reverbKeyMaxNotes> keyNotes{};int keyCount{};float keyGain{1.f};
+    std::array<std::array<std::array<float,4>,reverbKeyMaxNotes>,2> keyState{};juce::SmoothedValue<float> keyAmount;
+    int keySetRoot{-1},keySetScale{-1};float keySetTune{1e9f},keySetRing{-1.f};bool keyUsed{};
+    void clearKey() noexcept {keyState={};keyUsed=false;}
+    void setKey(int root,int scale,float cents,float ring) noexcept {
+        if(root==keySetRoot && scale==keySetScale && cents==keySetTune && ring==keySetRing)return;
+        keySetRoot=root;keySetScale=scale;keySetTune=cents;keySetRing=ring;keyCount=0;double passed=0;const double q=reverbKeyQ(ring);
+        for(int note=reverbKeyLowestNote;note<=reverbKeyHighestNote && keyCount<reverbKeyMaxNotes;++note) {
+            if(!reverbKeyHolds(scale,root,note))continue;
+            const double hz=reverbKeyHz(note,cents);if(hz>=rate*.45)break;
+            const double width=hz/q,r=std::exp(-juce::MathConstants<double>::pi*width/rate),w=juce::MathConstants<double>::twoPi*hz/rate;
+            keyNotes[(size_t)keyCount++]={float(.5*(1.-r*r)),float(-2.*r*std::cos(w)),float(r*r)};passed+=.5*juce::MathConstants<double>::pi*width;
+        }
+        // The resonators together pass this share of a flat reverb's power: the gain gives it back.
+        keyGain=passed>0.?float(std::sqrt(juce::jmin(400.,.5*rate/passed))):1.f;
+    }
     std::array<std::vector<float>,2> driftLine;size_t driftWrite{};juce::SmoothedValue<float> driftDepth;bool driftUsed{};
     double shapePhase{};float shapeLevel{1.f},shapeValue{1.f};bool shapeRunning{};
     // Shimmer (docs/POST_REVERB_SHIMMER.md): a two-tap pitch shifter on what the reverbs hear. Its output is
@@ -186,7 +203,7 @@ class SpaceModule {
     juce::SmoothedValue<float> shimmerAmount;bool shimmerUsed{};
     void clearShimmer() noexcept {for(auto& l:shimmerLine)std::fill(l.begin(),l.end(),0.f);shimmerWrite=0;shimmerPhase=0;shimmerState={};shimmerUsed=false;}
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
-    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;converterState={};converterPhase=0;driftPhase=0;for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}
+    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;keyState={};keyUsed=false;converterState={};converterPhase=0;driftPhase=0;for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
 public:
     // juce::Reverb snaps its parameter smoothers to the last target on prepare.
@@ -195,13 +212,13 @@ public:
     void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].setParameters({});rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);
         feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:shimmerLine)l.assign(size_t(rate*reverbShimmerGrainMs*.001)+8,0.f);shimmerAmount.reset(rate,.05);shimmerAmount.setCurrentAndTargetValue(0);
         for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
-        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth})v->reset(rate,.05);driftDepth.setCurrentAndTargetValue(0);
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth,&keyAmount})v->reset(rate,.05);driftDepth.setCurrentAndTargetValue(0);keyAmount.setCurrentAndTargetValue(0);keySetRoot=-1;
         for(auto& l:driftLine)l.assign(size_t(rate*.001*(reverbDriftBaseMs+reverbDriftSwingMs))+8,0.f);
         preSamples.setCurrentAndTargetValue(0);hold.setCurrentAndTargetValue(0);toneAmount.setCurrentAndTargetValue(0);widthGain.setCurrentAndTargetValue(1);
         for(auto& channel:networks){channel[0].prepare(rate,.06);channel[1].prepare(rate,.12);channel[2].prepare(rate,.04);}predelay.setMaximumDelayInSamples(int(rate*.05));predelay.prepare(s);
         morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
     void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();clearShimmer();shimmerAmount.setCurrentAndTargetValue(shimmerAmount.getTargetValue());
-        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth})v->setCurrentAndTargetValue(v->getTargetValue());}
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth,&keyAmount})v->setCurrentAndTargetValue(v->getTargetValue());}
     // Where the tempo shape is in its pass, 0 to 1, for the display; below 0 while no shape runs.
     float shapePosition() const noexcept {return shapeRunning?float(shapePhase):-1.f;}
     void process(juce::AudioBuffer<float>& b,bool on,int model,float size,float damping,float amount,const ReverbControls& k={}) {
@@ -277,7 +294,12 @@ public:
         if(drifting)driftUsed=true;else if(driftUsed){for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}   // an old line must not be heard when the drift comes back
         const float converterPole=spatial_detail::onePole(juce::jmin(reverbConverterCutHz[converter],rate*.45),rate);
         const double converterStep=juce::jmin(1.,reverbConverterRateHz[converter]/rate);
-        const bool shaped=converter!=reverbConverterOff || dirt>0.f || drifting || shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
+        // KEY: the reverb through the key's resonators, crossed with the reverb as it is by the amount.
+        keyAmount.setTargetValue(juce::jlimit(0.f,1.f,k.keyAmount));
+        const bool keyed=keyAmount.isSmoothing() || keyAmount.getTargetValue()>0.f;
+        if(keyed){keyUsed=true;setKey(juce::jlimit(0,11,k.keyRoot),juce::jlimit(0,reverbKeyScaleCount-1,k.keyScale),juce::jlimit(-50.f,50.f,k.keyTuneCents),juce::jlimit(0.f,1.f,k.keyRing));}
+        else if(keyUsed)clearKey();
+        const bool shaped=keyed || converter!=reverbConverterOff || dirt>0.f || drifting || shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
         if(!shaped && shapeUsed)clearShape();
         if(shaped)shapeUsed=true;
         // TONE: a high shelf at 1.5 kHz of up to 12 dB either way with half of it taken back overall, so the
@@ -312,7 +334,7 @@ public:
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();
             std::array<float,2> wetSum{};
             const float widthNow=shaped?widthGain.getNextValue():1.f;
-            const float driftNow=drifting?driftDepth.getNextValue():0.f;
+            const float driftNow=drifting?driftDepth.getNextValue():0.f,keyNow=keyed?keyAmount.getNextValue():0.f;
             bool converterTick=false;if(converter!=reverbConverterOff){converterPhase+=converterStep;if(converterPhase>=1.){converterPhase-=1.;converterTick=true;}}
             if(shaping){shapeValue=reverbShapeCurved(reverbShapeLevel(shape,shapePhase),shapeCurve);const float target=1.f-shapeDepth*(1.f-shapeValue);shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
             const bool extended=weights[3]>0.f||weights[4]>0.f||weights[5]>0.f;
@@ -342,6 +364,12 @@ public:
             if(cutting)for(auto& z:cutState[(size_t)c]){z+=cutPole*(sum-z);sum-=z;}
             auto& z=toneState[(size_t)c];const float shelved=b0*sum+z[0];z[0]=b1*sum-a1*shelved+z[1];z[1]=b2*sum-a2*shelved;
             float voiced=shelved;
+            if(keyed) {
+                float rung=0;auto& states=keyState[(size_t)c];
+                for(int i=0;i<keyCount;++i){const auto& note=keyNotes[(size_t)i];auto& s=states[(size_t)i];   // s: x1, x2, y1, y2
+                    const float y=note.b0*(voiced-s[1])-note.a1*s[2]-note.a2*s[3];s[1]=s[0];s[0]=voiced;s[3]=s[2];s[2]=y;rung+=y;}
+                voiced+=keyNow*(rung*keyGain-voiced);
+            }
             if(converter!=reverbConverterOff){auto& s=converterState[(size_t)c];s[0]+=converterPole*(voiced-s[0]);if(converterTick)s[2]=s[0];s[1]+=converterPole*(s[2]-s[1]);voiced=s[1];}
             if(dirt>0.f)voiced=std::round(voiced/dirtStep)*dirtStep;
             if(drifting) {

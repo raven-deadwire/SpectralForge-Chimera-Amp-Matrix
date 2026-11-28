@@ -34,9 +34,24 @@ struct ReverbControls {
     // Shimmer (docs/POST_REVERB_SHIMMER.md): what the reverb hears gains a copy of itself moved up or down in pitch.
     float shimmer{0.f};      // 0 = none .. 1
     int shimmerInterval{0};  // index into reverbShimmerRatios
+    // Key (docs/POST_REVERB_KEY.md): the reverb rings on the notes of a key.
+    float keyAmount{0.f};    // 0 = none .. 1: only the resonators are heard
+    int keyRoot{0};          // 0 = C .. 11 = B
+    int keyScale{0};         // index into reverbKeyScales
+    float keyTuneCents{0.f}; // -50 .. +50
+    float keyRing{.5f};      // 0 = broad .. 1 = narrow, ringing long
     float decaySeconds{0.f}; // below reverbDecayMinSeconds: SIZE sets the decay; from there up: the time to fall 60 dB
 };
 enum ReverbShape {reverbShapeOff=0,reverbShapeRise,reverbShapeRewind,reverbShapeChop,reverbShapeTide,reverbShapeDuck,reverbShapeCount};
+// The scales as semitones over the root, ended by -1; and the range of notes the resonators cover (A1 to A6).
+inline constexpr int reverbKeyScaleCount=5,reverbKeyLowestNote=33,reverbKeyHighestNote=93,reverbKeyMaxNotes=40;
+inline constexpr int reverbKeyScales[reverbKeyScaleCount][8]{{0,2,4,5,7,9,11,-1},{0,2,3,5,7,8,10,-1},{0,2,3,5,7,9,10,-1},{0,3,5,7,10,-1,-1,-1},{0,2,4,7,9,-1,-1,-1}};
+inline bool reverbKeyHolds(int scale,int root,int note) noexcept {
+    const int degree=((note-root)%12+12)%12;for(const int step:reverbKeyScales[scale<0?0:scale>=reverbKeyScaleCount?reverbKeyScaleCount-1:scale])if(step==degree)return true;return false;
+}
+inline double reverbKeyHz(int note,float cents) noexcept {return 440.*std::pow(2.,(double(note)-69.+double(cents)/100.)/12.);}
+// RING: each resonator's width, from a quarter of its frequency down to a 250th.
+inline double reverbKeyQ(float ring) noexcept {return 4.*std::pow(62.5,double(ring<0.f?0.f:ring>1.f?1.f:ring));}
 inline constexpr int reverbShimmerIntervalCount=3;
 inline constexpr double reverbShimmerRatios[reverbShimmerIntervalCount]{2.,1.5,.5};   // an octave up, a fifth up, an octave down
 // The shifter's grain, the share of its output fed back into it at full (so octaves stack), and its low-pass.
