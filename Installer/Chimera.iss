@@ -12,6 +12,17 @@
   #error PackageVersion must come from the validated source/payload contract
 #endif
 #define ProductName "SpectralForge Chimera"
+#ifdef AaxInputDir
+  #ifndef SignRelease
+    #error AAX is only supported by the signed installer path
+  #endif
+  #ifdef BuildId
+    #error AAX must not enter the legacy update feed
+  #endif
+  #define AaxBundle "SpectralForge Chimera.aaxplugin"
+  #define AaxDest "{commoncf64}\Avid\Audio\Plug-Ins\SpectralForge Chimera.aaxplugin"
+#endif
+#define InstalledAaxBundle "{commoncf64}\Avid\Audio\Plug-Ins\SpectralForge Chimera.aaxplugin"
 ; Optional OBS Studio filter (GPL module, Issue #131). Release packaging always
 ; stages it; Setup only asks when the staged payload contains it.
 #if FileExists(StageDir + "\OBS\chimera-obs\bin\64bit\chimera-obs.dll")
@@ -23,7 +34,11 @@
   #define OutputName "SpectralForge-Chimera-update-" + BuildId + "-win64-Setup"
 #else
   #define ProductRelease PackageVersion
-  #define OutputName "SpectralForge-Chimera-" + PackageVersion + "-win64-Setup"
+  #ifdef AaxInputDir
+    #define OutputName "SpectralForge-Chimera-" + PackageVersion + "-win64-AAX-Setup"
+  #else
+    #define OutputName "SpectralForge-Chimera-" + PackageVersion + "-win64-Setup"
+  #endif
 #endif
 
 [Setup]
@@ -45,7 +60,11 @@ DisableWelcomePage=no
 DisableProgramGroupPage=yes
 DisableDirPage=no
 PrivilegesRequired=admin
+#ifdef AaxInputDir
+ArchitecturesAllowed=x64os
+#else
 ArchitecturesAllowed=x64compatible
+#endif
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#OutputPath}
@@ -96,6 +115,11 @@ Name: "obsfilter"; Description: "{cm:ObsFilterTask}"; GroupDescription: "{cm:Obs
 #endif
 
 [Files]
+#ifdef AaxInputDir
+Source: "{#AaxInputDir}\{#AaxBundle}\Contents\x64\{#AaxBundle}"; DestDir: "{#AaxDest}\Contents\x64"; Flags: onlyifdoesntexist
+Source: "{#AaxInputDir}\{#AaxBundle}\Plugin.ico"; DestDir: "{#AaxDest}"; Flags: onlyifdoesntexist
+Source: "{#AaxInputDir}\{#AaxBundle}\desktop.ini"; DestDir: "{#AaxDest}"; Flags: onlyifdoesntexist
+#endif
 Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{code:GetVst3Dir}\SpectralForge Chimera.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\Standalone\SpectralForge Chimera.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
@@ -167,6 +191,14 @@ english.InfoBeforeLabel=This is a free beta. After the expiry date below, Chimer
 korean.InfoBeforeLabel=무료 베타 버전입니다. 아래 만료일이 지나면 그 뒤에 연 Chimera는 소리가 나지 않으니 업데이트를 설치하세요. 프로젝트와 프리셋은 계속 열고 저장할 수 있습니다.
 
 [CustomMessages]
+#ifdef AaxInputDir
+english.AaxCloseHost=Close Pro Tools before continuing. If it is closed, check that Windows can report running processes (WMI).
+korean.AaxCloseHost=계속하기 전에 Pro Tools를 종료하세요. 이미 종료했다면 Windows WMI에서 실행 중인 프로세스를 조회할 수 있는지 확인하세요.
+english.AaxExisting=A Chimera AAX bundle is already present. Back it up and remove it from the Avid plug-in directory before installing.
+korean.AaxExisting=Chimera AAX 번들이 이미 있습니다. 설치 전에 해당 번들을 백업하고 Avid 플러그인 폴더에서 제거하세요.
+english.AaxUnsafePath=The Avid plug-in path is linked or inaccessible. Setup did not install AAX.
+korean.AaxUnsafePath=Avid 플러그인 경로가 링크이거나 접근할 수 없습니다. AAX를 설치하지 않았습니다.
+#endif
 english.FullInstall=Recommended: plug-in, standalone app and reference tools
 korean.FullInstall=권장: 플러그인, 단독 실행 앱, 레퍼런스 도구 모두 설치
 english.CustomInstall=Choose components
@@ -235,7 +267,7 @@ end;
 // Only a completed query may authorize mutation. COM activation, connection,
 // query and Count/enumeration failures must all remain unknown (fail closed).
 // 0 = unknown, 1 = stopped, 2 = running. No runtime bypass is provided.
-function ObsStudioState: Integer;
+function NamedProcessState(ProcessName: String): Integer;
 var
   Locator, Service, Processes: Variant;
 begin
@@ -243,11 +275,16 @@ begin
   try
     Locator := CreateOleObject('WbemScripting.SWbemLocator');
     Service := Locator.ConnectServer('.', 'root\CIMV2');
-    Processes := Service.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''obs64.exe''');
+    Processes := Service.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''' + ProcessName + '''');
     if Processes.Count > 0 then Result := 2 else Result := 1;
   except
-    Log('OBS filter: process query failed; mutation blocked: ' + GetExceptionMessage);
+    Log(ProcessName + ': process query failed; mutation blocked: ' + GetExceptionMessage);
   end;
+end;
+
+function ObsStudioState: Integer;
+begin
+  Result := NamedProcessState('obs64.exe');
 end;
 
 function ObsFilterFilesPresent: Boolean;
@@ -330,6 +367,23 @@ var
   ObsState: Integer;
 begin
   Result := '';
+#ifdef AaxInputDir
+  if NamedProcessState('ProTools.exe') <> 1 then begin
+    Result := CustomMessage('AaxCloseHost');
+    Exit;
+  end;
+  Folder := ExpandConstant('{#AaxDest}');
+  // Initial qualification is deliberately clean-install only: do not take
+  // ownership of a previous development, manually installed or altered bundle.
+  if (DirExists(Folder) or FileExists(Folder)) then begin
+    Result := CustomMessage('AaxExisting');
+    Exit;
+  end;
+  if not LockDocumentParents(Folder, True, DocumentParentLocks) then begin
+    Result := CustomMessage('AaxUnsafePath');
+    Exit;
+  end;
+#endif
   if ObsFilterNeedsGuard then begin
     ObsState := ObsStudioState;
     if ObsState <> 1 then begin
@@ -367,6 +421,15 @@ function InitializeUninstall: Boolean;
 var
   ObsState: Integer;
 begin
+#ifdef AaxInputDir
+  if DirExists(ExpandConstant('{#InstalledAaxBundle}')) and
+     (NamedProcessState('ProTools.exe') <> 1) then begin
+    if not UninstallSilent then MsgBox(CustomMessage('AaxCloseHost'), mbError, MB_OK);
+    Log('AAX: removal blocked; Pro Tools is running or process state is unknown.');
+    Result := False;
+    Exit;
+  end;
+#endif
   if ObsFilterFilesPresent then begin
     ObsState := ObsStudioState;
     if ObsState <> 1 then begin

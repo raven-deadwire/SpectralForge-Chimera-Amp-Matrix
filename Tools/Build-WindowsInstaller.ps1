@@ -4,12 +4,19 @@ param(
     [string]$BuildId = "",
     [switch]$Sign,
     [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT,
-    [string]$ExpectedPublisher = "RavenForge Luthier Intelligence"
+    [string]$ExpectedPublisher = "RavenForge Luthier Intelligence",
+    [string]$SignedAaxInput = "",
+    [string]$AaxReceiptSha256 = ""
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 if ($Sign -and $CertificateThumbprint -notmatch '^[0-9A-Fa-f]{40}$') {
     throw "A verified public code-signing certificate is required for a signed release."
+}
+if ($SignedAaxInput -or $AaxReceiptSha256) {
+    if (!$Sign -or !$SignedAaxInput -or $AaxReceiptSha256 -cnotmatch '^[0-9a-f]{64}$' -or $BuildId) {
+        throw "AAX installer requires -Sign, -SignedAaxInput, and -AaxReceiptSha256, and cannot target the legacy update feed."
+    }
 }
 $versionTool = Join-Path $PSScriptRoot "chimera_version.py"
 $identityJson = & python $versionTool
@@ -59,42 +66,66 @@ if ($BuildId) {
     $compilerArguments += "/DBuildId=$BuildId"
     $outputName = "SpectralForge-Chimera-update-$BuildId-win64-Setup.exe"
 }
-if ($Sign) {
-    $signScript = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1")).Path
-    $binaries = @(Get-ChildItem -LiteralPath $stagePath -File -Recurse | Where-Object { $_.Extension -in ".exe", ".dll", ".vst3" } | Select-Object -ExpandProperty FullName)
-    & $signScript -Path $binaries -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher
-    # Signing changes bytes. Refresh the stage inventory after signatures, before
-    # Inno embeds it, so installed documentation describes the actual payload.
-    $payloadManifest = Join-Path $stagePath "payload-manifest.json"
-    $payload = Get-Content -LiteralPath $payloadManifest -Raw | ConvertFrom-Json
-    foreach ($entry in $payload.files) {
-        $payloadFile = Join-Path $stagePath $entry.path
-        $entry.bytes = (Get-Item -LiteralPath $payloadFile).Length
-        $entry.sha256 = (Get-FileHash -LiteralPath $payloadFile -Algorithm SHA256).Hash.ToLowerInvariant()
+$aaxTemp = $null
+try {
+    if ($SignedAaxInput) {
+        $aaxTemp = (New-Item -ItemType Directory -Path (Join-Path ([IO.Path]::GetTempPath()) ("chimera-aax-" + [guid]::NewGuid()))).FullName
+        $aaxInput = Join-Path $aaxTemp "verified"
+        $aaxTool = Join-Path $PSScriptRoot "aax_windows_release.py"
+        & python $aaxTool $SignedAaxInput $AaxReceiptSha256 --prepare $aaxInput
+        if ($LASTEXITCODE -ne 0) { throw "The independently pinned PACE handoff did not validate." }
+        $aaxBinary = Join-Path $aaxInput "SpectralForge Chimera.aaxplugin/Contents/x64/SpectralForge Chimera.aaxplugin"
+        Assert-ChimeraBinaryVersion $aaxBinary $identity.product_version
+        & (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1") -Path $aaxBinary `
+            -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly
+        $compilerArguments += "/DAaxInputDir=$aaxInput"
+        $outputName = "SpectralForge-Chimera-$($identity.version)-win64-AAX-Setup.exe"
     }
-    $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $payloadManifest -Encoding utf8
-    # Pass only non-secret identity metadata to Inno's signing subprocess.
-    $env:CHIMERA_SIGNING_THUMBPRINT = $CertificateThumbprint
-    $env:CHIMERA_SIGNING_PUBLISHER = $ExpectedPublisher
-    $pwsh = (Get-Process -Id $PID).Path
-    $compilerArguments += "/DSignRelease"
-    $compilerArguments += ('/SChimeraRelease=$q{0}$q -NoProfile -File $q{1}$q -ExpectedPublisher $q{2}$q -Path $f' -f $pwsh, $signScript, $ExpectedPublisher)
+    if ($Sign) {
+        $signScript = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1")).Path
+        $binaries = @(Get-ChildItem -LiteralPath $stagePath -File -Recurse | Where-Object { $_.Extension -in ".exe", ".dll", ".vst3" } | Select-Object -ExpandProperty FullName)
+        & $signScript -Path $binaries -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher
+        # Signing changes bytes. Refresh the stage inventory after signatures, before
+        # Inno embeds it, so installed documentation describes the actual payload.
+        $payloadManifest = Join-Path $stagePath "payload-manifest.json"
+        $payload = Get-Content -LiteralPath $payloadManifest -Raw | ConvertFrom-Json
+        foreach ($entry in $payload.files) {
+            $payloadFile = Join-Path $stagePath $entry.path
+            $entry.bytes = (Get-Item -LiteralPath $payloadFile).Length
+            $entry.sha256 = (Get-FileHash -LiteralPath $payloadFile -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+        $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $payloadManifest -Encoding utf8
+        # Pass only non-secret identity metadata to Inno's signing subprocess.
+        $env:CHIMERA_SIGNING_THUMBPRINT = $CertificateThumbprint
+        $env:CHIMERA_SIGNING_PUBLISHER = $ExpectedPublisher
+        $pwsh = (Get-Process -Id $PID).Path
+        $compilerArguments += "/DSignRelease"
+        $compilerArguments += ('/SChimeraRelease=$q{0}$q -NoProfile -File $q{1}$q -ExpectedPublisher $q{2}$q -Path $f' -f $pwsh, $signScript, $ExpectedPublisher)
+    }
+    # Freeze both reviewed historical identities and this exact staged payload into
+    # Pascal code. Installed JSON is never trusted as file-deletion authority.
+    # Generate after signing, which updates payload-manifest.json bytes above.
+    $documentRules = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "../build/installer-generated/WindowsDocumentRules.iss"))
+    & python (Join-Path $PSScriptRoot "windows_document_rules.py") --stage $stagePath --output $documentRules
+    if ($LASTEXITCODE -ne 0) { throw "Cannot generate verified document cleanup rules." }
+    $compilerArguments += "/DDocumentRulesPath=$documentRules"
+    if ($SignedAaxInput) {
+        & python $aaxTool $aaxInput $AaxReceiptSha256
+        if ($LASTEXITCODE -ne 0) { throw "The signed AAX compiler inputs changed during staging." }
+    }
+    & $iscc @compilerArguments $script
+    if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+    $installer = Join-Path $outputPath $outputName
+    if (!(Test-Path -LiteralPath $installer)) { throw "Installer compiler did not produce the expected Setup executable." }
+    Assert-ChimeraBinaryVersion $installer $identity.product_version
+    if ($Sign) {
+        & $signScript -Path $installer -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly
+    }
+    $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+    "$hash  $([IO.Path]::GetFileName($installer))" | Set-Content -LiteralPath ($installer + ".sha256.txt")
+    Write-Host "Installer SHA256: $hash"
+} finally {
+    if ($aaxTemp -and (Test-Path -LiteralPath $aaxTemp -PathType Container)) {
+        Remove-Item -LiteralPath $aaxTemp -Recurse -Force
+    }
 }
-# Freeze both reviewed historical identities and this exact staged payload into
-# Pascal code. Installed JSON is never trusted as file-deletion authority.
-# Generate after signing, which updates payload-manifest.json bytes above.
-$documentRules = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "../build/installer-generated/WindowsDocumentRules.iss"))
-& python (Join-Path $PSScriptRoot "windows_document_rules.py") --stage $stagePath --output $documentRules
-if ($LASTEXITCODE -ne 0) { throw "Cannot generate verified document cleanup rules." }
-$compilerArguments += "/DDocumentRulesPath=$documentRules"
-& $iscc @compilerArguments $script
-if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
-$installer = Join-Path $outputPath $outputName
-if (!(Test-Path -LiteralPath $installer)) { throw "Installer compiler did not produce the expected Setup executable." }
-Assert-ChimeraBinaryVersion $installer $identity.product_version
-if ($Sign) {
-    & $signScript -Path $installer -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly
-}
-$hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
-"$hash  $([IO.Path]::GetFileName($installer))" | Set-Content -LiteralPath ($installer + ".sha256.txt")
-Write-Host "Installer SHA256: $hash"
