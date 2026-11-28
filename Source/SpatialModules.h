@@ -190,10 +190,12 @@ class SpaceModule {
             if(!reverbKeyHolds(scale,root,note))continue;
             const double hz=reverbKeyHz(note,cents);if(hz>=rate*.45)break;
             const double width=hz/q,r=std::exp(-juce::MathConstants<double>::pi*width/rate),w=juce::MathConstants<double>::twoPi*hz/rate;
-            keyNotes[(size_t)keyCount++]={float(.5*(1.-r*r)),float(-2.*r*std::cos(w)),float(r*r)};passed+=.5*juce::MathConstants<double>::pi*width;
+            keyNotes[(size_t)keyCount++]={float(.5*(1.-r*r)),float(-2.*r*std::cos(w)),float(r*r)};passed+=.5*juce::MathConstants<double>::pi*width/(1.+(hz/reverbKeyColourHz)*(hz/reverbKeyColourHz));
         }
-        // The resonators together pass this share of a flat reverb's power: the gain gives it back.
-        keyGain=passed>0.?float(std::sqrt(juce::jmin(400.,.5*rate/passed))):1.f;
+        // The resonators together pass this share of a reverb's power (see reverbKeyOverlap): the gain gives it back.
+        int toTheOctave=0;for(const int step:reverbKeyScales[scale])toTheOctave+=step>=0;
+        const double whole=reverbKeyColourHz*std::atan(.5*rate/reverbKeyColourHz),share=passed*std::pow(10.,reverbKeyOverlap(toTheOctave,ring)/10.)/whole;
+        keyGain=share>0.?float(std::sqrt(juce::jmin(400.,1./share))):1.f;
     }
     std::array<std::vector<float>,2> driftLine;size_t driftWrite{};juce::SmoothedValue<float> driftDepth;bool driftUsed{};
     double shapePhase{};float shapeLevel{1.f},shapeValue{1.f};bool shapeRunning{};

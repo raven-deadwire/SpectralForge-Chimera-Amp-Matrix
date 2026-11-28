@@ -384,22 +384,25 @@ void key() {
         const auto plain=render(model,hiss,hiss,fixed({}));
         const auto at=[](const Wet& w,double hz){return partial(w,hz,4,7,4);};
         // A major at full: A and C sharp ring, A sharp and C between them do not.
-        ReverbControls k;k.keyAmount=1;k.keyRoot=9;k.keyScale=0;const auto major=render(model,hiss,hiss,fixed(k));
+        ReverbControls k;k.keyAmount=1;k.keyRoot=9;k.keyScale=0;k.keyRing=.8f;const auto major=render(model,hiss,hiss,fixed(k));   // RING at 0.8: a note is well clear of the semitone beside it
         const double in=.5*((at(major,a4)-at(plain,a4))+(at(major,csharp5)-at(plain,csharp5))),out=.5*((at(major,asharp4)-at(plain,asharp4))+(at(major,c5)-at(plain,c5)));
         require(in-out>12,std::string(modelNames[model])+": the key does not ring on its notes and stay quiet between them (on the notes "+num(in,1)+" dB, between them "+num(out,1)+" dB, against the plain reverb)");
-        // A minor instead: C rings now, C sharp does not. A sharp as the root: A sharp rings, A does not.
-        auto minor=k;minor.keyScale=1;const auto m=render(model,hiss,hiss,fixed(minor));require(at(m,c5)-at(m,csharp5)>12,std::string(modelNames[model])+": the scale does not choose the notes");
-        auto moved=k;moved.keyRoot=10;const auto r=render(model,hiss,hiss,fixed(moved));require(at(r,asharp4)-at(r,a4)>12,std::string(modelNames[model])+": the root does not move the key");
+        // From here each level is taken against the plain reverb at the same frequency: a reverb has peaks of its own.
+        const auto over=[&](const Wet& w,double hz){return at(w,hz)-at(plain,hz);};
+        // A minor instead: C rings now, C sharp does not. A sharp as the root: A sharp rings, B does not.
+        auto minor=k;minor.keyScale=1;const auto m=render(model,hiss,hiss,fixed(minor));require(over(m,c5)-over(m,csharp5)>12,std::string(modelNames[model])+": the scale does not choose the notes");
+        auto moved=k;moved.keyRoot=10;const auto r=render(model,hiss,hiss,fixed(moved));const double b4=440*std::pow(2.,2./12.);   // in A major B rings and A sharp does not; in A sharp major it is the other way round
+        require(over(r,asharp4)-over(r,b4)>12 && over(major,b4)-over(major,asharp4)>12,std::string(modelNames[model])+": the root does not move the key");
         // TUNE +50 cents: the A is a quarter tone up.
         auto sharp=k;sharp.keyTuneCents=50;const auto t=render(model,hiss,hiss,fixed(sharp));const double quarter=440*std::pow(2.,50./1200.);
-        require(at(t,quarter)-at(t,a4)>6 && at(major,a4)-at(major,quarter)>6,std::string(modelNames[model])+": TUNE does not move the notes");
+        require(over(t,quarter)-over(t,a4)>6 && over(major,a4)-over(major,quarter)>6,std::string(modelNames[model])+": TUNE does not move the notes");
         // RING: narrow leaves less between the notes than broad.
         auto broad=k;broad.keyRing=0;auto narrow=k;narrow.keyRing=1;const auto b=render(model,hiss,hiss,fixed(broad)),n=render(model,hiss,hiss,fixed(narrow));
-        require((at(n,a4)-at(n,asharp4))>(at(b,a4)-at(b,asharp4))+6,std::string(modelNames[model])+": RING does not narrow the notes");
+        require((over(n,a4)-over(n,asharp4))>(over(b,a4)-over(b,asharp4))+6,std::string(modelNames[model])+": RING does not narrow the notes");
         // Half the amount is between the plain reverb and the keyed one; the level stays within bounds.
         auto half=k;half.keyAmount=.5f;const auto h=render(model,hiss,hiss,fixed(half));
-        require(at(h,asharp4)>at(major,asharp4)+3 && at(h,asharp4)<at(plain,asharp4)+1,std::string(modelNames[model])+": half the key is not between none and all of it");
-        const double level=db(major.power(4,7))-db(plain.power(4,7));require(std::abs(level)<8,std::string(modelNames[model])+": the key at full changes the reverb's level by "+num(level,1)+" dB");
+        require(over(h,asharp4)>over(major,asharp4)+1 && over(h,asharp4)<-1,std::string(modelNames[model])+": half the key is not between none and all of it (between the notes, against the plain reverb: half "+num(over(h,asharp4),1)+" dB, all "+num(over(major,asharp4),1)+" dB)");
+        const double level=db(major.power(4,7))-db(plain.power(4,7));require(std::abs(level)<6,std::string(modelNames[model])+": the key at full changes the reverb's level by "+num(level,1)+" dB");
         measured+=std::string(model?" | ":"")+modelNames[model]+": on the notes "+num(in,1)+", between "+num(out,1)+", level "+num(level,1)+" dB";
         // At no amount it is not there, whatever the rest says, and a new note after it returns is the plain reverb.
         {const auto burst=noise(3,.05,52);ReverbControls none;none.keyRoot=7;none.keyScale=3;none.keyTuneCents=-40;none.keyRing=1;
@@ -409,7 +412,7 @@ void key() {
          double difference=0,reference=0;for(size_t i=size_t(rate*4);i<still.left.size();++i){difference=std::max(difference,double(std::abs(was.left[i]-still.left[i])));reference=std::max(reference,double(std::abs(still.left[i])));}
          require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the key was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");}
     }
-    std::cout<<"MEASURE reverb key (A major at full, against the plain reverb): "<<measured<<'\n';
+    std::cout<<"MEASURE reverb key (A major at full, RING 0.8, against the plain reverb): "<<measured<<'\n';
     // Every control moving under loud noise, every model, mono and stereo: finite (render checks) and bounded.
     for(int model=0;model<modelCount;++model)for(const int channels:{1,2}) {
         const auto x=noise(5,3,55,.5f);const auto moved=render(model,x,x,[](double t){ReverbControls k;k.keyAmount=float(.5+.5*std::sin(2*pi*1.1*t));k.keyRoot=int(t*5)%12;k.keyScale=int(t*3)%reverbKeyScaleCount;k.keyTuneCents=float(50*std::sin(2*pi*.7*t));k.keyRing=float(.5+.5*std::sin(2*pi*.4*t));return k;},.9f,.1f,channels);

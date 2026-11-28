@@ -52,6 +52,15 @@ inline bool reverbKeyHolds(int scale,int root,int note) noexcept {
 inline double reverbKeyHz(int note,float cents) noexcept {return 440.*std::pow(2.,(double(note)-69.+double(cents)/100.)/12.);}
 // RING: each resonator's width, from a quarter of its frequency down to a 250th.
 inline double reverbKeyQ(float ring) noexcept {return 4.*std::pow(62.5,double(ring<0.f?0.f:ring>1.f?1.f:ring));}
+// The key keeps the reverb's level. A reverb is taken to fall off above 5 kHz with one pole; the resonators pass a
+// share of that, counted one by one, and at a low RING they overlap and pass more: by these decibels at RING 0, 0.1
+// and so on up to 0.5, for scales of seven notes and of five (computed from the resonators' own response).
+inline constexpr double reverbKeyColourHz=5000.;
+inline constexpr double reverbKeyOverlapDb[2][6]{{6.5,5.1,3.67,2.3,1.15,.4},{5.07,3.73,2.35,1.16,.35,0.}};
+inline double reverbKeyOverlap(int notesToTheOctave,float ring) noexcept {
+    const double at=double(ring<0.f?0.f:ring>1.f?1.f:ring)*10.;if(at>=5.)return reverbKeyOverlapDb[notesToTheOctave<7?1:0][5]*(at<6.?6.-at:0.);
+    const int i=int(at);const double* row=reverbKeyOverlapDb[notesToTheOctave<7?1:0];return row[i]+(at-i)*(row[i+1]-row[i]);
+}
 inline constexpr int reverbShimmerIntervalCount=3;
 inline constexpr double reverbShimmerRatios[reverbShimmerIntervalCount]{2.,1.5,.5};   // an octave up, a fifth up, an octave down
 // The shifter's grain, the share of its output fed back into it at full (so octaves stack), and its low-pass.
