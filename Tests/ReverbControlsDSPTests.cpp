@@ -323,9 +323,9 @@ void character() {
 // Shimmer (docs/POST_REVERB_SHIMMER.md): the reverb hears a copy of the note moved by an interval, and part of that again.
 // The level of the reverb within 30 Hz of one frequency, summed over the bins of the window. A granular shifter does
 // not put a steady tone on one frequency: it spreads it over lines one grain's rate apart, around where it belongs.
-double partial(const Wet& w,double hz,double from,double to) {
+double partial(const Wet& w,double hz,double from,double to,double either=30) {
     const size_t a=size_t(from*rate),b=size_t(to*rate);const double length=double(b-a),bin=rate/length;double power=0;
-    for(double f=hz-30;f<=hz+30;f+=bin) {
+    for(double f=hz-either;f<=hz+either;f+=bin) {
         double re=0,im=0;const double step=2*pi*f/rate,cs=std::cos(step),sn=std::sin(step);double c=1,d=0;
         for(size_t n=a;n<b;++n){re+=w.left[n]*c;im+=w.left[n]*d;const double next=c*cs-d*sn;d=c*sn+d*cs;c=next;}
         power+=4*(re*re+im*im)/(length*length);
@@ -368,6 +368,54 @@ void shimmer() {
         double peak=0;for(const float v:moved.left)peak=std::max(peak,double(std::abs(v)));require(peak<50,std::string(modelNames[model])+": the shimmer made the reverb run away (peak "+num(peak,1)+")");
     }
     std::cout<<"PASS reverb shimmer: the note appears at the interval in every model, and again an octave on; the amount scales it; at no amount it is not there; moving it under loud noise stays bounded\n";
+}
+// Key (docs/POST_REVERB_KEY.md): the reverb rings on the notes of a key and is quiet between them.
+void key() {
+    // The scales: seven notes or five to the octave, the root always among them, the same in every octave.
+    for(int scale=0;scale<reverbKeyScaleCount;++scale)for(int root=0;root<12;++root) {
+        int held=0;for(int note=60;note<72;++note)held+=reverbKeyHolds(scale,root,note);
+        require(held==(scale<3?7:5) && reverbKeyHolds(scale,root,root+60) && reverbKeyHolds(scale,root,root+48),"A scale does not hold its notes");
+        for(int note=reverbKeyLowestNote;note+12<=reverbKeyHighestNote;++note)require(reverbKeyHolds(scale,root,note)==reverbKeyHolds(scale,root,note+12),"A scale differs between octaves");
+    }
+    require(std::abs(reverbKeyHz(69,0)-440)<1e-9 && std::abs(reverbKeyHz(69,50)-440*std::pow(2.,50./1200.))<1e-9 && reverbKeyQ(1)>reverbKeyQ(0)*50,"The key's pitch or ring is not as documented");
+    const auto hiss=noise(8,8,51);std::string measured;
+    const double a4=440,asharp4=440*std::pow(2.,1./12.),csharp5=440*std::pow(2.,4./12.),c5=440*std::pow(2.,3./12.);
+    for(int model=0;model<5;++model) {
+        const auto plain=render(model,hiss,hiss,fixed({}));
+        const auto at=[](const Wet& w,double hz){return partial(w,hz,4,7,4);};
+        // A major at full: A and C sharp ring, A sharp and C between them do not.
+        ReverbControls k;k.keyAmount=1;k.keyRoot=9;k.keyScale=0;const auto major=render(model,hiss,hiss,fixed(k));
+        const double in=.5*((at(major,a4)-at(plain,a4))+(at(major,csharp5)-at(plain,csharp5))),out=.5*((at(major,asharp4)-at(plain,asharp4))+(at(major,c5)-at(plain,c5)));
+        require(in-out>12,std::string(modelNames[model])+": the key does not ring on its notes and stay quiet between them (on the notes "+num(in,1)+" dB, between them "+num(out,1)+" dB, against the plain reverb)");
+        // A minor instead: C rings now, C sharp does not. A sharp as the root: A sharp rings, A does not.
+        auto minor=k;minor.keyScale=1;const auto m=render(model,hiss,hiss,fixed(minor));require(at(m,c5)-at(m,csharp5)>12,std::string(modelNames[model])+": the scale does not choose the notes");
+        auto moved=k;moved.keyRoot=10;const auto r=render(model,hiss,hiss,fixed(moved));require(at(r,asharp4)-at(r,a4)>12,std::string(modelNames[model])+": the root does not move the key");
+        // TUNE +50 cents: the A is a quarter tone up.
+        auto sharp=k;sharp.keyTuneCents=50;const auto t=render(model,hiss,hiss,fixed(sharp));const double quarter=440*std::pow(2.,50./1200.);
+        require(at(t,quarter)-at(t,a4)>6 && at(major,a4)-at(major,quarter)>6,std::string(modelNames[model])+": TUNE does not move the notes");
+        // RING: narrow leaves less between the notes than broad.
+        auto broad=k;broad.keyRing=0;auto narrow=k;narrow.keyRing=1;const auto b=render(model,hiss,hiss,fixed(broad)),n=render(model,hiss,hiss,fixed(narrow));
+        require((at(n,a4)-at(n,asharp4))>(at(b,a4)-at(b,asharp4))+6,std::string(modelNames[model])+": RING does not narrow the notes");
+        // Half the amount is between the plain reverb and the keyed one; the level stays within bounds.
+        auto half=k;half.keyAmount=.5f;const auto h=render(model,hiss,hiss,fixed(half));
+        require(at(h,asharp4)>at(major,asharp4)+3 && at(h,asharp4)<at(plain,asharp4)+1,std::string(modelNames[model])+": half the key is not between none and all of it");
+        const double level=db(major.power(4,7))-db(plain.power(4,7));require(std::abs(level)<8,std::string(modelNames[model])+": the key at full changes the reverb's level by "+num(level,1)+" dB");
+        measured+=std::string(model?" | ":"")+modelNames[model]+": on the notes "+num(in,1)+", between "+num(out,1)+", level "+num(level,1)+" dB";
+        // At no amount it is not there, whatever the rest says, and a new note after it returns is the plain reverb.
+        {const auto burst=noise(3,.05,52);ReverbControls none;none.keyRoot=7;none.keyScale=3;none.keyTuneCents=-40;none.keyRing=1;
+         const auto x=render(model,burst,burst,fixed({})),y=render(model,burst,burst,fixed(none));require(x.left==y.left && x.right==y.right,std::string(modelNames[model])+": the key at no amount changed the reverb");
+         std::vector<float> in2(size_t(rate*6),0.f);{const auto first=noise(.3,.3,53),second=noise(.3,.3,54);std::copy(first.begin(),first.end(),in2.begin());std::copy(second.begin(),second.end(),in2.begin()+ptrdiff_t(rate*4));}
+         ReverbControls brief;brief.decaySeconds=1;const auto was=render(model,in2,in2,[](double time){ReverbControls c;c.decaySeconds=1;if(time<1){c.keyAmount=1;c.keyRing=1;}return c;},.2f),still=render(model,in2,in2,fixed(brief),.2f);
+         double difference=0,reference=0;for(size_t i=size_t(rate*4);i<still.left.size();++i){difference=std::max(difference,double(std::abs(was.left[i]-still.left[i])));reference=std::max(reference,double(std::abs(still.left[i])));}
+         require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the key was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");}
+    }
+    std::cout<<"MEASURE reverb key (A major at full, against the plain reverb): "<<measured<<'\n';
+    // Every control moving under loud noise, every model, mono and stereo: finite (render checks) and bounded.
+    for(int model=0;model<modelCount;++model)for(const int channels:{1,2}) {
+        const auto x=noise(5,3,55,.5f);const auto moved=render(model,x,x,[](double t){ReverbControls k;k.keyAmount=float(.5+.5*std::sin(2*pi*1.1*t));k.keyRoot=int(t*5)%12;k.keyScale=int(t*3)%reverbKeyScaleCount;k.keyTuneCents=float(50*std::sin(2*pi*.7*t));k.keyRing=float(.5+.5*std::sin(2*pi*.4*t));return k;},.9f,.1f,channels);
+        double peak=0;for(const float v:moved.left)peak=std::max(peak,double(std::abs(v)));require(peak<100,std::string(modelNames[model])+": moving the key made the reverb run away (peak "+num(peak,1)+")");
+    }
+    std::cout<<"PASS reverb key: the reverb rings on the notes of the key and not between them; the root, the scale and TUNE move them; RING narrows them; the amount crosses to it; at no amount it is not there; moving it stays bounded\n";
 }
 // DECAY (docs/POST_REVERB_DECAY.md): the time the reverb takes to fall 60 dB, whatever SIZE is.
 // Measured below 300 Hz, where DAMPING does not shorten the tail, from the backward-integrated decay after a
@@ -426,6 +474,7 @@ int main(int argc,char** argv) {
         if(only.empty() || only=="--shape-more")shapeMore();
         if(only.empty() || only=="--character")character();
         if(only.empty() || only=="--shimmer")shimmer();
+        if(only.empty() || only=="--key")key();
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

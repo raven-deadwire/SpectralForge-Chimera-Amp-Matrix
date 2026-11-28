@@ -871,7 +871,7 @@ void reverbShapeMore() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbShapeMoreParameterVersion) {
         const int slot=count/postReverbShapeMorePerSlot,control=count%postReverbShapeMorePerSlot;
-        require(with->getParameterIndex()==total-postReverbShapeMoreParameterCount-postReverbCharacterParameterCount-postReverbShimmerParameterCount+count && with->paramID==reverbShapeMoreID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeMoreNames[size_t(control)]),"One more reverb shape parameter is not in its bank after the decay, slot 1 first, under its name");++count;}
+        require(with->getParameterIndex()==total-postReverbShapeMoreParameterCount-postReverbCharacterParameterCount-postReverbShimmerParameterCount-postReverbKeyParameterCount+count && with->paramID==reverbShapeMoreID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShapeMoreNames[size_t(control)]),"One more reverb shape parameter is not in its bank after the decay, slot 1 first, under its name");++count;}
     require(count==postReverbShapeMoreParameterCount && count==16,"More of the reverb shape is not four parameters for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShapeMoreID(slot,0))==0 && std::abs(get(*p,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*p,reverbShapeMoreID(slot,2))==0 && get(*p,reverbShapeMoreID(slot,3))==0,"The reverb shape does not start in bars, one second, as drawn and without morph");
     // Through the processor: a Chop two seconds long, in seconds, opens and closes the reverb as the one-bar Chop at 120 BPM does.
@@ -901,12 +901,40 @@ void reverbShapeMore() {
     for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShapeMoreID(slot,0))==0 && std::abs(get(*loaded,reverbShapeMoreID(slot,1))-1)<1e-4f && get(*loaded,reverbShapeMoreID(slot,2))==0 && get(*loaded,reverbShapeMoreID(slot,3))==0,"A project saved before these controls did not load them at their defaults");
     std::cout<<"PASS more of the reverb shape: 16 parameters at version 46, after the decay; seconds, CURVE and MORPH act through the processor and not with the shape Off; each slot its own; saved, loaded, and defaults in an older project\n";
 }
-// Shimmer (docs/POST_REVERB_SHIMMER.md): eight parameters at version 48, last; through the processor; saved and loaded.
+// Key (docs/POST_REVERB_KEY.md): twenty parameters at version 49, last; through the processor; saved and loaded.
+void reverbKey() {
+    auto p=make();const int total=p->getParameters().size();int count=0;
+    for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbKeyParameterVersion) {
+        const int slot=count/postReverbKeyPerSlot,control=count%postReverbKeyPerSlot;
+        require(with->getParameterIndex()==total-postReverbKeyParameterCount+count && with->paramID==reverbKeyID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbKeyNames[size_t(control)]),"A reverb key parameter is not in the last bank, slot 1 first, under its name");++count;}
+    require(count==postReverbKeyParameterCount && count==20,"The reverb key is not five parameters for each of four slots");
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbKeyID(slot,0))==0 && get(*p,reverbKeyID(slot,1))==0 && get(*p,reverbKeyID(slot,2))==0 && get(*p,reverbKeyID(slot,3))==0 && std::abs(get(*p,reverbKeyID(slot,4))-.5f)<1e-6f,"The reverb key does not start at none, C major, in tune, at half ring");
+    const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
+        std::vector<float> in(size_t(rate*3));unsigned seed=7;for(size_t n=0;n<in.size();++n){seed=seed*1664525u+1013904223u;in[n]=.05f*(float(seed>>8)/8388608.f-1.f);}return renderInput(*q,in);};
+    const auto plain=render({}),keyed=render([](ChimeraProcessor& q){set(q,"reverbkey",1);});
+    bool finite=true;for(const float v:keyed)finite=finite && std::isfinite(v);require(finite && keyed!=plain,"KEY does nothing through the processor, or is not finite");
+    for(int control=1;control<postReverbKeyPerSlot;++control){const auto changed=render([control](ChimeraProcessor& q){set(q,"reverbkey",1);set(q,reverbKeyID(0,control),control==1?7.f:control==2?3.f:control==3?35.f:.9f);});
+        require(changed!=keyed,std::string("The reverb key's ")+reverbKeyIDs[size_t(control)]+" does nothing through the processor");}
+    // At no amount the other four change nothing, and neither does a switched-off slot's key.
+    const auto other=render([](ChimeraProcessor& q){set(q,"reverbkeyroot",5);set(q,"reverbkeyscale",2);set(q,"reverbkeytune",-30);set(q,"reverbkeyring",1);set(q,"slot2_reverbkey",1);set(q,"slot3_reverbkey",.5f);set(q,"slot4_reverbkeyroot",9);});
+    require(other==plain,"The key changed the sound at no amount or in a switched-off slot");
+    auto source=make();for(int slot=0;slot<postSlotCount;++slot){set(*source,reverbKeyID(slot,0),.2f+.2f*float(slot));set(*source,reverbKeyID(slot,1),float(2+3*slot));set(*source,reverbKeyID(slot,2),float(slot));set(*source,reverbKeyID(slot,3),-40.f+25.f*float(slot));set(*source,reverbKeyID(slot,4),.1f+.25f*float(slot));}
+    juce::MemoryBlock saved;source->getStateInformation(saved);auto loaded=make();loaded->setStateInformation(saved.getData(),int(saved.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbKeyPerSlot;++control)require(std::abs(get(*loaded,reverbKeyID(slot,control))-get(*source,reverbKeyID(slot,control)))<1e-3f,"A reverb key value did not come back from a saved project");
+    juce::ValueTree tree;{auto xml=source->getXmlFromBinary(saved.getData(),int(saved.getSize()));tree=juce::ValueTree::fromXml(*xml);}
+    int removed=0;for(int i=tree.getNumChildren()-1;i>=0;--i){const auto id=tree.getChild(i).getProperty("id").toString();bool mine=false;for(const char* own:reverbKeyIDs)mine=mine || id.endsWith(own);if(mine){tree.removeChild(i,nullptr);++removed;}}
+    require(removed==postReverbKeyParameterCount,"The saved project does not hold every reverb key value");
+    juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
+    loaded->setStateInformation(old.getData(),int(old.getSize()));
+    for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbKeyID(slot,0))==0 && get(*loaded,reverbKeyID(slot,1))==0 && get(*loaded,reverbKeyID(slot,2))==0 && get(*loaded,reverbKeyID(slot,3))==0 && std::abs(get(*loaded,reverbKeyID(slot,4))-.5f)<1e-6f,"A project saved before the reverb key did not load it at none");
+    std::cout<<"PASS reverb key: 20 parameters at version 49, last; the amount, root, scale, tune and ring act through the processor and not at no amount; each slot its own; saved, loaded, and none in an older project\n";
+}
+// Shimmer (docs/POST_REVERB_SHIMMER.md): eight parameters at version 48, after the character; through the processor; saved and loaded.
 void reverbShimmer() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbShimmerParameterVersion) {
         const int slot=count/postReverbShimmerPerSlot,control=count%postReverbShimmerPerSlot;
-        require(with->getParameterIndex()==total-postReverbShimmerParameterCount+count && with->paramID==reverbShimmerID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShimmerNames[size_t(control)]),"A reverb shimmer parameter is not in the last bank, slot 1 first, under its name");++count;}
+        require(with->getParameterIndex()==total-postReverbShimmerParameterCount-postReverbKeyParameterCount+count && with->paramID==reverbShimmerID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbShimmerNames[size_t(control)]),"A reverb shimmer parameter is not in its bank after the character, slot 1 first, under its name");++count;}
     require(count==postReverbShimmerParameterCount && count==8,"The reverb shimmer is not two parameters for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)require(get(*p,reverbShimmerID(slot,0))==0 && get(*p,reverbShimmerID(slot,1))==0,"The reverb shimmer does not start at none, an octave up");
     const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
@@ -926,14 +954,14 @@ void reverbShimmer() {
     juce::MemoryBlock old;{auto xml=tree.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,old);}
     loaded->setStateInformation(old.getData(),int(old.getSize()));
     for(int slot=0;slot<postSlotCount;++slot)require(get(*loaded,reverbShimmerID(slot,0))==0 && get(*loaded,reverbShimmerID(slot,1))==0,"A project saved before the reverb shimmer did not load it at none");
-    std::cout<<"PASS reverb shimmer: 8 parameters at version 48, last; the amount and the interval act through the processor and not at no amount; each slot its own; saved, loaded, and none in an older project\n";
+    std::cout<<"PASS reverb shimmer: 8 parameters at version 48, after the character; the amount and the interval act through the processor and not at no amount; each slot its own; saved, loaded, and none in an older project\n";
 }
 // Character (docs/POST_REVERB_CHARACTER.md): twelve parameters at version 47, after the shape; through the processor; saved and loaded.
 void reverbCharacter() {
     auto p=make();const int total=p->getParameters().size();int count=0;
     for(auto* parameter:p->getParameters())if(auto* with=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter))if(with->getVersionHint()==postReverbCharacterParameterVersion) {
         const int slot=count/postReverbCharacterPerSlot,control=count%postReverbCharacterPerSlot;
-        require(with->getParameterIndex()==total-postReverbCharacterParameterCount-postReverbShimmerParameterCount+count && with->paramID==reverbCharacterID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbCharacterNames[size_t(control)]),"A reverb character parameter is not in its bank after the added shape controls, slot 1 first, under its name");++count;}
+        require(with->getParameterIndex()==total-postReverbCharacterParameterCount-postReverbShimmerParameterCount-postReverbKeyParameterCount+count && with->paramID==reverbCharacterID(slot,control) && parameter->isAutomatable() && with->getName(64)==postSlotName(slot,reverbCharacterNames[size_t(control)]),"A reverb character parameter is not in its bank after the added shape controls, slot 1 first, under its name");++count;}
     require(count==postReverbCharacterParameterCount && count==12,"The reverb character is not three parameters for each of four slots");
     for(int slot=0;slot<postSlotCount;++slot)for(int control=0;control<postReverbCharacterPerSlot;++control)require(get(*p,reverbCharacterID(slot,control))==0,"The reverb character does not start off");
     const auto render=[](const std::function<void(ChimeraProcessor&)>& edit){auto q=make();set(*q,"reverbon",1);set(*q,"reverbmix",.5f);set(*q,"reverbsize",.5f);if(edit)edit(*q);
@@ -990,7 +1018,7 @@ int main() {
     try {model();toneRegion();postRegion();clickSafe();recallAndUndo();staleInput();pathAndCommands();dragging();postPageDrag();keyDelay();
         secondSlotsBank();secondSlotsOldState();secondSlotsIndependent();secondSlotsBypass();secondSlotsLatency();secondSlotsOrder();secondSlotsState();secondSlotsPage();
         extraSlotsBank();extraSlotsAudio();extraSlotsOldState();extraSlotsAdd();extraSlotsPage();
-        reverbControlsBank();reverbControlsAudio();reverbControlsState();reverbShape();reverbDecay();reverbShapeMore();reverbCharacter();reverbShimmer();}
+        reverbControlsBank();reverbControlsAudio();reverbControlsState();reverbShape();reverbDecay();reverbShapeMore();reverbCharacter();reverbShimmer();reverbKey();}
     catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}
     return 0;
 }
