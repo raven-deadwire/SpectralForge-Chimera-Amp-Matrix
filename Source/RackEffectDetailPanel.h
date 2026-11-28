@@ -15,6 +15,7 @@ public:
         setComponentID(spectralforge::postSlotID(slot,"reverbShapeDisplay"));setInterceptsMouseClicks(false,false);
         setTitle("Reverb shape");setDescription("The level the reverb follows through one pass of the shape");
         for(int i=0;i<spectralforge::postReverbShapePerSlot;++i)values[(size_t)i]=processor.parameters().getRawParameterValue(spectralforge::reverbShapeID(slot,i));
+        for(int i=0;i<spectralforge::postReverbShapeMorePerSlot;++i)more[(size_t)i]=processor.parameters().getRawParameterValue(spectralforge::reverbShapeMoreID(slot,i));
         read();startTimerHz(30);
     }
     ~ReverbShapeDisplay() override {stopTimer();}
@@ -23,7 +24,12 @@ public:
     float shownDepth() const noexcept {return depth;}
     int shownLength() const noexcept {return length;}
     float shownPosition() const noexcept {return position;}
-    float shownLevel(double phase) const noexcept {return shape==spectralforge::reverbShapeOff?1.f:1.f-depth*(1.f-spectralforge::reverbShapeLevel(shape,phase));}
+    float shownLevel(double phase) const noexcept {return shape==spectralforge::reverbShapeOff?1.f:1.f-depth*(1.f-spectralforge::reverbShapeCurved(spectralforge::reverbShapeLevel(shape,phase),curve));}
+    bool shownInSeconds() const noexcept {return inSeconds;}
+    float shownSeconds() const noexcept {return seconds;}
+    float shownCurve() const noexcept {return curve;}
+    // The lines drawn across the pass: one for every quarter note in bars, four parts in seconds.
+    int shownDivisions() const noexcept {return inSeconds?4:juce::roundToInt(spectralforge::reverbShapeBeats[length]);}
     juce::Rectangle<float> plot() const noexcept {return getLocalBounds().toFloat().reduced(10.f,6.f).withTrimmedTop(18.f).withTrimmedBottom(4.f);}
     void refresh() {timerCallback();}
     void paint(juce::Graphics& g) override {
@@ -32,10 +38,9 @@ public:
         const auto area=plot();const bool off=shape==spectralforge::reverbShapeOff;
         const juce::Colour ink=off?juce::Colour(0xff6c706a):juce::Colour(0xffd0b386);
         g.setFont(juce::FontOptions(10.5f));g.setColour(juce::Colour(0xffa4a79f));
-        g.drawText(juce::String(juce::roundToInt(tempo))+" BPM",juce::Rectangle<float>(area.getX(),4.f,90.f,16.f),juce::Justification::centredLeft);
-        g.drawText(off?juce::String("SHAPE OFF"):spectralforge::reverbShapeChoices()[shape]+" / "+spectralforge::reverbShapeLengthChoices()[length],juce::Rectangle<float>(area.getRight()-200.f,4.f,200.f,16.f),juce::Justification::centredRight);
-        // One line for every quarter note of the pass.
-        const int beats=juce::roundToInt(spectralforge::reverbShapeBeats[length]);
+        g.drawText(inSeconds?juce::String("FREE"):juce::String(juce::roundToInt(tempo))+" BPM",juce::Rectangle<float>(area.getX(),4.f,90.f,16.f),juce::Justification::centredLeft);
+        g.drawText(off?juce::String("SHAPE OFF"):spectralforge::reverbShapeChoices()[shape]+" / "+(inSeconds?juce::String(seconds,2)+" s":spectralforge::reverbShapeLengthChoices()[length]),juce::Rectangle<float>(area.getRight()-200.f,4.f,200.f,16.f),juce::Justification::centredRight);
+        const int beats=shownDivisions();
         g.setColour(juce::Colour(0xff2b302e));for(int beat=0;beat<=beats;++beat){const float x=area.getX()+area.getWidth()*float(beat)/float(beats);g.drawVerticalLine(juce::roundToInt(x),area.getY(),area.getBottom());}
         g.drawHorizontalLine(juce::roundToInt(area.getBottom()),area.getX(),area.getRight());
         juce::Path line;const int steps=juce::jmax(2,juce::roundToInt(area.getWidth()));
@@ -46,13 +51,14 @@ public:
             g.fillEllipse(x-3.f,area.getBottom()-area.getHeight()*shownLevel(juce::jmin(.999999,double(position)))-3.f,6.f,6.f);}
     }
 private:
-    ChimeraProcessor& processor;int slot{};std::array<std::atomic<float>*,spectralforge::postReverbShapePerSlot> values{};
-    int shape{},length{};float depth{1.f},position{-1.f},tempo{120.f};
+    ChimeraProcessor& processor;int slot{};std::array<std::atomic<float>*,spectralforge::postReverbShapePerSlot> values{};std::array<std::atomic<float>*,spectralforge::postReverbShapeMorePerSlot> more{};
+    int shape{},length{};float depth{1.f},position{-1.f},tempo{120.f},seconds{1.f},curve{0.f};bool inSeconds{};
     bool read() {
         const int s=juce::jlimit(0,spectralforge::reverbShapeCount-1,juce::roundToInt(values[0]->load())),l=juce::jlimit(0,spectralforge::reverbShapeLengthCount-1,juce::roundToInt(values[2]->load()));
         const float d=juce::jlimit(0.f,1.f,values[1]->load()),where=processor.reverbShapePosition(slot),bpm=processor.currentTempo();
-        const bool changed=s!=shape || l!=length || d!=depth || where!=position || juce::roundToInt(bpm)!=juce::roundToInt(tempo);
-        shape=s;length=l;depth=d;position=where;tempo=bpm;return changed;
+        const bool unit=more[0]->load()>.5f;const float time=more[1]->load(),bend=juce::jlimit(-1.f,1.f,more[2]->load());
+        const bool changed=s!=shape || l!=length || d!=depth || where!=position || juce::roundToInt(bpm)!=juce::roundToInt(tempo) || unit!=inSeconds || time!=seconds || bend!=curve;
+        shape=s;length=l;depth=d;position=where;tempo=bpm;inSeconds=unit;seconds=time;curve=bend;return changed;
     }
     void timerCallback() override {if(read())repaint();}
 };
@@ -97,12 +103,17 @@ public:
                 if(!spec.toggle){control->slider.setTextValueSuffix(units[(size_t)i]);control->slider.setNumDecimalPlacesToDisplay(decimals[(size_t)i]);control->slider.setDoubleClickReturnValue(true,spec.initial);}
                 addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
-            // The third row (docs/POST_REVERB_SHAPE.md): the tempo shape, its depth and its length.
+            // The third row (docs/POST_REVERB_SHAPE.md, docs/POST_REVERB_SHAPE_MORE.md): the shape, bars or seconds, and its length in each.
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,0),"SHAPE",title.getText(),1,spectralforge::reverbShapeChoices(),0,spectralforge::reverbShapeCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
-            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,1),"SHAPE DEPTH",title.getText(),0,{},0,1,0,3);control->slider.setDoubleClickReturnValue(true,1.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
-            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,2),"SHAPE LENGTH",title.getText(),1,spectralforge::reverbShapeLengthChoices(),0,spectralforge::reverbShapeLengthCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,0),"UNIT",title.getText(),1,spectralforge::reverbShapeUnitChoices(),0,1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,2),"LENGTH",title.getText(),1,spectralforge::reverbShapeLengthChoices(),0,spectralforge::reverbShapeLengthCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,1),"SECONDS",title.getText(),0,{},spectralforge::reverbShapeMinSeconds,spectralforge::reverbShapeMaxSeconds,0,3);control->slider.setSkewFactorFromMidPoint(1.0);control->slider.setTextValueSuffix(" s");control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,1.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            // The fourth row: how deep the shape goes, how its level is bent, and how far the tone follows it.
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,1),"DEPTH",title.getText(),0,{},0,1,0,3);control->slider.setDoubleClickReturnValue(true,1.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,2),"CURVE",title.getText(),0,{},-1,1,0,3);control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,3),"MORPH",title.getText(),0,{},-1,1,0,3);control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
         }
-        refreshModel();setSize(740,family==2?598:270);
+        refreshModel();setSize(740,family==2?762:270);if(family==2){timerCallback();startTimerHz(15);}
     }
     ~RackEffectDetailPanel() override {stopTimer();setLookAndFeel(nullptr);}
     void paint(juce::Graphics& g) override {
@@ -111,19 +122,23 @@ public:
     }
     void resized() override {
         title.setBounds(18,8,260,18);model.setBounds(18,29,330,25);reference.setBounds(18,54,getWidth()-36,18);enabled.setBounds(getWidth()-104,24,85,28);
-        // The reverb has three rows: DECAY with SIZE, DAMPING and MIX, its added controls under them, the tempo shape last.
+        // The reverb has four rows: DECAY with SIZE, DAMPING and MIX, its added controls under them, the tempo shape in the last two.
         const size_t first=family==2?4:controls.size(),second=family==2?first+size_t(spectralforge::postReverbControlsPerSlot):first;
         const auto row=[this](size_t from,size_t to,int y){if(to<=from)return;const int cell=(getWidth()-32)/int(to-from);for(size_t i=from;i<to;++i)controls[i]->setBounds(16+int(i-from)*cell,y,cell-8,154);};
         row(0,first,92);row(first,second,256);
-        // The third row: the shape's three controls on the left half, its display on the right.
-        if(family==2){const int cell=(getWidth()/2-16)/3;for(size_t i=second;i<controls.size();++i)controls[i]->setBounds(16+int(i-second)*cell,420,cell-8,154);
-            if(shapeDisplay)shapeDisplay->setBounds(getWidth()/2+8,428,getWidth()/2-24,138);}
+        // The third and fourth rows: the shape's controls on the left, four and then three, and its display beside both.
+        if(family==2){const int left=getWidth()*3/5-16,cell=left/4;const size_t fourth=second+4;
+            for(size_t i=second;i<controls.size();++i){const bool lower=i>=fourth;const int column=int(i-(lower?fourth:second));controls[i]->setBounds(16+column*cell,lower?584:420,cell-8,154);}
+            if(shapeDisplay)shapeDisplay->setBounds(16+left+8,428,getWidth()-left-40,302);}
     }
 private:
     ChimeraProcessor& processor;int family{},slot{};
     juce::String id(const juce::String& x) const {return spectralforge::postSlotID(slot,x);}juce::Label title,reference;juce::ComboBox model;juce::TextButton enabled;
     std::unique_ptr<spectralforge::ExtendedEffectModelSync> modelSync;
     std::unique_ptr<juce::ParameterAttachment> enabledAttachment;std::vector<std::unique_ptr<NativeControlView>> controls;std::unique_ptr<ReverbShapeDisplay> shapeDisplay;
-    void timerCallback() override {if(family==1 && !controls.empty()){controls.front()->slider.setEnabled(processor.parameters().getRawParameterValue(id("delaysync"))->load()<.5f);controls.front()->slider.updateText();}}
+    void timerCallback() override {
+        // The reverb shape's length is set in bars or in seconds: the one not in use is greyed.
+        if(family==2 && controls.size()>=13){const bool seconds=processor.parameters().getRawParameterValue(spectralforge::reverbShapeMoreID(slot,0))->load()>.5f;controls[11]->choice.setEnabled(!seconds);controls[12]->slider.setEnabled(seconds);}
+        if(family==1 && !controls.empty()){controls.front()->slider.setEnabled(processor.parameters().getRawParameterValue(id("delaysync"))->load()<.5f);controls.front()->slider.updateText();}}
     void refreshModel(){const int selected=juce::jmax(0,model.getSelectedId()-1);reference.setText(juce::String::fromUTF8(spectralforge::modelInfo(family,selected).character),juce::dontSendNotification);reference.setTooltip(reference.getText());for(auto& control:controls)control->slider.getProperties().set("knobStyle",spectralforge::art::rackStyle(family,selected).knobStyle);repaint();}
 };

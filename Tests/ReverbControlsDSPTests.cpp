@@ -201,7 +201,7 @@ void shapeOnTheReverb() {
         const auto quarter=with(reverbShapeChop,1.f,0);
         require(std::abs(db(quarter.power(6.025,6.225))-db(plain.power(6.025,6.225)))<1 && db(quarter.power(6.275,6.475))-db(plain.power(6.275,6.475))<-40 && std::abs(db(quarter.power(6.525,6.725))-db(plain.power(6.525,6.725)))<1,
                 std::string(modelNames[model])+": Chop at a length of 1/4 does not open and close every half second");
-        measured+=std::string(measured.empty()?"":" | ")+modelNames[model]+": gate "+num(part(gate,.05,.45),1)+"/"+num(part(gate,.55,.95),0)+" dB, swell "+num(part(swell,0,.1),0)+"/"+num(part(swell,.45,.55),1)+"/"+num(part(swell,.9,1),1)+" dB";
+        measured+=std::string(measured.empty()?"":" | ")+modelNames[model]+": Chop "+num(part(gate,.05,.45),1)+"/"+num(part(gate,.55,.95),0)+" dB, Rise "+num(part(swell,0,.1),0)+"/"+num(part(swell,.45,.55),1)+"/"+num(part(swell,.9,1),1)+" dB";
     }
     std::cout<<"MEASURE reverb shape at 120 BPM, one bar (Chop: open / closed half; Rise: start / middle / end, against the plain reverb): "<<measured<<'\n';
     // The Gated Room, with bursts: its own gate and the shape's both apply.
