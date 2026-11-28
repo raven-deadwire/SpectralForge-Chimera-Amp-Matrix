@@ -120,8 +120,14 @@ public:
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,3),"MORPH","SHAPE",0,{},-1,1,0,3);control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             for(int i=1;i<spectralforge::postReverbCharacterPerSlot;++i){auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbCharacterID(slot,i),i==1?"DIRT":"DRIFT","CHARACTER",0,{},0,1,0,3);
                 control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            // The fifth row (docs/POST_REVERB_KEY.md): how much the reverb rings in the key, the key, its tuning and how narrowly it rings.
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbKeyID(slot,0),"AMOUNT","KEY",0,{},0,1,0,3);control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbKeyID(slot,1),"ROOT","KEY",1,spectralforge::reverbKeyRootChoices(),0,11,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbKeyID(slot,2),"SCALE","KEY",1,spectralforge::reverbKeyScaleChoices(),0,spectralforge::reverbKeyScaleCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbKeyID(slot,3),"TUNE","KEY",0,{},-50,50,0,3);control->slider.setTextValueSuffix(" ct");control->slider.setNumDecimalPlacesToDisplay(0);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbKeyID(slot,4),"RING","KEY",0,{},0,1,0,3);control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.5);addAndMakeVisible(*control);controls.push_back(std::move(control));}
         }
-        refreshModel();setSize(740,family==2?762:270);if(family==2){timerCallback();startTimerHz(15);}
+        refreshModel();setSize(740,family==2?926:270);if(family==2){timerCallback();startTimerHz(15);}
     }
     ~RackEffectDetailPanel() override {stopTimer();setLookAndFeel(nullptr);}
     void paint(juce::Graphics& g) override {
@@ -130,13 +136,14 @@ public:
     }
     void resized() override {
         title.setBounds(18,8,260,18);model.setBounds(18,29,330,25);reference.setBounds(18,54,getWidth()-36,18);enabled.setBounds(getWidth()-104,24,85,28);
-        // The reverb has four rows: DECAY, SIZE, DAMPING and MIX with the shimmer's two, its added controls under them, the tempo shape in the last two.
+        // The reverb has five rows: DECAY, SIZE, DAMPING and MIX with the shimmer's two, its added controls under them, the tempo shape in the last two.
         const size_t first=family==2?4+size_t(spectralforge::postReverbShimmerPerSlot):controls.size(),second=family==2?first+size_t(spectralforge::postReverbControlsPerSlot):first;
         const auto row=[this](size_t from,size_t to,int y){if(to<=from)return;const int cell=(getWidth()-32)/int(to-from);for(size_t i=from;i<to;++i)controls[i]->setBounds(16+int(i-from)*cell,y,cell-8,154);};
         row(0,first,92);row(first,second,256);
         // The third and fourth rows: five controls each on the left, the shape's display beside both.
-        if(family==2){const int cell=100,left=5*cell;const size_t fourth=second+5;
-            for(size_t i=second;i<controls.size();++i){const bool lower=i>=fourth;const int column=int(i-(lower?fourth:second));controls[i]->setBounds(16+column*cell,lower?584:420,cell-8,154);}
+        if(family==2){const int cell=100,left=5*cell;const size_t fourth=second+5,fifth=fourth+5;
+            row(fifth,controls.size(),748);
+            for(size_t i=second;i<juce::jmin(fifth,controls.size());++i){const bool lower=i>=fourth;const int column=int(i-(lower?fourth:second));controls[i]->setBounds(16+column*cell,lower?584:420,cell-8,154);}
             if(shapeDisplay)shapeDisplay->setBounds(16+left+8,428,getWidth()-left-40,302);}
     }
 private:
