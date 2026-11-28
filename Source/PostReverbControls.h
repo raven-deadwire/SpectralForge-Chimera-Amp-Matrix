@@ -36,7 +36,7 @@ inline constexpr int postReverbShapeParameterVersion = 44, postReverbShapePerSlo
 inline constexpr int postReverbShapeParameterCount = postReverbShapePerSlot * postSlotCount;
 inline constexpr std::array<const char*, postReverbShapePerSlot> reverbShapeIDs{{"reverbshape", "reverbshapedepth", "reverbshapelength"}};
 inline constexpr std::array<const char*, postReverbShapePerSlot> reverbShapeNames{{"Reverb shape", "Reverb shape depth", "Reverb shape length"}};
-inline juce::StringArray reverbShapeChoices() { return {"Off", "Swell", "Reverse", "Gate", "Wave", "Pump"}; }
+inline juce::StringArray reverbShapeChoices() { return {"Off", "Rise", "Rewind", "Chop", "Tide", "Duck"}; }
 inline juce::StringArray reverbShapeLengthChoices() { return {"1/4", "1/2", "1 bar", "2 bars"}; }
 inline constexpr int reverbShapeDefaultLength = 2;
 inline juce::String reverbShapeID(int slot, int control) { return postSlotID(slot, reverbShapeIDs[size_t(control)]); }
