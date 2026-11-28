@@ -97,4 +97,4 @@ the two slot checks of `SignalOrderTests.cpp` know version 44.
 No listening test: every measurement is on synthetic input. Not run in a
 host: the lock to the host's position is tested with a position handed to
 the processor by the test, not with a real transport, loop or tempo change.
-The shape names are working names. Not run on macOS or Windows yet.
+Not run on macOS or Windows yet.
