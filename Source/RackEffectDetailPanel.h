@@ -105,12 +105,12 @@ public:
             }
             // The small line over each control names its group: SHAPE for the tempo shape's seven, CHARACTER for the converter, dirt and drift.
             // The third row: the shape, bars or seconds and its length in each (docs/POST_REVERB_SHAPE.md, docs/POST_REVERB_SHAPE_MORE.md),
-            // with the converter of docs/POST_REVERB_CHARACTER.md among the menus.
+            // with the converter of docs/POST_REVERB_CHARACTER.md at its end, over the character's two knobs in the fourth row.
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,0),"TYPE","SHAPE",1,spectralforge::reverbShapeChoices(),0,spectralforge::reverbShapeCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,0),"UNIT","SHAPE",1,spectralforge::reverbShapeUnitChoices(),0,1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,2),"LENGTH","SHAPE",1,spectralforge::reverbShapeLengthChoices(),0,spectralforge::reverbShapeLengthCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
-            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbCharacterID(slot,0),"CONVERTER","CHARACTER",1,spectralforge::reverbConverterChoices(),0,spectralforge::reverbConverterCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,1),"SECONDS","SHAPE",0,{},spectralforge::reverbShapeMinSeconds,spectralforge::reverbShapeMaxSeconds,0,3);control->slider.setSkewFactorFromMidPoint(1.0);control->slider.setTextValueSuffix(" s");control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,1.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
+            {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbCharacterID(slot,0),"CONVERTER","CHARACTER",1,spectralforge::reverbConverterChoices(),0,spectralforge::reverbConverterCount-1,1,3);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             // The fourth row: how deep the shape goes, how its level is bent, how far the tone follows it; then the character's dirt and drift.
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeID(slot,1),"DEPTH","SHAPE",0,{},0,1,0,3);control->slider.setDoubleClickReturnValue(true,1.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
             {auto control=std::make_unique<NativeControlView>();control->bind(processor.parameters(),spectralforge::reverbShapeMoreID(slot,2),"CURVE","SHAPE",0,{},-1,1,0,3);control->slider.setNumDecimalPlacesToDisplay(2);control->slider.setDoubleClickReturnValue(true,0.0);addAndMakeVisible(*control);controls.push_back(std::move(control));}
@@ -143,7 +143,7 @@ private:
     std::unique_ptr<juce::ParameterAttachment> enabledAttachment;std::vector<std::unique_ptr<NativeControlView>> controls;std::unique_ptr<ReverbShapeDisplay> shapeDisplay;
     void timerCallback() override {
         // The reverb shape's length is set in bars or in seconds: the one not in use is greyed.
-        if(family==2 && controls.size()>=14){const bool seconds=processor.parameters().getRawParameterValue(spectralforge::reverbShapeMoreID(slot,0))->load()>.5f;controls[11]->choice.setEnabled(!seconds);controls[13]->slider.setEnabled(seconds);}
+        if(family==2 && controls.size()>=14){const bool seconds=processor.parameters().getRawParameterValue(spectralforge::reverbShapeMoreID(slot,0))->load()>.5f;controls[11]->choice.setEnabled(!seconds);controls[12]->slider.setEnabled(seconds);}
         if(family==1 && !controls.empty()){controls.front()->slider.setEnabled(processor.parameters().getRawParameterValue(id("delaysync"))->load()<.5f);controls.front()->slider.updateText();}}
     void refreshModel(){const int selected=juce::jmax(0,model.getSelectedId()-1);reference.setText(juce::String::fromUTF8(spectralforge::modelInfo(family,selected).character),juce::dontSendNotification);reference.setTooltip(reference.getText());for(auto& control:controls)control->slider.getProperties().set("knobStyle",spectralforge::art::rackStyle(family,selected).knobStyle);repaint();}
 };
