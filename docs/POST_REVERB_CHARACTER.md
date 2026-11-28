@@ -39,12 +39,12 @@ Slots 2 to 4 have the same three under `slot2_`, `slot3_` and `slot4_`.
 
 ## The ALL window
 
-CONVERTER (menu) sits with the shape's menus in the third row, before
-SECONDS; DIRT and DRIFT (knobs; a double-click returns them to 0) follow
-DEPTH, CURVE and MORPH in the fourth. Both rows now hold five controls and
-the shape's display beside them is narrower. The small line over
-the three reads CHARACTER, to tell them from the shape's controls beside
-them. The first row stays DECAY, SIZE, DAMPING and MIX. The window keeps its size.
+CONVERTER (menu) ends the third row, after the shape's TYPE, UNIT, LENGTH
+and SECONDS; DIRT and DRIFT (knobs; a double-click returns them to 0) end
+the fourth, after DEPTH, CURVE and MORPH. Both rows now hold five controls
+and the shape's display beside them is narrower. The small line over the
+three reads CHARACTER, where the shape's controls read SHAPE. The first row
+stays DECAY, SIZE, DAMPING and MIX. The window keeps its size.
 
 ## Verification (Linux)
 
