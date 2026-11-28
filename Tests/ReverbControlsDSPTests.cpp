@@ -268,6 +268,58 @@ void shapeMore() {
     std::cout<<"MEASURE reverb shape morph (Chop at no depth; open half against closed half): "<<measured<<'\n';
     std::cout<<"PASS more of the reverb shape: a length in seconds ignores the tempo and the host; CURVE bends the level and keeps its ends; MORPH moves the tone with the shape; none of them is there with the shape Off\n";
 }
+// Character (docs/POST_REVERB_CHARACTER.md): an older converter, fewer bits and a slow drift of pitch, on the reverb only.
+void character() {
+    const auto steady=noise(6,6,31);std::string measured;
+    for(int model=0;model<5;++model) {
+        const auto plain=render(model,steady,steady,fixed({}));
+        const auto band=[](const Wet& w,double fromHz,double from,double to){const double pole=1-std::exp(-2*pi*fromHz/rate);double z=0,e=0;
+            for(size_t n=size_t((from-.2)*rate);n<size_t(to*rate);++n){z+=pole*(w.left[n]-z);const double v=w.left[n]-z;if(n>=size_t(from*rate))e+=v*v;}return db(e);};
+        // CONVERTER: each one takes the top off the reverb, the earliest the most, and leaves the low end.
+        measured+=std::string(model?" | ":"")+modelNames[model]+":";double previous=-1e9;
+        for(int converter=reverbConverterEarly;converter<reverbConverterCount;++converter) {
+            ReverbControls k;k.converter=converter;const auto w=render(model,steady,steady,fixed(k));
+            const double top=band(w,10000,3,5)-band(plain,10000,3,5),whole=db(w.power(3,5))-db(plain.power(3,5));
+            require(top<-3 && top>previous && whole>-6,std::string(modelNames[model])+": converter "+std::to_string(converter)+" does not take the top off in order (above 10 kHz "+num(top,1)+" dB, whole band "+num(whole,1)+" dB)");
+            previous=top;measured+=" "+num(top,1);
+        }
+        measured+=" dB above 10 kHz";
+        // DIRT: the reverb moves in steps of its word length and no finer; at full it is 7 bits.
+        {ReverbControls k;k.dirt=1;const auto w=render(model,steady,steady,fixed(k),.5f,.55f,1);const double step=std::pow(2.,1.-reverbDirtBits(1));
+         double worst=0;for(size_t n=size_t(rate);n<w.left.size();++n){const double steps=double(w.left[n])/step;worst=std::max(worst,std::abs(steps-std::round(steps)));}
+         require(worst<1e-3,std::string(modelNames[model])+": at full DIRT the reverb is not in steps of 7 bits (off a step by "+num(worst,4)+")");
+         double d=0;for(size_t n=size_t(rate);n<w.left.size();++n)d=std::max(d,double(std::abs(w.left[n]-plain.left[n])));
+         require(d<=step*.5+1e-6 || model==1 || model>=3,std::string(modelNames[model])+": DIRT moves the reverb by more than half a step");}
+        // DRIFT: the level stays, the waveform no longer lines up, and the delay it adds stays within its range.
+        {ReverbControls k;k.drift=1;const auto w=render(model,steady,steady,fixed(k));
+         require(std::abs(db(w.power(3,5))-db(plain.power(3,5)))<1.5,std::string(modelNames[model])+": DRIFT changes the reverb's level by "+num(db(w.power(3,5))-db(plain.power(3,5)),1)+" dB");
+         require(w.left!=plain.left,std::string(modelNames[model])+": DRIFT does nothing");}
+        // All three at the defaults are not there, and a new note after they return is the plain reverb.
+        {const auto burst=noise(3,.05,32);ReverbControls none;none.converter=reverbConverterOff;none.dirt=0;none.drift=0;
+         const auto a=render(model,burst,burst,fixed({})),b=render(model,burst,burst,fixed(none));require(a.left==b.left && a.right==b.right,std::string(modelNames[model])+": the character at its defaults changed the reverb");
+         std::vector<float> x(size_t(rate*5),0.f);{const auto first=noise(.3,.3,33),second=noise(.3,.3,34);std::copy(first.begin(),first.end(),x.begin());std::copy(second.begin(),second.end(),x.begin()+ptrdiff_t(rate*3));}
+         const auto moved=render(model,x,x,[](double t){ReverbControls k;if(t<1){k.converter=reverbConverterEarly;k.dirt=1;k.drift=1;}return k;},.2f),still=render(model,x,x,fixed({}),.2f);
+         double difference=0,reference=0;for(size_t n=size_t(rate*3);n<still.left.size();++n){difference=std::max(difference,double(std::abs(moved.left[n]-still.left[n])));reference=std::max(reference,double(std::abs(still.left[n])));}
+         require(difference<reference*(model==4?.05:1e-3),std::string(modelNames[model])+": after the character was switched off a new note's reverb differs by "+num(difference/reference*100,3)+"% of its peak");}
+    }
+    std::cout<<"MEASURE reverb converter (Early, Middle, Late against the plain reverb): "<<measured<<'\n';
+    // DRIFT on a tone through the plainest path: the pitch swings by the amount the delay's swing gives, and no more.
+    {const auto tone=sine(8,1000);ReverbControls k;k.drift=1;const auto w=render(0,tone,tone,fixed(k));
+     double lowest=1e9,highest=0;size_t last=0;bool have=false;std::vector<double> crossings;
+     for(size_t n=size_t(rate*3)+1;n<w.left.size();++n)if(w.left[n-1]<0 && w.left[n]>=0){const double at=double(n-1)+double(-w.left[n-1])/double(w.left[n]-w.left[n-1]);if(have)crossings.push_back(at-double(last)-0);last=n-1;have=true;(void)at;}
+     // periods from successive upward crossings, measured with their fractions
+     std::vector<double> times;for(size_t n=size_t(rate*3)+1;n<w.left.size();++n)if(w.left[n-1]<0 && w.left[n]>=0)times.push_back(double(n-1)+double(-w.left[n-1])/double(w.left[n]-w.left[n-1]));
+     for(size_t i=20;i<times.size();i+=20){const double hz=20.*rate/(times[i]-times[i-20]);lowest=std::min(lowest,hz);highest=std::max(highest,hz);}
+     const double expected=2*pi*reverbDriftHz*reverbDriftSwingMs*.001*1000;   // Hz either way at 1 kHz
+     require(highest-1000>expected*.5 && highest-1000<expected*1.5 && 1000-lowest>expected*.5 && 1000-lowest<expected*1.5,"DRIFT does not swing a 1 kHz tone by about "+num(expected,1)+" Hz each way (measured "+num(lowest,1)+" to "+num(highest,1)+" Hz)");
+     std::cout<<"MEASURE reverb drift at full on a 1 kHz tone: "<<num(lowest,1)<<" to "<<num(highest,1)<<" Hz (expected about "<<num(expected,1)<<" Hz each way)\n";}
+    // Everything moving at once, every model, mono and stereo: finite (render checks) and bounded.
+    for(int model=0;model<modelCount;++model)for(const int channels:{1,2}) {
+        const auto x=noise(4,2,35);const auto moved=render(model,x,x,[](double t){ReverbControls k;k.converter=int(t*3)%reverbConverterCount;k.dirt=float(.5+.5*std::sin(2*pi*1.7*t));k.drift=float(.5+.5*std::sin(2*pi*.9*t));return k;},.5f,.55f,channels);
+        double peak=0;for(const float v:moved.left)peak=std::max(peak,double(std::abs(v)));require(peak<20,std::string(modelNames[model])+": moving the character made the reverb run away");
+    }
+    std::cout<<"PASS reverb character: each converter takes the top off in order; DIRT puts the reverb in steps of its word length; DRIFT swings the pitch and keeps the level; at the defaults none is there; moving them stays bounded\n";
+}
 // DECAY (docs/POST_REVERB_DECAY.md): the time the reverb takes to fall 60 dB, whatever SIZE is.
 // Measured below 300 Hz, where DAMPING does not shorten the tail, from the backward-integrated decay after a
 // 50 ms burst of noise, fitted from -5 to -25 dB.
@@ -323,6 +375,7 @@ int main(int argc,char** argv) {
         if(only.empty() || only=="--shape"){shapeLevels();shapeOnTheReverb();}
         if(only.empty() || only=="--decay")decay();
         if(only.empty() || only=="--shape-more")shapeMore();
+        if(only.empty() || only=="--character")character();
         return 0;
     } catch(const std::exception& e) {std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}
 }

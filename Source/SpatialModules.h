@@ -176,9 +176,12 @@ class SpaceModule {
     juce::AudioBuffer<float> feed;std::array<std::vector<float>,2> preLine;size_t preWrite{};bool preUsed{},shapeUsed{};
     juce::SmoothedValue<float> preSamples,hold,toneAmount,widthGain;
     std::array<std::array<float,2>,2> cutState{},toneState{};
+    // Character (docs/POST_REVERB_CHARACTER.md): the converter's two low-passes and its held sample, the drift's delay line.
+    std::array<std::array<float,3>,2> converterState{};double converterPhase{},driftPhase{};
+    std::array<std::vector<float>,2> driftLine;size_t driftWrite{};juce::SmoothedValue<float> driftDepth;bool driftUsed{};
     double shapePhase{};float shapeLevel{1.f},shapeValue{1.f};bool shapeRunning{};
     void clearPre() noexcept {for(auto& l:preLine)std::fill(l.begin(),l.end(),0.f);preWrite=0;preUsed=false;}
-    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;}
+    void clearShape() noexcept {cutState={};toneState={};shapeUsed=false;shapeLevel=1.f;shapeValue=1.f;converterState={};converterPhase=0;driftPhase=0;for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}
     void clearExtended() noexcept {for(auto& channel:networks)for(auto& f:channel)f.reset();predelay.reset();gateLevel={};gateTimer=1<<30;gateArmed=true;}
 public:
     // juce::Reverb snaps its parameter smoothers to the last target on prepare.
@@ -186,12 +189,13 @@ public:
     // ramp; otherwise a re-prepared instance renders differently from a new one.
     void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;for(size_t i=0;i<2;++i){rooms[i].setParameters({});rooms[i].prepare(s);wet[i].setSize((int)s.numChannels,(int)s.maximumBlockSize);}hallPre.setMaximumDelayInSamples(int(rate*.1));spring.setMaximumDelayInSamples(int(rate*.2));hallPre.prepare(s);spring.prepare(s);
         feed.setSize((int)s.numChannels,(int)s.maximumBlockSize);for(auto& l:preLine)l.assign(size_t(rate*reverbPreDelayMaxMs*.001)+8,0.f);
-        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->reset(rate,.05);
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth})v->reset(rate,.05);driftDepth.setCurrentAndTargetValue(0);
+        for(auto& l:driftLine)l.assign(size_t(rate*.001*(reverbDriftBaseMs+reverbDriftSwingMs))+8,0.f);
         preSamples.setCurrentAndTargetValue(0);hold.setCurrentAndTargetValue(0);toneAmount.setCurrentAndTargetValue(0);widthGain.setCurrentAndTargetValue(1);
         for(auto& channel:networks){channel[0].prepare(rate,.06);channel[1].prepare(rate,.12);channel[2].prepare(rate,.04);}predelay.setMaximumDelayInSamples(int(rate*.05));predelay.prepare(s);
         morph.prepare(rate);mix.reset(rate,.03);mix.setCurrentAndTargetValue(0);reset();}
     void reset() {for(auto& r:rooms)r.reset();hallPre.reset();spring.reset();dispersion={};springLow={};phase=0;mix.setCurrentAndTargetValue(0);clearExtended();clearPre();clearShape();
-        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain})v->setCurrentAndTargetValue(v->getTargetValue());}
+        for(auto* v:{&preSamples,&hold,&toneAmount,&widthGain,&driftDepth})v->setCurrentAndTargetValue(v->getTargetValue());}
     // Where the tempo shape is in its pass, 0 to 1, for the display; below 0 while no shape runs.
     float shapePosition() const noexcept {return shapeRunning?float(shapePhase):-1.f;}
     void process(juce::AudioBuffer<float>& b,bool on,int model,float size,float damping,float amount,const ReverbControls& k={}) {
@@ -232,7 +236,15 @@ public:
         shapeRunning=on && shape!=reverbShapeOff;
         const bool shaping=shape!=reverbShapeOff || std::abs(shapeLevel-1.f)>1e-4f;
         if(!shaping){shapeLevel=1.f;shapeValue=1.f;shapePhase=0;}
-        const bool shaped=shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
+        // Character: an older converter (a low-pass each side of a sample held at a lower rate), fewer bits, a slow drift of pitch.
+        const int converter=k.converter>reverbConverterOff && k.converter<reverbConverterCount?k.converter:reverbConverterOff;
+        const float dirt=juce::jlimit(0.f,1.f,k.dirt),dirtStep=float(std::pow(2.,1.-reverbDirtBits(dirt)));
+        driftDepth.setTargetValue(juce::jlimit(0.f,1.f,k.drift));
+        const bool drifting=driftDepth.isSmoothing() || driftDepth.getTargetValue()>0.f;
+        if(drifting)driftUsed=true;else if(driftUsed){for(auto& l:driftLine)std::fill(l.begin(),l.end(),0.f);driftWrite=0;driftUsed=false;}   // an old line must not be heard when the drift comes back
+        const float converterPole=spatial_detail::onePole(juce::jmin(reverbConverterCutHz[converter],rate*.45),rate);
+        const double converterStep=juce::jmin(1.,reverbConverterRateHz[converter]/rate);
+        const bool shaped=converter!=reverbConverterOff || dirt>0.f || drifting || shaping || cutHz>reverbLowCutMinHz || toneAmount.isSmoothing() || toneAmount.getTargetValue()!=0.f || widthGain.isSmoothing() || widthGain.getTargetValue()!=1.f;
         if(!shaped && shapeUsed)clearShape();
         if(shaped)shapeUsed=true;
         // TONE: a high shelf at 1.5 kHz of up to 12 dB either way with half of it taken back overall, so the
@@ -267,6 +279,8 @@ public:
         for(int n=0;n<b.getNumSamples();++n){const auto weights=morph.next();const float m=mix.getNextValue();
             std::array<float,2> wetSum{};
             const float widthNow=shaped?widthGain.getNextValue():1.f;
+            const float driftNow=drifting?driftDepth.getNextValue():0.f;
+            bool converterTick=false;if(converter!=reverbConverterOff){converterPhase+=converterStep;if(converterPhase>=1.){converterPhase-=1.;converterTick=true;}}
             if(shaping){shapeValue=reverbShapeCurved(reverbShapeLevel(shape,shapePhase),shapeCurve);const float target=1.f-shapeDepth*(1.f-shapeValue);shapeLevel+=shapePole*(target-shapeLevel);shapePhase+=shapeStep;shapePhase-=std::floor(shapePhase);}
             const bool extended=weights[3]>0.f||weights[4]>0.f||weights[5]>0.f;
             if(extended!=extendedActive){if(!extended)clearExtended();extendedActive=extended;}
@@ -294,9 +308,20 @@ public:
             // LOW CUT: two one-pole high-passes. TONE: the shelf above (transposed direct form II).
             if(cutting)for(auto& z:cutState[(size_t)c]){z+=cutPole*(sum-z);sum-=z;}
             auto& z=toneState[(size_t)c];const float shelved=b0*sum+z[0];z[0]=b1*sum-a1*shelved+z[1];z[1]=b2*sum-a2*shelved;
-            wetSum[(size_t)c]=shelved*shapeLevel;
+            float voiced=shelved;
+            if(converter!=reverbConverterOff){auto& s=converterState[(size_t)c];s[0]+=converterPole*(voiced-s[0]);if(converterTick)s[2]=s[0];s[1]+=converterPole*(s[2]-s[1]);voiced=s[1];}
+            if(dirt>0.f)voiced=std::round(voiced/dirtStep)*dirtStep;
+            if(drifting) {
+                auto& line=driftLine[(size_t)c];line[driftWrite]=voiced;
+                const float behind=float(rate*.001)*float(reverbDriftBaseMs+reverbDriftSwingMs*std::sin(juce::MathConstants<double>::twoPi*(driftPhase+.25*double(c))));
+                const float position=float(driftWrite)-behind*driftNow,wrapped=position<0?position+float(line.size()):position;
+                const size_t a=size_t(wrapped)%line.size(),next=(a+1)%line.size();const float frac=wrapped-std::floor(wrapped);
+                voiced=line[a]+frac*(line[next]-line[a]);
+            }
+            wetSum[(size_t)c]=voiced*shapeLevel;
             }
             if(shaped) {
+                if(drifting){if(++driftWrite>=driftLine[0].size())driftWrite=0;driftPhase+=reverbDriftHz/rate;driftPhase-=std::floor(driftPhase);}
                 // WIDTH scales the difference of the two wet channels.
                 if(b.getNumChannels()>=2){const float mid=.5f*(wetSum[0]+wetSum[1]),side=.5f*(wetSum[0]-wetSum[1])*widthNow;wetSum[0]=mid+side;wetSum[1]=mid-side;}
                 for(int c=0;c<b.getNumChannels();++c)b.setSample(c,n,b.getSample(c,n)*(1-m)+wetSum[(size_t)c]*m);

@@ -27,9 +27,20 @@ struct ReverbControls {
     float shapeSeconds{1.f};     // reverbShapeMinSeconds .. reverbShapeMaxSeconds
     float shapeCurve{0.f};       // -1 soft .. 0 as drawn .. +1 hard
     float shapeMorph{0.f};       // -1 .. +1: the reverb's tone follows the shape; 0 = not at all
+    // Character (docs/POST_REVERB_CHARACTER.md): the sound of an early digital reverb, on the reverb only.
+    int converter{0};        // reverbConverterOff .. reverbConverterLate: the bandwidth and sample rate of an older converter
+    float dirt{0.f};         // 0 = none .. 1: fewer bits
+    float drift{0.f};        // 0 = none .. 1: slow pitch drift
     float decaySeconds{0.f}; // below reverbDecayMinSeconds: SIZE sets the decay; from there up: the time to fall 60 dB
 };
 enum ReverbShape {reverbShapeOff=0,reverbShapeRise,reverbShapeRewind,reverbShapeChop,reverbShapeTide,reverbShapeDuck,reverbShapeCount};
+enum ReverbConverter {reverbConverterOff=0,reverbConverterEarly,reverbConverterMiddle,reverbConverterLate,reverbConverterCount};
+// The low-pass and the sample rate each converter stands for. Off is not read.
+inline constexpr double reverbConverterCutHz[reverbConverterCount]{20000.,6000.,9000.,13000.},reverbConverterRateHz[reverbConverterCount]{48000.,16000.,24000.,32000.};
+// DIRT takes the word length from 16 bits down to 7.
+inline double reverbDirtBits(float dirt) noexcept {return 16.-9.*double(dirt<0.f?0.f:dirt>1.f?1.f:dirt);}
+// DRIFT moves the reverb's pitch by a delay that swings up to this far each way, around this far behind.
+inline constexpr double reverbDriftSwingMs=1.5,reverbDriftBaseMs=2.,reverbDriftHz=.7;
 inline constexpr float reverbShapeMinSeconds = .1f, reverbShapeMaxSeconds = 10.f;
 // CURVE bends a shape's level around its middle: hard (above 0) makes it nearer a switch, soft (below 0)
 // keeps it nearer the middle for longer. 0 and 1 stay where they are; at 0 the level is returned untouched.

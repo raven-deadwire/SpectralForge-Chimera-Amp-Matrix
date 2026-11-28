@@ -987,6 +987,7 @@ spectralforge::appendPostReverbControlParameters(p);
 spectralforge::appendPostReverbShapeParameters(p);
 spectralforge::appendPostReverbDecayParameters(p);
 spectralforge::appendPostReverbShapeMoreParameters(p);
+spectralforge::appendPostReverbCharacterParameters(p);
 return p;
 }
 
