@@ -14,11 +14,12 @@ struct RigPassEngineRun {Controller::Status status;std::array<float,2> gainBefor
 // lanes: the two lanes the passes listen to (Dual rigs 0 and 1, Matrix lanes 1 and 2).
 // lowNotes: pure 82 and 98 Hz notes, which do not reach a MID or HIGH band.
 // finished (phase 49): called with the processor after the run and its measurements, before it is released.
+// rate, block (phase 50): the sample rate and block size the session runs at.
 RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,const Controller::Options& options,std::array<float,2> gainFraction,
                                   const std::function<void(ChimeraProcessor&)>& prepare={},bool lowNotes=false,
-                                  const std::function<void(ChimeraProcessor&)>& finished={}) {
+                                  const std::function<void(ChimeraProcessor&)>& finished={},double rate=48000.,int block=256) {
     using P=Controller::Phase;
-    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(48000,256);p->prepareToPlay(48000,256);
+    auto p=std::make_unique<ChimeraProcessor>();p->setRateAndBufferSizeDetails(rate,block);p->prepareToPlay(rate,block);
     const auto setRaw=[&](const juce::String& id,float v){auto* q=p->parameters().getParameter(id);q->setValueNotifyingHost(q->convertTo0to1(v));};
     constexpr int model=2;
     setRaw("mode",float(mode));setRaw("dualtype",float(dualType));
@@ -35,22 +36,26 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
     RigPassEngineRun result;
     for(int index=0;index<2;++index)result.gainBefore[size_t(index)]=get(*p,gainID[size_t(index)]);
     // Played notes with eight harmonics (82 Hz to about 2.6 kHz), so every band of a crossover gets some of the playing.
-    std::mt19937 rng{441};auto di=playedNotes(48000,8,rng);size_t offset=0;
+    std::mt19937 rng{441};auto di=playedNotes(rate,8,rng);size_t offset=0;
     if(lowNotes) {
         // Pure tones well under the crossovers: half-second notes at 82 and 98 Hz, no harmonics, no hiss.
         for(size_t n=0;n<di.size();++n) {
-            const double t=double(n%24000)/48000.,f=(n/24000)%2?98.:82.41;
+            const size_t half=size_t(rate/2);const double t=double(n%half)/rate,f=(n/half)%2?98.:82.41;
             di[n]=float(.12*std::exp(-t*5)*std::min(1.,t/.003)*std::sin(2*juce::MathConstants<double>::pi*f*t));
         }
     }
     double now=juce::Time::getMillisecondCounterHiRes();
-    juce::AudioBuffer<float> b(2,256);juce::MidiBuffer midi;
+    juce::AudioBuffer<float> b(2,block);juce::MidiBuffer midi;
+    // The block counts below are written for 48 kHz and blocks of 256: play() keeps their length in seconds, and
+    // the tick every four of those blocks (about 21 ms), at any rate and block size (phase 50).
+    const auto scaled=[&](int blocks){return int(std::max<long long>(1,std::llround(double(blocks)*256.*rate/(48000.*block))));};
+    const int tickEvery=scaled(4);
     const auto play=[&](int blocks,bool tick) {
-        for(int k=0;k<blocks;++k) {
-            if(offset+256>di.size())offset=0;
-            for(int ch=0;ch<2;++ch)b.copyFrom(ch,0,di.data()+offset,256);
-            offset+=256;p->processBlock(b,midi);now+=1000.*256/48000;
-            if(tick && k%4==0)c.tick(now);
+        for(int k=0,count=scaled(blocks);k<count;++k) {
+            if(offset+size_t(block)>di.size())offset=0;
+            for(int ch=0;ch<2;++ch)b.copyFrom(ch,0,di.data()+offset,block);
+            offset+=size_t(block);p->processBlock(b,midi);now+=1000.*block/rate;
+            if(tick && k%tickEvery==0)c.tick(now);
         }
         if(tick)c.tick(now);
     };
@@ -63,7 +68,7 @@ RigPassEngineRun runRigPassEngine(int mode,int dualType,std::array<int,2> lanes,
         std::vector<float> amp,rig;p->autoSetCapture().drainAmpSamples(amp);p->autoSetCapture().drainSamples(rig);
         p->autoSetCapture().listen(std::nullopt);p->setAutoSetRigLane(-1);
         double energy=0,high=0;
-        const double k=std::exp(-2*juce::MathConstants<double>::pi*3000./48000.);double x1=0,y1=0,x2=0,y2=0;
+        const double k=std::exp(-2*juce::MathConstants<double>::pi*3000./rate);double x1=0,y1=0,x2=0,y2=0;
         for(const float v:rig) {
             energy+=double(v)*v;
             y1=k*(y1+v-x1);x1=v;y2=k*(y2+y1-x2);x2=y1;high+=y2*y2;
@@ -402,4 +407,82 @@ void rigPassEngineRepeatedRuns() {
         std::cout<<"MEASURE auto set rig pass engine repeated runs, "<<k.name<<" (PRESENCE rig 1/rig 2): "<<measured<<"; above 3 kHz "<<db(share[0])<<"/"<<db(share[1])<<" dB\n";
     }
     std::cout<<"PASS auto set rig pass engine repeated runs: six runs on one session through processBlock; PRESENCE never moved back, both rigs kept from some run on and by every run after, identical rigs ending alike\n";
+}
+// Phase 50: the rig and lane passes on the real engine at other sample rates and block sizes
+// (docs/AUTO_SET_PHASE50.md). Phases 44 to 49 ran at 48 kHz with blocks of 256 only.
+// Run by its own test, ChimeraAutoSetRigPassRatesTests (--rig-pass-rates), not by the whole binary.
+void rigPassEngineRates() {
+    using P=Controller::Phase;
+    constexpr int model=2,rhythm=0;
+    const auto db=[](float v){std::ostringstream o;o<<std::fixed<<std::setprecision(2)<<v;return o.str();};
+    const auto pct=[](float v){return std::to_string(juce::roundToInt(v*100))+"%";};
+    Controller::Options base{1,false,Style::rock,false,false,false,1.f,Controller::lockInput|Controller::lockGate|Controller::lockCompressor,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+    base.sync=base.cabIR=base.polarity=false;
+    struct Session {double rate;int block;};
+    struct Layout {const char* name;int mode,dualType;std::array<int,2> lanes;std::array<P,2> gainRows,trimRows;bool Controller::Options::*gain;bool Controller::Options::*trim;float trimGain;};
+    const std::array<Layout,3> layouts{{
+        {"Dual Blend",1,0,{0,1},{P::dualAmp1,P::dualAmp2},{P::dualTrim1,P::dualTrim2},&Controller::Options::dualAmp,&Controller::Options::dualTrim,0.f},
+        {"Dual Crossover",1,1,{0,1},{P::crossGain1,P::crossGain2},{P::crossTrim1,P::crossTrim2},&Controller::Options::crossGain,&Controller::Options::crossTrim,0.f},
+        {"Matrix",2,0,{1,2},{P::matrixGain2,P::matrixGain3},{P::matrixTrim2,P::matrixTrim3},&Controller::Options::matrixGain,&Controller::Options::matrixTrim,.2f}}};
+    for(const Session& at:{Session{44100.,256},Session{96000.,256},Session{48000.,64},Session{48000.,1024}}) {
+        std::ostringstream label;label<<at.rate<<" Hz, blocks of "<<at.block;
+        const std::string where=label.str();
+        for(const auto& k:layouts) {
+            const std::string name=where+", "+k.name;
+            // GAIN, as phase 44: started far below the rock drive, it rises and the drive comes closer to the target.
+            auto gain=base;gain.*(k.gain)=true;
+            const auto g=runRigPassEngine(k.mode,k.dualType,k.lanes,gain,{.05f,.05f},{},false,{},at.rate,at.block);
+            check(g.status.phase==P::done && g.status.passes==std::vector<P>{k.gainRows[0],k.gainRows[1]},name+": the GAIN passes did not run on the real engine");
+            std::string measured;
+            for(int index=0;index<2;++index) {
+                const auto* step=stepOf(g.status,k.gainRows[size_t(index)]);const auto& a=g.analysis[size_t(index)];
+                check(step!=nullptr && g.analysed[size_t(index)],name+": a GAIN pass left no row or analysis");
+                check(a.playingDetected,name+": the playing was not heard through the engine: "+step->result.toStdString());
+                check(step->changed && g.gainAfter[size_t(index)]>g.gainBefore[size_t(index)],name+": a low GAIN was not raised: "+step->result.toStdString());
+                check(std::abs(a.compressionAfter-a.compressionTarget)<std::abs(a.compressionBefore-a.compressionTarget),name+": the drive did not come closer to the target: "+step->result.toStdString());
+                measured+=std::string(index?" | ":"")+"GAIN "+db(g.gainBefore[size_t(index)])+" > "+db(g.gainAfter[size_t(index)])+", drive "+pct(a.compressionBefore)+" > "+pct(a.compressionAfter)+" (target "+pct(a.compressionTarget)+")";
+            }
+            // The input trim, as phase 46: RHYTHM with GAIN low. The trim rises, OUTPUT LEVEL falls, and the lane stays about as loud.
+            auto trim=base;trim.*(k.trim)=true;
+            const auto heads=[=](ChimeraProcessor& p) {
+                for(const int lane:k.lanes) {
+                    const int context=spectralforge::ampNativeContext(k.mode,lane);
+                    auto* q=p.parameters().getParameter(spectralforge::ampNativeChannelID(context,model));q->setValueNotifyingHost(q->convertTo0to1(float(rhythm)));
+                    p.parameters().getParameter(spectralforge::ampNativeControlID(context,model,roleControls(model,rhythm,0)[ampGain],rhythm))->setValueNotifyingHost(k.trimGain);
+                }
+            };
+            const auto t=runRigPassEngine(k.mode,k.dualType,k.lanes,trim,{0.f,0.f},heads,false,{},at.rate,at.block);
+            check(t.status.phase==P::done,name+": the trim run on the real engine did not finish");
+            for(int index=0;index<2;++index) {
+                const auto* step=stepOf(t.status,k.trimRows[size_t(index)]);
+                check(step && step->changed && t.trimAfter[size_t(index)]>0 && t.outputAfter[size_t(index)]<t.outputBefore[size_t(index)],
+                      name+": the trim was not raised with the level lowered: "+(step?step->result.toStdString():std::string("no step")));
+                const float moved=t.levelAfterDb[size_t(index)]-t.levelBeforeDb[size_t(index)];
+                check(std::abs(moved)<2.f,name+": the lane's level moved by "+db(moved)+" dB after the trim: "+step->result.toStdString());
+                measured+=" | trim +"+db(t.trimAfter[size_t(index)])+" dB, OUTPUT LEVEL "+db(t.outputAfter[size_t(index)]-t.outputBefore[size_t(index)])+" dB, lane level "+db(t.levelBeforeDb[size_t(index)])+" > "+db(t.levelAfterDb[size_t(index)])+" dB";
+            }
+            std::cout<<"MEASURE auto set rig pass rates, "<<name<<": "<<measured<<'\n';
+        }
+        // PRESENCE, as phase 47: both Dual Blend rigs with PRESENCE at its top. Each move is checked against the rig's measured top end.
+        auto power=base;power.dualPower=true;
+        const auto r=runRigPassEngine(1,0,{0,1},power,{.3f,.3f},[=](ChimeraProcessor& p) {
+            for(int rig=0;rig<2;++rig) {
+                const int channel=p.selectedAmpChannel(rig);
+                p.parameters().getParameter(spectralforge::ampNativeControlID(spectralforge::ampNativeContext(1,rig),model,powerControl(model,channel,powerPresence),channel))->setValueNotifyingHost(1.f);
+            }
+        },false,{},at.rate,at.block);
+        check(r.status.phase==P::done && r.status.passes==std::vector<P>{P::dualAmp1,P::dualAmp2},where+": the presence passes did not run on the real engine");
+        std::string measured;
+        for(int rig=0;rig<2;++rig) {
+            const auto* step=stepOf(r.status,rig==0?P::dualPower1:P::dualPower2);
+            check(step && !step->result.contains("no playing heard"),where+": the presence step did not hear the rig: "+(step?step->result.toStdString():std::string("no step")));
+            const float knob=r.presenceAfter[size_t(rig)]-r.presenceBefore[size_t(rig)],share=r.highShareAfterDb[size_t(rig)]-r.highShareBeforeDb[size_t(rig)];
+            check(step->changed,where+": a rig far over the target was kept: "+step->result.toStdString());
+            check(knob<1e-6f,where+": PRESENCE at its top was raised: "+step->result.toStdString());
+            if(knob<-1e-6f)check(share<-.05f,where+": PRESENCE was lowered but the rig's top end did not fall ("+db(share)+" dB): "+step->result.toStdString());
+            measured+=std::string(rig?" | ":"")+"PRESENCE "+db(r.presenceBefore[size_t(rig)])+" > "+db(r.presenceAfter[size_t(rig)])+", above 3 kHz "+db(r.highShareBeforeDb[size_t(rig)])+" > "+db(r.highShareAfterDb[size_t(rig)])+" dB";
+        }
+        std::cout<<"MEASURE auto set rig pass rates, "<<where<<", presence: "<<measured<<'\n';
+    }
+    std::cout<<"PASS auto set rig pass rates: GAIN, input trim and presence of the rig and lane passes through processBlock at 44.1 and 96 kHz and with blocks of 64 and 1024\n";
 }
