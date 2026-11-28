@@ -38,10 +38,13 @@ Slots 2 to 4 have the same four under `slot2_`, `slot3_` and `slot4_`.
 
 The shape now has two rows, with its display beside both:
 
-- third row: SHAPE, UNIT, LENGTH, SECONDS. The length not in use (LENGTH in
+- third row: TYPE (the shape; it was labelled SHAPE), UNIT, LENGTH, SECONDS. The length not in use (LENGTH in
   seconds, SECONDS in bars) is greyed;
 - fourth row: DEPTH, CURVE, MORPH. A double-click returns CURVE and MORPH
   to 0.
+
+The small line over each of these seven controls reads SHAPE, where the
+reverb's other controls read REVERB.
 
 The display draws the level with the curve applied. In seconds it shows the
 time in place of the length in bars, `FREE` in place of the tempo, and four
