@@ -100,7 +100,6 @@ Wavetable import is not in this change.
 - No more factory presets were made: there are still four, and none uses the
   sequencer, a macro or an effect.
 - The preset name following an A/B switch was not tested.
-- DE / KO manual text is not written.
 
 ## Measurements
 

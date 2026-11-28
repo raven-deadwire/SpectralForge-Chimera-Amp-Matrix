@@ -126,4 +126,3 @@ amount or the filter drive as targets, and an animated value on the knob.
   on-screen keyboard.
 - No factory patch uses a table.
 - The display is 48 px high; the stacked frames are small.
-- DE / KO manual text is not written.

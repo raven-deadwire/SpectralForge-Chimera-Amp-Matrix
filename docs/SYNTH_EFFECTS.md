@@ -82,7 +82,6 @@ safety stage, always in this order:
   plugin as soon as its input is silent may cut it.
 - The delay follows the tempo, not the host's bar position.
 - No factory patch uses an effect.
-- DE / KO manual text is not written.
 
 ## Measurements
 
