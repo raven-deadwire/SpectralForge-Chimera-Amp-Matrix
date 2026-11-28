@@ -7,7 +7,9 @@
 #include "PluginProcessor.h"
 #include "SynthLayer.h"
 #include "SynthPage.h"
+#include <set>
 #include "SynthSampleIO.h"
+#include "SynthPresets.h"
 #include "SynthWavetableIO.h"
 #include "SignalPath.h"
 #include <algorithm>
@@ -502,6 +504,40 @@ void contractAndPatches() {
     for(int patch=1;patch<int(patches.size());++patch){Host x;for(const auto& [id,v]:patches[size_t(patch)].values)x.set(id.toRawUTF8(),v);x.set("synthOn",1);x.set("synthSource",2);
         const double level=rms(render(x,24000,silence(),hold({57})).l,2400,12000);line+=std::string(" ")+patches[size_t(patch)].name+" "+juce::String(db(level),1).toStdString()+" dBFS;";require(level>1e-3,"A factory patch is silent");}
     std::cout<<"MEASURE factory patches, A3:"<<line<<"\n";
+    // Every factory preset (docs/SYNTH_FACTORY_PRESETS.md): its ids exist, its values are ones the controls can hold,
+    // its name and type are clean and unique, and at the default LEVEL a four-note chord stays below full scale.
+    {std::set<std::string> names;int withNewer=0;
+     const auto newer=[](const juce::String& id){return id.endsWith("Table")||id.startsWith("synthFilter2")||id.startsWith("synthDist")||id.startsWith("synthSeq")||id.startsWith("synthModB")||id.startsWith("synthFx");};
+     for(size_t k=0;k<patches.size();++k){const auto& patch=patches[k];const std::string name=patch.name;
+        require(names.insert(juce::String(patch.name).toLowerCase().toStdString()).second && synthPresets::cleanName(patch.name)==juce::String(patch.name) && synthPresets::categories().contains(patch.category),"A factory preset's name is not unique or clean, or its type is unknown: "+name);
+        Host x;std::set<std::string> ids;bool uses=false,macro=false,seq=false;
+        for(const auto& [id,v]:patch.values){auto* q=x.state.getParameter(id);require(q!=nullptr,"Factory preset "+name+" names an unknown parameter: "+id.toStdString());
+            require(ids.insert(id.toStdString()).second && !synthPatchKeeps(id),"Factory preset "+name+" sets a parameter twice, or one a preset may not hold: "+id.toStdString());
+            const float held=q->convertFrom0to1(q->convertTo0to1(v));require(std::abs(held-v)<=1e-3f*std::max(1.f,std::abs(v)),"Factory preset "+name+" holds a value its control cannot: "+id.toStdString()+" "+std::to_string(v));
+            x.set(id.toRawUTF8(),v);uses=uses||newer(id);
+            if(id.startsWith("synthModB")&&id.endsWith("Source")){macro=macro||(v>=float(modMacro1)&&v<=float(modMacro4));seq=seq||juce::roundToInt(v)==modSeq;}}
+        if(k<synthEnginePatches().size())continue;
+        ++withNewer;require(uses && macro,"A newer factory preset uses none of the newer functions, or no macro: "+name);
+        x.set("synthOn",1);x.set("synthSource",2);
+        // A3 held for 2 s, then a C2-G2-C3-E3 / C3-G3-C4-E4 chord for 2 s.
+        const auto note=render(x,96000,silence(),hold({57}));
+        Host y;for(const auto& [id,v]:patch.values)y.set(id.toRawUTF8(),v);y.set("synthOn",1);y.set("synthSource",2);
+        const bool low=juce::String(patch.category)=="Bass";const auto chord=render(y,96000,silence(),low?hold({36,43,48,52}):hold({48,55,60,64}));
+        double peak=0,dc=0;bool finite=true;for(size_t n=0;n<chord.l.size();++n){finite=finite&&std::isfinite(chord.l[n])&&std::isfinite(chord.r[n]);peak=std::max({peak,double(std::abs(chord.l[n])),double(std::abs(chord.r[n]))});dc+=chord.l[n];}
+        double notePeak=0;for(float v:note.l)notePeak=std::max(notePeak,double(std::abs(v)));
+        const double early=rms(note.l,2400,24000),late=rms(note.l,72000,96000);
+        // Macro 1 at 100 %: the sound changes.
+        Host z;for(const auto& [id,v]:patch.values)z.set(id.toRawUTF8(),v);z.set("synthOn",1);z.set("synthSource",2);z.set("synthMacro1",100);
+        const auto moved=render(z,48000,silence(),hold({57})).l;double change=0;for(int n=0;n<48000;++n)change+=double(moved[size_t(n)]-note.l[size_t(n)])*(moved[size_t(n)]-note.l[size_t(n)]);change=std::sqrt(change/48000);
+        std::cout<<"MEASURE preset "<<name<<" ("<<patch.category<<"): A3 peak "<<juce::String(db(notePeak),1)<<" dBFS, RMS 0.05-0.5 s "<<juce::String(db(early),1)<<", 1.5-2 s "<<juce::String(db(late),1)
+                 <<"; chord peak "<<juce::String(db(peak),1)<<" dBFS, DC "<<juce::String(db(std::abs(dc)/chord.l.size()),1)<<"; macro 1 changes it by "<<juce::String(db(change),1)<<" dBFS RMS"<<(seq?"; uses the sequencer":"")<<"\n";
+        if(std::getenv("SYNTH_PRESET_SURVEY"))continue;
+        require(finite && std::max(early,late)>std::pow(10.0,-40.0/20) && notePeak>std::pow(10.0,-18.0/20),"A factory preset is too quiet on one note: "+name);   // a pad is slow to rise, a pluck is gone by 1.5 s
+        // A bass is played a note at a time: one note stays 3 dB below full scale. The others: a four-note chord stays below full scale.
+        require(low?notePeak<std::pow(10.0,-3.0/20):peak<1.0,"A factory preset is too loud at the default LEVEL (one note for a bass, a four-note chord otherwise): "+name);
+        require(change>std::pow(10.0,-50.0/20),"Macro 1 does nothing audible in factory preset "+name);
+        require(std::abs(dc)/chord.l.size()<std::pow(10.0,-30.0/20),"A factory preset puts out DC: "+name);}
+     std::cout<<"MEASURE factory presets: "<<patches.size()<<" ("<<withNewer<<" use the newer functions)\n";}
     std::cout<<"PASS off contract, full load bounded and allocation-free, factory patches sound\n";
 }
 
@@ -1157,8 +1193,9 @@ void processorInsertsAndPage() {
      bank->setSelectedId(3,juce::sendNotificationSync);require(page.presetsListed()==2 && page.presetNameAt(0)=="Glass Pad" && page.presetNameAt(1)=="My Bass" && list->getSelectedRow()==0,"USER does not list the two saved presets");
      bank->setSelectedId(2,juce::sendNotificationSync);require(page.presetsListed()==factoryCount && list->getSelectedRow()<0,"FACTORY lists a user preset or marks one");
      bank->setSelectedId(1,juce::sendNotificationSync);kind->setSelectedId(4,juce::sendNotificationSync);
-     require(page.presetsListed()==2 && page.presetNameAt(0)=="Seidr Dynamic" && page.presetNameAt(1)=="Glass Pad","The type filter does not list the pads");
-     kind->setSelectedId(1,juce::sendNotificationSync);search->setText("BAS",true);pumpNow();require(page.presetsListed()==1 && page.presetNameAt(0)=="My Bass","Search does not find the preset by part of its name");
+     {int factoryPads=0;for(const auto& patch:synthPatches())factoryPads+=juce::String(patch.category)=="Pad";
+      require(page.presetsListed()==factoryPads+1 && page.presetNameAt(0)=="Seidr Dynamic" && page.presetNameAt(factoryPads)=="Glass Pad","The type filter does not list the pads");}
+     kind->setSelectedId(1,juce::sendNotificationSync);search->setText("MY B",true);pumpNow();require(page.presetsListed()==1 && page.presetNameAt(0)=="My Bass","Search does not find the preset by part of its name");
      search->setText("zzz",true);pumpNow();require(page.presetsListed()==0,"Search lists presets that do not match");
      writes.changes.clear();click("synthPresetNext");require(writes.changes.empty() && page.currentPresetName()=="Glass Pad","Next loaded something from an empty list");
      search->setText("",true);pumpNow();require(page.presetsListed()==factoryCount+2 && writes.changes.empty(),"Clearing the search does not list everything, or filtering loaded a preset");

@@ -241,7 +241,7 @@ inline constexpr int synthParameterCount = 12 + synthOscCount * 12 + 4 + 3 + 7 +
 // parameter); nothing applies a patch on its own. Unlisted parameters return
 // to their defaults. Each engine type has its factory patch.
 struct SynthPatch { const char* name; std::vector<std::pair<juce::String, float>> values; const char* category{"Other"}; };
-inline std::vector<SynthPatch> synthPatches() {
+inline std::vector<SynthPatch> synthEnginePatches() {
     return {
         {"Init", {}},
         {"Dvergr Analog", {{"synthType", float(synthAnalog)}, {"synthCharacter", 60.f}, {"synthOscAWave", 2.f}, {"synthOscBOn", 1.f}, {"synthOscBWave", 2.f},
@@ -257,6 +257,108 @@ inline std::vector<SynthPatch> synthPatches() {
                           {"synthOscBOctave", 1.f}, {"synthOscBLevel", 0.f}, {"synthFM", 10.f}, {"synthFilterOn", 0.f}, {"synthAmpAttack", 1.f},
                           {"synthAmpDecay", 500.f}, {"synthAmpSustain", 0.f}, {"synthAmpRelease", 500.f}}, "Pluck"},
     };
+}
+// Factory presets beyond the three engine patches (docs/SYNTH_FACTORY_PRESETS.md):
+// they use the tables, filter 2, the distortion, the sequencer, the macros
+// and the effect rack. Values are in each parameter's own unit. Rows of the
+// second matrix bank are written with `mod` (row 1-8 of that bank).
+struct SynthPresetBuilder {
+    std::vector<std::pair<juce::String, float>> values;
+    SynthPresetBuilder& set(const juce::String& id, float value) { values.push_back({id, value});return *this; }
+    SynthPresetBuilder& mod(int row, int source, int target, float amount) {
+        return set(synthModBID(row - 1, "Source"), float(source)).set(synthModBID(row - 1, "Target"), float(target)).set(synthModBID(row - 1, "Amount"), amount);
+    }
+    SynthPresetBuilder& steps(std::initializer_list<int> pattern) {
+        int k = 0;for (const int v : pattern) if (k < synthSeqMaxSteps) set(synthSeqStepID(k++), float(v));
+        return set("synthSeqSteps", float(k));
+    }
+};
+inline std::vector<SynthPatch> synthFactoryPresets() {
+    using B = SynthPresetBuilder;
+    const auto make = [](const char* name, const char* category, B b) { return SynthPatch{name, std::move(b.values), category}; };
+    return {
+        // Bass
+        make("Iron Sub", "Bass", B().set("synthType", float(synthAnalog)).set("synthCharacter", 40).set("synthOscAWave", 2).set("synthOscALevel", 60).set("synthSubOn", 1).set("synthSubShape", 1).set("synthSubLevel", 35)
+            .set("synthFilterType", 1).set("synthCutoff", 300).set("synthResonance", 25).set("synthFilterEnv", 45).set("synthModEnvDecay", 250).set("synthModEnvSustain", 10).set("synthAmpSustain", 90).set("synthAmpRelease", 120)
+            .set("synthDistOn", 1).set("synthDistType", 3).set("synthDistPlace", float(synthDistAfterFilters)).set("synthDistDrive", 30).set("synthDistMix", 60).set("synthGlide", 40)
+            .set("synthFxEqOn", 1).set("synthFxEqLow", 3).mod(1, modMacro1, targetCutoff, 50).mod(2, modMacro2, targetDistDrive, 60)),
+        make("Growl Bass", "Bass", B().set("synthType", float(synthAnalog)).set("synthCharacter", 30).set("synthOscATable", 9).set("synthOscAWave", 1).set("synthOscAWarp", float(synthWarpBendUp)).set("synthOscAWarpAmount", 20).set("synthOscALevel", 65)
+            .set("synthSubOn", 1).set("synthSubLevel", 35).set("synthFilterType", 1).set("synthCutoff", 900).set("synthResonance", 30).set("synthLfo1Sync", 4).mod(1, modLfo1, targetWaveA, 35)
+            .set("synthDistOn", 1).set("synthDistType", 3).set("synthDistPlace", float(synthDistAfterFilters)).set("synthDistDrive", 35).set("synthDistMix", 70).set("synthAmpSustain", 90).set("synthAmpRelease", 150)
+            .mod(2, modMacro1, targetWaveA, 60).mod(3, modMacro2, targetCutoff, 40)),
+        make("Step Bass", "Bass", B().set("synthType", float(synthAnalog)).set("synthCharacter", 30).set("synthOscATable", 2).set("synthOscAWave", 1).set("synthOscALevel", 60).set("synthSubOn", 1).set("synthSubLevel", 30)
+            .set("synthFilterType", 1).set("synthCutoff", 350).set("synthResonance", 45).steps({100, 0, 40, 0, 80, 20, 0, 60, 100, 0, 30, 70, 0, 50, 90, 10}).set("synthSeqRate", 4).set("synthSeqSmooth", 10)
+            .mod(1, modSeq, targetCutoff, 45).mod(2, modMacro1, targetCutoff, 40).mod(3, modMacro2, targetResonance, 40).set("synthAmpSustain", 90).set("synthAmpRelease", 120)),
+        make("Fold Bass", "Bass", B().set("synthType", float(synthAnalog)).set("synthCharacter", 30).set("synthOscATable", 5).set("synthOscAWave", .8f).set("synthOscALevel", 60).set("synthSubOn", 1).set("synthSubLevel", 35)
+            .set("synthModEnvDecay", 300).set("synthModEnvSustain", 15).mod(1, modEnv2, targetWaveA, 40).set("synthFilterType", 0).set("synthCutoff", 1500).set("synthResonance", 15)
+            .set("synthDistOn", 1).set("synthDistType", 2).set("synthFilter2On", 1).set("synthFilter2Type", 2).set("synthFilter2Cutoff", 30).set("synthFilter2Resonance", 0).set("synthDistPlace", float(synthDistBeforeFilters)).set("synthDistDrive", 20).set("synthDistMix", 40).set("synthAmpSustain", 85).set("synthAmpRelease", 150)
+            .mod(2, modMacro1, targetWaveA, 50).mod(3, modMacro2, targetDistMix, 60)),
+        // Lead
+        make("Sync Lead", "Lead", B().set("synthType", float(synthDynamic)).set("synthCharacter", 30).set("synthOscATable", 6).set("synthOscAWave", 1.5f).set("synthOscAUnison", 3).set("synthOscADetune", 15).set("synthOscALevel", 85).set("synthOscBOn", 1).set("synthOscBTable", 6).set("synthOscBWave", 1).set("synthOscBOctave", -1).set("synthOscBLevel", 45)
+            .set("synthModEnvDecay", 600).set("synthModEnvSustain", 30).mod(1, modEnv2, targetWaveA, 50).set("synthFilterType", 0).set("synthCutoff", 5000).set("synthGlide", 60)
+            .set("synthFxDelayOn", 1).set("synthFxDelaySync", 5).set("synthFxDelayFeedback", 35).set("synthFxDelayMix", 22).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 1.8f).set("synthFxReverbMix", 15)
+            .mod(2, modMacro1, targetWaveA, 50).mod(3, modWheel, targetWarpA, 60).set("synthOscAWarp", float(synthWarpBendUp))),
+        make("Vowel Lead", "Lead", B().set("synthType", float(synthDynamic)).set("synthCharacter", 30).set("synthOscATable", 3).set("synthOscAWave", 2).set("synthOscALevel", 90).set("synthLfo1Rate", .25f).mod(1, modLfo1, targetWaveA, 45)
+            .set("synthFilterType", 0).set("synthCutoff", 6000).set("synthAmpAttack", 15).set("synthAmpSustain", 90).set("synthGlide", 80)
+            .set("synthFxChorusOn", 1).set("synthFxChorusMix", 35).set("synthFxDelayOn", 1).set("synthFxDelaySync", 2).set("synthFxDelayFeedback", 30).set("synthFxDelayMix", 18)
+            .mod(2, modMacro1, targetWaveA, 50).mod(3, modMacro2, targetCutoff, -40)),
+        make("Razor Lead", "Lead", B().set("synthType", float(synthAnalog)).set("synthCharacter", 40).set("synthOscAWave", 2).set("synthOscAUnison", 5).set("synthOscADetune", 30).set("synthOscALevel", 30)
+            .set("synthOscBOn", 1).set("synthOscBWave", 3).set("synthOscBOctave", -1).set("synthOscBLevel", 15).set("synthFilterType", 1).set("synthCutoff", 3000).set("synthResonance", 30).set("synthFilterEnv", 30)
+            .set("synthDistOn", 1).set("synthDistType", 1).set("synthDistPlace", float(synthDistAfterFilters)).set("synthDistDrive", 25).set("synthDistMix", 40)
+            .set("synthFxDelayOn", 1).set("synthFxDelaySync", 2).set("synthFxDelayFeedback", 30).set("synthFxDelayMix", 20).mod(1, modMacro1, targetDetune, 60).mod(2, modMacro2, targetDistDrive, 50)),
+        // Pad
+        make("Frost Pad", "Pad", B().set("synthType", float(synthDynamic)).set("synthCharacter", 40).set("synthOscATable", 1).set("synthOscAWave", 1.2f).set("synthOscAUnison", 5).set("synthOscADetune", 25).set("synthOscALevel", 65)
+            .set("synthOscBOn", 1).set("synthOscBTable", 7).set("synthOscBWave", 2).set("synthOscBOctave", 1).set("synthOscBLevel", 25).set("synthLfo2Rate", .15f).mod(1, modLfo2, targetWaveA, 25)
+            .set("synthAmpAttack", 600).set("synthAmpSustain", 90).set("synthAmpRelease", 1800).set("synthFilterType", 0).set("synthCutoff", 3500).set("synthWidth", 90)
+            .set("synthFxChorusOn", 1).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 5).set("synthFxReverbMix", 35).mod(2, modMacro1, targetCutoff, 50).mod(3, modMacro2, targetWaveB, 50)),
+        make("Comb Pad", "Pad", B().set("synthType", float(synthDynamic)).set("synthCharacter", 30).set("synthOscAWave", 2).set("synthOscAUnison", 5).set("synthOscADetune", 30).set("synthOscALevel", 30)
+            .set("synthFilterType", 0).set("synthCutoff", 2500).set("synthFilter2On", 1).set("synthFilter2Type", float(synthFilterCombPlus)).set("synthFilter2Cutoff", 262).set("synthFilter2Resonance", 55).set("synthFilter2KeyTrack", 100)
+            .set("synthFilterRouting", 1).set("synthFilterBalance", 50).set("synthLfo1Rate", .1f).mod(1, modLfo1, targetCutoff2, 4).set("synthAmpAttack", 800).set("synthAmpSustain", 90).set("synthAmpRelease", 2000)
+            .set("synthFxReverbOn", 1).set("synthFxReverbDecay", 4).set("synthFxReverbMix", 30).set("synthWidth", 80).mod(2, modMacro1, targetFilterBalance, 50).mod(3, modMacro2, targetResonance2, 40)),
+        make("Drift Pad", "Pad", B().set("synthType", float(synthDynamic)).set("synthCharacter", 50).set("synthOscATable", 3).set("synthOscAWave", 1).set("synthOscALevel", 75).set("synthOscAUnison", 3).set("synthOscADetune", 20)
+            .set("synthOscBOn", 1).set("synthOscBTable", 9).set("synthOscBWave", 1).set("synthOscBOctave", -1).set("synthOscBLevel", 45)
+            .steps({0, 60, 100, 40, -20, 80, 20, -60}).set("synthSeqRate", 1).set("synthSeqSmooth", 100).set("synthSeqRetrigger", 0).mod(1, modSeq, targetWaveA, 40).mod(2, modSeq, targetWaveB, -30)
+            .set("synthAmpAttack", 1200).set("synthAmpSustain", 90).set("synthAmpRelease", 2500).set("synthFilterType", 0).set("synthCutoff", 3000)
+            .set("synthFxPhaserOn", 1).set("synthFxPhaserRate", .15f).set("synthFxPhaserMix", 35).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 6).set("synthFxReverbMix", 35).mod(3, modMacro1, targetCutoff, 50)),
+        // Pluck
+        make("Bell Pluck", "Pluck", B().set("synthType", float(synthImpact)).set("synthCharacter", 30).set("synthOscATable", 4).set("synthOscAWave", .8f).set("synthOscALevel", 60).set("synthModEnvDecay", 350).mod(1, modEnv2, targetWaveA, 40)
+            .set("synthFilterOn", 0).set("synthAmpAttack", 1).set("synthAmpDecay", 900).set("synthAmpSustain", 0).set("synthAmpRelease", 900)
+            .set("synthFxDelayOn", 1).set("synthFxDelaySync", 4).set("synthFxDelayPingPong", 1).set("synthFxDelayFeedback", 35).set("synthFxDelayMix", 25).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 2.5f).set("synthFxReverbMix", 20)
+            .mod(2, modMacro1, targetWaveA, 50).mod(3, modVelocity, targetWaveA, 20)),
+        make("Bit Pluck", "Pluck", B().set("synthType", float(synthAnalog)).set("synthCharacter", 20).set("synthOscATable", 8).set("synthOscAWave", 2).set("synthOscALevel", 65).set("synthFilterType", 1).set("synthCutoff", 1200).set("synthResonance", 25)
+            .set("synthFilterEnv", 60).set("synthModEnvDecay", 200).set("synthAmpAttack", 1).set("synthAmpDecay", 400).set("synthAmpSustain", 0).set("synthAmpRelease", 250)
+            .set("synthDistOn", 1).set("synthDistType", 5).set("synthDistPlace", float(synthDistBeforeFilters)).set("synthDistDrive", 50).set("synthDistMix", 50)
+            .set("synthFxDelayOn", 1).set("synthFxDelaySync", 6).set("synthFxDelayFeedback", 30).set("synthFxDelayMix", 20).mod(1, modMacro1, targetWaveA, 50).mod(2, modMacro2, targetDistDrive, 40)),
+        make("Comb Pluck", "Pluck", B().set("synthType", float(synthAnalog)).set("synthCharacter", 0).set("synthOscAWave", 2).set("synthOscALevel", 25).set("synthNoiseOn", 1).set("synthNoiseLevel", 50).set("synthNoiseColor", 80)
+            .set("synthFilterType", 0).set("synthCutoff", 4000).set("synthFilterEnv", 40).set("synthModEnvDecay", 120).set("synthFilter2On", 1).set("synthFilter2Type", float(synthFilterCombPlus)).set("synthFilter2Cutoff", 262)
+            .set("synthFilter2Resonance", 90).set("synthFilter2KeyTrack", 100).set("synthAmpAttack", 1).set("synthAmpDecay", 1500).set("synthAmpSustain", 0).set("synthAmpRelease", 600)
+            .mod(1, modEnv2, targetNoiseLevel, 40).mod(2, modMacro1, targetResonance2, -50).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 1.5f).set("synthFxReverbMix", 15)),
+        // Keys
+        make("Drawbar Keys", "Keys", B().set("synthType", float(synthAnalog)).set("synthCharacter", 20).set("synthOscATable", 7).set("synthOscAWave", 2.6f).set("synthOscALevel", 55).set("synthVoices", 8)
+            .set("synthFilterType", 0).set("synthCutoff", 6000).set("synthAmpAttack", 3).set("synthAmpDecay", 100).set("synthAmpSustain", 100).set("synthAmpRelease", 80)
+            .set("synthDistOn", 1).set("synthDistType", 3).set("synthDistPlace", float(synthDistAfterFilters)).set("synthDistDrive", 15).set("synthDistMix", 40)
+            .set("synthFxChorusOn", 1).set("synthFxChorusRate", 3).set("synthFxChorusDepth", 30).set("synthFxChorusMix", 50).mod(1, modMacro1, targetWaveA, 35).mod(2, modMacro2, targetDistDrive, 50)),
+        make("Soft Keys", "Keys", B().set("synthType", float(synthAnalog)).set("synthCharacter", 20).set("synthOscATable", 1).set("synthOscAWave", .8f).set("synthOscALevel", 60).set("synthOscBOn", 1).set("synthOscBWave", 0).set("synthOscBOctave", 1)
+            .set("synthOscBLevel", 20).set("synthVoices", 8).set("synthFilterType", 0).set("synthCutoff", 2500).set("synthFilterEnv", 30).set("synthModEnvDecay", 600).mod(1, modVelocity, targetCutoff, 30)
+            .set("synthAmpAttack", 2).set("synthAmpDecay", 1200).set("synthAmpSustain", 30).set("synthAmpRelease", 400)
+            .set("synthFxChorusOn", 1).set("synthFxChorusMix", 30).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 1.5f).set("synthFxReverbMix", 15).mod(2, modMacro1, targetWaveA, 40)),
+        // FX
+        make("Step Sweep", "FX", B().set("synthType", float(synthDynamic)).set("synthCharacter", 30).set("synthOscATable", 6).set("synthOscAWave", 1).set("synthOscALevel", 85)
+            .steps({-100, 60, 0, 100, -40, 20, 80, -80, 40, -20, 100, 0, -60, 60, 20, -100}).set("synthSeqRate", 4).set("synthSeqSmooth", 30).mod(1, modSeq, targetWaveA, 50).mod(2, modSeq, targetCutoff, 35)
+            .set("synthFilterType", 1).set("synthCutoff", 1200).set("synthResonance", 40).set("synthFxPhaserOn", 1).set("synthFxPhaserMix", 40)
+            .set("synthFxDelayOn", 1).set("synthFxDelaySync", 5).set("synthFxDelayPingPong", 1).set("synthFxDelayFeedback", 55).set("synthFxDelayMix", 35).mod(3, modMacro1, targetResonance, 40)),
+        make("Storm Drone", "FX", B().set("synthType", float(synthDynamic)).set("synthCharacter", 60).set("synthOscATable", 9).set("synthOscAWave", 2).set("synthOscALevel", 38).set("synthOscAOctave", -1)
+            .set("synthOscBOn", 1).set("synthOscBTable", 4).set("synthOscBWave", 1.5f).set("synthOscBFine", 9).set("synthOscBLevel", 25).set("synthNoiseOn", 1).set("synthNoiseLevel", 25).set("synthNoiseColor", 40)
+            .set("synthFilterType", 0).set("synthCutoff", 1800).set("synthFilter2On", 1).set("synthFilter2Type", 4).set("synthFilter2Cutoff", 900).set("synthFilter2Resonance", 50).set("synthFilterRouting", 1)
+            .set("synthLfo1Rate", .07f).set("synthLfo2Shape", 4).set("synthLfo2Rate", 6).mod(1, modLfo1, targetWaveB, 40).mod(2, modLfo2, targetCutoff2, 25)
+            .set("synthAmpAttack", 1500).set("synthAmpSustain", 100).set("synthAmpRelease", 4000).set("synthFxReverbOn", 1).set("synthFxReverbDecay", 9).set("synthFxReverbMix", 45).mod(3, modMacro1, targetNoiseLevel, 50)),
+    };
+}
+// Every factory preset: Init and the three engine patches first (their places are fixed), then the rest.
+inline std::vector<SynthPatch> synthPatches() {
+    auto all = synthEnginePatches();
+    for (auto& preset : synthFactoryPresets()) all.push_back(std::move(preset));
+    return all;
 }
 // A patch never changes these: switching, routing and level, and each
 // oscillator's sample root (it belongs to the loaded sample).
