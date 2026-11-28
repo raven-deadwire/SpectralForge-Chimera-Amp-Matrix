@@ -119,6 +119,11 @@ void everythingOnStaysBounded(){
         // design. It keeps running, without repeats; its tails are checked in
         // ChimeraSignalOrderTests.
         set(*p,"slot2_delayfeedback",0);set(*p,"slot3_delayfeedback",0);set(*p,"slot4_delayfeedback",0);   // slots 3 and 4 likewise (docs/POST_FOUR_SLOTS.md)
+        // The SYNTH effect rack (docs/SYNTH_EFFECTS.md) likewise: its delay can be
+        // set to 95 % feedback and its reverb to 12 s, which by design take
+        // longer than 4 s to fall 60 dB. Both stay on, without repeats and at
+        // a 1 s decay; their tails are measured in ChimeraSynthTests.
+        set(*p,"synthFxDelayFeedback",0);set(*p,"synthFxReverbDecay",1);
         // Slots 3 and 4 (docs/POST_FOUR_SLOTS.md) are checked in two steps.
         // With them on, the output must stay finite and under the ceiling.
         // The decay check then runs without them: the released reverbs keep
